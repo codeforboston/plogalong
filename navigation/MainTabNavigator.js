@@ -1,60 +1,82 @@
 import React from 'react';
-import { Platform } from 'react-native';
+import { Image } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 
-import TabBarIcon from '../components/TabBarIcon';
-import HomeScreen from '../screens/HomeScreen';
-import LinksScreen from '../screens/LinksScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import PlogScreen from '../screens/PlogScreen';
+import HistoryScreen from '../screens/HistoryScreen';
+import LocalScreen from '../screens/LocalScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import MoreScreen from '../screens/MoreScreen';
 
-const HomeStack = createStackNavigator({
-  Home: HomeScreen,
+const Plog = createStackNavigator({
+  Links: PlogScreen,
 });
 
-HomeStack.navigationOptions = {
-  tabBarLabel: 'Home',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={
-        Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
-      }
+Plog.navigationOptions = {
+  tabBarLabel: 'Plog',
+  tabBarIcon: () => (
+    <Image
+      source={require('../assets/images/plog.png')}
     />
   ),
 };
 
-const LinksStack = createStackNavigator({
-  Links: LinksScreen,
+const History = createStackNavigator({
+  Links: HistoryScreen,
 });
 
-LinksStack.navigationOptions = {
-  tabBarLabel: 'Links',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
+History.navigationOptions = {
+  tabBarLabel: 'History',
+  tabBarIcon: () => (
+    <Image
+      source={require('../assets/images/history.png')}
     />
   ),
 };
 
-const SettingsStack = createStackNavigator({
-  Settings: SettingsScreen,
+const Local = createStackNavigator({
+  Links: LocalScreen,
 });
 
-SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
+Local.navigationOptions = {
+  tabBarLabel: 'Local',
+  tabBarIcon: () => (
+    <Image
+      source={require('../assets/images/local.png')}
+    />
+  ),
+};
+
+const Profile = createStackNavigator({
+  Links: ProfileScreen,
+});
+
+Profile.navigationOptions = {
+  tabBarLabel: 'Profile',
+  tabBarIcon: () => (
+    <Image
+      source={require('../assets/images/profile.png')}
+    />
+  ),
+};
+
+const More = createStackNavigator({
+  Links: MoreScreen,
+});
+
+More.navigationOptions = {
+  tabBarLabel: 'More',
+  tabBarIcon: () => (
+    <Image
+      source={require('../assets/images/more.png')}
     />
   ),
 };
 
 export default createBottomTabNavigator({
-  HomeStack,
-  LinksStack,
-  SettingsStack,
+  Plog,
+  History,
+  Local,
+  Profile,
+  More
 });
