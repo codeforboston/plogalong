@@ -37,7 +37,9 @@
 
     [See here](https://docs.expo.io/versions/v32.0.0/workflow/android-studio-emulator/) for detailed instructions
 
-  - Install Expo: `npm install expo-cli --global`
+  - Install node modules: `npm ci`  
+
+  - Install Expo: `sudo npm install expo-cli --global`
   
   - In a terminal window, navigate to the root directory of your local clone of
     this repository. Type `expo start` to launch Metro bundler and Expo's
