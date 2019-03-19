@@ -17,14 +17,9 @@ import SegmentedControl from '../components/SegmentedControl';
 import { MonoText } from '../components/StyledText';
 
 export default class PlogScreen extends React.Component {
-  static navigationOptions = {
-      headerStyle: {
-          backgroundColor: '#fff',
-          borderBottomColor: 'purple',
-          borderBottomWidth: 4
-      },
-      headerTitle: (<Header text="Plog" icon={require('../assets/images/plog.png')}/>)
-  };
+    /* static navigationOptions = {
+     *     headerTitle: (<Header text="Plog" icon={require('../assets/images/plog.png')}/>)
+     * }; */
 
     static selectedModes = ['Log', 'Flag'];
 

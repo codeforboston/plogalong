@@ -8,70 +8,66 @@ import LocalScreen from '../screens/LocalScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MoreScreen from '../screens/MoreScreen';
 
-const Plog = createStackNavigator({
-  Links: PlogScreen,
+import Header from '../components/Header';
+
+const Icons = {
+    Plog: require('../assets/images/plog.png'),
+    History: require('../assets/images/history.png'),
+    Local: require('../assets/images/local.png'),
+    Profile: require('../assets/images/profile.png'),
+    More: require('../assets/images/more.png'),
+}
+
+const makeTabNavigationOptions = ({navigation}) => ({
+    tabBarLabel: navigation.state.routeName,
+    tabBarIcon: (<Image source={Icons[navigation.state.routeName]} />),
+
 });
 
-Plog.navigationOptions = {
-  tabBarLabel: 'Plog',
-  tabBarIcon: () => (
-    <Image
-      source={require('../assets/images/plog.png')}
-    />
-  ),
+const makeStackNavigationOptions = ({navigation}) => ({
+    headerTitle: (<Header text={navigation.state.routeName}
+                          icon={Icons[navigation.state.routeName]} />),
+    headerStyle: {
+        backgroundColor: '#fff',
+        borderBottomColor: 'purple',
+        borderBottomWidth: 4
+    }
+});
+
+const sharedStackOptions = {
+    defaultNavigationOptions: makeStackNavigationOptions
 };
+
+const Plog = createStackNavigator({
+  Plog: PlogScreen,
+}, {...sharedStackOptions});
+
+Plog.navigationOptions = makeTabNavigationOptions;
 
 const History = createStackNavigator({
-  Links: HistoryScreen,
-});
+    History: HistoryScreen,
+}, {...sharedStackOptions});
 
-History.navigationOptions = {
-  tabBarLabel: 'History',
-  tabBarIcon: () => (
-    <Image
-      source={require('../assets/images/history.png')}
-    />
-  ),
-};
+History.navigationOptions = makeTabNavigationOptions;
 
 const Local = createStackNavigator({
-  Links: LocalScreen,
-});
+    Local: LocalScreen,
+}, {...sharedStackOptions});
 
-Local.navigationOptions = {
-  tabBarLabel: 'Local',
-  tabBarIcon: () => (
-    <Image
-      source={require('../assets/images/local.png')}
-    />
-  ),
-};
+Local.navigationOptions = makeTabNavigationOptions;
 
 const Profile = createStackNavigator({
-  Links: ProfileScreen,
-});
+    Profile: ProfileScreen,
+}, {...sharedStackOptions});
 
-Profile.navigationOptions = {
-  tabBarLabel: 'Profile',
-  tabBarIcon: () => (
-    <Image
-      source={require('../assets/images/profile.png')}
-    />
-  ),
-};
+Profile.navigationOptions = makeTabNavigationOptions;
 
 const More = createStackNavigator({
-  Links: MoreScreen,
-});
+    More: MoreScreen,
+}, {...sharedStackOptions});
 
-More.navigationOptions = {
-  tabBarLabel: 'More',
-  tabBarIcon: () => (
-    <Image
-      source={require('../assets/images/more.png')}
-    />
-  ),
-};
+More.navigationOptions = makeTabNavigationOptions;
+
 
 export default createBottomTabNavigator({
   Plog,
