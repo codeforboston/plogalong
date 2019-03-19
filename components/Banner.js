@@ -5,6 +5,8 @@ import {
     View,
 } from 'react-native';
 
+import Colors from '../constants/Colors';
+
 
 const Banner = (props) => (
     <View>
@@ -19,8 +21,8 @@ export default Banner;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#faedce',
-        borderColor: '#c2c1ba',
+        backgroundColor: Colors.bannerBackground,
+        borderColor: Colors.borderColor,
         borderWidth: 1,
         marginLeft: 20,
         marginRight: 20,

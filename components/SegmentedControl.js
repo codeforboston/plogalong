@@ -7,6 +7,8 @@ import {
     View,
 } from 'react-native';
 
+import Colors from '../constants/Colors';
+
 let SegmentedControl;
 
 console.log(Platform.OS);
@@ -17,6 +19,7 @@ if (Platform.OS === 'ios') {
                                  if (onChange)
                                      onChange(e.nativeEvent.selectedSegmentIndex);
                              }}
+                             tintColor={Colors.selectionColor}
                              style={styles.segmentedControl}
         />
     );
