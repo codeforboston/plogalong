@@ -38,7 +38,9 @@ export default class PlogScreen extends React.Component {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-             <Banner></Banner>
+            <Banner>
+                Hello, world!
+            </Banner>
 
             <SegmentedControl selectedIndex={0}
                               values={PlogScreen.selectedModes}
