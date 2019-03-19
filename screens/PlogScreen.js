@@ -17,11 +17,7 @@ import SegmentedControl from '../components/SegmentedControl';
 import { MonoText } from '../components/StyledText';
 
 export default class PlogScreen extends React.Component {
-    /* static navigationOptions = {
-     *     headerTitle: (<Header text="Plog" icon={require('../assets/images/plog.png')}/>)
-     * }; */
-
-    static selectedModes = ['Log', 'Flag'];
+    static modes = ['Log', 'Flag'];
 
     constructor(props) {
         super(props);
@@ -30,7 +26,8 @@ export default class PlogScreen extends React.Component {
         };
     }
 
-    changeMode(idx) {
+    changeMode = (idx) => {
+        console.log('changed selection:', idx);
         this.setState({ selectedMode: idx });
     }
 
@@ -42,9 +39,9 @@ export default class PlogScreen extends React.Component {
                 Hello, world!
             </Banner>
 
-            <SegmentedControl selectedIndex={0}
-                              values={PlogScreen.selectedModes}
-                              onChange={(e) => this.changeMode(e.index) }
+            <SegmentedControl selectedIndex={this.state.selectedMode}
+                              values={PlogScreen.modes}
+                              onChange={this.changeMode}
             />
 
             <Map/>
