@@ -11,10 +11,16 @@ import {
 import { WebBrowser } from 'expo';
 
 import Banner from '../components/Banner';
+import Button from '../components/Button';
 import Header from '../components/Header';
 import Map from '../components/Map';
 import SegmentedControl from '../components/SegmentedControl';
+import Selectable from '../components/Selectable';
 import { MonoText } from '../components/StyledText';
+
+import Options from '../constants/Options';
+
+const {trashTypes} = Options;
 
 export default class PlogScreen extends React.Component {
     static modes = ['Log', 'Flag'];
@@ -45,6 +51,12 @@ export default class PlogScreen extends React.Component {
             />
 
             <Map/>
+
+            <Selectable selection={['trash']}>
+                {trashTypes.map(type => (
+                    <Button title={type.title} value={type.value} icon={type.icon} key={type.value} />
+                ))}
+            </Selectable>
         </ScrollView>
       </View>
     );
