@@ -5,6 +5,7 @@ export default {
     selectionColor: '#8354c5',
     secondaryColor: '#6cbc51',
     borderColor: '#c2c1ba',
+    activeColor: '#8557C7',
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,

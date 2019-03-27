@@ -60,7 +60,8 @@ export default class Button extends React.Component {
                                       accessibilityRole="button"
                                       accessibilityState={selected ? ['selected'] : null}
                                       onPressIn={this.onPressIn}
-                                      onPressOut={this.onPressOut}>
+                                      onPressOut={this.onPressOut}
+                                      {...props}>
                 {this.renderContent()}
             </TouchableWithoutFeedback>
         );

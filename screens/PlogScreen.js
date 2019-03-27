@@ -20,21 +20,37 @@ import { MonoText } from '../components/StyledText';
 
 import Options from '../constants/Options';
 
+import {connect} from 'react-redux';
+import * as actions from '../redux/actions';
+
 const {trashTypes} = Options;
 
-export default class PlogScreen extends React.Component {
+class PlogScreen extends React.Component {
     static modes = ['Log', 'Flag'];
 
     constructor(props) {
         super(props);
         this.state = {
-            selectedMode: 0
+            selectedMode: 0,
+            selection: ['trash']
         };
     }
 
     changeMode = (idx) => {
         console.log('changed selection:', idx);
         this.setState({ selectedMode: idx });
+    }
+
+    logPlog = () => {
+        const plog = {
+            location: {},
+            when: new Date(),
+            trashTypes: this.state.selection,
+            activity: 'swimming/biking',
+            groupType: 'dog'
+        };
+        console.log('Plogged:', plog);
+        this.props.logPlog(plog);
     }
 
   render() {
@@ -52,11 +68,14 @@ export default class PlogScreen extends React.Component {
 
             <Map/>
 
-            <Selectable selection={['trash']}>
+            <Selectable selection={this.state.selection}>
                 {trashTypes.map(type => (
                     <Button title={type.title} value={type.value} icon={type.icon} key={type.value} />
                 ))}
             </Selectable>
+
+            <Button title="Log" onPress={this.logPlog} />
+
         </ScrollView>
       </View>
     );
@@ -71,4 +90,17 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingTop: 30,
   },
+
+    photoStrip: {
+        flexDirection: 'row',
+    }
 });
+
+const PlogScreenContainer = connect(null,
+                                    (dispatch) => ({
+                                        logPlog(plogInfo) {
+                                            dispatch(actions.logPlog(plogInfo));
+                                        }
+                                    }))(PlogScreen)
+
+export default PlogScreenContainer;
