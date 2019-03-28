@@ -1,19 +1,15 @@
 import React from 'react';
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
 } from 'react-native';
 
 import {connect} from 'react-redux';
-import * as actions from '../redux/actions';
 
 const Plog = ({plogInfo}) => (
     <Text>
-        You picked up {plogInfo.trashTypes.join(', ')} at {plogInfo.when.toString()}
+        You picked up {plogInfo.get('trashTypes').join(', ')} at {plogInfo.get('when').toString()}
     </Text>
 );
 
@@ -37,5 +33,5 @@ const styles = StyleSheet.create({
 
 
 export default connect(store => ({
-    history: store.log.history
+    history: store.log.get('history')
 }))(HistoryScreen);
