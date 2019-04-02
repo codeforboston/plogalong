@@ -23,7 +23,8 @@ import Options from '../constants/Options';
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
 
-const {trashTypes} = Options;
+const {trashTypes, activities} = Options;
+
 
 class PlogScreen extends React.Component {
     static modes = ['Log', 'Flag'];
@@ -71,6 +72,12 @@ class PlogScreen extends React.Component {
             <Selectable selection={this.state.selection}>
                 {trashTypes.map(type => (
                     <Button title={type.title} value={type.value} icon={type.icon} key={type.value} />
+                ))}
+            </Selectable>
+
+            <Selectable selection={this.state.selection}>
+                {activities.map(type => (
+                    <Button title={type.title} value={type.title} icon={type.icon} key={type.title} />
                 ))}
             </Selectable>
 
