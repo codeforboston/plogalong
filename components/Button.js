@@ -30,8 +30,21 @@ export default class Button extends React.Component {
     }
 
     renderContent() {
-        const {icon, title, selected, style, ...props} = this.props,
+        const {icon, activeIcon, title, selected, selectedIcon, style, ...props} = this.props,
               {active} = this.state;
+
+        if (icon) {
+            const shownIcon = (selected && selectedIcon) || (active && activeIcon) || icon,
+                  iconComponent = typeof shownIcon === 'function' ?
+                                  React.createElement(shownIcon, {style: styles.iconStyles}) :
+                                  React.cloneElement(shownIcon, {style: [styles.iconStyles, shownIcon.props.styles]});
+
+            return (
+                <View style={[styles.button, styles.iconButton, active && styles.active, selected && styles.selected, style]}>
+                    {iconComponent}
+                </View>
+            );
+        }
 
         if (title) {
             return (
@@ -39,14 +52,6 @@ export default class Button extends React.Component {
                               selected && styles.selected, style]}>
                     {title}
                 </Text>
-            );
-        }
-
-        if (icon) {
-            return (
-                <Image style={[styles.button, styles.icon, active && styles.active,
-                               selected && styles.selected, style]}
-                       accessibilityIgnoresInvertColors={this.props.accessibilityIgnoresInvertColors}/>
             );
         }
     }
@@ -78,6 +83,11 @@ const styles = StyleSheet.create({
         padding: 5,
     },
 
+    iconButton: {
+        width: 50,
+        height: 50
+    },
+
     buttonText: {
         textAlign: 'center'
     },
@@ -89,5 +99,9 @@ const styles = StyleSheet.create({
     active: {
         backgroundColor: '#cccccc',
         borderColor: Colors.activeColor
+    },
+
+    iconStyles: {
+        flex: 1
     }
 });
