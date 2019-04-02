@@ -37,7 +37,8 @@
 
     [See here](https://docs.expo.io/versions/v32.0.0/workflow/android-studio-emulator/) for detailed instructions
 
-  - Install node modules: `npm ci`  
+  - Install node modules: `yarn` 
+  (NOTE: Do NOT use `npm install` or `npm ci` as packages like react-native-svg-transformer are not managed through npm and this results in conflicting dependencies and there by in errors)
 
   - Install Expo: `sudo npm install expo-cli --global`
   
