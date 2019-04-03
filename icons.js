@@ -3,7 +3,7 @@
 import Walk from './assets/svg/004-walk-2.svg';
 import Teacher from './assets/svg/005-teacher.svg';
 import Dog from './assets/svg/006-dog.svg';
-import Walking from './assets/svg/007-walking.svg';
+import Couple from './assets/svg/007-walking.svg';
 // import Dog from './assets/svg/008-dog-1.svg';
 import Multiple from './assets/svg/009-multiple-users-silhouette.svg';
 import Family from './assets/svg/010-family-group-of-three.svg';
@@ -22,4 +22,4 @@ import Track from './assets/svg/022-track.svg';
 import User from './assets/svg/023-user.svg';
 import Backpacker from './assets/svg/backpacker.svg';
 
-export default {Walk, Teacher, Dog, Walking, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker};
+export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker};

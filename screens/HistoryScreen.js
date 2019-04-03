@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    Text,
 } from 'react-native';
 
 import {connect} from 'react-redux';
@@ -17,9 +18,10 @@ class HistoryScreen extends React.Component {
   render() {
     return (
         <ScrollView style={styles.container}>
-            {this.props.history.map((plogInfo, i) => (
-                <Plog plogInfo={plogInfo} key={i} />
-            ))}
+            <FlatList data={this.props.history.toArray()}
+                      renderItem={({item}) => (<Plog plogInfo={item} />)}
+                      keyExtractor={(_, i) => ''+i}>
+            </FlatList>
         </ScrollView>
     );
   }

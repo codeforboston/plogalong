@@ -1,14 +1,15 @@
 import React from 'react';
 import {
+    Alert,
   Image,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { WebBrowser } from 'expo';
+
+import { Set } from 'immutable';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
@@ -22,8 +23,6 @@ import Options from '../constants/Options';
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
 
-const {trashTypes, activities} = Options;
-
 
 class PlogScreen extends React.Component {
     static modes = ['Log', 'Flag'];
@@ -32,12 +31,13 @@ class PlogScreen extends React.Component {
         super(props);
         this.state = {
             selectedMode: 0,
-            selection: ['trash']
+            trashTypes: Set([]),
+            activityType: ['walking'],
+            groupType: ['alone']
         };
     }
 
     changeMode = (idx) => {
-        console.log('changed selection:', idx);
         this.setState({ selectedMode: idx });
     }
 
@@ -45,15 +45,45 @@ class PlogScreen extends React.Component {
         const plog = {
             location: {},
             when: new Date(),
-            trashTypes: this.state.selection,
-            activity: 'swimming/biking',
-            groupType: 'dog'
+            trashTypes: this.state.trashTypes,
+            activityType: this.state.activityType[0],
+            groupType: this.state.groupType[0]
         };
-        console.log('Plogged:', plog);
         this.props.logPlog(plog);
+        Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
+        this.setState({
+            trashTypes: Set([]),
+            activityType: ['walking'],
+            groupType: ['alone']
+        });
+    }
+
+    toggleTrashType = (trashType) => {
+        this.setState(({trashTypes}) => ({
+            trashTypes: trashTypes.has(trashType) ? trashTypes.delete(trashType) : trashTypes.add(trashType)
+        }));
+    }
+
+    selectActivityType = (activity) => {
+        this.setState(state => ({
+            activityType: [activity]
+        }));
+    }
+
+    selectGroupType = (group) => {
+        console.log('selectGroupType', group);
+        this.setState(state => ({
+            groupType: [group]
+        }));
     }
 
   render() {
+      const {state} = this,
+            typesCount = state.trashTypes.size,
+            cleanedUp = typesCount > 1 ? `${typesCount} selected` :
+                                     typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
+            activityName = Options.activities.get(state.activityType[0]).title;
+
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -61,28 +91,37 @@ class PlogScreen extends React.Component {
                 Hello, world!
             </Banner>
 
-            <SegmentedControl selectedIndex={this.state.selectedMode}
+            <SegmentedControl selectedIndex={state.selectedMode}
                               values={PlogScreen.modes}
                               onChange={this.changeMode}
             />
 
             <Map/>
 
-            <Question question="What did you clean up?" answer="something" />
-            <Selectable selection={this.state.selection}>
-                {trashTypes.map(type => (
-                    <Button title={type.title} value={type.value} icon={type.icon} key={type.value} />
+            <Question question="What did you clean up?" answer={cleanedUp}/>
+            <Selectable selection={state.trashTypes} >
+                {Array.from(Options.trashTypes).map(([value, type]) => (
+                    <Button title={type.title} value={value} icon={type.icon} key={value}
+                            onPress={() => this.toggleTrashType(value)}
+                    />
                 ))}
             </Selectable>
 
-            <Question question="What were you up to?" answer="Walking" />
-            <Selectable selection={this.state.selection}>
-                {activities.map(type => (
-                    <Button title={type.title} value={type.title} icon={type.icon} key={type.title} />
+            <Question question="What were you up to?" answer={activityName}/>
+            <Selectable selection={state.activityType}>
+                {Array.from(Options.activities).map(([value, type]) => (
+                    <Button title={type.title} value={value} icon={type.icon} key={value}
+                            onPress={() => this.selectActivityType(value)} />
                 ))}
             </Selectable>
 
             <Question question="Who helped?" answer="I was alone" />
+            <Selectable selection={state.groupType}>
+                {Array.from(Options.groups).map(([value, type]) => (
+                    <Button title={type.title} value={value} icon={type.icon} key={value}
+                            onPress={() => this.selectGroupType(value)} />
+                ))}
+            </Selectable>
 
             <Button title="Log" onPress={this.logPlog} />
 

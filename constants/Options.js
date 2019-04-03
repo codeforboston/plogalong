@@ -1,29 +1,34 @@
 import icons from '../icons';
 
 export default {
-    trashTypes: [
-        {title: 'Trash', value: 'trash'},
-        {title: 'Recycling', value: 'recycling'},
-        {title: 'Bottles', value: 'bottles'},
-        {title: 'Straws', value: 'straws'},
-        {title: 'Plastic Bags', value: 'plastic_bags'},
-        {title: 'Cigarette Butts', value: 'cigarette_butts'},
-        {title: 'Needles', value: 'needles'},
-        {title: 'Glass', value: 'glass'},
-        {title: 'Dog Poop', value: 'dog_poop'},
-        {title: 'Invasive Plants', value: 'invasive_plants'},
-        {title: 'Standing Water', value: 'standing_water', icon: ''},
-    ],
+    trashTypes: new Map([
+        ['trash', {title: 'Trash', value: 'trash'}],
+        ['recycling', {title: 'Recycling', value: 'recycling'}],
+        ['bottles', {title: 'Bottles', value: 'bottles'}],
+        ['straws', {title: 'Straws', value: 'straws'}],
+        ['plastic_bags', {title: 'Plastic Bags', value: 'plastic_bags'}],
+        ['cigarette_butts', {title: 'Cigarette Butts', value: 'cigarette_butts'}],
+        ['needles', {title: 'Needles', value: 'needles'}],
+        ['glass', {title: 'Glass', value: 'glass'}],
+        ['dog_poop', {title: 'Dog Poop', value: 'dog_poop'}],
+        ['invasive_plants', {title: 'Invasive Plants', value: 'invasive_plants'}],
+        ['standing_water', {title: 'Standing Water', value: 'standing_water', icon: ''}],
+    ]),
 
-    activities: [
-        {title: 'walking', icon: icons.Walk},
-        {title: 'running', icon: icons.Running},
-        {title: 'hiking', icon: icons.Backpacker},
-        {title: 'biking', icon: icons.Bike},
-        {title: 'swimming', icon: icons.Swimmer},
-        {title: 'canoeing', icon: icons.Canoe}
-    ],
+    activities: new Map([
+        ['walking', {title: 'Walking', icon: icons.Walk}],
+        ['running', {title: 'Running', icon: icons.Running}],
+        ['hiking', {title: 'Hiking', icon: icons.Backpacker}],
+        ['biking', {title: 'Biking', icon: icons.Bike}],
+        ['swimming', {title: 'Swimming', icon: icons.Swimmer}],
+        ['canoeing', {title: 'Canoeing', icon: icons.Canoe}]
+    ]),
 
-    group: [
-    ]
+    groups: new Map([
+        ['alone', {title: 'I was alone', icon: icons.Walk}],
+        ['dog', {title: 'my dog', icon: icons.Dog}],
+        ['teacher', {title: 'a child', icon: icons.Teacher}],
+        ['friend', {title: 'a friend', icon: icons.Couple}],
+        ['team', {title: 'a team', icon: icons.Team}]
+    ])
 };
