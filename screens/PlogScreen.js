@@ -12,18 +12,18 @@ import { WebBrowser } from 'expo';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
-import Header from '../components/Header';
 import Map from '../components/Map';
+import Question from '../components/Question';
 import SegmentedControl from '../components/SegmentedControl';
 import Selectable from '../components/Selectable';
-import { MonoText } from '../components/StyledText';
 
 import Options from '../constants/Options';
 
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
 
-const {trashTypes} = Options;
+const {trashTypes, activities} = Options;
+
 
 class PlogScreen extends React.Component {
     static modes = ['Log', 'Flag'];
@@ -68,11 +68,21 @@ class PlogScreen extends React.Component {
 
             <Map/>
 
+            <Question question="What did you clean up?" answer="something" />
             <Selectable selection={this.state.selection}>
                 {trashTypes.map(type => (
                     <Button title={type.title} value={type.value} icon={type.icon} key={type.value} />
                 ))}
             </Selectable>
+
+            <Question question="What were you up to?" answer="Walking" />
+            <Selectable selection={this.state.selection}>
+                {activities.map(type => (
+                    <Button title={type.title} value={type.title} icon={type.icon} key={type.title} />
+                ))}
+            </Selectable>
+
+            <Question question="Who helped?" answer="I was alone" />
 
             <Button title="Log" onPress={this.logPlog} />
 

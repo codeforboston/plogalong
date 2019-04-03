@@ -1,3 +1,5 @@
+import icons from '../icons';
+
 export default {
     trashTypes: [
         {title: 'Trash', value: 'trash'},
@@ -11,5 +13,17 @@ export default {
         {title: 'Dog Poop', value: 'dog_poop'},
         {title: 'Invasive Plants', value: 'invasive_plants'},
         {title: 'Standing Water', value: 'standing_water', icon: ''},
+    ],
+
+    activities: [
+        {title: 'walking', icon: icons.Walk},
+        {title: 'running', icon: icons.Running},
+        {title: 'hiking', icon: icons.Backpacker},
+        {title: 'biking', icon: icons.Bike},
+        {title: 'swimming', icon: icons.Swimmer},
+        {title: 'canoeing', icon: icons.Canoe}
+    ],
+
+    group: [
     ]
 };
