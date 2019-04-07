@@ -19,6 +19,7 @@ import SegmentedControl from '../components/SegmentedControl';
 import Selectable from '../components/Selectable';
 
 import Options from '../constants/Options';
+import Colors from '../constants/Colors';
 
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
@@ -123,7 +124,7 @@ class PlogScreen extends React.Component {
                 ))}
             </Selectable>
 
-            <Button title="Log" onPress={this.logPlog} />
+            <Button title="Log" onPress={this.logPlog} style={styles.activeButton} />
 
         </ScrollView>
       </View>
@@ -142,7 +143,17 @@ const styles = StyleSheet.create({
 
     photoStrip: {
         flexDirection: 'row',
+    },
+    activeButton: {
+        backgroundColor: Colors.secondaryColor,
+        color: 'white',
+        marginLeft: 40,
+        marginRight: 40,
+        paddingTop: 10,
+        paddingBottom: 10,
+        overflow: 'hidden',
     }
+
 });
 
 const PlogScreenContainer = connect(null,
