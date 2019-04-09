@@ -18,7 +18,10 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "ABC"
+      }
     },
     "packagerOpts": {
       "config": "metro.config.js"
