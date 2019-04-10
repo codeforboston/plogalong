@@ -43,8 +43,9 @@ class PlogScreen extends React.Component {
     }
 
     onSubmit = () => {
+        const {latitude, longitude} = this.state.location.coords;
         const plog = {
-            location: {},
+            location: {lat: latitude, lng: longitude, name: 'beach'},
             when: new Date(),
             pickedUp: PlogScreen.modes[this.state.selectedMode] === 'Log',
             trashTypes: this.state.trashTypes,
