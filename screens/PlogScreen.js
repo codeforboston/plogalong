@@ -56,8 +56,7 @@ class PlogScreen extends React.Component {
         Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
         this.setState({
             trashTypes: Set([]),
-            activityType: ['walking'],
-            groupType: ['alone']
+            selectedMode: 0
         });
     }
 
