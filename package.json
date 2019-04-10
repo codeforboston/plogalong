@@ -14,6 +14,7 @@
     "@expo/samples": "2.1.1",
     "expo": "^32.0.0",
     "immutable": "^4.0.0-rc.12",
+    "momentjs": "^2.0.0",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-navigation": "^3.0.9",
