@@ -1,13 +1,10 @@
 import React from 'react';
 import {
     Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    ScrollView,
+    StyleSheet,
+    View,
 } from 'react-native';
-import { WebBrowser } from 'expo';
 
 import { Set } from 'immutable';
 
