@@ -5,17 +5,19 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
+import { MapView, Constants, Location, Permissions } from 'expo';
+import { Marker } from 'react-native-maps';
 
 import { Set } from 'immutable';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
-import Map from '../components/Map';
 import Question from '../components/Question';
 import SegmentedControl from '../components/SegmentedControl';
 import Selectable from '../components/Selectable';
 
 import Options from '../constants/Options';
+import Colors from '../constants/Colors';
 
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
@@ -38,10 +40,12 @@ class PlogScreen extends React.Component {
         this.setState({ selectedMode: idx });
     }
 
-    logPlog = () => {
+    onSubmit = () => {
+        const {latitude, longitude} = this.state.location.coords;
         const plog = {
-            location: {},
+            location: {lat: latitude, lng: longitude, name: 'beach'},
             when: new Date(),
+            pickedUp: PlogScreen.modes[this.state.selectedMode] === 'Log',
             trashTypes: this.state.trashTypes,
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0]
@@ -50,8 +54,7 @@ class PlogScreen extends React.Component {
         Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
         this.setState({
             trashTypes: Set([]),
-            activityType: ['walking'],
-            groupType: ['alone']
+            selectedMode: 0
         });
     }
 
@@ -74,6 +77,15 @@ class PlogScreen extends React.Component {
         }));
     }
 
+    async componentDidMount() {
+        let { status } = await Permissions.askAsync(Permissions.LOCATION);
+        if (status === 'granted') {
+            let location = await Location.getCurrentPositionAsync({});
+
+            this.setState({ location });
+        }
+    }
+
   render() {
       const {state} = this,
             typesCount = state.trashTypes.size,
@@ -93,7 +105,17 @@ class PlogScreen extends React.Component {
                               onChange={this.changeMode}
             />
 
-            <Map/>
+            <MapView
+                style={[styles.map]}
+                initialRegion={{
+                    latitude: 42.387,
+                    longitude: -71.0995,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.04,
+                }}
+                followsUserLocation={true}
+                showsUserLocation={true}
+            />
 
             <Question question="What did you clean up?" answer={cleanedUp}/>
             <Selectable selection={state.trashTypes} >
@@ -120,7 +142,9 @@ class PlogScreen extends React.Component {
                 ))}
             </Selectable>
 
-            <Button title="Log" onPress={this.logPlog} />
+            <Button title={PlogScreen.modes[this.state.selectedMode]}
+                    onPress={this.onSubmit} 
+                    style={styles.activeButton} />
 
         </ScrollView>
       </View>
@@ -139,7 +163,24 @@ const styles = StyleSheet.create({
 
     photoStrip: {
         flexDirection: 'row',
-    }
+    },
+    activeButton: {
+        backgroundColor: Colors.secondaryColor,
+        color: 'white',
+        marginLeft: 40,
+        marginRight: 40,
+        paddingTop: 10,
+        paddingBottom: 10,
+        overflow: 'hidden',
+    },
+    map: {
+        borderColor: Colors.borderColor,
+        borderWidth: 1,
+        flex: 1,
+        height: 300,
+        margin: 5
+    },
+
 });
 
 const PlogScreenContainer = connect(null,
