@@ -42,10 +42,11 @@ class PlogScreen extends React.Component {
         this.setState({ selectedMode: idx });
     }
 
-    logPlog = () => {
+    onSubmit = () => {
         const plog = {
             location: {},
             when: new Date(),
+            pickedUp: PlogScreen.modes[this.state.selectedMode] === 'Log',
             trashTypes: this.state.trashTypes,
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0]
@@ -84,7 +85,6 @@ class PlogScreen extends React.Component {
             let location = await Location.getCurrentPositionAsync({});
 
             this.setState({ location });
-            console.log(location);
         }
     }
 
@@ -144,7 +144,9 @@ class PlogScreen extends React.Component {
                 ))}
             </Selectable>
 
-            <Button title="Log" onPress={this.logPlog} style={styles.activeButton} />
+            <Button title={PlogScreen.modes[this.state.selectedMode]}
+                    onPress={this.onSubmit} 
+                    style={styles.activeButton} />
 
         </ScrollView>
       </View>
