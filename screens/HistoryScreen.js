@@ -5,7 +5,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    View
+    View,
 } from 'react-native';
 import { MapView } from 'expo';
 import { Marker } from 'react-native-maps';
@@ -25,9 +25,9 @@ const Plog = ({plogInfo}) => {
         longitude: plogInfo.getIn(['location', 'lng']),
     };
 
-    // const ActivityIcon = Options.activities.get(
-    //     plogInfo.get('activityType').first()
-    // ).icon;
+    const ActivityIcon = Options.activities.get(
+        plogInfo.get('activityType')
+    ).icon;
 
     return (
         <View>
@@ -55,9 +55,14 @@ const Plog = ({plogInfo}) => {
             >
                 <Marker
                     coordinate={latLng}
-                    // image={ActivityIcon}
                     tracksViewChanges={false}
-                />
+                >
+                    <ActivityIcon
+                        width={40}
+                        height={40}
+                        fill={Colors.activeColor}
+                    />
+                </Marker>
             </MapView>
         </View>
     )
