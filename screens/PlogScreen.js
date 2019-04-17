@@ -1,11 +1,9 @@
 import React from 'react';
 import {
     Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    ScrollView,
+    StyleSheet,
+    View,
 } from 'react-native';
 import { MapView, Constants, Location, Permissions } from 'expo';
 import { Marker } from 'react-native-maps';

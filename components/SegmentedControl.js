@@ -6,38 +6,29 @@ import {
     Text,
     View,
 } from 'react-native';
+import SegmentedControlTab from 'react-native-segmented-control-tab';
 
 import Colors from '../constants/Colors';
 
-let SegmentedControl;
+export default SegmentedControl = ({ onChange, values, selectedIndex }) => (
+    <SegmentedControlTab
+        tabsContainerStyle={styles.segmentedControl}
+        selectedIndex={selectedIndex}
+        values={values}
+        onTabPress={onChange}
+        tabTextStyle={{
+            color: Colors.secondaryColor,
+        }}
+        tabStyle={{
+            borderColor: Colors.secondaryColor,
+        }}
+        activeTabStyle={{
+            backgroundColor: Colors.selectionColor,
+            borderColor: Colors.selectionColor,
+        }}
+    />
+);
 
-console.log(Platform.OS);
-if (Platform.OS === 'ios') {
-    SegmentedControl = ({onChange, ...props}) => (
-        <SegmentedControlIOS {...props}
-                             onChange={(e) => {
-                                 if (onChange)
-                                     onChange(e.nativeEvent.selectedSegmentIndex);
-                             }}
-                             tintColor={Colors.selectionColor}
-                             style={styles.segmentedControl}
-        />
-    );
-} else {
-    /* TODO Android implementation */
-    SegmentedControl = class extends React.Component {
-        render() {
-            return (
-                <View style={styles.segmentedControl}>
-
-                </View>
-            );
-        }
-    }
-}
-
-
-export default SegmentedControl;
 
 const styles = StyleSheet.create({
     segmentedControl: {
