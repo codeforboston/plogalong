@@ -12,6 +12,7 @@ import { Set } from 'immutable';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
+import PlogPhoto from '../components/PlogPhoto';
 import Question from '../components/Question';
 import SegmentedControl from '../components/SegmentedControl';
 import Selectable from '../components/Selectable';
@@ -32,7 +33,8 @@ class PlogScreen extends React.Component {
             selectedMode: 0,
             trashTypes: Set([]),
             activityType: ['walking'],
-            groupType: ['alone']
+            groupType: ['alone'],
+            plogPhotos: [null, null, null, null, null]
         };
     }
 
@@ -62,6 +64,14 @@ class PlogScreen extends React.Component {
         this.setState(({trashTypes}) => ({
             trashTypes: trashTypes.has(trashType) ? trashTypes.delete(trashType) : trashTypes.add(trashType)
         }));
+    }
+
+    addPicture(picture, idx) {
+        this.setState(({plogPhotos}) => {
+            plogPhotos[idx] = picture;
+
+            return { plogPhotos };
+        })
     }
 
     selectActivityType = (activity) => {
@@ -125,6 +135,17 @@ class PlogScreen extends React.Component {
                     />
                 ))}
             </Selectable>
+
+            <View style={{ flex: 1, flexDirection: 'row', marginTop: 10 }}>
+                {
+                    this.state.plogPhotos.map((plogPhoto, idx) => (
+                        <PlogPhoto onPictureSelected={picture => this.addPicture(picture, 0)}
+                                   plogPhoto={plogPhoto}
+                                   key={idx}
+                        />
+                    ))
+                }
+            </View>
 
             <Question question="What were you up to?" answer={activityName}/>
             <Selectable selection={state.activityType}>
