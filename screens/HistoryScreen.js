@@ -5,30 +5,68 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    View
+    View,
 } from 'react-native';
+import { MapView } from 'expo';
+import { Marker } from 'react-native-maps';
 
 import moment from 'moment';
 
 import {connect} from 'react-redux';
+import Colors from '../constants/Colors';
+import Options from '../constants/Options';
 
 import ProfileImage from '../assets/images/profile.png';
 
 
-const Plog = ({plogInfo}) => (
-    <View style={styles.plogStyle}>
-        <Image source={ProfileImage} style={styles.profileImage} />
+const Plog = ({plogInfo}) => {
+    const latLng = {
+        latitude: plogInfo.getIn(['location', 'lat']),
+        longitude: plogInfo.getIn(['location', 'lng']),
+    };
+
+    const ActivityIcon = Options.activities.get(
+        plogInfo.get('activityType')
+    ).icon;
+
+    return (
         <View>
-            <Text styles={styles.actionText}>
-                You {plogInfo.get('pickedUp') ? 'picked up' : 'flagged'}&nbsp;
-                {plogInfo.get('trashTypes').join(', ')} at {JSON.stringify(plogInfo.get('location'))}
-            </Text>
-            <Text styles={styles.timeText}>
-                {moment(plogInfo.get('when')).fromNow()}
-            </Text>
+            <View style={styles.plogStyle}>
+                <Image source={ProfileImage} style={styles.profileImage} />
+                <View>
+                    <Text styles={styles.actionText}>
+                        You {plogInfo.get('pickedUp') ? 'picked up' : 'flagged'}&nbsp;
+                        {plogInfo.get('trashTypes').join(', ')} at {JSON.stringify(plogInfo.get('location'))}
+                    </Text>
+                    <Text styles={styles.timeText}>
+                        {moment(plogInfo.get('when')).fromNow()}
+                    </Text>
+                </View>
+            </View>
+            <MapView
+                style={styles.map}
+                region={{
+                    ...latLng,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.04,
+                }}
+                showsMyLocationButton={false}
+                scrollEnabled={false}
+            >
+                <Marker
+                    coordinate={latLng}
+                    tracksViewChanges={false}
+                >
+                    <ActivityIcon
+                        width={40}
+                        height={40}
+                        fill={Colors.activeColor}
+                    />
+                </Marker>
+            </MapView>
         </View>
-    </View>
-);
+    )
+};
 
 const Divider = () => (
     <View style={styles.divider}></View>
@@ -49,9 +87,6 @@ class HistoryScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    },
     plogStyle: {
         alignItems: 'center',
         flexDirection: 'row',
@@ -69,7 +104,14 @@ const styles = StyleSheet.create({
     },
     timeText: {
 
-    }
+    },
+    map: {
+        borderColor: Colors.borderColor,
+        borderWidth: 1,
+        flex: 1,
+        height: 300,
+        margin: 5
+    },
 });
 
 
