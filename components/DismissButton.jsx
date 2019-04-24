@@ -8,7 +8,13 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const DismissButton = ({color = 'black', title, style, onDismiss, onPress, ...props}) => {
-  const navigation = useNavigation();
+  let navigation;
+
+  try {
+    // We could call useNavigation only when `onPress` is undefined, but because
+    // of how hooks work, best to run it unconditinoally.
+    navigation = useNavigation();
+  } catch (_) {}
 
   if (!onPress)
     onPress = (...args) => {
