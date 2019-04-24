@@ -139,9 +139,10 @@ class PlogScreen extends React.Component {
             <View style={{ flex: 1, flexDirection: 'row', marginTop: 10 }}>
                 {
                     this.state.plogPhotos.map((plogPhoto, idx) => (
-                        <PlogPhoto onPictureSelected={picture => this.addPicture(picture, 0)}
+                        <PlogPhoto onPictureSelected={picture => this.addPicture(picture, idx)}
                                    plogPhoto={plogPhoto}
                                    key={idx}
+                                   navigation={this.props.navigation}
                         />
                     ))
                 }
@@ -164,7 +165,7 @@ class PlogScreen extends React.Component {
             </Selectable>
 
             <Button title={PlogScreen.modes[this.state.selectedMode]}
-                    onPress={this.onSubmit} 
+                    onPress={this.onSubmit}
                     style={styles.activeButton} />
 
         </ScrollView>
