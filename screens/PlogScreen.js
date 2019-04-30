@@ -71,7 +71,7 @@ class PlogScreen extends React.Component {
             plogPhotos[idx] = picture;
 
             return { plogPhotos };
-        })
+        });
     }
 
     selectActivityType = (activity) => {
@@ -140,6 +140,7 @@ class PlogScreen extends React.Component {
                 {
                     this.state.plogPhotos.map((plogPhoto, idx) => (
                         <PlogPhoto onPictureSelected={picture => this.addPicture(picture, idx)}
+                                   onCleared={_ => this.addPicture(null, idx)}
                                    plogPhoto={plogPhoto}
                                    key={idx}
                         />

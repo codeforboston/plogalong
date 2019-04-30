@@ -20,10 +20,19 @@ import CameraSrc from '../assets/images/camera.png';
 
 class PlogPhoto extends React.Component {
     chooseImageSource = () => {
+        const extraOptions = this.props.plogPhoto ?
+              [{text: 'Clear', onPress: this.clearPhoto}] : [];
+
         Alert.alert('title', 'body', [
             {text: 'Camera', onPress: this.takeAndSelectPhoto},
             {text: 'Photo Roll', onPress: this.pickImage},
+            ...extraOptions
         ]);
+    }
+
+    clearPhoto = () => {
+        if (this.props.onCleared)
+            this.props.onCleared();
     }
 
     takeAndSelectPhoto = async () => {
