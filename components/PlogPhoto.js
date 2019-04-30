@@ -3,16 +3,13 @@ import {
     Alert,
     Image,
     StyleSheet,
-    Text,
-    View,
-    TouchableWithoutFeedback
 } from 'react-native';
 
 import {
-    Camera,
     ImagePicker,
-    Permissions,
 } from 'expo';
+
+import { withNavigation } from 'react-navigation';
 
 import Button from './Button';
 
@@ -21,7 +18,7 @@ import Colors from '../constants/Colors';
 import CameraSrc from '../assets/images/camera.png';
 
 
-export default class PlogPhoto extends React.Component {
+class PlogPhoto extends React.Component {
     chooseImageSource = () => {
         Alert.alert('title', 'body', [
             {text: 'Camera', onPress: this.takeAndSelectPhoto},
@@ -81,3 +78,5 @@ const styles = StyleSheet.create({
         marginRight: 5,
     }
 });
+
+export default withNavigation(PlogPhoto);

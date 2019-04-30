@@ -142,7 +142,6 @@ class PlogScreen extends React.Component {
                         <PlogPhoto onPictureSelected={picture => this.addPicture(picture, idx)}
                                    plogPhoto={plogPhoto}
                                    key={idx}
-                                   navigation={this.props.navigation}
                         />
                     ))
                 }
