@@ -169,7 +169,7 @@ class PlogScreen extends React.Component {
                 ))}
             </Selectable>
 
-            <View style={{ flex: 1, flexDirection: 'row', marginTop: 10 }}>
+            <View style={styles.photoStrip}>
                 {
                     this.state.plogPhotos.map((plogPhoto, idx) => (
                         <PlogPhoto onPictureSelected={picture => this.addPicture(picture, idx)}
@@ -203,7 +203,10 @@ const styles = StyleSheet.create({
   },
 
     photoStrip: {
+        flex: 1,
         flexDirection: 'row',
+        marginTop: 10,
+        justifyContent: 'space-around'
     },
     activeButton: {
         backgroundColor: Colors.secondaryColor,
