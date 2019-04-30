@@ -42,12 +42,16 @@ class PlogScreen extends React.Component {
         this.setState({ selectedMode: idx });
     }
 
+    get mode() {
+        return PlogScreen.modes[this.state.selectedMode];
+    }
+
     onSubmit = () => {
         const {latitude, longitude} = this.state.location.coords;
         const plog = {
             location: {lat: latitude, lng: longitude, name: 'beach'},
             when: new Date(),
-            pickedUp: PlogScreen.modes[this.state.selectedMode] === 'Log',
+            pickedUp: this.mode === 'Log',
             trashTypes: this.state.trashTypes,
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0]
@@ -96,12 +100,41 @@ class PlogScreen extends React.Component {
         }
     }
 
+    renderModeQuestions(mode=this.mode) {
+        const {state} = this,
+              activityName = Options.activities.get(state.activityType[0]).title;
+
+        switch (mode) {
+        case 'Log':
+            return (
+                <>
+                  <Question question="What were you up to?" answer={activityName}/>
+                  <Selectable selection={state.activityType}>
+                    {Array.from(Options.activities).map(([value, type]) => (
+                        <Button title={type.title} value={value} icon={type.icon} key={value}
+                                onPress={() => this.selectActivityType(value)} />
+                    ))}
+                  </Selectable>
+
+                  <Question question="Who helped?" answer="I was alone" />
+                  <Selectable selection={state.groupType}>
+                    {Array.from(Options.groups).map(([value, type]) => (
+                        <Button title={type.title} value={value} icon={type.icon} key={value}
+                                onPress={() => this.selectGroupType(value)} />
+                    ))}
+                  </Selectable>
+                </>
+            );
+        }
+
+        return null;
+    }
+
   render() {
       const {state} = this,
             typesCount = state.trashTypes.size,
             cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-                                     typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
-            activityName = Options.activities.get(state.activityType[0]).title;
+            typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '';
 
     return (
       <View style={styles.container}>
@@ -148,21 +181,7 @@ class PlogScreen extends React.Component {
                 }
             </View>
 
-            <Question question="What were you up to?" answer={activityName}/>
-            <Selectable selection={state.activityType}>
-                {Array.from(Options.activities).map(([value, type]) => (
-                    <Button title={type.title} value={value} icon={type.icon} key={value}
-                            onPress={() => this.selectActivityType(value)} />
-                ))}
-            </Selectable>
-
-            <Question question="Who helped?" answer="I was alone" />
-            <Selectable selection={state.groupType}>
-                {Array.from(Options.groups).map(([value, type]) => (
-                    <Button title={type.title} value={value} icon={type.icon} key={value}
-                            onPress={() => this.selectGroupType(value)} />
-                ))}
-            </Selectable>
+          {this.renderModeQuestions()}
 
             <Button title={PlogScreen.modes[this.state.selectedMode]}
                     onPress={this.onSubmit}
