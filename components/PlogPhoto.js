@@ -33,7 +33,7 @@ class PlogPhoto extends React.Component {
             if (this.props.onPictureSelected)
                 this.props.onPictureSelected(result);
         } catch (_) {
-            //
+            console.log('User canceled!');
         }
     }
 
@@ -43,7 +43,7 @@ class PlogPhoto extends React.Component {
                 gotPhoto: resolve,
                 cancel: reject
             });
-        })
+        });
     }
 
     pickImage = async () => {

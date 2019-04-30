@@ -28,19 +28,25 @@ export default class CameraScreen extends React.Component {
         this.setState({
             hasPermissions: status === 'granted'
         });
+
+        this.props.navigation.addListener('didBlur', () => {
+            if (!this.tookPhoto) {
+                const onCancel = this.props.navigation.getParam('cancel')();
+                if (onCancel) onCancel();
+                this.tookPhoto = false;
+            }
+        });
+
     }
 
     takePhoto = async () => {
         const {navigation} = this.props;
 
-        /* navigation.addListener('onDidBlur', () => {
-         *     if (didNotTakePhoto)
-         *         navigation.getParam('cancel')();
-         * }) */
-
         if (this.state.hasPermissions) {
-            const gotPhoto = navigation.getParam('gotPhoto');
-            gotPhoto(await this.camera.takePictureAsync());
+            const gotPhoto = navigation.getParam('gotPhoto'),
+                  photo = await this.camera.takePictureAsync();
+            this.tookPhoto = true;
+            if (gotPhoto) gotPhoto(photo);
             navigation.pop();
         }
     }
@@ -48,7 +54,9 @@ export default class CameraScreen extends React.Component {
     render() {
         if (!this.state.hasPermissions) {
             return (
-                <Text>Gimme permission</Text>
+                <Text>
+                  To use this feature, you'll need to grant this app permission to use the camera.
+                </Text>
             );
         }
 
@@ -56,9 +64,9 @@ export default class CameraScreen extends React.Component {
             <Camera ref={ref => { this.camera = ref; }}
                     style={styles.camera}
             >
-            <Button onPress={this.takePhoto}
-                    title="Take Photo"
-                    style={styles.cameraButton} />
+              <Button onPress={this.takePhoto}
+                      title="Take Photo"
+                      style={styles.cameraButton} />
             </Camera>
         );
     }
@@ -72,6 +80,6 @@ const styles = StyleSheet.create({
         padding: 20
     },
     cameraButton: {
-
+        backgroundColor: 'white'
     }
 });
