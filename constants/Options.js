@@ -26,9 +26,9 @@ export default {
 
     groups: new Map([
         ['alone', {title: 'I was alone', icon: icons.Walk}],
-        ['dog', {title: 'my dog', icon: icons.Dog}],
-        ['teacher', {title: 'a child', icon: icons.Teacher}],
-        ['friend', {title: 'a friend', icon: icons.Couple}],
-        ['team', {title: 'a team', icon: icons.Team}]
+        ['dog', {title: 'My dog', icon: icons.Dog}],
+        ['teacher', {title: 'A child', icon: icons.Teacher}],
+        ['friend', {title: 'A friend', icon: icons.Couple}],
+        ['team', {title: 'A team', icon: icons.Team}]
     ])
 };

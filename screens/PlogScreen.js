@@ -87,7 +87,6 @@ class PlogScreen extends React.Component {
     }
 
     selectGroupType = (group) => {
-        console.log('selectGroupType', group);
         this.setState(state => ({
             groupType: [group]
         }));
@@ -104,7 +103,8 @@ class PlogScreen extends React.Component {
 
     renderModeQuestions(mode=this.mode) {
         const {state} = this,
-              activityName = Options.activities.get(state.activityType[0]).title;
+              activityName = Options.activities.get(state.activityType[0]).title,
+              groupName = Options.groups.get(state.groupType[0]).title;
 
         switch (mode) {
         case 'Log':
@@ -118,7 +118,7 @@ class PlogScreen extends React.Component {
                     ))}
                   </Selectable>
 
-                  <Question question="Who helped?" answer="I was alone" />
+                  <Question question="Who helped?" answer={groupName} />
                   <Selectable selection={state.groupType}>
                     {Array.from(Options.groups).map(([value, type]) => (
                         <Button title={type.title} value={value} icon={type.icon} key={value}
