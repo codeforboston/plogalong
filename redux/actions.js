@@ -11,8 +11,9 @@ type PlogInfo = {
     location: Location,
     when: Date,
     trashType: string[],
-    activity: string,
+    activityType: string,
     groupType: string,
+    plogPhotos: object[],
 };
 
 

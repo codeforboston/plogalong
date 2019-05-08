@@ -29,6 +29,8 @@ const Plog = ({plogInfo}) => {
         plogInfo.get('activityType')
     ).icon;
 
+    const PlogPhotos = plogInfo.get('plogPhotos').toJS();
+
     return (
         <View>
             <View style={styles.plogStyle}>
@@ -64,6 +66,10 @@ const Plog = ({plogInfo}) => {
                     />
                 </Marker>
             </MapView>
+            <View style={{flexDirection: 'row'}}>
+              {PlogPhotos.map(({uri}) => (<Image source={{uri}} key={uri} style={{flex: 0, width: 150, height: 150}}/>))}
+
+            </View>
         </View>
     )
 };
