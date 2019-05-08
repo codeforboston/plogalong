@@ -1,0 +1,7 @@
+export default {
+  apiKey: "some-val",
+  authDomain: "some-val",
+  databaseURL: "some-val",
+  projectId: "some-val",
+  appId: "some-val",
+};

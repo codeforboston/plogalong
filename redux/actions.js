@@ -1,5 +1,5 @@
 // @flow
-import {LOG_PLOG} from './actionTypes';
+import {LOG_PLOG, UPDATE_PLOGS} from './actionTypes';
 
 type Location = {
     lat: number,
@@ -27,6 +27,14 @@ export const logPlog = (plogInfo: PlogInfo) => ({
     payload: plogInfo
 });
 
+export const updatePlogs = (plogs: PlogInfo[]) => ({
+    type: UPDATE_PLOGS,
+    payload: {
+        plogs,
+    },
+});
+
 export default {
-    logPlog
+    logPlog,
+    updatePlogs,
 };
