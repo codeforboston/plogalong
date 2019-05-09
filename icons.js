@@ -22,4 +22,6 @@ import Track from './assets/svg/022-track.svg';
 import User from './assets/svg/023-user.svg';
 import Backpacker from './assets/svg/backpacker.svg';
 
-export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker};
+import Camera from './assets/svg/photo-camera.svg';
+
+export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera};

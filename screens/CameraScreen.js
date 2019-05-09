@@ -39,14 +39,26 @@ export default class CameraScreen extends React.Component {
 
     }
 
-    takePhoto = async () => {
+    takePhoto = () => {
         const {navigation} = this.props;
 
         if (this.state.hasPermissions) {
             const gotPhoto = navigation.getParam('gotPhoto'),
-                  photo = await this.camera.takePictureAsync();
+                  takingPhoto = navigation.getParam('takingPhoto'),
+                  photoError = navigation.getParam('photoError');
+
             this.tookPhoto = true;
-            if (gotPhoto) gotPhoto(photo);
+
+            this.camera.takePictureAsync().then(
+                photo => {
+                    if (gotPhoto) gotPhoto(photo);
+                },
+                error => {
+                    if (photoError) photoError(error);
+
+                    console.error('Error in takePictureAsync:', error);
+                }
+            );
             navigation.pop();
         }
     }

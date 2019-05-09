@@ -11,11 +11,9 @@ import {
 
 import { withNavigation } from 'react-navigation';
 
+import icons from '../icons';
+
 import Button from './Button';
-
-import Colors from '../constants/Colors';
-
-import CameraSrc from '../assets/images/camera.png';
 
 
 class PlogPhoto extends React.Component {
@@ -41,18 +39,27 @@ class PlogPhoto extends React.Component {
 
             if (this.props.onPictureSelected)
                 this.props.onPictureSelected(result);
-        } catch (_) {
-            console.log('User canceled!');
-        }
+        } catch (_) {}
     }
 
     takePhoto = () => {
-        return new Promise((resolve, reject) => {
-            this.props.navigation.navigate('Camera', {
-                gotPhoto: resolve,
-                cancel: reject
-            });
-        });
+        if (!this.photoPromise) {
+            this.photoPromise = new Promise((resolve, reject) => {
+                this.props.navigation.navigate('Camera', {
+                    gotPhoto: resolve,
+                    photoError: reject,
+                    takingPhoto: () => this.setState({ capturing: true }),
+                    cancel: reject
+                });
+            }).finally(
+                _ => {
+                    this.photoPromise = null;
+                    this.setState({ capturing: false });
+                }
+            );
+        }
+
+        return this.photoPromise;
     }
 
     pickImage = async () => {
@@ -67,10 +74,11 @@ class PlogPhoto extends React.Component {
 
     render() {
         const {plogPhoto, ...props} = this.props,
-              source = plogPhoto ? {uri: plogPhoto.uri} : CameraSrc;
+              icon = plogPhoto ? <Image source={{uri: plogPhoto.uri}} style={{flex: 1}}/> :
+              <icons.Camera/>;
 
         return <Button title="Add Image"
-                       icon={<Image source={source} style={{flex: 1}}/>}
+                       icon={icon}
                        onPress={this.chooseImageSource}
                />;
     }
@@ -78,14 +86,7 @@ class PlogPhoto extends React.Component {
 
 
 const styles = StyleSheet.create({
-    plogPhoto: {
-        borderColor: Colors.secondaryColor,
-        borderWidth: 2,
-        height: 50,
-        width: 50,
-        marginLeft: 5,
-        marginRight: 5,
-    }
+    plogPhoto: {}
 });
 
 export default withNavigation(PlogPhoto);
