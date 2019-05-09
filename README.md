@@ -41,6 +41,8 @@
   (NOTE: Do NOT use `npm install` or `npm ci` as packages like react-native-svg-transformer are not managed through npm and this results in conflicting dependencies and there by in errors)
 
   - Install Expo: `sudo npm install expo-cli --global`
+
+  - Configure Firestore connection: copy the file `firebase/config.js.example` to the `firebase/config.js`. Type `cp firebase/config.js.example firebase/config.js` from the root directory. Edit `firebase/config.js` with the config values from the Firestore Dashboard.
   
   - In a terminal window, navigate to the root directory of your local clone of
     this repository. Type `expo start` to launch Metro bundler and Expo's
