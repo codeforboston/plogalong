@@ -1,10 +1,7 @@
 import React from 'react';
 import {
     Platform,
-    SegmentedControlIOS,
     StyleSheet,
-    Text,
-    View,
 } from 'react-native';
 import SegmentedControlTab from 'react-native-segmented-control-tab';
 

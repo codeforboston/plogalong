@@ -1,16 +1,11 @@
 import React from 'react';
 import {
-    Alert,
-    Image,
     StyleSheet,
     Text,
-    View,
-    TouchableWithoutFeedback
 } from 'react-native';
 
 import {
     Camera,
-    ImagePicker,
     Permissions,
 } from 'expo';
 
