@@ -1,5 +1,5 @@
 // @flow
-import {LOG_PLOG, UPDATE_PLOGS} from './actionTypes';
+import {LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER} from './actionTypes';
 
 type Location = {
     lat: number,
@@ -35,7 +35,15 @@ export const updatePlogs = (plogs: PlogInfo[]) => ({
     },
 });
 
+export const setCurrentUser = (user) => ({
+    type: SET_CURRENT_USER,
+    payload: {
+        user,
+    },
+});
+
 export default {
     logPlog,
     updatePlogs,
+    setCurrentUser,
 };
