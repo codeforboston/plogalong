@@ -4,4 +4,10 @@ export default {
   databaseURL: "some-val",
   projectId: "some-val",
   appId: "some-val",
+
+  auth: {
+    facebook: {
+      appId: "some-val",
+    },
+  },
 };

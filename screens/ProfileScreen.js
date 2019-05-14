@@ -8,11 +8,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { connect } from 'react-redux';
 import { WebBrowser } from 'expo';
 
 import { MonoText } from '../components/StyledText';
 
-export default class ProfileScreen extends React.Component {
+import {
+  loginWithFacebook,
+  logOut,
+} from '../firebase/auth';
+import Button from '../components/Button';
+
+class ProfileScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
@@ -27,6 +34,25 @@ export default class ProfileScreen extends React.Component {
               style={styles.welcomeImage}
             />
           </View>
+
+          {
+            this.props.currentUser ?
+              (
+                <View>
+                  <Text>Hello, {this.props.currentUser.get("displayName")}!</Text>
+                  <Button
+                    onPress={logOut}
+                    title="Log out"
+                  />
+                </View>
+              ) :
+              (
+                <Button
+                  onPress={loginWithFacebook}
+                  title="Log in"
+                />
+              )
+          }
 
           <View style={styles.getStartedContainer}>
             {this._maybeRenderDevelopmentModeWarning()}
@@ -182,3 +208,9 @@ const styles = StyleSheet.create({
     color: '#2e78b7',
   },
 });
+
+export default connect(
+  (state) => ({
+    currentUser: state.users.get("current"),
+  })
+)(ProfileScreen);

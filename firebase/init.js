@@ -1,6 +1,7 @@
 import * as firebase from 'firebase';
 import firebaseConfig from './config';
 import 'firebase/firestore';
+import 'firebase/auth';
 
 if (
   !(
@@ -17,3 +18,7 @@ if (
 firebase.initializeApp(firebaseConfig);
 
 export default firebase.firestore();
+
+export const auth = firebase.auth();
+
+export { firebase };
