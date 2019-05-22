@@ -18,12 +18,29 @@ import {
   logOut,
 } from '../firebase/auth';
 import Button from '../components/Button';
+import { Switch } from 'react-native';
+import { setPreferences} from '../redux/actions';
 
 class ProfileScreen extends React.Component {
+
+  handleShareActivityPrefChange = (shareActivity) => {
+    this.props.updatePreferences({ shareActivity })
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+
+          {/* privacy */}
+          <View style={styles.preferencesContainer}>
+            <Text>Share the activity in local feed</Text>
+            <Switch value={this.props.preferences.get("shareActivity")} 
+              onValueChange={this.handleShareActivityPrefChange}></Switch>
+          </View>
+
+          {/* // alerts */}
+
           <View style={styles.welcomeContainer}>
             <Image
               source={
@@ -207,10 +224,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2e78b7',
   },
+  preferencesContainer: {
+    padding: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }
 });
 
 export default connect(
   (state) => ({
     currentUser: state.users.get("current"),
+    preferences: state.preferences,
+  }),
+  (dispatch) => ({
+    updatePreferences(preferences) {
+      dispatch(setPreferences(preferences))
+    }
   })
 )(ProfileScreen);

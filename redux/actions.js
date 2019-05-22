@@ -1,5 +1,5 @@
 // @flow
-import {LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER} from './actionTypes';
+import { LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 
 type Location = {
     lat: number,
@@ -16,7 +16,9 @@ type PlogInfo = {
     plogPhotos: object[],
 };
 
-
+type Preferences = {
+    shareActivity: boolean,
+};
 
 /**
  * @typedef {Object} PlogInfo
@@ -40,6 +42,13 @@ export const setCurrentUser = (user) => ({
     payload: {
         user,
     },
+});
+
+export const setPreferences = (preferences: Preferences) => ({
+    type: SET_PREFERENCES,
+    payload: {
+        preferences,
+    }
 });
 
 export default {
