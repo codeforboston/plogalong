@@ -3,11 +3,11 @@
   ***Plogalong*** is an app for iOS and Android designed to encourage new and
   existing [ploggers](https://en.wikipedia.org/wiki/Plogging) to record the litter they pick up while walking,
   running, or exercising outdoors.
-  
+
   This is a project of [Code for Boston](https://www.codeforboston.org). If you would like to get involved
   in helping us develop the app, join us at the next [Hack Night](https://www.meetup.com/Code-for-Boston/), and we can
   help you get started.
-  
+
   We're in the beginning stages of development, but we have a very detailed
   [Mockup](https://marvelapp.com/96b0bd4/screen/53564903).
 
@@ -37,21 +37,21 @@
 
     [See here](https://docs.expo.io/versions/v32.0.0/workflow/android-studio-emulator/) for detailed instructions
 
-  - Install node modules: `yarn` 
+  - Install node modules: `yarn`
   (NOTE: Do NOT use `npm install` or `npm ci` as packages like react-native-svg-transformer are not managed through npm and this results in conflicting dependencies and there by in errors)
 
-  - Install Expo: `sudo npm install expo-cli --global`
+  - Install Expo: `yarn global add expo-cli` (if you prefer NPM Install Expo: sudo npm install expo-cli --global)
 
   - Configure Firestore connection: copy the file `firebase/config.js.example` to the `firebase/config.js`. Type `cp firebase/config.js.example firebase/config.js` from the root directory. Edit `firebase/config.js` with the config values from the Firestore Dashboard.
-  
+
   - In a terminal window, navigate to the root directory of your local clone of
     this repository. Type `expo start` to launch Metro bundler and Expo's
-    browser-based developer tools. 
-    
+    browser-based developer tools.
+
   - While Expo runs, you can type `a` at the terminal to run the app in an
     Android emulator or `i` to run it in the iOS simulator; or you can use
     Expo's local web interface.
-    
+
 ## How to Contribute
 
   Join us on the Code for Boston Slack. We're in the [#plogalong](https://slack.com/app_redirect?channel=CDQDBALUR "Open in Slack") channel.
