@@ -39,27 +39,18 @@ class PlogPhoto extends React.Component {
 
             if (this.props.onPictureSelected)
                 this.props.onPictureSelected(result);
-        } catch (_) {}
+        } catch (error) {console.log(error)}
     }
 
     takePhoto = () => {
-        if (!this.photoPromise) {
-            this.photoPromise = new Promise((resolve, reject) => {
-                this.props.navigation.navigate('Camera', {
-                    gotPhoto: resolve,
-                    photoError: reject,
-                    takingPhoto: () => this.setState({ capturing: true }),
-                    cancel: reject
-                });
-            }).finally(
-                _ => {
-                    this.photoPromise = null;
-                    this.setState({ capturing: false });
-                }
-            );
-        }
-
-        return this.photoPromise;
+      return new Promise((resolve, reject) => {
+          this.props.navigation.navigate('Camera', {
+              gotPhoto: resolve,
+              photoError: reject,
+              takingPhoto: () => this.setState({ capturing: true }),
+              cancel: reject
+          });
+      })
     }
 
     pickImage = async () => {
