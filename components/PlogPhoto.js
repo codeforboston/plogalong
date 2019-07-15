@@ -50,15 +50,14 @@ class PlogPhoto extends React.Component {
               takingPhoto: () => this.setState({ capturing: true }),
               cancel: reject
           });
-      })
+      });
     }
 
     pickImage = async () => {
         const {onPictureSelected} = this.props;
         const result = await ImagePicker.launchImageLibraryAsync({});
 
-        if (result.canceled) {
-        } else {
+        if (!result.cancelled) {
             onPictureSelected && onPictureSelected(result);
         }
     }
