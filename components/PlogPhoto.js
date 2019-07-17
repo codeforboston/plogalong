@@ -2,12 +2,12 @@ import React from 'react';
 import {
     Alert,
     Image,
-    Permissions,
     StyleSheet,
 } from 'react-native';
 
 import {
     ImagePicker,
+    Permissions,
 } from 'expo';
 
 import { withNavigation } from 'react-navigation';
