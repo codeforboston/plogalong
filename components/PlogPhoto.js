@@ -7,6 +7,7 @@ import {
 
 import {
     ImagePicker,
+    Permissions,
 } from 'expo';
 
 import { withNavigation } from 'react-navigation';
@@ -21,10 +22,11 @@ class PlogPhoto extends React.Component {
         const extraOptions = this.props.plogPhoto ?
               [{text: 'Clear', onPress: this.clearPhoto}] : [];
 
-        Alert.alert('title', 'body', [
+        Alert.alert('Pick a photo', '', [
             {text: 'Camera', onPress: this.takeAndSelectPhoto},
             {text: 'Photo Roll', onPress: this.pickImage},
-            ...extraOptions
+            ...extraOptions,
+            {text: 'Cancel', style: 'cancel'}
         ]);
     }
 
@@ -39,7 +41,9 @@ class PlogPhoto extends React.Component {
 
             if (this.props.onPictureSelected)
                 this.props.onPictureSelected(result);
-        } catch (error) {console.log(error)}
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     takePhoto = () => {
@@ -50,15 +54,24 @@ class PlogPhoto extends React.Component {
               takingPhoto: () => this.setState({ capturing: true }),
               cancel: reject
           });
-      })
+      });
     }
 
     pickImage = async () => {
         const {onPictureSelected} = this.props;
-        const result = await ImagePicker.launchImageLibraryAsync({});
+        const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
-        if (result.canceled) {
-        } else {
+        if (status !== 'granted') {
+            Alert.alert('Permission Required', 'We need access to your camera roll for that option.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true
+        });
+
+        if (!result.cancelled) {
             onPictureSelected && onPictureSelected(result);
         }
     }

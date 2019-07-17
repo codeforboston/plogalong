@@ -24,14 +24,17 @@ export default class CameraScreen extends React.Component {
             hasPermissions: status === 'granted'
         });
 
-        this.props.navigation.addListener('didBlur', () => {
+        this._blurListener = this.props.navigation.addListener('didBlur', () => {
             if (!this.tookPhoto) {
                 const onCancel = this.props.navigation.getParam('cancel')();
                 if (onCancel) onCancel();
                 this.tookPhoto = false;
             }
         });
+    }
 
+    componentWillUnmount() {
+        this._blurListener.remove();
     }
 
     takePhoto = () => {
