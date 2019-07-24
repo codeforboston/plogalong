@@ -10,6 +10,8 @@ export default {
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,
   tabBar: '#fefefe',
+  // textGray: '#969FAA',
+  textGray: '#5f646b',
   errorBackground: 'red',
   errorText: '#fff',
   warningBackground: '#EAEB5E',
