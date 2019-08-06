@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import PlogScreen from '../screens/PlogScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -69,10 +70,32 @@ const More = createStackNavigator({
 More.navigationOptions = makeTabNavigationOptions;
 
 
-export default createBottomTabNavigator({
+const MainTabNavigator = createBottomTabNavigator({
   Plog,
   History,
   Local,
   Profile,
   More
+});
+
+export default connect(state => ({
+    currentUser: state.users.get("current"),
+    userLoaded: state.users.get("init"),
+}))(class extends React.Component {
+    static router = MainTabNavigator.router;
+
+    componentDidUpdate() {
+        if (!this.props.currentUser) {
+            this.props.navigation.navigate("Public");
+        }
+    }
+
+    render() {
+        const {currentUser, ...props} = this.props;
+
+        if (!currentUser)
+            return null;
+
+        return <MainTabNavigator {...props} />;
+    }
 });

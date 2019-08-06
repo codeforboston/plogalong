@@ -6,6 +6,7 @@ export default {
     secondaryColor: '#6cbc51',
     borderColor: '#c2c1ba',
     activeColor: '#8557C7',
+    inactiveColor: '#495564',
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,

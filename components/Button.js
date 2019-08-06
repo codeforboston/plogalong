@@ -7,10 +7,8 @@ import {
 } from 'react-native';
 
 import Colors from '../constants/Colors';
+import $S from '../styles';
 
-/*
-   TODO Add support for buttons with icons and text
- */
 
 export default class Button extends React.Component {
     constructor(props) {
@@ -29,8 +27,11 @@ export default class Button extends React.Component {
     }
 
     renderContent() {
-        const {icon, activeIcon, title, selected, selectedIcon, style, ...props} = this.props,
-              {active} = this.state;
+        const {icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, ...props} = this.props,
+              {active} = this.state,
+              sharedStyles = [$S.button, !disabled && active && $S.activeButton,
+                              disabled && styles.disabled, selected && styles.selected,
+                              primary && $S.primaryButton, (large || primary) && $S.largeButton, style];
 
         if (icon) {
             const shownIcon = (selected && selectedIcon) || (active && activeIcon) || icon,
@@ -39,7 +40,7 @@ export default class Button extends React.Component {
                                   React.cloneElement(shownIcon, {style: [styles.iconStyles, shownIcon.props.styles]});
 
             return (
-                <View style={[styles.button, styles.iconButton, active && styles.active, selected && styles.selected, style]}>
+                <View style={[...sharedStyles, styles.iconButton]}>
                     {iconComponent}
                 </View>
             );
@@ -47,8 +48,7 @@ export default class Button extends React.Component {
 
         if (title) {
             return (
-                <Text style={[styles.button, styles.buttonText, active && styles.active,
-                              selected && styles.selected, style]}>
+                <Text style={[...sharedStyles, $S.textButton]}>
                     {title}
                 </Text>
             );
@@ -56,8 +56,11 @@ export default class Button extends React.Component {
     }
 
     render() {
-        const {accessibilityLabel, selected, title, ...props} = this.props,
+        const {accessibilityLabel, disabled, selected, title, ...props} = this.props,
               {active} = this.state;
+
+        if (disabled)
+            return this.renderContent();
 
         return (
             <TouchableWithoutFeedback accessibilityLabel={accessibilityLabel || title}
@@ -74,12 +77,8 @@ export default class Button extends React.Component {
 
 
 const styles = StyleSheet.create({
-    button: {
-        borderRadius: 5,
-        borderColor: Colors.secondaryColor,
-        borderWidth: 2,
-        margin: 5,
-        padding: 5,
+    disabled: {
+        opacity: 0.8
     },
 
     iconButton: {
@@ -87,17 +86,8 @@ const styles = StyleSheet.create({
         height: 50
     },
 
-    buttonText: {
-        textAlign: 'center'
-    },
-
     selected: {
         borderColor: Colors.selectionColor
-    },
-
-    active: {
-        backgroundColor: '#cccccc',
-        borderColor: Colors.activeColor
     },
 
     iconStyles: {

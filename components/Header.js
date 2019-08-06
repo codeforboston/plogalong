@@ -6,17 +6,17 @@ import {
     View,
 } from 'react-native';
 
-const Header = (props) => (
+const Header = ({icon, text}) => (
     <View style={styles.container}>
-        <Image source={props.icon}  />
-        <Text style={styles.headerText}>{ props.text }</Text>
+        {icon && <Image source={icon}  />}
+        <Text style={styles.headerText}>{ text }</Text>
     </View>
 );
 
 
 const styles = StyleSheet.create({
   container: {
-      flex: 1,
+      // flex: 1,
       flexDirection: 'row',
       justifyContent: 'center'
   },

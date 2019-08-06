@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     selectable: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-between'
+        justifyContent: 'flex-start'
     },
 
     child: {
