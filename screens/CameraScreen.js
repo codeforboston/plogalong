@@ -4,10 +4,8 @@ import {
     Text,
 } from 'react-native';
 
-import {
-    Camera,
-    Permissions,
-} from 'expo';
+import * as Permissions from 'expo-permissions';
+import { Camera } from 'expo-camera';
 
 import Button from '../components/Button';
 

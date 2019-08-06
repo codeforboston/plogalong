@@ -5,10 +5,7 @@ import {
     StyleSheet,
 } from 'react-native';
 
-import {
-    ImagePicker,
-    Permissions,
-} from 'expo';
+import * as ImagePicker from 'expo-image-picker';
 
 import { withNavigation } from 'react-navigation';
 

@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
-import { WebBrowser } from 'expo';
+import * as WebBrowser from 'expo-web-browser';
 
 import { MonoText } from '../components/StyledText';
 

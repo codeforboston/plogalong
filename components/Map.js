@@ -2,7 +2,7 @@ import React from 'react';
 import {
     StyleSheet,
 } from 'react-native';
-import { MapView } from 'expo';
+import MapView from 'react-native-maps';
 
 import Colors from '../constants/Colors';
 
