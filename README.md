@@ -32,11 +32,12 @@
 
   - (iOS) Install [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)
     _This may take a while... why not go plogging for an hour?_
-    ... then launch it at least once so that you can agree to it's Terms and Conditions.
+    ...then launch it at least once so that you can agree to it's Terms and Conditions.
 
-  - (Android) Install [Android Studio](https://developer.android.com/studio/) and create a virtual device
+  - (Android) Install [Android Studio](https://developer.android.com/studio/) and create a virtual device.
 
     [See here](https://docs.expo.io/versions/v32.0.0/workflow/android-studio-emulator/) for detailed instructions
+    _n.b. Since this app will be deployed on the Google Play Store, when creating a virtual device in the AVD Manager, try to choose a device that has the triangular Google Play Store icon next to it._
     
   - Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
 
