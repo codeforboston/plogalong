@@ -28,16 +28,19 @@
 
   - Clone this repository
 
-  - Node (>=10.x) -- ensure that you have a recent version installed
+  - Node (10.x or 12.x) -- ensure that you have a recent version installed
 
-  - (iOS) Install [Xcode](https://developer.apple.com/xcode/)
+  - (iOS) Install [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)
     _This may take a while... why not go plogging for an hour?_
+    ... then launch it at least once so that you can agree to it's Terms and Conditions.
 
   - (Android) Install [Android Studio](https://developer.android.com/studio/) and create a virtual device
 
     [See here](https://docs.expo.io/versions/v32.0.0/workflow/android-studio-emulator/) for detailed instructions
+    
+  - Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
 
-  - Install node modules: `yarn`
+  - Install node modules: `yarn install`
   (NOTE: Do NOT use `npm install` or `npm ci` as packages like react-native-svg-transformer are not managed through npm and this results in conflicting dependencies and there by in errors)
 
   - Install Expo: `yarn global add expo-cli` (if you prefer NPM Install Expo: sudo npm install expo-cli --global)
