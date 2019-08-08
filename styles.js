@@ -63,6 +63,12 @@ export default StyleSheet.create({
     },
 
     link: {
+        color: Colors.tintColor,
         textDecorationLine: 'underline',
     },
+
+    helpLink: {
+        textDecorationStyle: 'dotted',
+        textDecorationColor: 'black',
+    }
 });

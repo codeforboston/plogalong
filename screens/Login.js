@@ -80,8 +80,13 @@ class LoginScreen extends React.Component {
                       disabled={this.disabled()} />
 
               <Link onPress={() => { navigation.navigate('Signup'); }}
-                    style={{ marginTop: 20, textAlign: 'center' }}>
+                    style={{ marginTop: 30, textAlign: 'center' }}>
                 Create an Account
+              </Link>
+
+              <Link onPress={() => { navigation.navigate('Intro'); }}
+                    style={[$S.helpLink, { marginTop: 20, textAlign: 'center' }]}>
+                What is Plogging?
               </Link>
             </View>
         );

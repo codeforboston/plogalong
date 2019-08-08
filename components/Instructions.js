@@ -14,7 +14,7 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
     if (images) {
         imagesThree = images.map((image, index) => {
             return <Image key={index} style={styles.staticPhotoThree} source={image}/>;
-        });    
+        });
     } 
     if (iconList) {
         icons = iconList.map((icon, index) => {
@@ -23,8 +23,8 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
     }
 
     return (
-        <View>
-            <View style={styles.container}>
+        <View style={styles.container}>
+            <View style={styles.instructionsContainer}>
                 <Text style={styles.headingText}>{heading}</Text>
                 <View style={styles.photoStrip}>
                     {imagesThree}
@@ -41,7 +41,6 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
             </View>
 
             <Button style={styles.buttonStyle} title={buttonText} onPress={onButtonPress}/>
-            <Text style={styles.textLink}>{linkText}</Text>
         </View>
     )};
 
@@ -50,14 +49,18 @@ export default Instructions;
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+        backgroundColor: Colors.selectionColor,
+        flex: 1,
+    },
+    instructionsContainer: {
       backgroundColor: '#fff',
-      marginTop: 30,
+      marginTop: 50,
       padding: 20,
       paddingBottom: 50,
       marginLeft: 20,
       marginRight: 20,
-      borderRadius: 5,
+        minHeight: 400,
+      borderRadius: 10,
     },
     headingText: {
         alignSelf: 'center',
@@ -93,7 +96,6 @@ const styles = StyleSheet.create({
         marginRight: 5,
     },
     photoStrip: {
-        flex: 1,
         flexDirection: 'row',
         marginTop: 15,
         justifyContent: 'space-around'
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
         color: Colors.textGray,
         width: 150,
         height: 45,
-        marginTop: 90,
+        marginTop: 30,
         paddingTop: 11,
         alignSelf: 'center',
         fontFamily: 'Lato',
@@ -111,13 +113,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         borderColor: '#fff', 
         overflow: 'hidden',
-    },
-    textLink: {
-        color: 'white',
-        fontSize: 15,
-        alignSelf: 'center',
-        textDecorationLine: 'underline',   
-        marginTop: 10,
     },
     placeholderBadge: {
         alignSelf: 'center',
