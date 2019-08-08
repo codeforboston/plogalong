@@ -11,11 +11,13 @@ import Header from '../components/Header';
 import SignupScreen from '../screens/Signup';
 import LoginScreen from '../screens/Login';
 
+
 const PublicNavigator = createStackNavigator({
     Login: LoginScreen,
     Signup: SignupScreen
 }, {
     headerMode: 'screen',
+    initialRouteName: 'Login',
     defaultNavigationOptions: {
         headerStyle: {
             backgroundColor: '#fff',
@@ -26,6 +28,7 @@ const PublicNavigator = createStackNavigator({
 
 export default connect(state => ({
     currentUser: state.users.get("current"),
+    preferences: state.preferences,
     userLoaded: state.users.get("init"),
 }))(class extends React.Component {
     static router = PublicNavigator.router;
@@ -36,7 +39,15 @@ export default connect(state => ({
     }
 
     componentDidMount() {
-        this.props.navigation.addListener('didBlur', () => {
+        const sawIntro = this.props.preferences.get("sawIntro");
+        const {navigation} = this.props;
+
+        if (!sawIntro) {
+            navigation.navigate('Intro');
+            return;
+        }
+
+        navigation.addListener("didBlur", () => {
             this._dismissing = false;
         });
     }
@@ -44,7 +55,7 @@ export default connect(state => ({
     componentDidUpdate(prevProps) {
         if (!prevProps.currentUser && this.props.currentUser) {
             this._dismissing = true;
-            this.props.navigation.navigate('Main');
+            this.props.navigation.navigate("Main");
         }
     }
 

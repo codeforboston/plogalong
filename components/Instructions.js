@@ -8,7 +8,7 @@ import {
 import Button from './Button';
 import Colors from '../constants/Colors';
 
-const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList, instructionText, paragraphs, buttonText, linkText }) => {
+const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList, instructionText, paragraphs, buttonText, linkText, onButtonPress }) => {
     let imagesThree, icons;
 
     if (images) {
@@ -40,7 +40,7 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
                 <Text style={styles.paragraphs}>{paragraphs}</Text>
             </View>
 
-            <Button style={styles.buttonStyle} title={buttonText}/>
+            <Button style={styles.buttonStyle} title={buttonText} onPress={onButtonPress}/>
             <Text style={styles.textLink}>{linkText}</Text>
         </View>
     )};

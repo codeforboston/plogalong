@@ -18,7 +18,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "ABC"
       }

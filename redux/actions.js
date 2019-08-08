@@ -1,3 +1,4 @@
+import { AsyncStorage } from 'react-native';
 import { LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 import * as types from './actionTypes';
 import { auth } from '../firebase/init';
@@ -27,7 +28,15 @@ export const setCurrentUser = (user) => ({
     },
 });
 
-export const setPreferences = (preferences: Preferences) => ({
+export function loadPreferences() {
+    return async dispatch => {
+        const prefs = await AsyncStorage.getItem('com.plogalong.preferences');
+
+        dispatch(setPreferences(prefs ? JSON.parse(prefs) : {}));
+    };
+}
+
+export const setPreferences = (preferences) => ({
     type: SET_PREFERENCES,
     payload: {
         preferences,

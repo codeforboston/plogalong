@@ -96,6 +96,7 @@ class PlogScreen extends React.Component {
     }
 
     async componentDidMount() {
+        // this.
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status === 'granted') {
             let location = await Location.getCurrentPositionAsync({});
