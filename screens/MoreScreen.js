@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Modal,
 } from 'react-native';
 
 import { createStackNavigator } from 'react-navigation';
@@ -15,23 +16,31 @@ import SuppliesScreen from './SuppliesScreen';
 import CouchPloggingScreen from './CouchPloggingScreen';
 import SocialMediaScreen from './SocialMediaScreen';
 
-
-const InviteModal = () => (
-    <View>
-      <Text style={{ fontSize: 20 }} >Invite</Text>
-    </View>
+const InviteModal = ({isInviteModalVisible, toggleIsInviteModalVisible}) => (
+  <View>
+    <Modal
+      visible={isInviteModalVisible}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={toggleIsInviteModalVisible}
+    >
+      <View>
+        <Text style={{ fontSize: 20 }} >Invite modal</Text>
+      </View>
+    </Modal>
+  </View>
 );
 
 export class MoreScreen extends React.Component {
-    static pages = [
-        {label: 'About Plogalong', route: 'About'},
-        {label: 'FAQ', route: 'FAQ'},
-        {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
-        {label: 'Plogging Supplies', route: 'Supplies'},
-        {label: 'Couch Plogging', route: 'CouchPlogging'},
-        {label: 'Plogging on Social Media', route: 'SocialMedia'},
-        {label: 'Invite', route: 'Modal', params: { content: <InviteModal />}}
-    ];
+    constructor(props) {
+      super(props);
+      this.state = { isInviteModalVisible: false };
+    }
+
+    toggleIsInviteModalVisible = () => {
+      this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
+      console.log("here");
+    }
 
     static navigationOptions = {
         header: null,
@@ -39,9 +48,23 @@ export class MoreScreen extends React.Component {
     };
 
   render() {
+    const pages = [
+      {label: 'About Plogalong', route: 'About'},
+      {label: 'FAQ', route: 'FAQ'},
+      {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
+      {label: 'Plogging Supplies', route: 'Supplies'},
+      {label: 'Couch Plogging', route: 'CouchPlogging'},
+      {label: 'Plogging on Social Media', route: 'SocialMedia'},
+      {label: 'Invite', route: 'Modal', params: { content: <InviteModal />}}
+    ];
+
     return (
       <View style={styles.container}>
-        <NavMenu routes={MoreScreen.pages}/>
+        <InviteModal
+          isInviteModalVisible={this.state.isInviteModalVisible}
+          toggleIsInviteModalVisible={this.toggleIsInviteModalVisible}
+        />
+        <NavMenu routes={pages}/>
       </View>
     );
   }
