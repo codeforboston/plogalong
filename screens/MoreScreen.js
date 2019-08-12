@@ -26,9 +26,10 @@ const InviteModal = ({isInviteModalVisible, toggleIsInviteModalVisible}) => (
       onRequestClose={toggleIsInviteModalVisible}
     >
       <View style={styles.modal}>
-        <Text style={{ fontSize: 20 }} >Invite modal</Text>
+        <Text style={{ fontSize: 20 }}>Invite modal</Text>
         <Button
           title="back"
+          icon="icon svg tbd"
           onPress={toggleIsInviteModalVisible}
         />
       </View>
@@ -100,4 +101,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  closeModal: {
+    position: 'absolute',
+    left: 340,
+    right: 0,
+    top: 40,
+    bottom: 0,
+  }
 });
