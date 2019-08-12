@@ -25,7 +25,7 @@ const InviteModal = ({isInviteModalVisible, toggleIsInviteModalVisible}) => (
       transparent={false}
       onRequestClose={toggleIsInviteModalVisible}
     >
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={styles.modal}>
         <Text style={{ fontSize: 20 }} >Invite modal</Text>
         <Button
           title="back"
@@ -91,8 +91,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'gray'
-    },
+  divider: {
+      borderBottomWidth: 1,
+      borderBottomColor: 'gray'
+  },
+  modal: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
