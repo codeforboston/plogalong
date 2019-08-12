@@ -4,6 +4,7 @@ import {
   Text,
   View,
   Modal,
+  Button,
 } from 'react-native';
 
 import { createStackNavigator } from 'react-navigation';
@@ -24,28 +25,31 @@ const InviteModal = ({isInviteModalVisible, toggleIsInviteModalVisible}) => (
       transparent={false}
       onRequestClose={toggleIsInviteModalVisible}
     >
-      <View>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text style={{ fontSize: 20 }} >Invite modal</Text>
+        <Button
+          title="back"
+          onPress={toggleIsInviteModalVisible}
+        />
       </View>
     </Modal>
   </View>
 );
 
 export class MoreScreen extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = { isInviteModalVisible: false };
-    }
+  constructor(props) {
+    super(props);
+    this.state = { isInviteModalVisible: false };
+  }
 
-    toggleIsInviteModalVisible = () => {
-      this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
-      console.log("here");
-    }
+  toggleIsInviteModalVisible = () => {
+    this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
+  }
 
-    static navigationOptions = {
-        header: null,
-        headerBackTitle: 'More'
-    };
+  static navigationOptions = {
+      header: null,
+      headerBackTitle: 'More'
+  };
 
   render() {
     const pages = [
@@ -55,7 +59,7 @@ export class MoreScreen extends React.Component {
       {label: 'Plogging Supplies', route: 'Supplies'},
       {label: 'Couch Plogging', route: 'CouchPlogging'},
       {label: 'Plogging on Social Media', route: 'SocialMedia'},
-      {label: 'Invite', route: 'Modal', params: { content: <InviteModal />}}
+      {label: 'Invite', route: 'Modal', toggleIsInviteModalVisible: this.toggleIsInviteModalVisible}
     ];
 
     return (

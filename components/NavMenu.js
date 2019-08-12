@@ -15,9 +15,18 @@ const Divider = () => (
 );
 
 
-const MenuItem = ({label, detail, route, params, action, navigation}) => (
+const MenuItem = ({label, detail, route, params, action, navigation, toggleIsInviteModalVisible}) => {
+  onPress = () => {
+    if (toggleIsInviteModalVisible) {
+      toggleIsInviteModalVisible();
+    } else {
+      navigation.push(route, params, action);
+    }
+  }
+
+  return (
     <>
-      <TouchableOpacity onPress={() => navigation.push(route, params, action)}>
+      <TouchableOpacity onPress={this.onPress}>
         <View style={styles.menuItem}>
           <View style={styles.menuItemBody}>
             <Text style={styles.labelText}>{label}</Text>
@@ -29,7 +38,8 @@ const MenuItem = ({label, detail, route, params, action, navigation}) => (
         </View>
       </TouchableOpacity>
     </>
-);
+  );
+}
 
 class NavMenu extends React.Component {
     render() {
