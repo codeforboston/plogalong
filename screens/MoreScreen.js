@@ -1,10 +1,7 @@
 import React from 'react';
 import {
   StyleSheet,
-  Text,
   View,
-  Modal,
-  Button,
 } from 'react-native';
 
 import { createStackNavigator } from 'react-navigation';
@@ -16,26 +13,7 @@ import ActivePloggerMap from './ActivePloggerMap';
 import SuppliesScreen from './SuppliesScreen';
 import CouchPloggingScreen from './CouchPloggingScreen';
 import SocialMediaScreen from './SocialMediaScreen';
-
-const InviteModal = ({isInviteModalVisible, toggleIsInviteModalVisible}) => (
-  <View>
-    <Modal
-      visible={isInviteModalVisible}
-      animationType="slide"
-      transparent={false}
-      onRequestClose={toggleIsInviteModalVisible}
-    >
-      <View style={styles.modal}>
-        <Text style={{ fontSize: 20 }}>Invite modal</Text>
-        <Button
-          title="back"
-          icon="icon svg tbd"
-          onPress={toggleIsInviteModalVisible}
-        />
-      </View>
-    </Modal>
-  </View>
-);
+import InviteModalScreen from './InviteModalScreen';
 
 export class MoreScreen extends React.Component {
   constructor(props) {
@@ -47,29 +25,29 @@ export class MoreScreen extends React.Component {
     this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
   }
 
+  static pages = [
+    {label: 'About Plogalong', route: 'About'},
+    {label: 'FAQ', route: 'FAQ'},
+    {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
+    {label: 'Plogging Supplies', route: 'Supplies'},
+    {label: 'Couch Plogging', route: 'CouchPlogging'},
+    {label: 'Plogging on Social Media', route: 'SocialMedia'},
+    {label: 'Invite', route: 'InviteModal', toggleIsInviteModalVisible: this.toggleIsInviteModalVisible}
+  ];
+
   static navigationOptions = {
-      header: null,
-      headerBackTitle: 'More'
+    header: null,
+    headerBackTitle: 'More'
   };
 
   render() {
-    const pages = [
-      {label: 'About Plogalong', route: 'About'},
-      {label: 'FAQ', route: 'FAQ'},
-      {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
-      {label: 'Plogging Supplies', route: 'Supplies'},
-      {label: 'Couch Plogging', route: 'CouchPlogging'},
-      {label: 'Plogging on Social Media', route: 'SocialMedia'},
-      {label: 'Invite', route: 'Modal', toggleIsInviteModalVisible: this.toggleIsInviteModalVisible}
-    ];
-
     return (
       <View style={styles.container}>
-        <InviteModal
+        <InviteModalScreen
           isInviteModalVisible={this.state.isInviteModalVisible}
           toggleIsInviteModalVisible={this.toggleIsInviteModalVisible}
         />
-        <NavMenu routes={pages}/>
+        <NavMenu routes={MoreScreen.pages}/>
       </View>
     );
   }
@@ -82,7 +60,8 @@ export default createStackNavigator({
     ActivePloggerMap,
     Supplies: SuppliesScreen,
     CouchPlogging: CouchPloggingScreen,
-    SocialMedia: SocialMediaScreen
+    SocialMedia: SocialMediaScreen,
+    InviteModal: InviteModalScreen,
 }, {
     headerStyle: { height: 100 }
 });
@@ -96,16 +75,4 @@ const styles = StyleSheet.create({
       borderBottomWidth: 1,
       borderBottomColor: 'gray'
   },
-  modal: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeModal: {
-    position: 'absolute',
-    left: 340,
-    right: 0,
-    top: 40,
-    bottom: 0,
-  }
 });
