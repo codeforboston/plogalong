@@ -25,29 +25,26 @@ export class MoreScreen extends React.Component {
     this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
   }
 
-  static pages = [
-    {label: 'About Plogalong', route: 'About'},
-    {label: 'FAQ', route: 'FAQ'},
-    {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
-    {label: 'Plogging Supplies', route: 'Supplies'},
-    {label: 'Couch Plogging', route: 'CouchPlogging'},
-    {label: 'Plogging on Social Media', route: 'SocialMedia'},
-    {label: 'Invite', route: 'InviteModal', toggleIsInviteModalVisible: this.toggleIsInviteModalVisible}
-  ];
-
   static navigationOptions = {
-    header: null,
-    headerBackTitle: 'More'
+      header: null,
+      headerBackTitle: 'More'
   };
 
   render() {
+    const pages = [
+      {label: 'About Plogalong', route: 'About'},
+      {label: 'FAQ', route: 'FAQ'},
+      {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
+      {label: 'Plogging Supplies', route: 'Supplies'},
+      {label: 'Couch Plogging', route: 'CouchPlogging'},
+      {label: 'Plogging on Social Media', route: 'SocialMedia'},
+      {label: 'Invite', route: false, toggleIsInviteModalVisible: this.toggleIsInviteModalVisible}
+    ];
+
     return (
       <View style={styles.container}>
-        <InviteModalScreen
-          isInviteModalVisible={this.state.isInviteModalVisible}
-          toggleIsInviteModalVisible={this.toggleIsInviteModalVisible}
-        />
-        <NavMenu routes={MoreScreen.pages}/>
+        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible} isInviteModalVisible={this.state.isInviteModalVisible} />
+        <NavMenu routes={pages}/>
       </View>
     );
   }
@@ -61,7 +58,7 @@ export default createStackNavigator({
     Supplies: SuppliesScreen,
     CouchPlogging: CouchPloggingScreen,
     SocialMedia: SocialMediaScreen,
-    InviteModal: InviteModalScreen,
+    InviteModal: InviteModalScreen
 }, {
     headerStyle: { height: 100 }
 });

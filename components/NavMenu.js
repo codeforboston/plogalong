@@ -48,7 +48,7 @@ class NavMenu extends React.Component {
         return (
             <View style={styles.container}>
               <FlatList data={routes}
-                        keyExtractor={(item, i) => (item.route || i)}
+                        keyExtractor={(item, i) => (item.route || `${i}`)}
                         renderItem={
                             ({item}) => <MenuItem navigation={navigation} {...item}/>
                         }

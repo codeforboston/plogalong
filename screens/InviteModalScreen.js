@@ -5,20 +5,20 @@ import {
   View,
   Modal,
   Clipboard,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../components/Button';
 import Colors from '../constants/Colors';
 import { ShareDialog } from 'react-native-fbsdk';
 
-const PLOGALONG_LINK = "http://www.plogalong.com";
-const SHARE_LINK_CONTENT = {
-  contentType: 'link',
-  contentUrl: PLOGALONG_LINK,
-  contentDescription: "Jus lil ol me, ploggin along",
-};
-
 export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVisible}) => {
+  const PLOGALONG_LINK = "http://www.plogalong.com";
+  const SHARE_LINK_CONTENT = {
+    contentType: 'link',
+    contentUrl: PLOGALONG_LINK,
+    contentDescription: "Jus lil ol me, ploggin along",
+  };
   writeToClipboard = async () => {
     await Clipboard.setString(PLOGALONG_LINK);
   }
@@ -58,7 +58,12 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
             style={styles.closeModal}
           />
           <View style={styles.inviteModalContainers}>
-            <Text style={{ fontSize: 20 }}>Invite</Text>
+            <Text style={[styles.inviteContainer, { fontSize: 20 }]}>Invite</Text>
+            <TextInput
+              value={PLOGALONG_LINK}
+              selectTextOnFocus
+              style={[styles.textInput, styles.inviteContainer]}
+            />
             <Button title="Copy Link" onPress={writeToClipboard} style={styles.copyButton} />
           </View>
           <View style={styles.inviteModalContainers}>
@@ -105,5 +110,15 @@ const styles = StyleSheet.create({
   copyButton: {
     backgroundColor: Colors.secondaryColor,
     color: Colors.noticeText,
-  }
+  },
+  textInput: {
+    borderStyle: 'solid',
+    borderColor: Colors.textGray,
+    borderWidth: 1,
+    padding: 15,
+    color: Colors.textGray,
+  },
+  inviteContainer: {
+    margin: 5,
+  },
 });
