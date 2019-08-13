@@ -9,16 +9,15 @@ import {
 
 import { withNavigation } from 'react-navigation';
 
-
 const Divider = () => (
     <View style={styles.divider}></View>
 );
 
 
-const MenuItem = ({label, detail, route, params, action, navigation, toggleIsInviteModalVisible}) => {
+const MenuItem = ({label, detail, route, params, action, navigation, handlePress}) => {
   onPress = () => {
-    if (toggleIsInviteModalVisible) {
-      toggleIsInviteModalVisible();
+    if (handlePress) {
+      handlePress();
     } else {
       navigation.push(route, params, action);
     }
@@ -26,7 +25,7 @@ const MenuItem = ({label, detail, route, params, action, navigation, toggleIsInv
 
   return (
     <>
-      <TouchableOpacity onPress={this.onPress}>
+      <TouchableOpacity onPress={onPress}>
         <View style={styles.menuItem}>
           <View style={styles.menuItemBody}>
             <Text style={styles.labelText}>{label}</Text>
@@ -44,7 +43,6 @@ const MenuItem = ({label, detail, route, params, action, navigation, toggleIsInv
 class NavMenu extends React.Component {
     render() {
         const {navigation, routes} = this.props;
-
         return (
             <View style={styles.container}>
               <FlatList data={routes}

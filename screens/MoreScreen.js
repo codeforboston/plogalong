@@ -25,14 +25,14 @@ export class MoreScreen extends React.Component {
     this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
   }
 
-  static pages = [
+  pages = [
     {label: 'About Plogalong', route: 'About'},
     {label: 'FAQ', route: 'FAQ'},
     {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
     {label: 'Plogging Supplies', route: 'Supplies'},
     {label: 'Couch Plogging', route: 'CouchPlogging'},
     {label: 'Plogging on Social Media', route: 'SocialMedia'},
-    {label: 'Invite', route: false, toggleIsInviteModalVisible: this.toggleIsInviteModalVisible}
+    {label: 'Invite', route: false, handlePress: this.toggleIsInviteModalVisible},
   ];
 
   static navigationOptions = {
@@ -44,7 +44,7 @@ export class MoreScreen extends React.Component {
     return (
       <View style={styles.container}>
         <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible} isInviteModalVisible={this.state.isInviteModalVisible} />
-        <NavMenu routes={pages}/>
+        <NavMenu routes={this.pages}/>
       </View>
     );
   }
