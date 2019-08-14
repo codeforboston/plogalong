@@ -26,14 +26,25 @@
 
 ## Setup Instructions
 
-  - Clone this repository
 
-  - Node (10.x or 12.x) -- ensure that you have a recent version installed
+
+  - Clone this repository (download and extract zip file from https://github.com/codeforboston/plogalong)
+
+  - Node (10.x or 12.x) -- ensure that you have a recent version installed - https://nodejs.org/en/download/
+  
+  - Make sure that /usr/local/bin is in your $PATH by opening Terminal and typing in echo $PATH (if it's not, follow directions here: https://opensource.com/article/17/6/set-path-linux)
 
   - (iOS) Install [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)
     _This may take a while... why not go plogging for an hour?_
     <br>...then launch it at least once so that you can agree to it's Terms and
     Conditions.
+
+
+-------
+
+Verified on 08/13/19 up to this point - if experiencing issues during setup, create new bug
+
+--------
 
   - (Android) Install [Android Studio](https://developer.android.com/studio/) and
   create a virtual device.
