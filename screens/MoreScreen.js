@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 
@@ -14,34 +13,38 @@ import ActivePloggerMap from './ActivePloggerMap';
 import SuppliesScreen from './SuppliesScreen';
 import CouchPloggingScreen from './CouchPloggingScreen';
 import SocialMediaScreen from './SocialMediaScreen';
-
-
-const InviteModal = () => (
-    <View>
-      <Text style={{ fontSize: 20 }} >Invite</Text>
-    </View>
-);
+import InviteModalScreen from './InviteModalScreen';
 
 export class MoreScreen extends React.Component {
-    static pages = [
-        {label: 'About Plogalong', route: 'About'},
-        {label: 'FAQ', route: 'FAQ'},
-        {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
-        {label: 'Plogging Supplies', route: 'Supplies'},
-        {label: 'Couch Plogging', route: 'CouchPlogging'},
-        {label: 'Plogging on Social Media', route: 'SocialMedia'},
-        {label: 'Invite', route: 'Modal', params: { content: <InviteModal />}}
-    ];
+  constructor(props) {
+    super(props);
+    this.state = { isInviteModalVisible: false };
+  }
 
-    static navigationOptions = {
-        header: null,
-        headerBackTitle: 'More'
-    };
+  toggleIsInviteModalVisible = () => {
+    this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
+  }
+
+  pages = [
+    {label: 'About Plogalong', route: 'About'},
+    {label: 'FAQ', route: 'FAQ'},
+    {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
+    {label: 'Plogging Supplies', route: 'Supplies'},
+    {label: 'Couch Plogging', route: 'CouchPlogging'},
+    {label: 'Plogging on Social Media', route: 'SocialMedia'},
+    {label: 'Invite', route: false, handlePress: this.toggleIsInviteModalVisible},
+  ];
+
+  static navigationOptions = {
+      header: null,
+      headerBackTitle: 'More'
+  };
 
   render() {
     return (
       <View style={styles.container}>
-        <NavMenu routes={MoreScreen.pages}/>
+        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible} isInviteModalVisible={this.state.isInviteModalVisible} />
+        <NavMenu routes={this.pages}/>
       </View>
     );
   }
@@ -54,7 +57,8 @@ export default createStackNavigator({
     ActivePloggerMap,
     Supplies: SuppliesScreen,
     CouchPlogging: CouchPloggingScreen,
-    SocialMedia: SocialMediaScreen
+    SocialMedia: SocialMediaScreen,
+    InviteModal: InviteModalScreen
 }, {
     headerStyle: { height: 100 }
 });
@@ -64,8 +68,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: 'gray'
-    },
+  divider: {
+      borderBottomWidth: 1,
+      borderBottomColor: 'gray'
+  },
 });
