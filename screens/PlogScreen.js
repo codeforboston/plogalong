@@ -5,8 +5,10 @@ import {
     StyleSheet,
     View,
 } from 'react-native';
-import { MapView, Constants, Location, Permissions } from 'expo';
-import { Marker } from 'react-native-maps';
+import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
+import Constants from 'expo-constants';
+import MapView, { Marker } from 'react-native-maps';
 
 import { Set } from 'immutable';
 

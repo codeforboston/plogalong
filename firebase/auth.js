@@ -1,4 +1,4 @@
-import { Facebook } from 'expo';
+import * as Facebook from 'expo-facebook';
 
 import { auth, firebase } from './init';
 import firebaseConfig from './config';

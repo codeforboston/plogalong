@@ -7,8 +7,7 @@ import {
     Text,
     View,
 } from 'react-native';
-import { MapView } from 'expo';
-import { Marker } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 
 import moment from 'moment';
 
