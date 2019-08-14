@@ -1,5 +1,6 @@
 const tintColor = '#2f95dc';
 
+// can we get some comments/examples where it's used up in hurr
 export default {
     bannerBackground: '#faedce',
     selectionColor: '#8354c5',
