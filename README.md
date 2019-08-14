@@ -85,6 +85,18 @@ Verified on 08/13/19 up to this point - if experiencing issues during setup, cre
   <br>4. Your QR code reader / Camera App, will ask if you want to launch the 
   App in Expo Client App, select "Yes"
   <br>5. Plogalong should load accordingly
+  
+## Updating Instructions
+
+- After a pull request is merged, it may specify that node_modules will need 
+to be deleted. When this is the case, delete the `node_modules` folder on your 
+local repo and execute `yarn install` in your terminal.
+<br>_n.b. if you are using npm, execute `npm install` instead of `yarn install`_
+
+- The time may come when you will have to update Expo on your simulator. To do 
+so on the iOS simulator, execute `expo install:ios` in your terminal. If it 
+doesn't take on the first try, try once more. If you're still stuck after two 
+times, consult an expert.
 
 ## How to Contribute
 
