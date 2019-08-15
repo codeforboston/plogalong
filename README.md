@@ -40,19 +40,23 @@
     Conditions.
 
 
--------
 
-Verified on 08/13/19 up to this point - if experiencing issues during setup, create new bug
-
---------
 
   - (Android) Install [Android Studio](https://developer.android.com/studio/) and
   create a virtual device.
 
     [See here](https://docs.expo.io/versions/v32.0.0/workflow/android-studio-emulator/) for detailed instructions 
+    To create a virtual device from the Android welcome screen, click configure>AVD Manager 
     <br>_n.b. Since this app will be deployed on the Google Play Store, 
     when creating a virtual device in the AVD Manager, try to choose a device that 
     has the triangular Google Play Store icon next to it._
+    Download an available system image
+    
+-------
+
+Verified on 08/14/19 up to this point - if experiencing issues during setup, create new bug
+
+--------
     
   - Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
 
