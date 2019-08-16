@@ -80,6 +80,8 @@ Verified on 08/14/19 up to this point - if experiencing issues during setup, cre
   - While Expo runs, you can type `a` at the terminal to run the app in an
     Android emulator or `i` to run it in the iOS simulator; or you can use
     Expo's local web interface.
+    
+    If you type 'i' and get an error, run 'sudo xcode-select -s /Applications/Xcode.app'
    
   - To run Plogalong on an iOS device: 
   <br>1. Connect both your computer and your iOS device with same Wi-Fi. 
