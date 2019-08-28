@@ -1,36 +1,19 @@
-// @flow
 import { LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
+import * as types from './actionTypes';
+import { auth } from '../firebase/init';
 
-type Location = {
-    lat: number,
-    lng: number,
-    name: ?string
-}
-
-type PlogInfo = {
-    location: Location,
-    when: Date,
-    trashType: string[],
-    activityType: string,
-    groupType: string,
-    plogPhotos: object[],
-};
-
-type Preferences = {
-    shareActivity: boolean,
-};
 
 /**
  * @typedef {Object} PlogInfo
  * @property {Location} location
  * @property {}
  */
-export const logPlog = (plogInfo: PlogInfo) => ({
+export const logPlog = (plogInfo) => ({
     type: LOG_PLOG,
     payload: plogInfo
 });
 
-export const updatePlogs = (plogs: PlogInfo[]) => ({
+export const updatePlogs = (plogs) => ({
     type: UPDATE_PLOGS,
     payload: {
         plogs,
@@ -50,6 +33,47 @@ export const setPreferences = (preferences: Preferences) => ({
         preferences,
     }
 });
+
+export const signupWithEmail = (email, password) => (
+    async dispatch => {
+        try {
+            const user = await auth.createUserWithEmailAndPassword(email, password);
+        } catch(err) {
+            dispatch({ type: types.SIGNUP_ERROR,
+                       payload: {
+                           error: {
+                               code: err.code,
+                               message: err.message
+                           }
+                       }
+                     });
+        }
+    }
+);
+
+export const loginWithEmail = (email, password) => (
+    async dispatch => {
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+        } catch(err) {
+            dispatch({ type: types.LOGIN_ERROR,
+                       payload: {
+                           error: {
+                               code: err.code,
+                               message: err.message
+                           }
+                       }
+                     });
+        }
+    }
+);
+
+export const logout = () => (
+    async _ => {
+        await auth.signOut();
+    }
+);
+
 
 export default {
     logPlog,

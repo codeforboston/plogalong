@@ -29,7 +29,8 @@
     "react-native-svg": "~9.5.1",
     "react-navigation": "^3.11.1",
     "react-redux": "^6.0.1",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0",

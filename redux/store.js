@@ -1,4 +1,6 @@
 import { createStore, compose, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+
 import rootReducer from './reducers';
 
 import { getPlogs } from '../firebase/plogs';
@@ -13,7 +15,8 @@ const store = createStore(
   rootReducer,
   composeEnhancers(
     applyMiddleware(
-      FirebaseMiddleware
+      FirebaseMiddleware,
+      thunk
     )
   )
 );
@@ -28,6 +31,7 @@ getPlogs().then(
 
 onAuthStateChanged(
   (user) => {
+      console.log('onAuthStateChanged', user);
     store.dispatch(
       setCurrentUser(
         user === null ?

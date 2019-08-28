@@ -21,6 +21,7 @@ import Selectable from '../components/Selectable';
 
 import Options from '../constants/Options';
 import Colors from '../constants/Colors';
+import $S from '../styles';
 
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
@@ -101,6 +102,9 @@ class PlogScreen extends React.Component {
 
             this.setState({ location });
         }
+
+        /* const {loginWithGoogle} = require('../firebase/auth');
+         * await loginWithGoogle(); */
     }
 
     renderModeQuestions(mode=this.mode) {
@@ -188,8 +192,9 @@ class PlogScreen extends React.Component {
           {this.renderModeQuestions()}
 
             <Button title={PlogScreen.modes[this.state.selectedMode]}
+                    primary
                     onPress={this.onSubmit}
-                    style={styles.activeButton} />
+                    style={$S.activeButton} />
 
         </ScrollView>
       </View>
@@ -212,15 +217,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         justifyContent: 'space-around'
     },
-    activeButton: {
-        backgroundColor: Colors.secondaryColor,
-        color: 'white',
-        marginLeft: 40,
-        marginRight: 40,
-        paddingTop: 10,
-        paddingBottom: 10,
-        overflow: 'hidden',
-    },
+
     map: {
         borderColor: Colors.borderColor,
         borderWidth: 1,
@@ -231,7 +228,9 @@ const styles = StyleSheet.create({
 
 });
 
-const PlogScreenContainer = connect(null,
+const PlogScreenContainer = connect(state => ({
+    user: state.users.get("current")
+}),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {
                                             dispatch(actions.logPlog(plogInfo));
