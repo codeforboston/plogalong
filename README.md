@@ -54,7 +54,8 @@
     
 -------
 
-Verified on 08/14/19 up to this point - if experiencing issues during setup, create new bug
+Verified on 08/14/19 up to this point - if experiencing issues during setup, create new bug, or add to:
+https://github.com/codeforboston/plogalong/issues/38
 
 --------
     
