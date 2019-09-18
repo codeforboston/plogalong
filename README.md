@@ -47,17 +47,12 @@
 
     [See here](https://docs.expo.io/versions/v32.0.0/workflow/android-studio-emulator/) for detailed instructions 
     To create a virtual device from the Android welcome screen, click configure>AVD Manager 
+    To edit your virtual device selection from somewhere other than the welcome screen, click on the AVD Manager icon in the
+    toolbar on the top right (looks like a phone with a green android alien)
     <br>_n.b. Since this app will be deployed on the Google Play Store, 
     when creating a virtual device in the AVD Manager, try to choose a device that 
     has the triangular Google Play Store icon next to it._
     Download an available system image
-    
--------
-
-Verified on 08/14/19 up to this point - if experiencing issues during setup, create new bug, or add to:
-https://github.com/codeforboston/plogalong/issues/38
-
---------
     
   - Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
 
@@ -73,25 +68,33 @@ https://github.com/codeforboston/plogalong/issues/38
   to `firebase/config.js`. Replace the values in `firebase/config.js` by copying 
   in the new config info (which you can find pinned in the #plogalong Slack 
   channel).
+  
+  - If you're planning on running this on an Android simulator, you'll have to install the Expo app via the simulated 
+  device's Google Play Store. To do so, open Android Studio, open the AVD Manager (icon looks like a phone with a green
+  Android alien in the top right toolbar), click the Play button under "Actions" to launch the simulator. You can then open
+  the Google Play Store on the simulated device. Now search for the Expo app and install it to the simulated device. You may
+  have to launch the simulator from Android Studio each time you want to run the app via Expo.
 
   - In a terminal window, navigate to the root directory of your local clone of
     this repository. Type `expo start` to launch Metro bundler and Expo's
     browser-based developer tools.
 
-  - While Expo runs, you can type `a` at the terminal to run the app in an
-    Android emulator or `i` to run it in the iOS simulator; or you can use
-    Expo's local web interface.
+  - While Expo runs, you can type `i` to run the app in the iOS simulator. In order to use the Android emulator, launch 
+  the Android Virtual Device emulator via Android studio (described above), then type `a` at the terminal to run the app in
+  the
+    Android emulator. You can also use Expo's local web interface to launch the app.
     
     If you type 'i' and get an error, run 'sudo xcode-select -s /Applications/Xcode.app'
    
   - To run Plogalong on an iOS device: 
   <br>1. Connect both your computer and your iOS device with same Wi-Fi. 
-  <br>2. In Expo XDE, select Host > LAN
-  <br>3. Click the"Share" button in Expo XDE to show a QR Code. Use Camera 
-  App in iOS (iOS 11+) or any QR code reader (iOS 9 & 10) to scan the QR Code.
+  <br>2. In Expo XDE in your browser, select Connection > LAN
+  <br>3. Use the Camera App on your iOS (iOS 11+)Device or any QR code reader (iOS 9 & 10) to scan the QR Code.
   <br>4. Your QR code reader / Camera App, will ask if you want to launch the 
   App in Expo Client App, select "Yes"
   <br>5. Plogalong should load accordingly
+  
+  //TODO: add directions for running on Android Device
   
 ## Updating Instructions
 
