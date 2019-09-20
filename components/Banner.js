@@ -7,11 +7,12 @@ import {
 
 import Colors from '../constants/Colors';
 
+import plogMessage from '../screens/PlogScreenWeather';
 
 const Banner = (props) => (
     <View>
         <Text style={styles.container}>
-            {props.children}
+            {props.children}{plogMessage.message}
         </Text>
     </View>
 );

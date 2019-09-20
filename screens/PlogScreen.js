@@ -26,6 +26,7 @@ import $S from '../styles';
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
 
+import PlogScreenWeather from './PlogScreenWeather';
 
 class PlogScreen extends React.Component {
     static modes = ['Log', 'Flag'];
@@ -148,7 +149,7 @@ class PlogScreen extends React.Component {
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <Banner>
-                Hello, world!
+                <PlogScreenWeather />
             </Banner>
 
             <SegmentedControl selectedIndex={state.selectedMode}
