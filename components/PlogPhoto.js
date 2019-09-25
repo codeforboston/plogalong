@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 
 import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
 
 import { withNavigation } from 'react-navigation';
 
