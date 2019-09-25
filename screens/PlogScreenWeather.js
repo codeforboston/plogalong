@@ -14,9 +14,7 @@ class PlogScreenWeather extends Component {
       return this.renderError();
     }
     if (!this.state.weatherDetails) {
-      return (
-        this.renderLoading()
-      )
+      return this.renderLoading()
     } else {
       const plogMessage = { message: "Sample welcome message" };
       const tempMin = this.state.weatherDetails.main.temp_min;
@@ -103,15 +101,25 @@ class PlogScreenWeather extends Component {
         let latit = position.coords.latitude;
         let longit = position.coords.longitude;
         let toGetWeather = "?lat=" + latit.toFixed(4) + "&lon=" + longit.toFixed(4);
+        let apiKey;
+        if (!apiKey) {
+          console.warn("Missing API key");
+        } else {
         fetch("http://api.openweathermap.org/data/2.5/weather" 
           + toGetWeather 
-            + "&units=metric&APPID={api key goes here}")
+            + "&units=metric&APPID=" + apiKey)
 // Contact the dev team for the api key, and only use it in your local work for the time being if you need to.
 // This is to avoid losing control of the api key and it being overused or misused.
-            .then(response => response.json())
-            .then(data => {
-              this.setState({
-                weatherDetails: data
+            .then(response => {
+              if (response.status !== 200) {
+                console.warn("API call was unsuccessful. Status code: " + response.status);
+                return;
+              }
+              response.json()
+              .then(data => {
+                this.setState({
+                  weatherDetails: data
+                })
               })
             })
             .catch(err => {
@@ -119,12 +127,13 @@ class PlogScreenWeather extends Component {
               this.setState({
                 error: err
               });
-            })
+            })       
+        }
       });
       console.log("geolocation found");
       console.log(this.state.weatherDetails);
     } else {
-        console.log("geolocation not found");
+      console.log("geolocation not found");
     };
   }
 
@@ -137,7 +146,9 @@ class PlogScreenWeather extends Component {
 
   renderLoading() {
     return (
-      <Text>Hi there</Text>
+      <Text>
+        Hi there - sorry, we can't give you weather info right now!
+      </Text>
     )
   }
 }
