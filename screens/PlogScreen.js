@@ -16,7 +16,6 @@ import Banner from '../components/Banner';
 import Button from '../components/Button';
 import PlogPhoto from '../components/PlogPhoto';
 import Question from '../components/Question';
-import SegmentedControl from '../components/SegmentedControl';
 import Selectable from '../components/Selectable';
 
 import Options from '../constants/Options';
@@ -29,7 +28,7 @@ import * as actions from '../redux/actions';
 import PlogScreenWeather from './PlogScreenWeather';
 
 class PlogScreen extends React.Component {
-    static modes = ['Log', 'Flag'];
+    static modes = ['Log'];
 
     constructor(props) {
         super(props);
@@ -151,11 +150,6 @@ class PlogScreen extends React.Component {
             <Banner>
                 <PlogScreenWeather />
             </Banner>
-
-            <SegmentedControl selectedIndex={state.selectedMode}
-                              values={PlogScreen.modes}
-                              onChange={this.changeMode}
-            />
 
             <MapView
                 style={[styles.map]}
