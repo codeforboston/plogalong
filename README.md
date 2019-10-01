@@ -104,7 +104,7 @@ local repo and execute `yarn install` in your terminal.
 <br>_n.b. if you are using npm, execute `npm install` instead of `yarn install`_
 
 - The time may come when you will have to update Expo on your simulator. To do 
-so on the iOS simulator, execute `expo install:ios` in your terminal. If it 
+so on the iOS simulator, execute `expo client:install:ios` in your terminal. If it 
 doesn't take on the first try, try once more. If you're still stuck after two 
 times, consult an expert.
 
