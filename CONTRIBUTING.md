@@ -1,4 +1,4 @@
-<h3>Contributing<h3>
+<h3>Contributing
 
 Make sure that codeforboston/plogalong is set as your upstream: 
 `git remote add upstream https://github.com/codeforboston/plogalong.git` 
