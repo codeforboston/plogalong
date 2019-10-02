@@ -1,25 +1,23 @@
-Contributing
+<h3>Contributing<h3>
 
-Make sure that codeforboston/plogalong is set as your upstream
-git remote add upstream https://github.com/codeforboston/plogalong.git
-Your fork of the project will be your Origin Master
+Make sure that codeforboston/plogalong is set as your upstream: 
+`git remote add upstream https://github.com/codeforboston/plogalong.git` 
+<br>Your fork of the project will be your Origin Master.
 
-Create Issues
+_Create Issues_
 
-Address Issues
+_Address Issues_
 
-Flow
-Git pull from Upstream master
-Create new branch
-Branch name should describe the feature and include the issue number
-Add awesome new code
-Push to origin Branch
-Create pull request
-Describe the changes that you've made in the pull request
-Include 'fixes' and the name of the issue you've resolved
-
-
-Review Issues - what to expect
+_Flow_
+<br>1. Git pull from Upstream master
+<br>2. Create new branch
+<br>3. Branch name should describe the feature and include the issue number
+<br>4. Add awesome new code
+<br>5. Push to origin Branch
+<br>6. Create pull request:
+- Describe the changes that you've made in the pull request
+- Include 'fixes' and the name of the issue you've resolved
+- Include review issues - What to expect when you run the app?
 
 If you need to update a pull request you can push to the same branch to push the updates
 
