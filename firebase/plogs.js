@@ -1,4 +1,4 @@
-import db from './init';
+import db, { storage } from './init';
 
 
 const plogDocToState = (plog) => {
@@ -32,8 +32,8 @@ export const getPlogs = async (userId) => {
 
 export const savePlog = async (plog) => {
   const doc = db.collection('plogs').doc();
-  const result = await doc.set({
-    TrashTypes: plog.trashTypes.toJS(),
+  await doc.set({
+    TrashTypes: plog.trashTypes,
     ActivityType: plog.activityType,
     Location: {
       Latitude: plog.location.lat,
@@ -45,8 +45,19 @@ export const savePlog = async (plog) => {
       "Plog" :
       "Flag",
     DateTime: plog.when,
-      UserID: plog.userID
+      UserID: plog.userID,
+      Photos: []
   });
 
-  const data = await doc.get();
+    const urls = [];
+    let i = 0;
+    for (let {uri} of plog.plogPhotos) {
+        const response = await fetch(uri);
+
+        const ref = storage.ref().child(`userdata/${plog.userID}/plog/${doc.id}-${i++}.jpg`);
+        await ref.put(await response.blob());
+        urls.push(await ref.getDownloadURL());
+    }
+
+    await doc.update({ Photos: urls });
 };

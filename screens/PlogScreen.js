@@ -55,12 +55,12 @@ class PlogScreen extends React.Component {
             location: {lat: latitude, lng: longitude, name: 'beach'},
             when: new Date(),
             pickedUp: this.mode === 'Log',
-            trashTypes: this.state.trashTypes,
+            trashTypes: this.state.trashTypes.toJS(),
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0],
             plogPhotos: this.state.plogPhotos.filter(p=> p!=null)
         };
-        this.props.logPlog(plog);
+
         Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
         this.setState({
             trashTypes: Set([]),
