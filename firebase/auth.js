@@ -1,6 +1,6 @@
 import * as Facebook from 'expo-facebook';
 
-import { auth, firebase } from './init';
+import db, { auth, firebase } from './init';
 import firebaseConfig from './config';
 
 export const loginWithFacebook = async () => {
@@ -21,5 +21,15 @@ export const loginWithFacebook = async () => {
 export const logOut = async () => {
   return auth.signOut();
 }
+
+export const saveUser = async (user) => {
+    const doc = db.collection('users').doc(user.uid);
+    const result = await doc.set({
+        UserID: user.uid,
+        LastLogin: new Date(),
+    });
+
+    const data = await doc.get();
+};
 
 export const onAuthStateChanged = auth.onAuthStateChanged.bind(auth);

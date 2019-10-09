@@ -1,6 +1,5 @@
 import db from './init';
 
-import { PlogInfo } from '../redux/actions';
 
 const plogDocToState = (plog) => {
   const data = plog.data();
@@ -19,13 +18,19 @@ const plogDocToState = (plog) => {
   };
 };
 
-export const getPlogs = async () => {
+export const getLocalPlogs = async () => {
   const plogs = await db.collection('plogs').get();
 
   return plogs.docs.map(plogDocToState);
 };
 
-export const savePlog = async (plog: PlogInfo) => {
+export const getPlogs = async (userId) => {
+    const plogs = await db.collection('plogs').where('UserID', '==', userId).get();
+
+    return plogs.docs.map(plogDocToState);
+};
+
+export const savePlog = async (plog) => {
   const doc = db.collection('plogs').doc();
   const result = await doc.set({
     TrashTypes: plog.trashTypes.toJS(),
@@ -40,12 +45,8 @@ export const savePlog = async (plog: PlogInfo) => {
       "Plog" :
       "Flag",
     DateTime: plog.when,
+      UserID: plog.userID
   });
 
   const data = await doc.get();
-
-  console.log({ 
-    doc: plogDocToState(data),
-   });
-  
 };
