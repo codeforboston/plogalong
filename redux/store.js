@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 
 import rootReducer from './reducers';
 
-import { getPlogs } from '../firebase/plogs';
+import { getLocalPlogs, getPlogs } from '../firebase/plogs';
 import { onAuthStateChanged } from '../firebase/auth';
 
 import { updatePlogs, setCurrentUser } from './actions';
@@ -21,24 +21,31 @@ const store = createStore(
   )
 );
 
-getPlogs().then(
-  (plogs) => {
-    store.dispatch(
-      updatePlogs(plogs)
-    )
-  }
-);
+// getLocalPlogs().then(
+//   (plogs) => {
+//     store.dispatch(
+//       updatePlogs(plogs)
+//     );
+//   }
+// );
 
 onAuthStateChanged(
   (user) => {
       console.log('onAuthStateChanged', user);
+
     store.dispatch(
       setCurrentUser(
         user === null ?
           null :
           user.toJSON()
       )
-    );  
+    );
+
+      if (user) {
+          getPlogs(user.uid).then(plogs => {
+              store.dispatch(updatePlogs(plogs));
+          });
+      }
   }
 );
 
