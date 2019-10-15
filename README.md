@@ -13,20 +13,20 @@
 
 ## Architectural Overview
 
-  This is a young project. We're still figuring out what the pieces are and how
-  they'll fit together.
+  - React-Native + Expo: React Native is built on the same bones as React for
+  web, except that instead of building user interfaces from DOM elements, you
+  use platform-native views (UIViews on iOS, Views on Android). Expo is a
+  managed version of React Native that includes a library of components known to
+  be compatible with each other. It adds some tooling that help in the
+  development cycle.
 
-  - React-Native + Expo
+  - Redux for managing local state
 
-  - State Manager (TBD)
+  - Database - Firebase
 
-  - Database (TBD)
-
-  - Authentication (TBD)
+  - Authentication - Firebase
 
 ## Setup Instructions
-
-
 
   - Clone this repository (download and extract zip file from https://github.com/codeforboston/plogalong)
 
@@ -36,10 +36,8 @@
 
   - (iOS) Install [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)
     _This may take a while... why not go plogging for an hour?_
-    <br>...then launch it at least once so that you can agree to it's Terms and
+    <br>...then launch it at least once so that you can agree to its Terms and
     Conditions.
-
-
 
 
   - (Android) Install [Android Studio](https://developer.android.com/studio/) and
@@ -54,14 +52,11 @@
     has the triangular Google Play Store icon next to it._
     Download an available system image
     
-  - Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
+  - (Optional) Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
 
-  - Install node modules: `yarn install`
-  (NOTE: Do NOT use `npm install` or `npm ci` as packages like 
-  react-native-svg-transformer are not managed through npm and this results in 
-  conflicting dependencies and there by in errors)
+  - Install node modules: `npm install` or `yarn install`
 
-  - Install Expo: `yarn global add expo-cli` (if you prefer NPM Install Expo: sudo 
+  - Install Expo: `npm install expo-cli --global` or `yarn global add expo-cli`
   npm install expo-cli --global)
 
   - Configure Firestore connection: rename the file `firebase/config.js.example` 

@@ -3,15 +3,10 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
 
-import {
-    loginWithFacebook,
-    logOut,
-} from '../firebase/auth';
 import * as actions from '../redux/actions';
 
 import $S from '../styles';

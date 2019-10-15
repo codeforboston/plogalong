@@ -1,12 +1,9 @@
 import React from 'react';
 import {
     ActivityIndicator,
-    StatusBar,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createStackNavigator } from 'react-navigation';
-
-import Header from '../components/Header';
 
 import SignupScreen from '../screens/Signup';
 import LoginScreen from '../screens/Login';

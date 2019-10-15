@@ -43,7 +43,6 @@ class ScreenSlider extends React.Component {
         if (showingIndex < 0)
             return;
 
-        console.log('scrolling to index:', showingIndex);
         this._flatList.scrollToIndex({ index: showingIndex });
         this.setState({ showingIndex });
     }
@@ -96,7 +95,7 @@ class ScreenSlider extends React.Component {
             <View style={styles.container}>
               <FlatList ref={list => { this._flatList = list; }}
                         data={pages}
-                        keyExtractor={page => page.heading}
+                        keyExtractor={(page, i) => page.heading || `${i}`}
                         horizontal
                         initialNumToRender={1}
                         initialScrollIndex={this.state.showingIndex}
