@@ -60,7 +60,7 @@ class PlogScreen extends React.Component {
             groupType: this.state.groupType[0],
             plogPhotos: this.state.plogPhotos.filter(p=> p!=null)
         };
-
+        this.props.logPlog(plog);
         Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
         this.setState({
             trashTypes: Set([]),
