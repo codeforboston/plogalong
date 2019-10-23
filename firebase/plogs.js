@@ -37,17 +37,18 @@ export const savePlog = async (plog) => {
     TrashTypes: plog.trashTypes,
     ActivityType: plog.activityType,
     Location: {
-      Latitude: plog.location.lat,
-      Longitude: plog.location.lng,
+      Latitude: plog.location ? plog.location.lat : 0,
+      Longitude: plog.location ? plog.location.lng : 0,
     },
-    GeoLabel: plog.location.name,
+    GeoLabel: plog.location ? plog.location.name : "mid atlantic",
     HelperType: plog.groupType,
     PlogType: plog.pickedUp ?
       "Plog" :
       "Flag",
     DateTime: plog.when,
-      UserID: plog.userID,
-      Photos: []
+    UserID: plog.userID,
+    Photos: [],
+    PlogDuration: plog.timeSpent
   });
 
     const urls = [];
