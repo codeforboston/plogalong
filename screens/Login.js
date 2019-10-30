@@ -84,6 +84,11 @@ class LoginScreen extends React.Component {
                 Create an Account
               </Link>
 
+              <Link onPress={() => { this.props.loginAnonymously(); }}
+                    style={{ marginTop: 30, textAlign: 'center' }}>
+                Skip Registration
+              </Link>
+
               <Link onPress={() => { navigation.navigate('Intro'); }}
                     style={[$S.helpLink, { marginTop: 20, textAlign: 'center' }]}>
                 What is Plogging?
@@ -106,9 +111,10 @@ const styles = StyleSheet.create({
 
 export default connect(
     state => ({
-        error: state.users.get("loginError")
+        error: state.users.get("loginError"),
     }),
     dispatch => ({
-        loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args))
+        loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
+        loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
     })
 )(LoginScreen);

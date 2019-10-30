@@ -15,7 +15,7 @@ import {
 } from '../firebase/auth';
 import Button from '../components/Button';
 import { Switch } from 'react-native';
-import { setPreferences} from '../redux/actions';
+import { setPreferences, logout} from '../redux/actions';
 
 class ProfileScreen extends React.Component {
 
@@ -23,7 +23,13 @@ class ProfileScreen extends React.Component {
     this.props.updatePreferences({ shareActivity })
   }
 
+    goToSignup = () => {
+        this.props.navigation.navigate('Signup');
+    }
+
   render() {
+    const currentUser = this.props.currentUser && this.props.currentUser.toJS();
+
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -48,22 +54,12 @@ class ProfileScreen extends React.Component {
             />
           </View>
 
-          {
-            this.props.currentUser ?
-              (
-                <View>
-                  <Text>Hello, {this.props.currentUser.get("displayName")}!</Text>
-                  <Button primary onPress={logOut} title="Log out" />
-                </View>
-              ) :
-              (
-                <Button
-                  onPress={loginWithFacebook}
-                  title="Log in"
-                />
-              )
-          }
+          <View>
+            <Text style={styles.welcomeText}>Hello, {currentUser.displayName||'Fellow Plogger'}!</Text>
+            <Button primary onPress={this.goToSignup} title="Create Plogalong Account" />
+          </View>
 
+          <Button primary onPress={logOut} title="Login as different User" />
         </ScrollView>
       </View>
     );
@@ -77,6 +73,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 30,
+    padding: 20
   },
   welcomeContainer: {
     alignItems: 'center',
@@ -89,7 +86,10 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginTop: 3,
     marginLeft: -10,
-  }
+  },
+    welcomeText: {
+        textAlign: 'center'
+    }
 });
 
 export default connect(
@@ -100,6 +100,7 @@ export default connect(
   (dispatch) => ({
     updatePreferences(preferences) {
       dispatch(setPreferences(preferences))
-    }
+    },
+
   })
 )(ProfileScreen);

@@ -39,6 +39,8 @@ export function initializeStore(prefs) {
 
     onAuthStateChanged(
         (user) => {
+            // console.log('user', user);
+
             store.dispatch(
                 setCurrentUser(
                     user === null ?

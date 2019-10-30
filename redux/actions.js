@@ -1,7 +1,7 @@
 import { AsyncStorage } from 'react-native';
 import { LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 import * as types from './actionTypes';
-import { auth } from '../firebase/init';
+import { auth, firebase } from '../firebase/init';
 
 
 /**
@@ -46,7 +46,26 @@ export const setPreferences = (preferences) => ({
 export const signupWithEmail = (email, password) => (
     async dispatch => {
         try {
-            const user = await auth.createUserWithEmailAndPassword(email, password);
+            await auth.createUserWithEmailAndPassword(email, password);
+        } catch(err) {
+            dispatch({ type: types.SIGNUP_ERROR,
+                       payload: {
+                           error: {
+                               code: err.code,
+                               message: err.message
+                           }
+                       }
+                     });
+        }
+    }
+);
+
+export const linkToEmail = (email, password) => (
+    async dispatch => {
+        try {
+            const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+            const creds = await auth.currentUser.linkWithCredential(credential);
+            dispatch(setCurrentUser(creds.user.toJSON()));
         } catch(err) {
             dispatch({ type: types.SIGNUP_ERROR,
                        payload: {
@@ -73,6 +92,16 @@ export const loginWithEmail = (email, password) => (
                            }
                        }
                      });
+        }
+    }
+);
+
+export const loginAnonymously = () => (
+    async dispatch => {
+        try {
+            await auth.signInAnonymously();
+        } catch(err) {
+
         }
     }
 );
