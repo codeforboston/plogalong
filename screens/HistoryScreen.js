@@ -30,44 +30,51 @@ const Plog = ({plogInfo}) => {
 
     const { plogPhotos = [] } = plogInfo.toJS();
 
+    console.log('plogInfo: ', plogInfo);
+
     return (
         <View>
             <View style={styles.plogStyle}>
                 <Image source={ProfileImage} style={styles.profileImage} />
                 <View>
-                    <Text styles={styles.actionText}>
-                        You {plogInfo.get('pickedUp') ? 'picked up' : 'flagged'}&nbsp;
-                        {plogInfo.get('trashTypes').join(', ')} at {JSON.stringify(plogInfo.get('location'))}
+                    <Text style={styles.actionText}>
+                        You plogged {plogInfo.getIn(['location', 'name'])}.
                     </Text>
-                    <Text styles={styles.timeText}>
+                    <Text style={styles.subText}>
                         {moment(plogInfo.get('when')).fromNow()}
                     </Text>
                 </View>
             </View>
-            <MapView
-                style={styles.map}
-                region={{
-                    ...latLng,
-                    latitudeDelta: 0.05,
-                    longitudeDelta: 0.04,
-                }}
-                showsMyLocationButton={false}
-                scrollEnabled={false}
-            >
-                <Marker
-                    coordinate={latLng}
-                    tracksViewChanges={false}
+            <View style={styles.plogStyle}>            
+                <MapView
+                    style={styles.map}
+                    region={{
+                        ...latLng,
+                        latitudeDelta: 0.05,
+                        longitudeDelta: 0.04,
+                    }}
+                    showsMyLocationButton={false}
+                    scrollEnabled={false}
                 >
-                    <ActivityIcon
-                        width={40}
-                        height={40}
-                        fill={Colors.activeColor}
-                    />
-                </Marker>
-            </MapView>
-            <View style={{flexDirection: 'row'}}>
-              {plogPhotos.map(({uri}) => (<Image source={{uri}} key={uri} style={{flex: 0, width: 150, height: 150}}/>))}
-
+                    <Marker
+                        coordinate={latLng}
+                        tracksViewChanges={false}
+                    >
+                        <ActivityIcon
+                            width={40}
+                            height={40}
+                            fill={Colors.activeColor}
+                        />
+                    </Marker>
+                </MapView>
+                <ScrollView contentContainerStyle={styles.photos}>
+                    {plogPhotos.map(({uri}) => (<Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>))}
+                </ScrollView>
+            </View>
+            <View style={styles.plogStyle}>
+                <Text style={styles.subText}>
+                    Cleaned up {plogInfo.get('trashTypes').map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
+                </Text>
             </View>
         </View>
     )
@@ -95,28 +102,39 @@ const styles = StyleSheet.create({
     plogStyle: {
         alignItems: 'center',
         flexDirection: 'row',
-        padding: 10
+        padding: 10,
+        paddingBottom: 0
     },
     divider: {
         borderBottomWidth: 1,
-        borderBottomColor: 'gray'
+        borderBottomColor: '#DCDCDC',
+        marginTop: 10
     },
     profileImage: {
         margin: 10
     },
     actionText: {
-
+        fontSize: 18
     },
-    timeText: {
-
+    subText: {
+        color: Colors.textGray
     },
     map: {
         borderColor: Colors.borderColor,
         borderWidth: 1,
-        flex: 1,
+        flex: 3,
         height: 300,
         margin: 5
     },
+    photos: {
+        flexDirection: 'column',
+        alignSelf: 'stretch',
+        justifyContent: 'flex-start',
+        height: 300,
+        overflow: 'scroll',
+        margin: 5,
+        flex: 1
+    }
 });
 
 
