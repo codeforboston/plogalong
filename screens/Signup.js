@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   View,
+  TouchableOpacity
 } from 'react-native';
 import { connect } from 'react-redux';
 
@@ -16,6 +17,7 @@ import * as actions from '../redux/actions';
 import $S from '../styles';
 
 import Button from '../components/Button';
+import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
 import Link from '../components/Link';
 
@@ -59,8 +61,9 @@ class SignupScreen extends React.Component {
         return (
             <View style={[$S.container, $S.form]}>
               {error && <Error error={error.toJS()}/>}
+              <DismissButton/>
               {
-              !providers['password'] &&
+              !providers['password'] ?
                   <>
                     <View style={$S.inputGroup}>
                       <Text style={$S.inputLabel}>Email</Text>
@@ -96,6 +99,12 @@ class SignupScreen extends React.Component {
                             onPress={this.onSubmit}
                             style={{ marginTop: 20 }}
                             disabled={this.disabled()} />
+                  </> :
+
+                  <>
+                    <Text style={{}}>
+                      Linked to email address: {providers['password']['email']}
+                    </Text>
                   </>
               }
             {
@@ -124,11 +133,6 @@ class SignupScreen extends React.Component {
                           />
                       )
               }
-
-              <Link onPress={() => { console.log('navigate?'); navigation.navigate('Login'); }}
-                    style={{ marginTop: 20, textAlign: 'center' }}>
-                Login Screen
-              </Link>
             </View>
         );
     }
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingTop: 30,
-    },
+    }
 });
 
 const ReduxSignupScreen = connect(
