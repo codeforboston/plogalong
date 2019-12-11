@@ -1,0 +1,15 @@
+export default {
+  apiKey: "xxxxxxxxxxxxxxxxx", //new api
+  authDomain: "xxxxxxxxxxxxxxxxx.firebaseapp.com",
+  databaseURL: "https://xxxxxxxxxxxxxxxxx.firebaseio.com",
+  projectId: "xxxxxxxxxxxxxxxxx",
+  storageBucket: "xxxxxxxxxxxxxxxxx.appspot.com",
+  appId: "1:12345678:web:912345678912345678",
+
+
+  auth: {
+    facebook: {
+      appId: "12345678",
+    },
+  },
+};
