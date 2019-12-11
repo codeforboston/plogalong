@@ -81,12 +81,23 @@ const MainTabNavigator = createBottomTabNavigator({
 export default connect(state => ({
     currentUser: state.users.get("current"),
     userLoaded: state.users.get("init"),
+    preferences: state.preferences,
 }))(class extends React.Component {
     static router = MainTabNavigator.router;
 
-    componentDidUpdate() {
-        if (!this.props.currentUser) {
-            this.props.navigation.navigate("Public");
+    componentDidMount() {
+        const sawIntro = this.props.preferences.get("sawIntro");
+        const {navigation} = this.props;
+
+        if (!sawIntro) {
+            navigation.navigate('Intro');
+            return;
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.currentUser && !this.props.currentUser) {
+            this.props.navigation.navigate("Login");
         }
     }
 

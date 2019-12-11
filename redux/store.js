@@ -5,6 +5,7 @@ import rootReducer from './reducers';
 
 import { getLocalPlogs, getPlogs } from '../firebase/plogs';
 import { onAuthStateChanged } from '../firebase/auth';
+import { auth } from '../firebase/init';
 
 import { fromJS } from "immutable";
 
@@ -37,9 +38,17 @@ export function initializeStore(prefs) {
     //     }
     // );
 
+    let firstStateChange = true;
+
     onAuthStateChanged(
         (user) => {
             // console.log('user', user);
+
+            if (!user && firstStateChange) {
+                // log in anonymously
+                auth.signInAnonymously();
+            }
+            firstStateChange = false;
 
             store.dispatch(
                 setCurrentUser(
