@@ -4,6 +4,7 @@ import {
     ScrollView,
     StyleSheet,
     View,
+    Text
 } from 'react-native';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
@@ -16,7 +17,6 @@ import Banner from '../components/Banner';
 import Button from '../components/Button';
 import PlogPhoto from '../components/PlogPhoto';
 import Question from '../components/Question';
-import SegmentedControl from '../components/SegmentedControl';
 import Selectable from '../components/Selectable';
 
 import Options from '../constants/Options';
@@ -28,8 +28,9 @@ import * as actions from '../redux/actions';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
+
 class PlogScreen extends React.Component {
-    static modes = ['Log', 'Flag'];
+    static modes = ['Log'];
 
     constructor(props) {
         super(props);
@@ -38,7 +39,11 @@ class PlogScreen extends React.Component {
             trashTypes: Set([]),
             activityType: ['walking'],
             groupType: ['alone'],
-            plogPhotos: [null, null, null, null, null]
+            plogPhotos: [null, null, null, null, null],
+            timerInterval: null,
+            plogStart: null,
+            plogTotalTime: 0,
+            plogTimer: '00:00:00'
         };
     }
 
@@ -51,22 +56,27 @@ class PlogScreen extends React.Component {
     }
 
     onSubmit = () => {
-        const {latitude, longitude} = this.state.location.coords;
+        const coords = this.state.location && this.state.location.coords;
         const plog = {
-            location: {lat: latitude, lng: longitude, name: 'beach'},
+            location: coords ? {lat: coords.latitude, lng: coords.longitude, name: 'beach'} : null,
             when: new Date(),
             pickedUp: this.mode === 'Log',
-            trashTypes: this.state.trashTypes,
+            trashTypes: this.state.trashTypes.toJS(),
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0],
-            plogPhotos: this.state.plogPhotos.filter(p=> p!=null)
+            plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
+            timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0)
         };
         this.props.logPlog(plog);
         Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
         this.setState({
             trashTypes: Set([]),
             selectedMode: 0,
-            plogPhotos: [null, null, null, null, null]
+            plogPhotos: [null, null, null, null, null],
+            timerInterval: clearInterval(this.state.timerInterval),
+            plogStart: null,
+            plogTotalTime: 0,
+            plogTimer: '00:00:00',
         });
     }
 
@@ -96,6 +106,43 @@ class PlogScreen extends React.Component {
         }));
     }
 
+    toggleTimer = () => {
+        if(this.state.timerInterval) {
+            this.setState(prevState => ({
+                timerInterval: clearInterval(this.state.timerInterval),
+                plogTotalTime: prevState.plogTotalTime + Date.now() - prevState.plogStart,
+                plogStart: null
+            }));
+        } else {
+            this.setState(prevState => ({
+                timerInterval: setInterval(this.tick, 1000),
+                plogStart: Date.now()
+            }));
+        }
+    }
+
+    clearTimer = () => {
+        this.setState({
+            timerInterval: clearInterval(this.state.timerInterval),
+            plogStart: null,
+            plogTotalTime: 0,
+            plogTimer: '00:00:00',
+        });
+    }
+
+    tick = () => {
+        let difference = (Date.now() - this.state.plogStart + this.state.plogTotalTime) / 1000;
+        let hours   = Math.floor(difference / 3600);
+        let minutes = Math.floor((difference - (hours * 3600)) / 60);
+        let seconds = Math.floor(difference - (hours * 3600) - (minutes * 60));
+
+        if (hours   < 10) {hours   = "0"+hours;}
+        if (minutes < 10) {minutes = "0"+minutes;}
+        if (seconds < 10) {seconds = "0"+seconds;}
+
+        this.setState({plogTimer: `${hours}:${minutes}:${seconds}`});
+    }
+
     async componentDidMount() {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status === 'granted') {
@@ -106,6 +153,10 @@ class PlogScreen extends React.Component {
 
         /* const {loginWithGoogle} = require('../firebase/auth');
          * await loginWithGoogle(); */
+    }
+
+    componentWillUnmount() {
+        this.setState({timerInterval: clearInterval(this.state.timerInterval)});
     }
 
     renderModeQuestions(mode=this.mode) {
@@ -152,10 +203,11 @@ class PlogScreen extends React.Component {
                 <PlogScreenWeather />
             </Banner>
 
-            <SegmentedControl selectedIndex={state.selectedMode}
-                              values={PlogScreen.modes}
-                              onChange={this.changeMode}
-            />
+            <Text style={styles.timer}>
+                <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text>
+                <Text> </Text>
+                {this.state.plogTimer}
+            </Text>
 
             <MapView
                 style={[styles.map]}
@@ -168,6 +220,14 @@ class PlogScreen extends React.Component {
                 followsUserLocation={true}
                 showsUserLocation={true}
             />
+            <View style={styles.timerButtonContainer} >
+                <Button
+                    title={this.state.timerInterval ? 'STOP TIMER' : 'START TIMER'}
+                    onPress={this.toggleTimer}
+                    style={styles.timerButton}
+                    selected={!!this.state.timerInterval}
+                />
+            </View>
 
             <Question question="What did you clean up?" answer={cleanedUp}/>
             <Selectable selection={state.trashTypes} >
@@ -226,6 +286,27 @@ const styles = StyleSheet.create({
         height: 300,
         margin: 5
     },
+
+    timerButton: {
+        width: '30%',
+        margin: 'auto',
+        backgroundColor: 'white'
+    },
+
+    timerButtonContainer: {
+        alignItems: 'center',
+        top: '-10%'
+    },
+
+    timer: {
+        textAlign: 'right',
+        paddingRight: 5
+    },
+
+    clearButton: {
+        color: 'grey',
+        textDecorationLine: 'underline'
+    }
 
 });
 

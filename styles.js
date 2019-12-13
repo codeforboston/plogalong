@@ -29,7 +29,15 @@ export default StyleSheet.create({
     },
 
     inputLabel: {
-        marginBottom: 10
+        marginBottom: 10,
+        fontWeight: '500',
+    },
+
+    switchInputGroup: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        marginBottom: 5,
     },
 
     button: {
@@ -63,6 +71,12 @@ export default StyleSheet.create({
     },
 
     link: {
+        color: Colors.tintColor,
         textDecorationLine: 'underline',
     },
+
+    helpLink: {
+        textDecorationStyle: 'dotted',
+        textDecorationColor: 'black',
+    }
 });

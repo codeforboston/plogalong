@@ -1,17 +1,22 @@
-import React from 'react';
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
 import CameraScreen from '../screens/CameraScreen';
-import PublicNavigator from './PublicNavigator';
+import ScreenSlider from '../components/ScreenSlider';
+import LoginScreen from '../screens/Login';
+import SignupScreen from '../screens/Signup';
 
 
 export default createAppContainer(createStackNavigator({
     Main: MainTabNavigator,
-    Public: PublicNavigator,
-    Camera: CameraScreen
+    Intro: ScreenSlider,
+    // Intro: IntroScreen,
+    Camera: CameraScreen,
+    Login: LoginScreen,
+    Signup: SignupScreen,
 }, {
     headerMode: 'none',
+    initialRouteName: 'Main',
     defaultNavigationOptions: {
         header: null
     },

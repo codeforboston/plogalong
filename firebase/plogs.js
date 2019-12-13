@@ -1,6 +1,5 @@
-import db from './init';
+import db, { storage } from './init';
 
-import { PlogInfo } from '../redux/actions';
 
 const plogDocToState = (plog) => {
   const data = plog.data();
@@ -16,36 +15,51 @@ const plogDocToState = (plog) => {
     groupType: data.HelperType,
     pickedUp: data.PlogType === "Plog",
     when: data.DateTime.toDate(),
+    plogPhotos: (data.Photos || []).map(uri => ({ uri }))
   };
 };
 
-export const getPlogs = async () => {
+export const getLocalPlogs = async () => {
   const plogs = await db.collection('plogs').get();
 
   return plogs.docs.map(plogDocToState);
 };
 
-export const savePlog = async (plog: PlogInfo) => {
+export const getPlogs = async (userId) => {
+    const plogs = await db.collection('plogs').where('UserID', '==', userId).get();
+
+    return plogs.docs.map(plogDocToState);
+};
+
+export const savePlog = async (plog) => {
   const doc = db.collection('plogs').doc();
-  const result = await doc.set({
-    TrashTypes: plog.trashTypes.toJS(),
+  await doc.set({
+    TrashTypes: plog.trashTypes,
     ActivityType: plog.activityType,
     Location: {
-      Latitude: plog.location.lat,
-      Longitude: plog.location.lng,
+      Latitude: plog.location ? plog.location.lat : 0,
+      Longitude: plog.location ? plog.location.lng : 0,
     },
-    GeoLabel: plog.location.name,
+    GeoLabel: plog.location ? plog.location.name : "mid atlantic",
     HelperType: plog.groupType,
     PlogType: plog.pickedUp ?
       "Plog" :
       "Flag",
     DateTime: plog.when,
+    UserID: plog.userID,
+    Photos: [],
+    PlogDuration: plog.timeSpent
   });
 
-  const data = await doc.get();
+    const urls = [];
+    let i = 0;
+    for (let {uri} of plog.plogPhotos) {
+        const response = await fetch(uri);
 
-  console.log({ 
-    doc: plogDocToState(data),
-   });
-  
+        const ref = storage.ref().child(`userdata/${plog.userID}/plog/${doc.id}-${i++}.jpg`);
+        await ref.put(await response.blob());
+        urls.push(await ref.getDownloadURL());
+    }
+
+    await doc.update({ Photos: urls });
 };

@@ -3,43 +3,70 @@ import thunk from 'redux-thunk';
 
 import rootReducer from './reducers';
 
-import { getPlogs } from '../firebase/plogs';
+import { getLocalPlogs, getPlogs } from '../firebase/plogs';
 import { onAuthStateChanged } from '../firebase/auth';
+import { auth } from '../firebase/init';
+
+import { fromJS } from "immutable";
 
 import { updatePlogs, setCurrentUser } from './actions';
 import FirebaseMiddleware from './firebase-middleware';
+import PreferencesMiddleware from './preferences-middleware';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const store = createStore(
-  rootReducer,
-  composeEnhancers(
-    applyMiddleware(
-      FirebaseMiddleware,
-      thunk
-    )
-  )
-);
 
-getPlogs().then(
-  (plogs) => {
-    store.dispatch(
-      updatePlogs(plogs)
-    )
-  }
-);
+export function initializeStore(prefs) {
+    const store = createStore(
+        rootReducer,
+        { preferences: prefs ? fromJS(prefs) : null },
+        composeEnhancers(
+            applyMiddleware(
+                FirebaseMiddleware,
+                thunk,
+                PreferencesMiddleware
+            )
+        )
+    );
 
-onAuthStateChanged(
-  (user) => {
-      console.log('onAuthStateChanged', user);
-    store.dispatch(
-      setCurrentUser(
-        user === null ?
-          null :
-          user.toJSON()
-      )
-    );  
-  }
-);
+    // TODO
+    // getLocalPlogs().then(
+    //     (plogs) => {
+    //         store.dispatch(
+    //             updatePlogs(plogs)
+    //         );
+    //     }
+    // );
 
-export default store;
+    let firstStateChange = true;
+
+    onAuthStateChanged(
+        (user) => {
+            // console.log('user', user);
+
+            if (!user && firstStateChange) {
+                // log in anonymously
+                auth.signInAnonymously();
+            }
+            firstStateChange = false;
+
+            store.dispatch(
+                setCurrentUser(
+                    user === null ?
+                        null :
+                        user.toJSON()
+                )
+            );
+
+            if (user) {
+                getPlogs(user.uid).then(plogs => {
+                    store.dispatch(updatePlogs(plogs));
+                });
+            }
+        }
+    );
+
+    return store;
+}
+
+export default initializeStore;

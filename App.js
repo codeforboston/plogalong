@@ -1,20 +1,32 @@
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { AsyncStorage, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { AppLoading } from 'expo';
+import * as Font from 'expo-font';
 
-
-import { Provider } from 'react-redux'
-import store from "./redux/store";
+import { Provider } from 'react-redux';
+import makeStore from "./redux/store";
 
 import AppNavigator from './navigation/AppNavigator';
+
 
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
+      preferences: {}
   };
 
+    async loadPreferences() {
+        // Reset preferences (for testing)
+        // await AsyncStorage.setItem('com.plogalong.preferences', '{}');
+        const prefs = await AsyncStorage.getItem('com.plogalong.preferences');
+
+        this.setState({ preferences: prefs ? JSON.parse(prefs) : {}});
+    }
+
   render() {
-    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
+      const {preferences} = this.state;
+
+    if (!this.state.isLoadingComplete || !preferences) {
       return (
         <AppLoading
           startAsync={this._loadResourcesAsync}
@@ -24,7 +36,7 @@ export default class App extends React.Component {
       );
     } else {
       return (
-          <Provider store={store}>
+          <Provider store={makeStore(preferences)}>
               <View style={styles.container}>
                   {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
                   <AppNavigator />
@@ -35,10 +47,13 @@ export default class App extends React.Component {
   }
 
   _loadResourcesAsync = async () => {
-    // return Promise.all([
-    //   Asset.loadAsync([]),
-    //   Font.loadAsync({}),
-    // ]);
+      return Promise.all([
+          Font.loadAsync({
+              'Lato': require('./assets/fonts/Lato-Regular.ttf'),
+              'Lato-Bold': require('./assets/fonts/Lato-Bold.ttf'),
+          }),
+          this.loadPreferences()
+      ]);
   };
 
   _handleLoadingError = error => {

@@ -17,6 +17,7 @@ import * as actions from '../redux/actions';
 import $S from '../styles';
 
 import Button from '../components/Button';
+import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
 import Link from '../components/Link';
 
@@ -30,6 +31,12 @@ class LoginScreen extends React.Component {
         this.state = {
             params: {}
         };
+    }
+
+    componentDidUpdate() {
+        if (this.props.currentUser) {
+            this.props.navigation.navigate("Main");
+        }
     }
 
     onSubmit = () => {
@@ -52,6 +59,7 @@ class LoginScreen extends React.Component {
 
         return (
             <View style={[$S.container, $S.form]}>
+              <DismissButton/>
               {error && <Error error={error.toJS()}/>}
               <View style={$S.inputGroup}>
                 <Text style={$S.inputLabel}>Email</Text>
@@ -79,9 +87,14 @@ class LoginScreen extends React.Component {
                       style={[{ marginTop: 20 }]}
                       disabled={this.disabled()} />
 
-              <Link onPress={() => { navigation.navigate('Signup'); }}
-                    style={{ marginTop: 20, textAlign: 'center' }}>
-                Create an Account
+              <Link onPress={() => { this.props.loginAnonymously(); }}
+                    style={{ marginTop: 30, textAlign: 'center' }}>
+                Skip Registration
+              </Link>
+
+              <Link onPress={() => { navigation.navigate('Intro'); }}
+                    style={[$S.helpLink, { marginTop: 20, textAlign: 'center' }]}>
+                What is Plogging?
               </Link>
             </View>
         );
@@ -101,9 +114,11 @@ const styles = StyleSheet.create({
 
 export default connect(
     state => ({
-        error: state.users.get("loginError")
+        error: state.users.get("loginError"),
+        currentUser: state.users.get("current"),
     }),
     dispatch => ({
-        loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args))
+        loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
+        loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
     })
 )(LoginScreen);
