@@ -17,6 +17,9 @@ import Options from '../constants/Options';
 
 import ProfileImage from '../assets/images/profile.png';
 
+//import AchievementBadge from '../components/AchievementBadge';
+import HistoryBanner from '../components/HistoryBanner';
+import AchievementSwipe from '../components/AchievementSwipe';
 
 const Plog = ({plogInfo}) => {
     const latLng = {
@@ -80,13 +83,27 @@ const Divider = () => (
 class HistoryScreen extends React.Component {
   render() {
     return (
-        <ScrollView style={styles.container}>
-            <FlatList data={this.props.history.toArray()}
-                      renderItem={({item}) => (<Plog plogInfo={item} />)}
-                      keyExtractor={(_, i) => ''+i}
-                      ItemSeparatorComponent={Divider}>
-            </FlatList>
-        </ScrollView>
+        <View>
+            <HistoryBanner />
+            <View style={{
+                marginLeft: 20,
+                marginTop: 10
+            }}>
+                <Text style={{
+                    fontSize: 25,
+                    marginLeft: 5,
+                    color: Colors.textGray
+                }}>Achievements</Text>
+                <AchievementSwipe />
+            </View>
+            <ScrollView style={styles.container}>
+                <FlatList data={this.props.history.toArray()}
+                        renderItem={({item}) => (<Plog plogInfo={item} />)}
+                        keyExtractor={(_, i) => ''+i}
+                        ItemSeparatorComponent={Divider}>
+                </FlatList>
+            </ScrollView>
+        </View>
     );
   }
 }
@@ -116,7 +133,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 300,
         margin: 5
-    },
+    }
 });
 
 
