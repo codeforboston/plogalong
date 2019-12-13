@@ -38,8 +38,11 @@ class ScreenSlider extends React.Component {
         showingIndex += step;
 
         const len = 4;
-        if (showingIndex >= len)
-            return; //oncomplete
+        if (showingIndex >= len) {
+            this.props.setPreferences({ sawIntro: true });
+            this.props.navigation.goBack();
+            return;
+        }
         if (showingIndex < 0)
             return;
 
