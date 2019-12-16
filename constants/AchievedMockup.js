@@ -1,53 +1,76 @@
 import React from 'react';
 
-import Options, {trashTypes} from './Options';
+import Umbrella from '../assets/svg/achievement_badges_48_48/baseline-beach_access-48px.svg';
+import SingleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_outline-48px.svg';
+import Team from '../assets/svg/achievement_badges_48_48/011-team-leader_48.svg';
+import Compass from '../assets/svg/achievement_badges_48_48/baseline-explore-48px.svg';
+import TrafficLight from '../assets/svg/achievement_badges_48_48/baseline-traffic-48px.svg';
+import Globe from '../assets/svg/achievement_badges_48_48/baseline-language-48px.svg';
+import FlowerBud from '../assets/svg/achievement_badges_48_48/baseline-spa-48px.svg';
+import Syringe from '../assets/svg/achievement_badges_48_48/syringe_48.svg';
+import Bike from '../assets/svg/achievement_badges_48_48/04-Activities-bike-015-bike_48.svg';
+import DoubleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_all-48px.svg';
+import Flower from '../assets/svg/achievement_badges_48_48/baseline-local_florist-48px.svg';
+import TourMap from '../assets/svg/achievement_badges_48_48/baseline-map-48px.svg';
+import Waterpolo from '../assets/svg/achievement_badges_48_48/017-waterpolo_48.svg';
+import Home from '../assets/svg/achievement_badges_48_48/baseline-home-48px.svg';
+import DogWalking from '../assets/svg/achievement_badges_48_48/Helpers-02_48.svg';
+import Chicken from '../assets/svg/achievement_badges_48_48/chicken-looking-right_48.svg';
+import Leaves from '../assets/svg/achievement_badges_48_48/leaves_48.svg';
+import Bear from '../assets/svg/achievement_badges_48_48/bear_48.svg';
+import Face from '../assets/svg/achievement_badges_48_48/baseline-face-48px.svg';
+import Airplane from '../assets/svg/achievement_badges_48_48/baseline-flight_land-48px.svg';
+import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
 
-import Umbrella from '../assets/svg/baseline-beach_access-24px.svg';
-import SingleCheckmark from '../assets/svg/baseline-done_outline-24px.svg';
-import Team from '../assets/svg/011-team-leader.svg';
-import Compass from '../assets/svg/baseline-explore-24px.svg';
-import TrafficLight from '../assets/svg/baseline-traffic-24px.svg';
-import Globe from '../assets/svg/baseline-language-24px.svg';
-import FlowerBud from '../assets/svg/baseline-spa-24px.svg';
-import Syringe from '../assets/svg/syringe.svg';
-import Bike from '../assets/svg/04-Activities-bike-015-bike.svg';
-import DoubleCheckmark from '../assets/svg/baseline-done_all-24px.svg';
-import Flower from '../assets/svg/baseline-local_florist-24px.svg';
-import TourMap from '../assets/svg/baseline-map-24px.svg';
-import Waterpolo from '../assets/svg/017-waterpolo.svg';
-import Home from '../assets/svg/baseline-home-24px.svg';
-import DogWalking from '../assets/svg/Helpers-02.svg';
-import Chicken from '../assets/svg/chicken-looking-right.svg';
-import Leaves from '../assets/svg/leaves.svg';
-import Bear from '../assets/svg/bear.svg';
-import Face from '../assets/svg/baseline-face-24px.svg';
-import Airplane from '../assets/svg/baseline-flight_land-24px.svg';
-import Star from '../assets/svg/baseline-grade-24px.svg';
-//import AchievementBadge from '../components/AchievementBadge';
+let AchievedMockup = [
+    { 
+        id: 0, 
+        key: "Beach Bum", 
+        pic: <Umbrella />, 
+        type: "beachBum", 
+        dateCompleted: "2019-07-01 19:15:00",  // the full date
+        month: "7", // the month it was completed (here, August), to give a metric for:
+                    // first-of-a-season plog ("Dog Days", etc);
+                    // number of plogs in some current month, for <HistoryBanner />
+        points: "10", 
+        minutes: "25", // add 1 point per minute?
+        progress: "6"   // (here, "6" is 6; count starts from 1, not 0)
+                        // for 2 metrics:
+                        // progress towards 100Club and 1000Club;
+                        // how many times a plogger has done this achievement type
+    },
+    { id: 1, key: "First Plog", pic: <SingleCheckmark />, type: "firstPlog", dateCompleted: "2019-00-02 06:05:00", month: "0", points: "50", minutes: "30", progress: "1" }, // this also qualifies as "Polar Bear" and "Beach Bum progress: '1'", see lines 68-69
+    //{ id: 2, key: "Team Effort", pic: <Team />, type: "teamEffort", dateCompleted: "", month: "", points: "20", minutes: "", progress: "" },
+    //{ id: 3, key: "Ranger", pic: <Compass />, type: "ranger", dateCompleted: "", month: "", points: "10", minutes: "", progress: "" },
+    //{ id: 4, key: "City Slicker", pic: <TrafficLight />, type: "citySlicker", dateCompleted: "", month: "", points: "10", minutes: "", progress: "" },
+    //{ id: 5, key: "True Native", pic: <Globe />, type: "trueNative", dateCompleted: "", month: "", points: "20", minutes: "", progress: "" },
+    //{ id: 6, key: "Bug Zapper", pic: <FlowerBud />, type: "bugZapper", dateCompleted: "", month: "", points: "20", minutes: "", progress: "" },
+    { id: 7, key: "Danger Pay", pic: <Syringe />, type: "dangerPay",  dateCompleted: "2019-01-03 09:00:00", month: "1", points: "20", minutes: "20", progress: "1" },
+    { id: 0, key: "Beach Bum", pic: <Umbrella />, type: "beachBum", dateCompleted: "2019-01-03 09:00:00", month: "1", points: "10", minutes: "20", progress: "2"}, // this achievement comes from the same plog as the "Danger Pay" plog right before it
+    //{ id: 8, key: "Daredevil", pic: <Bike />, type: "daredevil", dateCompleted: "", month: "", points: "20", minutes: "", progress: "" },
+    { id: 9, key: "100 Club", pic: <DoubleCheckmark />, type: "100Club", dateCompleted: "", month: "", points: "1000", minutes: "", progress: "55" },
+    /*{ id: 10, key: "Busy Bee", pic: <Globe />, type: "busyBee", dateCompleted: "", month: "", points: "50", minutes: "", progress: "" }, // this one will need comparisons with other ploggers */
+    //{ id: 11, key: "Nature Child", pic: <Flower />, type: "natureChild", dateCompleted: "", month: "", points: "100", minutes: "", progress: "" },
+    //{ id: 12, key: "Street Cred", pic: <TourMap />, type: "streetCred", dateCompleted: "", month: "", points: "100", minutes: "", progress: "" },
+    { id: 13, key: "Oceanographer", pic: <Waterpolo />, type: "oceanographer", dateCompleted: "", month: "", points: "100", minutes: "", progress: "7" }, // ideally, should not show up because progress < 10
+    /*{ id: 14, key: "Break the Seal", pic: <Home />, type: "breakTheSeal", dateCompleted: "", month: "", points: "100", minutes: "", progress: "" }, // also needs comparison with other ploggers */
 
-let AchievedMockup = {
-    badge0:  { id: 0, key: "Beach Bum", pic: Umbrella, type: "", date: "", points: "10", minutes: "" },
-    badge1:  { id: 1, key: "First Plog", pic: SingleCheckmark, type: "", date: "", points: "50", minutes: "" },
-    badge2:  { id: 2, key: "Team Effort", pic: Team, type: "", date: "", points: "20", minutes: "" },
-    badge3:  { id: 3, key: "Ranger", pic: Compass, type: "", date: "", points: "10", minutes: "" },
-    badge4:  { id: 4, key: "City Slicker", pic: TrafficLight, type: "", date: "", points: "10", minutes: "" },
-    badge5:  { id: 5, key: "True Native", pic: Globe, type: "", date: "", points: "20", minutes: "" },
-    badge6:  { id: 6, key: "Bug Zapper", pic: FlowerBud, type: "", date: "", points: "20", minutes: "" },
-    badge7:  { id: 7, key: "Danger Pay", pic: Syringe, type: "",  date: "", points: "20", minutes: "" },
-    badge8:  { id: 8, key: "Daredevil", pic: Bike, type: "", date: "", points: "20", minutes: "" },
-    badge9:  { id: 9, key: "100 Club", pic: DoubleCheckmark, type: "", date: "", points: "1000", minutes: "" },
-    badge10: { id: 10, key: "Busy Bee", pic: Globe, type: "", date: "", points: "50", minutes: "" },
-    badge11: { id: 11, key: "Nature Child", pic: Flower, type: "", date: "", points: "100", minutes: "" },
-    badge12: { id: 12, key: "Street Cred", pic: TourMap, type: "", date: "", points: "100", minutes: "" },
-    badge13: { id: 13, key: "Oceanographer", pic: Waterpolo, type: "", date: "", points: "100", minutes: "" },
-    badge14: { id: 14, key: "Break the Seal", pic: Home, type: "", date: "", points: "100", minutes: "" },
-    badge15: { id: 15, key: "Dog Days", pic: DogWalking, type: "", date: "", points: "50", minutes: "" },
-    badge16: { id: 16, key: "Spring Chicken", pic: Chicken, type: "", date: "", points: "50", minutes: "" },
-    badge17: { id: 17, key: "Fall Color", pic: Leaves, type: "", date: "", points: "50", minutes: "" },
-    badge18: { id: 18, key: "Polar Bear", pic: Bear, type: "", date: "", points: "50", minutes: "" },
-    badge19: { id: 19, key: "Pay it Forward", pic: Face, type: "", date: "", points: "50", minutes: "" },
-    badge20: { id: 20, key: "Plog Away", pic: Airplane, type: "", date: "", points: "500", minutes: "" },
-    badge21: { id: 21, key: "1000 Club", pic: Star, type: "", date: "", points: "10000", minutes: "" }
-};
+    { id: 15, key: "Dog Days", pic: <DogWalking />, type: "dogDays", dateCompleted: "2019-06-07 08:00:00", month: "6", points: "50", minutes: "30", progress: "1" },
+    { id: 0, key: "Beach Bum", pic: <Umbrella />, type: "beachBum", dateCompleted: "2019-06-07 08:00:00", month: "6", points: "10", minutes: "30", progress: "5"},
+
+    { id: 16, key: "Spring Chicken", pic: <Chicken />, type: "springChicken", dateCompleted: "2019-03-04 10:00:00", month: "3", points: "50", minutes: "40", progress: "1" },
+    { id: 0, key: "Beach Bum", pic: <Umbrella />, type: "beachBum", dateCompleted: "2019-03-04 10:00:00", month: "3", points: "10", minutes: "40", progress: "3"},
+    { id: 0, key: "Beach Bum", pic: <Umbrella />, type: "beachBum", dateCompleted: "2019-04-05 11:00:00", month: "4", points: "10", minutes: "20", progress: "4"},
+
+    { id: 17, key: "Fall Color", pic: <Leaves />, type: "fallColor", dateCompleted: "2019-09-10 09:00:00", month: "9", points: "50", minutes: "30", progress: "1" },
+    { id: 0, key: "Beach Bum", pic: <Umbrella />, type: "beachBum", dateCompleted: "2019-09-10 09:00:00", month: "9", points: "10", minutes: "30", progress: "7"},
+
+    { id: 18, key: "Polar Bear", pic: <Bear />, type: "polarBear", dateCompleted: "2019-00-02 06:05:00", month: "0", points: "50", minutes: "30", progress: "1" },
+    { id: 0, key: "Beach Bum", pic: <Umbrella />, type: "beachBum", dateCompleted: "2019-00-02 06:05:00", month: "0", points: "10", minutes: "30", progress: "1" },
+
+    //{ id: 19, key: "Pay it Forward", pic: <Face />, type: "payItForward", dateCompleted: "", month: "", points: "50", minutes: "", progress: "" },
+    //{ id: 20, key: "Plog Away", pic: <Airplane />, type: "plogAway", dateCompleted: "", month: "", points: "500", minutes: "", progress: "" },
+    { id: 21, key: "1000 Club", pic: <Star />, type: "1000Club", dateCompleted: "", month: "", points: "10000", minutes: "", progress: "55" }
+];
 
 export default AchievedMockup;

@@ -36,12 +36,18 @@ const styles = StyleSheet.create({
 function AchievementBadge(props) {
     return (
         <View style={styles.achieveBadge}>
-            <Image
-                style={{width: 24, height: 24}}
-                source={{uri: props.badgeImage}}
-            />
+            <View style=
+                {{
+                    width: 48,
+                    height: 48,
+                    color: '#ac8dd8'
+                }}
+            >
+                {props.badgeImage}
+            </View>
             <Text style={styles.textLarger}>{props.textValue}</Text>
             <Text style={styles.textSmaller}>+ {props.plogPoints} points</Text>
+            {/* plogPoints in previous line will need to be displayed differently if we want to show `progress` value for 100Club and 1000Club */}
         </View>
     )
 };
