@@ -12,7 +12,7 @@ class AchievementSwipe extends React.Component {
                     <AchievementBadge
                         style={styles.swipeLR}
                         badgeImage={item.pic}
-                        textValue={item.key}
+                        textValue={item.badgeTheme}
                         plogPoints={item.points}
                     />
                 }
