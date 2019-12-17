@@ -103,7 +103,8 @@ class PlogScreenWeather extends Component {
         let toGetWeather = "?lat=" + latit.toFixed(4) + "&lon=" + longit.toFixed(4);
         let apiKey;
         if (!apiKey) {
-          console.warn("Missing API key");
+          console.log("Missing API key");
+          {/* console.warn("Missing API key"); */}
         } else {
         fetch("http://api.openweathermap.org/data/2.5/weather" 
           + toGetWeather 
@@ -112,7 +113,8 @@ class PlogScreenWeather extends Component {
 // This is to avoid losing control of the api key and it being overused or misused.
             .then(response => {
               if (response.status !== 200) {
-                console.warn("API call was unsuccessful. Status code: " + response.status);
+                console.log("API call was unsuccessful. Status code: " + response.status);
+                {/* console.warn("API call was unsuccessful. Status code: " + response.status); */}
                 return;
               }
               response.json()
@@ -147,7 +149,8 @@ class PlogScreenWeather extends Component {
   renderLoading() {
     return (
       <Text>
-        Hi there - sorry, we can't give you weather info right now!
+        Every plogging day is a good day!
+{/*        Hi there - sorry, we can't give you weather info right now! */}
       </Text>
     )
   }
