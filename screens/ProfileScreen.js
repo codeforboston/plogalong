@@ -71,10 +71,10 @@ class ProfileScreen extends React.Component {
               <Text style={styles.badgeSummary}>
                 0 badges
               </Text>
-              <Text style={{ fontWeight: 500 }}>
+              <Text style={{ fontWeight: '500' }}>
                 Personal Account
               </Text>
-              <Text style={{ fontWeight: 500 }}>
+              <Text style={{ fontWeight: '500' }}>
                 { currentUser.email }
               </Text>
             </View>
