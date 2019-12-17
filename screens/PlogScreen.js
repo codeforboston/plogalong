@@ -68,7 +68,7 @@ class PlogScreen extends React.Component {
             timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0)
         };
         this.props.logPlog(plog);
-        Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
+        // Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
         this.setState({
             trashTypes: Set([]),
             selectedMode: 0,
@@ -78,6 +78,8 @@ class PlogScreen extends React.Component {
             plogTotalTime: 0,
             plogTimer: '00:00:00',
         });
+
+        this.props.navigation.navigate('History');
     }
 
     toggleTrashType = (trashType) => {
