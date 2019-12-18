@@ -21,6 +21,19 @@ import ProfileImage from '../assets/images/profile.png';
 import HistoryBanner from '../components/HistoryBanner';
 import AchievementSwipe from '../components/AchievementSwipe';
 
+function formatDuration(s) {
+    if (s < 60)
+        return `${s} seconds`;
+
+    let m = Math.floor(s/60);
+    if (m < 60)
+        return `${m} minute${m === 1 ? '' : 's'}`;
+}
+
+function formatDate(dt) {
+    return new Intl.DateTimeFormat('en-us', {month: 'long', year: 'numeric'}).format(dt);
+}
+
 const Plog = ({plogInfo}) => {
     const latLng = {
         latitude: plogInfo.getIn(['location', 'lat']),
@@ -35,20 +48,23 @@ const Plog = ({plogInfo}) => {
 
     console.log('plogInfo: ', plogInfo);
 
+    const timeSpent = plogInfo.get('timeSpent');
+    const when = plogInfo.get('when');
+
     return (
         <View>
             <View style={styles.plogStyle}>
                 <Image source={ProfileImage} style={styles.profileImage} />
                 <View>
                     <Text style={styles.actionText}>
-                        You plogged {plogInfo.getIn(['location', 'name'])}.
+        You plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
                     </Text>
                     <Text style={styles.subText}>
                         {moment(plogInfo.get('when')).fromNow()}
                     </Text>
                 </View>
             </View>
-            <View style={styles.plogStyle}>            
+            <View style={styles.plogStyle}>
                 <MapView
                     style={styles.map}
                     region={{

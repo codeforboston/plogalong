@@ -15,7 +15,8 @@ const plogDocToState = (plog) => {
     groupType: data.HelperType,
     pickedUp: data.PlogType === "Plog",
     when: data.DateTime.toDate(),
-    plogPhotos: (data.Photos || []).map(uri => ({ uri }))
+      plogPhotos: (data.Photos || []).map(uri => ({ uri })),
+      timeSpent: data.PlogDuration,
   };
 };
 
