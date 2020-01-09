@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image } from 'react-native';
-import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
+import { createStackNavigator, createBottomTabNavigator, BottomTabBar } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import PlogScreen from '../screens/PlogScreen';
@@ -69,6 +69,7 @@ const More = createStackNavigator({
 
 More.navigationOptions = makeTabNavigationOptions;
 
+const TabBarComponent = props => <BottomTabBar {...props} />;
 
 const MainTabNavigator = createBottomTabNavigator({
   Plog,
@@ -76,7 +77,19 @@ const MainTabNavigator = createBottomTabNavigator({
   Local,
   Profile,
   More
-});
+},
+{
+    tabBarComponent: props => (
+        <TabBarComponent {...props} 
+            style={{
+                backgroundColor: '#fff',
+                borderTopColor: 'purple',
+                borderTopWidth: 4
+            }}
+        />
+    )
+}
+);
 
 export default connect(state => ({
     currentUser: state.users.get("current"),
