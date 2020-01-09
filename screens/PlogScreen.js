@@ -256,6 +256,8 @@ class PlogScreen extends React.Component {
                     primary
                     onPress={this.onSubmit}
                     style={$S.activeButton} />
+            
+            <View style={{ height: 25 }} />
 
         </ScrollView>
       </View>

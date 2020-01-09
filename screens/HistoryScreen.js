@@ -110,6 +110,9 @@ class HistoryScreen extends React.Component {
                         ItemSeparatorComponent={Divider}>
                 </FlatList>
             </ScrollView>
+
+            <View style={{ height: 25 }} />
+
         </View>
     );
   }
