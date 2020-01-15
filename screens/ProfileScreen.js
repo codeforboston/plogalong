@@ -120,8 +120,8 @@ class ProfileScreen extends React.Component {
 
           <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
           <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
+          <View style={{ height: 25 }} />
         </ScrollView>
-        <View style={{ height: 25 }} />
       </View>
     );
   }
