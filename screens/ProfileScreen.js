@@ -105,12 +105,12 @@ class ProfileScreen extends React.Component {
             />
           </View>
 
-{/*          <View style={$S.switchInputGroup}>
+          <View style={$S.switchInputGroup}>
             <Text style={$S.inputLabel}>
               Share activity in Local feed
             </Text>
-            <Switch value={params.shareActivity}/>
-          </View> */}
+            <Switch value={params.shareActivity} style={{ transform: [{scale: 0.8}] }}/>
+          </View>
           <View style={$S.switchInputGroup}>
             <Text style={$S.inputLabel}>
               Get email updates ({'< 1/month'})
