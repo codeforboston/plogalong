@@ -45,7 +45,6 @@ export class MoreScreen extends React.Component {
       <View style={styles.container}>
         <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible} isInviteModalVisible={this.state.isInviteModalVisible} />
         <NavMenu routes={this.pages}/>
-        <View style={{ height: 25 }} />
       </View>
     );
   }
