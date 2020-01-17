@@ -109,10 +109,8 @@ class HistoryScreen extends React.Component {
                         keyExtractor={(_, i) => ''+i}
                         ItemSeparatorComponent={Divider}>
                 </FlatList>
+                <View style={{ height: 25 }} />
             </ScrollView>
-
-            <View style={{ height: 25 }} />
-
         </View>
     );
   }
