@@ -3,14 +3,13 @@ import thunk from 'redux-thunk';
 
 import rootReducer from './reducers';
 
-import { getLocalPlogs, getPlogs } from '../firebase/plogs';
-import { onAuthStateChanged } from '../firebase/auth';
+import { getLocalPlogs, queryUserPlogs, plogDocToState } from '../firebase/plogs';
+import { onAuthStateChanged, getUserData } from '../firebase/auth';
 import { auth } from '../firebase/init';
 
 import { fromJS } from "immutable";
 
-import { updatePlogs, setCurrentUser } from './actions';
-import FirebaseMiddleware from './firebase-middleware';
+import { plogsUpdated, setCurrentUser, gotUserData } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -22,7 +21,6 @@ export function initializeStore(prefs) {
         { preferences: prefs ? fromJS(prefs) : null },
         composeEnhancers(
             applyMiddleware(
-                FirebaseMiddleware,
                 thunk,
                 PreferencesMiddleware
             )
@@ -33,22 +31,27 @@ export function initializeStore(prefs) {
     // getLocalPlogs().then(
     //     (plogs) => {
     //         store.dispatch(
-    //             updatePlogs(plogs)
+    //             plogsUpdated(plogs)
     //         );
     //     }
     // );
 
     let firstStateChange = true;
+    let unsubscribe;
 
     onAuthStateChanged(
         (user) => {
-            // console.log('user', user);
-
             if (!user && firstStateChange) {
                 // log in anonymously
                 auth.signInAnonymously();
             }
             firstStateChange = false;
+
+            if (unsubscribe) unsubscribe();
+
+            unsubscribe = user ? getUserData(user).onSnapshot(snap => {
+                store.dispatch(gotUserData(user.uid, snap.data()));
+            }) : null;
 
             store.dispatch(
                 setCurrentUser(
@@ -58,10 +61,14 @@ export function initializeStore(prefs) {
                 )
             );
 
-            if (user) {
-                getPlogs(user.uid).then(plogs => {
-                    store.dispatch(updatePlogs(plogs));
+            if (user && user.uid) {
+                queryUserPlogs(user.uid).onSnapshot(snap => {
+                    store.dispatch(plogsUpdated(
+                        snap.docs.map(plogDocToState)
+                    ));
                 });
+            } else {
+                store.dispatch(plogsUpdated([]));
             }
         }
     );

@@ -27,9 +27,42 @@ export const saveUser = async (user) => {
     const result = await doc.set({
         UserID: user.uid,
         LastLogin: new Date(),
-    });
+    }, { merge: true });
 
-    const data = await doc.get();
+    return await doc.get();
 };
 
-export const onAuthStateChanged = auth.onAuthStateChanged.bind(auth);
+let authStateChangedCallback;
+export function onAuthStateChanged(callback) {
+    authStateChangedCallback = callback;
+
+    return auth.onAuthStateChanged(callback);
+}
+
+/**
+
+ * @param {firebase.User|firebase.User["uid"]} user
+ */
+export const getUserData = (user) => db.collection('users').doc(typeof user === 'string' ? user : user.uid);
+
+const profileFields = ['displayName', 'photoURL'];
+export const setUserData = async (data) => {
+    if (!auth.currentUser)
+        return;
+
+    const updateFields = profileFields.reduce((m, field) => {
+        if (!data[field])
+            return m;
+
+        const val = data[field];
+        delete data[field];
+        return m ? Object.assign(m, { [field]: val }) : { [field]: val };
+    }, null);
+
+    if (updateFields) {
+        await auth.currentUser.updateProfile(updateFields);
+        authStateChangedCallback(auth.currentUser);
+    }
+
+    db.collection('users').doc(auth.currentUser.uid).update(data);
+};

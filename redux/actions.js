@@ -1,24 +1,25 @@
 import { AsyncStorage } from 'react-native';
-import { LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
+import { LOG_PLOG, SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
+import { savePlog } from '../firebase/plogs';
 
 
-/**
- * @typedef {Object} PlogInfo
- * @property {Location} location
- * @property {}
- */
-export const logPlog = (plogInfo) => ({
-    type: LOG_PLOG,
-    payload: plogInfo
-});
+export const logPlog = (plogInfo) => (
+    async dispatch => {
+        await savePlog(plogInfo);
+    });
 
-export const updatePlogs = (plogs) => ({
-    type: UPDATE_PLOGS,
+export const plogsUpdated = (plogs) => ({
+    type: types.PLOGS_UPDATED,
     payload: {
         plogs,
     },
+});
+
+export const plogUpdated = plog => ({
+    type: types.PLOG_UPDATED,
+    payload: plog
 });
 
 export const setCurrentUser = (user) => ({
@@ -106,15 +107,29 @@ export const loginAnonymously = () => (
     }
 );
 
+export const gotUserData = (uid, data) => ({ type: types.USER_DATA, payload: { uid, data }});
+
+export const setUserData = (data) => (
+    async dispatch => {
+
+    }
+);
+
 export const logout = () => (
     async _ => {
         await auth.signOut();
     }
 );
 
+export const setUserField = (field, value) => (
+    async _ => {
+        // await auth.setU
+    }
+);
+
 
 export default {
     logPlog,
-    updatePlogs,
+    plogsUpdated,
     setCurrentUser,
 };

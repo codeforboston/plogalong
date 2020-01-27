@@ -3,6 +3,7 @@ import {
     Alert,
     ScrollView,
     StyleSheet,
+    Switch,
     View,
     Text
 } from 'react-native';
@@ -25,6 +26,9 @@ import $S from '../styles';
 
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
+import {
+    setUserData
+} from '../firebase/auth';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
@@ -65,7 +69,8 @@ class PlogScreen extends React.Component {
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0],
             plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
-            timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0)
+            timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0),
+            public: this.props.user.data.shareActivity,
         };
         this.props.logPlog(plog);
         // Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
@@ -254,11 +259,20 @@ class PlogScreen extends React.Component {
 
           {this.renderModeQuestions()}
 
-            <Button title={PlogScreen.modes[this.state.selectedMode]}
-                    primary
-                    onPress={this.onSubmit}
-                    style={$S.activeButton} />
-            
+          <View style={[$S.switchInputGroup, {padding: 10}]}>
+            <Text style={$S.inputLabel}>
+              Share in Local feed
+            </Text>
+            <Switch value={this.props.user.data.shareActivity}
+                    style={{ transform: [{scale: 0.8}] }}
+                    onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }} />
+          </View>
+
+          <Button title={PlogScreen.modes[this.state.selectedMode]}
+                  primary
+                  onPress={this.onSubmit}
+                  style={$S.activeButton} />
+
             <View style={{ height: 25 }} />
 
         </ScrollView>
@@ -311,16 +325,15 @@ const styles = StyleSheet.create({
         color: 'grey',
         textDecorationLine: 'underline'
     }
-
 });
 
 const PlogScreenContainer = connect(state => ({
-    user: state.users.get("current")
+    user: state.users.get("current").toJS(),
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {
                                             dispatch(actions.logPlog(plogInfo));
                                         }
-                                    }))(PlogScreen)
+                                    }))(PlogScreen);
 
 export default PlogScreenContainer;

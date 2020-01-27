@@ -1,24 +1,32 @@
-import db, { storage } from './init';
+import db, { auth, storage } from './init';
 
 
-const plogDocToState = (plog) => {
-  const data = plog.data();
+/**
+ * @param {import('firebase').firestore.QueryDocumentSnapshot} plog
+ */
+export const plogDocToState = (plog) => {
+    const data = plog.data();
 
-  return {
-    trashTypes: data.TrashTypes,
-    activityType: data.ActivityType,
-    location: {
-      lat: data.Location.Latitude,
-      lng: data.Location.Longitude,
-      name: data.GeoLabel,
-    },
-    groupType: data.HelperType,
-    pickedUp: data.PlogType === "Plog",
-    when: data.DateTime.toDate(),
-      plogPhotos: (data.Photos || []).map(uri => ({ uri })),
-      timeSpent: data.PlogDuration,
-  };
+    return {
+        trashTypes: data.TrashTypes,
+        activityType: data.ActivityType,
+        location: {
+            lat: data.Location.Latitude,
+            lng: data.Location.Longitude,
+            name: data.GeoLabel,
+        },
+        groupType: data.HelperType,
+        pickedUp: data.PlogType === "Plog",
+        when: data.DateTime.toDate(),
+        plogPhotos: (data.Photos || []).map(uri => ({ uri })),
+        timeSpent: data.PlogDuration,
+        saving: plog.metadata.hasPendingWrites,
+    };
 };
+
+export function queryUserPlogs(userId) {
+    return db.collection('plogs').where('UserID', '==', userId);
+}
 
 export const getLocalPlogs = async () => {
   const plogs = await db.collection('plogs').get();
@@ -47,9 +55,10 @@ export const savePlog = async (plog) => {
       "Plog" :
       "Flag",
     DateTime: plog.when,
-    UserID: plog.userID,
+      UserID: auth.currentUser.uid,
     Photos: [],
-    PlogDuration: plog.timeSpent
+      PlogDuration: plog.timeSpent,
+      Public: !!plog.public,
   });
 
     const urls = [];

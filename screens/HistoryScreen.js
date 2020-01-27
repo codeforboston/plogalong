@@ -28,10 +28,17 @@ function formatDuration(s) {
     let m = Math.floor(s/60);
     if (m < 60)
         return `${m} minute${m === 1 ? '' : 's'}`;
+
+    let h = Math.floor(m/60);
+    return `${h} hour${h === 1 ? '' : 's'}`;
 }
 
 function formatDate(dt) {
-    return new Intl.DateTimeFormat('en-us', {month: 'long', year: 'numeric'}).format(dt);
+    try {
+        return new Intl.DateTimeFormat('en-us', {month: 'long', day: 'numeric', year: 'numeric'}).format(dt);
+    } catch(_) {
+        return dt.toISOString();
+    }
 }
 
 const Plog = ({plogInfo}) => {
@@ -53,7 +60,7 @@ const Plog = ({plogInfo}) => {
 
     return (
         <View>
-            <View style={styles.plogStyle}>
+            <View style={[styles.plogStyle, plogInfo.saving && styles.savingStyle]}>
                 <Image source={ProfileImage} style={styles.profileImage} />
                 <View>
                     <Text style={styles.actionText}>
@@ -138,6 +145,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 10,
         paddingBottom: 0
+    },
+    savingStyle: {
+        opacity: 0.8,
     },
     divider: {
         borderBottomWidth: 1,

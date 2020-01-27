@@ -2,7 +2,8 @@ import { fromJS } from "immutable";
 
 import {
     LOG_PLOG,
-    UPDATE_PLOGS,
+    SET_CURRENT_USER,
+    PLOGS_UPDATED,
 } from "../actionTypes";
 
 const initialState = fromJS({
@@ -20,7 +21,17 @@ const log = (state = initialState, action) => {
             )
         );
     }
-    case UPDATE_PLOGS: {
+
+    case SET_CURRENT_USER: {
+        if (!action.payload.user)
+            return state.set(
+                "history",
+                fromJS([]));
+
+        return state;
+    }
+
+    case PLOGS_UPDATED: {
         return state.update(
             "history",
             (history) => history.push(
