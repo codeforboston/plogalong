@@ -54,8 +54,6 @@
     
   - (Optional) Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
 
-  - Install node modules: `npm install` or `yarn install`
-
   - Install Expo: `npm install expo-cli --global` or `yarn global add expo-cli`
   npm install expo-cli --global)
 
@@ -64,6 +62,8 @@
   in the new config info (which you can find pinned in the #plogalong Slack 
   channel).
   
+  - Install node modules: `npm install` or `yarn install`
+
   - If you're planning on running this on an Android simulator, you'll have to install the Expo app via the simulated 
   device's Google Play Store. To do so, open Android Studio, open the AVD Manager (icon looks like a phone with a green
   Android alien in the top right toolbar), click the Play button under "Actions" to launch the simulator. You can then open
@@ -89,8 +89,35 @@
   App in Expo Client App, select "Yes"
   <br>5. Plogalong should load accordingly
   
-  //TODO: add directions for running on Android Device
-  
+## API Keys
+
+### Firebase
+
+#### Using the shared Firebase project
+
+Check on our Slack channel for the shared configuration file. Save it to
+`firebase/config.js`.
+
+#### Setting up your own Firebase project
+
+1. Install Firebase CLI: `npm install -g firebase-tools`
+2. In the `firebase/project` directory, run `firebase login`. If prompted, log
+   in to your Firebase account.
+3. Choose the project to use:
+   - An existing project: Run `firebase use --add` and follow the prompts. (I
+     use the alias `"default"`.)
+   - A new project: Run `firebase projects:create` and follow the prompts
+4. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
+   options.)
+
+### OpenWeatherMap (optional)
+
+**What it's for**: this API is used to populate the Current Weather box on the
+Plog screen
+
+**What to do**: Register for a free account on [Open Weather](https://openweathermap.org/api "Open Weather API"). Copy your key
+from the "API Keys" tab and paste it into the `openWeatherMapKey` of your `config.json` file.
+
 ## Updating Instructions
 
 - After a pull request is merged, it may specify that node_modules will need 
