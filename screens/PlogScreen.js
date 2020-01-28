@@ -28,6 +28,17 @@ import * as actions from '../redux/actions';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
+import HistoryScreen from './HistoryScreen';
+import {createStackNavigator} from 'react-navigation-stack';
+
+const HistoryNavigator = createStackNavigator(
+    {
+        History: HistoryScreen,
+    },
+    {
+        initialRouteName: 'History',
+    }
+)
 
 class PlogScreen extends React.Component {
     static modes = ['Log'];
@@ -68,7 +79,28 @@ class PlogScreen extends React.Component {
             timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0)
         };
         this.props.logPlog(plog);
-        Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
+
+/*
+// `achievementUnlocked` will be a variable that holds the result of a function.
+// That function will handle the criteria for all the different achievements.
+// The result should be a boolean.
+
+        if (achievementUnlocked === true) {
+            Alert.alert(
+                'Achievement Unlocked!', 
+                'Break the seal: first plogger in the neighborhood', 
+                [{
+                    text: 'OK!',
+                    onPress: () => {this.props.navigation.navigate('History')}
+                }]
+            );
+        } else {
+            this.props.navigation.navigate('History');
+        }
+*/
+        this.props.navigation.navigate('History');
+// delete preceding line after achievementUnlocked criteria and logic are determined.
+
         this.setState({
             trashTypes: Set([]),
             selectedMode: 0,
