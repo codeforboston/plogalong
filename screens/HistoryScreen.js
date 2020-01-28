@@ -53,8 +53,6 @@ const Plog = ({plogInfo}) => {
 
     const { plogPhotos = [] } = plogInfo.toJS();
 
-    console.log('plogInfo: ', plogInfo);
-
     const timeSpent = plogInfo.get('timeSpent');
     const when = plogInfo.get('when');
 
@@ -93,9 +91,13 @@ const Plog = ({plogInfo}) => {
                         />
                     </Marker>
                 </MapView>
-                <ScrollView contentContainerStyle={styles.photos}>
+              {
+                  plogPhotos && plogPhotos.length ?
+                  <ScrollView contentContainerStyle={styles.photos}>
                     {plogPhotos.map(({uri}) => (<Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>))}
-                </ScrollView>
+                  </ScrollView> :
+                  null
+              }
             </View>
             <View style={styles.plogStyle}>
                 <Text style={styles.subText}>
@@ -103,7 +105,7 @@ const Plog = ({plogInfo}) => {
                 </Text>
             </View>
         </View>
-    )
+    );
 };
 
 const Divider = () => (
