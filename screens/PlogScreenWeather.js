@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import {Text} from 'react-native';
 
+import config from '../config';
+
+
 class PlogScreenWeather extends Component {
   constructor() {
     super();
@@ -101,7 +104,7 @@ class PlogScreenWeather extends Component {
         let latit = position.coords.latitude;
         let longit = position.coords.longitude;
         let toGetWeather = "?lat=" + latit.toFixed(4) + "&lon=" + longit.toFixed(4);
-        let apiKey;
+        let apiKey = config.openWeatherMapKey;
         if (!apiKey) {
           console.log("Missing API key");
           {/* console.warn("Missing API key"); */}
