@@ -82,14 +82,20 @@
     If you type 'i' and get an error, run 'sudo xcode-select -s /Applications/Xcode.app'
    
   - To run Plogalong on an iOS device: 
-  <br>1. Connect both your computer and your iOS device with same Wi-Fi. 
-  <br>2. In Expo XDE in your browser, select Connection > LAN
-  <br>3. Use the Camera App on your iOS (iOS 11+)Device or any QR code reader (iOS 9 & 10) to scan the QR Code.
-  <br>4. Your QR code reader / Camera App, will ask if you want to launch the 
+  <br>1. Install Expo on your iOS device from the App Store. 
+  <br>2. Connect both your computer and your iOS device with same Wi-Fi. 
+  <br>3. In Expo XDE in your browser, select Connection > LAN
+  <br>4. Use the Camera App on your iOS (iOS 11+)Device or any QR code reader (iOS 9 & 10) to scan the QR Code.
+  <br>5. Your QR code reader / Camera App, will ask if you want to launch the 
   App in Expo Client App, select "Yes"
-  <br>5. Plogalong should load accordingly
+  <br>6. Plogalong should load accordingly
   
-  //TODO: add directions for running on Android Device
+  - To run Plogalong on an Android device: 
+  <br>1. Install Expo on your Android device from the Google play store. 
+  <br>2. In Expo XDE in your browser, select Connection > Tunnel
+  <br>3. Open Expo on your Android device and select Scan QR Code.
+  <br>4. There should be a message saying 'Building JavaScript Bundle as the Application loads.
+  <br>5. Boom! You're ready to Plog.
   
 ## Updating Instructions
 
