@@ -4,6 +4,7 @@ import {
     ScrollView,
     StyleSheet,
     View,
+    Switch,
     Text
 } from 'react-native';
 import * as Permissions from 'expo-permissions';
@@ -43,7 +44,11 @@ class PlogScreen extends React.Component {
             timerInterval: null,
             plogStart: null,
             plogTotalTime: 0,
-            plogTimer: '00:00:00'
+            plogTimer: '00:00:00',
+            params: {
+                homeBase: 'Boston, MA',
+                username: 'Beach Bum'
+            }
         };
     }
 
@@ -190,11 +195,16 @@ class PlogScreen extends React.Component {
         return null;
     }
 
-  render() {
-      const {state} = this,
+    handleShareActivityPrefChange = (shareActivity) => {
+        this.props.updatePreferences({ shareActivity })
+      }
+
+    render() {
+        const {state} = this,
             typesCount = state.trashTypes.size,
             cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-            typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '';
+            typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
+            {params} = this.state;
 
     return (
       <View style={styles.container}>
@@ -257,7 +267,30 @@ class PlogScreen extends React.Component {
                     onPress={this.onSubmit}
                     style={$S.activeButton} />
             
-            <View style={{ height: 25 }} />
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+                marginLeft: 40,
+                marginRight: 40,
+            }}>
+                <Text
+                    style={{
+                        color: '#5f646b',
+                    }}
+                >
+                    Share in Local Feed
+                </Text>
+                <Switch
+                    value={params.shareActivity}
+                    style={{
+                        borderRadius: 15,
+                        borderColor: Colors.secondaryColor,
+                        borderWidth: 2,
+                        backgroundColor: '#4a8835',
+                    }}
+                />
+            </View>
 
         </ScrollView>
       </View>

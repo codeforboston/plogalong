@@ -107,9 +107,9 @@ class ProfileScreen extends React.Component {
 
           <View style={$S.switchInputGroup}>
             <Text style={$S.inputLabel}>
-              Share activity in Local feed
+              Share in Local Feed
             </Text>
-            <Switch value={params.shareActivity}/>
+            <Switch value={params.shareActivity} style={{ transform: [{scale: 0.8}] }}/>
           </View>
           <View style={$S.switchInputGroup}>
             <Text style={$S.inputLabel}>
