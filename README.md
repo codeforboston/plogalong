@@ -28,7 +28,7 @@
 
 ## Setup Instructions
 
-  - Clone this repository (download and extract zip file from https://github.com/codeforboston/plogalong)
+  - Clone this repository ([How To Clone A Git Repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository))
 
   - Node (10.x or 12.x) -- ensure that you have a recent version installed - https://nodejs.org/en/download/
   
@@ -59,8 +59,8 @@
   - Install Expo: `npm install expo-cli --global` or `yarn global add expo-cli`
   npm install expo-cli --global)
 
-  - Configure Firestore connection: rename the file `firebase/config.js.example` 
-  to `firebase/config.js`. Replace the values in `firebase/config.js` by copying 
+  - Configure Firestore connection: create a new file in the `firebase/` folder, name it `config.js`.
+  Add the proper values to `firebase/config.js` by copying 
   in the new config info (which you can find pinned in the #plogalong Slack 
   channel).
   
