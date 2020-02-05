@@ -1,6 +1,7 @@
 import React from 'react';
 import {
     FlatList,
+    ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -44,7 +45,7 @@ class NavMenu extends React.Component {
     render() {
         const {navigation, routes} = this.props;
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
               <FlatList data={routes}
                         keyExtractor={(item, i) => (item.route || `${i}`)}
                         renderItem={
@@ -52,7 +53,9 @@ class NavMenu extends React.Component {
                         }
                         ItemSeparatorComponent={Divider}
               />
-            </View>
+              <Divider />
+              <View style={{ height: 25 }} />
+            </ScrollView>
         );
     }
 }
@@ -71,7 +74,7 @@ const styles = StyleSheet.create({
     menuItem: {
         flexDirection: 'row',
         paddingBottom: 10,
-        paddingLeft: 5,
+        paddingLeft: 10,
         paddingTop: 10,
     },
     menuItemBody: {
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
     },
     labelText: {
-        fontSize: 24
+        fontSize: 18
     },
     detailText: {
         color: 'gray',

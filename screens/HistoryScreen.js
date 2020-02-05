@@ -91,24 +91,25 @@ class HistoryScreen extends React.Component {
   render() {
     return (
         <View>
-            <HistoryBanner />
-            <View style={{
-                marginLeft: 20,
-                marginTop: 10
-            }}>
-                <Text style={{
-                    fontSize: 25,
-                    marginLeft: 5,
-                    color: Colors.textGray
-                }}>Achievements</Text>
-                <AchievementSwipe />
-            </View>
             <ScrollView style={styles.container}>
+                <HistoryBanner />
+                <View style={{
+                    marginLeft: 20,
+                    marginTop: 10
+                }}>
+                    <Text style={{
+                        fontSize: 25,
+                        marginLeft: 5,
+                        color: Colors.textGray
+                    }}>Achievements</Text>
+                    <AchievementSwipe />
+                </View>
                 <FlatList data={this.props.history.toArray()}
                         renderItem={({item}) => (<Plog plogInfo={item} />)}
                         keyExtractor={(_, i) => ''+i}
                         ItemSeparatorComponent={Divider}>
                 </FlatList>
+                <View style={{ height: 25 }} />
             </ScrollView>
         </View>
     );
