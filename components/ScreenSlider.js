@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
         height: 16,
         justifyContent: 'center',
         margin: 20,
-        marginBottom: 50,
+        marginBottom: 20,
     },
     slider: {
         flex: 1,
