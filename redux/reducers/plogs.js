@@ -9,7 +9,8 @@ import {
 
 const initialState = fromJS({
     // Look up a plog by ID
-    history: []
+    history: [],
+    localPlogs: [],
 });
 
 const log = (state = initialState, action) => {
@@ -42,7 +43,10 @@ const log = (state = initialState, action) => {
     }
 
     case LOCAL_PLOGS_UPDATED: {
-        console.log('local plogs updated', action.payload);
+        return state.update(
+            "localPlogs",
+            plogs => plogs.push(...action.payload.plogs.map(plog => fromJS(plog)))
+        );
     }
     default: {
         return state;

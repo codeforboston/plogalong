@@ -24,7 +24,7 @@ export const plogUpdated = plog => ({
 
 export const localPlogsUpdated = plogs => ({
     type: types.LOCAL_PLOGS_UPDATED,
-    payload: plogs
+    payload: { plogs }
 });
 
 export const setCurrentUser = (user) => ({
