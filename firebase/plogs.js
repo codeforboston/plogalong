@@ -24,6 +24,7 @@ export const plogDocToState = (plog) => {
         plogPhotos: (data.Photos || []).map(uri => ({ uri })),
         timeSpent: data.PlogDuration,
         saving: plog.metadata && plog.metadata.hasPendingWrites,
+        userID: data.UserID
     };
 };
 

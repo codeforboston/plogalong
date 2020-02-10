@@ -1,116 +1,19 @@
 import React from 'react';
 import {
-    FlatList,
-    Image,
     ScrollView,
-    StyleSheet,
     Text,
     View,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-
-import moment from 'moment';
-
 import {connect} from 'react-redux';
-import Colors from '../constants/Colors';
-import Options from '../constants/Options';
 
-import ProfileImage from '../assets/images/profile.png';
+import Colors from '../constants/Colors';
 
 //import AchievementBadge from '../components/AchievementBadge';
 import HistoryBanner from '../components/HistoryBanner';
 import AchievementSwipe from '../components/AchievementSwipe';
+import PlogList from '../components/PlogList';
 
-function formatDuration(s) {
-    if (s < 60)
-        return `${s} seconds`;
-
-    let m = Math.floor(s/60);
-    if (m < 60)
-        return `${m} minute${m === 1 ? '' : 's'}`;
-
-    let h = Math.floor(m/60);
-    return `${h} hour${h === 1 ? '' : 's'}`;
-}
-
-function formatDate(dt) {
-    try {
-        return new Intl.DateTimeFormat('en-us', {month: 'long', day: 'numeric', year: 'numeric'}).format(dt);
-    } catch(_) {
-        return dt.toISOString();
-    }
-}
-
-const Plog = ({plogInfo}) => {
-    const latLng = {
-        latitude: plogInfo.getIn(['location', 'lat']),
-        longitude: plogInfo.getIn(['location', 'lng']),
-    };
-
-    const ActivityIcon = Options.activities.get(
-        plogInfo.get('activityType')
-    ).icon;
-
-    const { plogPhotos = [] } = plogInfo.toJS();
-
-    const timeSpent = plogInfo.get('timeSpent');
-    const when = plogInfo.get('when');
-
-    return (
-        <View>
-            <View style={[styles.plogStyle, plogInfo.saving && styles.savingStyle]}>
-                <Image source={ProfileImage} style={styles.profileImage} />
-                <View>
-                    <Text style={styles.actionText}>
-        You plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
-                    </Text>
-                    <Text style={styles.subText}>
-                        {moment(plogInfo.get('when')).fromNow()}
-                    </Text>
-                </View>
-            </View>
-            <View style={styles.plogStyle}>
-                <MapView
-                    style={styles.map}
-                    region={{
-                        ...latLng,
-                        latitudeDelta: 0.05,
-                        longitudeDelta: 0.04,
-                    }}
-                    showsMyLocationButton={false}
-                    scrollEnabled={false}
-                >
-                    <Marker
-                        coordinate={latLng}
-                        tracksViewChanges={false}
-                    >
-                        <ActivityIcon
-                            width={40}
-                            height={40}
-                            fill={Colors.activeColor}
-                        />
-                    </Marker>
-                </MapView>
-              {
-                  plogPhotos && plogPhotos.length ?
-                  <ScrollView contentContainerStyle={styles.photos}>
-                    {plogPhotos.map(({uri}) => (<Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>))}
-                  </ScrollView> :
-                  null
-              }
-            </View>
-            <View style={styles.plogStyle}>
-                <Text style={styles.subText}>
-                    Cleaned up {plogInfo.get('trashTypes').map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
-                </Text>
-            </View>
-        </View>
-    );
-};
-
-const Divider = () => (
-    <View style={styles.divider}></View>
-);
 
 class HistoryScreen extends React.Component {
   render() {
@@ -129,11 +32,8 @@ class HistoryScreen extends React.Component {
                     }}>Achievements</Text>
                     <AchievementSwipe />
                 </View>
-                <FlatList data={this.props.history.toArray()}
-                        renderItem={({item}) => (<Plog plogInfo={item} />)}
-                        keyExtractor={(_, i) => ''+i}
-                        ItemSeparatorComponent={Divider}>
-                </FlatList>
+              <PlogList plogs={this.props.history.toArray()}
+                        currentUserID={this.props.currentUser.uid} />
                 <View style={{ height: 25 }} />
             </ScrollView>
         </View>
@@ -141,49 +41,7 @@ class HistoryScreen extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
-    plogStyle: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        padding: 10,
-        paddingBottom: 0
-    },
-    savingStyle: {
-        opacity: 0.8,
-    },
-    divider: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#DCDCDC',
-        marginTop: 10
-    },
-    profileImage: {
-        margin: 10
-    },
-    actionText: {
-        fontSize: 18
-    },
-    subText: {
-        color: Colors.textGray
-    },
-    map: {
-        borderColor: Colors.borderColor,
-        borderWidth: 1,
-        flex: 3,
-        height: 300,
-        margin: 5
-    },
-    photos: {
-        flexDirection: 'column',
-        alignSelf: 'stretch',
-        justifyContent: 'flex-start',
-        height: 300,
-        overflow: 'scroll',
-        margin: 5,
-        flex: 1
-    }
-});
-
-
 export default connect(store => ({
-    history: store.log.get('history').sort((a, b) => (b.get('when') - a.get('when')))
+    history: store.log.get('history').sort((a, b) => (b.get('when') - a.get('when'))),
+    currentUser: store.users.get('current').toJS(),
 }))(HistoryScreen);
