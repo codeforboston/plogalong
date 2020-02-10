@@ -5,7 +5,7 @@ import {
     StyleSheet,
     Switch,
     View,
-    Text
+    Text,
 } from 'react-native';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
@@ -47,7 +47,11 @@ class PlogScreen extends React.Component {
             timerInterval: null,
             plogStart: null,
             plogTotalTime: 0,
-            plogTimer: '00:00:00'
+            plogTimer: '00:00:00',
+            params: {
+                homeBase: 'Boston, MA',
+                username: 'Beach Bum'
+            }
         };
     }
 
@@ -60,6 +64,11 @@ class PlogScreen extends React.Component {
     }
 
     onSubmit = () => {
+        if (!this.props.user) {
+            console.warn('Unauthenticated user; skipping plog');
+            return;
+        }
+
         const coords = this.state.location && this.state.location.coords;
         const plog = {
             location: coords ? {lat: coords.latitude, lng: coords.longitude, name: 'beach'} : null,
@@ -197,11 +206,12 @@ class PlogScreen extends React.Component {
         return null;
     }
 
-  render() {
-      const {state} = this,
+    render() {
+        const {state} = this,
             typesCount = state.trashTypes.size,
             cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-            typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '';
+            typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
+            {params} = this.state;
 
     return (
       <View style={styles.container}>
@@ -259,21 +269,35 @@ class PlogScreen extends React.Component {
 
           {this.renderModeQuestions()}
 
-          <View style={[$S.switchInputGroup, {padding: 10}]}>
-            <Text style={$S.inputLabel}>
-              Share in Local feed
-            </Text>
-            <Switch value={this.props.user.data.shareActivity}
-                    style={{ transform: [{scale: 0.8}] }}
-                    onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }} />
-          </View>
-
-          <Button title={PlogScreen.modes[this.state.selectedMode]}
-                  primary
-                  onPress={this.onSubmit}
-                  style={$S.activeButton} />
-
-            <View style={{ height: 25 }} />
+            <Button title={PlogScreen.modes[this.state.selectedMode]}
+                    primary
+                    onPress={this.onSubmit}
+                    style={$S.activeButton} />
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+                marginLeft: 40,
+                marginRight: 40,
+            }}>
+                <Text
+                    style={{
+                        color: '#5f646b',
+                    }}
+                >
+                    Share in Local Feed
+                </Text>
+                <Switch
+                  value={this.props.user && (this.props.user.data || {}).shareActivity}
+                    style={{
+                        borderRadius: 15,
+                        borderColor: Colors.secondaryColor,
+                        borderWidth: 2,
+                        backgroundColor: '#4a8835',
+                    }}
+                  onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }}
+                />
+            </View>
 
         </ScrollView>
       </View>

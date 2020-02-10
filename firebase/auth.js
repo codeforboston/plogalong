@@ -1,7 +1,15 @@
 import * as Facebook from 'expo-facebook';
 
-import db, { auth, firebase } from './init';
+import { auth, firebase, Users } from './init';
 import firebaseConfig from './config';
+
+
+const initialUserData = () => ({
+    homeBase: '',
+    username: 'Unnamed Plogger',
+    shareActivity: false,
+    emailUpdatesEnabled: false,
+});
 
 export const loginWithFacebook = async () => {
   const { type, token } = await Facebook.logInWithReadPermissionsAsync(
@@ -22,16 +30,6 @@ export const logOut = async () => {
   return auth.signOut();
 }
 
-export const saveUser = async (user) => {
-    const doc = db.collection('users').doc(user.uid);
-    const result = await doc.set({
-        UserID: user.uid,
-        LastLogin: new Date(),
-    }, { merge: true });
-
-    return await doc.get();
-};
-
 let authStateChangedCallback;
 export function onAuthStateChanged(callback) {
     authStateChangedCallback = callback;
@@ -40,10 +38,27 @@ export function onAuthStateChanged(callback) {
 }
 
 /**
+ * @param {firebase.firestore.DocumentReference} ref
+ */
+async function initializeUserData(ref) {
+    const r = await ref.get();
+
+    if (!r.exists) {
+        await ref.set(initializeUserData());
+    }
+}
+
+/**
 
  * @param {firebase.User|firebase.User["uid"]} user
  */
-export const getUserData = (user) => db.collection('users').doc(typeof user === 'string' ? user : user.uid);
+export const getUserData = (user) => {
+    const ref = Users.doc(typeof user === 'string' ? user : user.uid);
+
+    initializeUserData(ref).catch(err => console.warn('Error while attempting to initialize user data', err));
+
+    return ref;
+};
 
 const profileFields = ['displayName', 'photoURL'];
 export const setUserData = async (data) => {
@@ -64,5 +79,5 @@ export const setUserData = async (data) => {
         authStateChangedCallback(auth.currentUser);
     }
 
-    db.collection('users').doc(auth.currentUser.uid).update(data);
+    Users.doc(auth.currentUser.uid).update(data);
 };

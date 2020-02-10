@@ -27,15 +27,6 @@ export function initializeStore(prefs) {
         )
     );
 
-    // TODO
-    // getLocalPlogs().then(
-    //     (plogs) => {
-    //         store.dispatch(
-    //             plogsUpdated(plogs)
-    //         );
-    //     }
-    // );
-
     let firstStateChange = true;
     let unsubscribe;
 
@@ -50,7 +41,10 @@ export function initializeStore(prefs) {
             if (unsubscribe) unsubscribe();
 
             unsubscribe = user ? getUserData(user).onSnapshot(snap => {
-                store.dispatch(gotUserData(user.uid, snap.data()));
+                const data = snap.data();
+
+                if (data)
+                    store.dispatch(gotUserData(user.uid, data));
             }) : null;
 
             store.dispatch(
@@ -67,6 +61,7 @@ export function initializeStore(prefs) {
                         snap.docs.map(plogDocToState)
                     ));
                 });
+
             } else {
                 store.dispatch(plogsUpdated([]));
             }

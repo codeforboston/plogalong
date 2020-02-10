@@ -17,10 +17,12 @@ if (
 
 firebase.initializeApp(firebaseConfig);
 
-export default firebase.firestore();
+export const firestore = firebase.firestore();
 
 export const auth = firebase.auth();
 
 export { firebase };
 
 export const storage = firebase.storage();
+
+export const Users = firestore.collection('users');

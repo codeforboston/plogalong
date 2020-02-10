@@ -28,7 +28,7 @@
 
 ## Setup Instructions
 
-  - Clone this repository (download and extract zip file from https://github.com/codeforboston/plogalong)
+  - Clone this repository ([How To Clone A Git Repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository))
 
   - Node (10.x or 12.x) -- ensure that you have a recent version installed - https://nodejs.org/en/download/
   
@@ -57,8 +57,8 @@
   - Install Expo: `npm install expo-cli --global` or `yarn global add expo-cli`
   npm install expo-cli --global)
 
-  - Configure Firestore connection: rename the file `firebase/config.js.example` 
-  to `firebase/config.js`. Replace the values in `firebase/config.js` by copying 
+  - Configure Firestore connection: create a new file in the `firebase/` folder, name it `config.js`.
+  Add the proper values to `firebase/config.js` by copying 
   in the new config info (which you can find pinned in the #plogalong Slack 
   channel).
   
@@ -82,12 +82,20 @@
     If you type 'i' and get an error, run 'sudo xcode-select -s /Applications/Xcode.app'
    
   - To run Plogalong on an iOS device: 
-  <br>1. Connect both your computer and your iOS device with same Wi-Fi. 
-  <br>2. In Expo XDE in your browser, select Connection > LAN
-  <br>3. Use the Camera App on your iOS (iOS 11+)Device or any QR code reader (iOS 9 & 10) to scan the QR Code.
-  <br>4. Your QR code reader / Camera App, will ask if you want to launch the 
+  <br>1. Install Expo on your iOS device from the App Store. 
+  <br>2. Connect both your computer and your iOS device with same Wi-Fi. 
+  <br>3. In Expo XDE in your browser, select Connection > LAN
+  <br>4. Use the Camera App on your iOS (iOS 11+)Device or any QR code reader (iOS 9 & 10) to scan the QR Code.
+  <br>5. Your QR code reader / Camera App, will ask if you want to launch the 
   App in Expo Client App, select "Yes"
-  <br>5. Plogalong should load accordingly
+  <br>6. Plogalong should load accordingly
+  
+  - To run Plogalong on an Android device: 
+  <br>1. Install Expo on your Android device from the Google play store. 
+  <br>2. In Expo XDE in your browser, select Connection > Tunnel
+  <br>3. Open Expo on your Android device and select Scan QR Code.
+  <br>4. There should be a message saying 'Building JavaScript Bundle as the Application loads.
+  <br>5. Boom! You're ready to Plog.
   
 ## API Keys
 
@@ -118,7 +126,7 @@ Plog screen
 **What to do**: Register for a free account on [Open Weather](https://openweathermap.org/api "Open Weather API"). Copy your key
 from the "API Keys" tab and paste it into the `openWeatherMapKey` of your `config.json` file.
 
-## Updating Instructions
+## Updating
 
 - After a pull request is merged, it may specify that node_modules will need 
 to be deleted. When this is the case, delete the `node_modules` folder on your 

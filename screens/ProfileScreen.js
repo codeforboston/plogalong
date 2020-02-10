@@ -30,7 +30,7 @@ class ProfileScreen extends React.Component {
                     username = 'Unnamed Plogger',
                     shareActivity = false,
                     emailUpdatesEnabled = false,
-                  },
+                  } = {},
             displayName,
         } = props.currentUser || { data: {}};
 
@@ -59,7 +59,7 @@ class ProfileScreen extends React.Component {
 
   render() {
       const {params} = this.state;
-    const currentUser = this.props.currentUser;
+      const currentUser = this.props.currentUser;
 
       const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
       const toggleParam = param => (_ => {
@@ -138,7 +138,7 @@ class ProfileScreen extends React.Component {
 
           <View style={$S.switchInputGroup}>
             <Text style={$S.inputLabel}>
-              Share activity in Local feed
+              Share in Local Feed
             </Text>
             <Switch value={params.shareActivity}  style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('shareActivity')} />
           </View>
