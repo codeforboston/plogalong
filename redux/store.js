@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 
 import rootReducer from './reducers';
 
-import { getLocalPlogs, queryUserPlogs, plogDocToState } from '../firebase/plogs';
+import { queryUserPlogs, plogDocToState } from '../firebase/plogs';
 import { onAuthStateChanged, getUserData } from '../firebase/auth';
 import { auth } from '../firebase/init';
 

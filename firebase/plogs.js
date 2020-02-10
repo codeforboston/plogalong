@@ -1,18 +1,21 @@
-import db, { auth, storage } from './init';
+import { auth, firebase, storage, Plogs } from './init';
+const { GeoPoint } = firebase.firestore;
 
 
 /**
- * @param {import('firebase').firestore.QueryDocumentSnapshot} plog
+ * @param {import('geofirestore').GeoDocumentSnapshot | firebase.firestore.QueryDocumentSnapshot} plog
  */
 export const plogDocToState = (plog) => {
     const data = plog.data();
+    /** @type {GeoPoint} */
+    const location = data.coordinates;
 
     return {
         trashTypes: data.TrashTypes,
         activityType: data.ActivityType,
         location: {
-            lat: data.Location.Latitude,
-            lng: data.Location.Longitude,
+            lat: location.latitude,
+            lng: location.longitude,
             name: data.GeoLabel,
         },
         groupType: data.HelperType,
@@ -20,35 +23,28 @@ export const plogDocToState = (plog) => {
         when: data.DateTime.toDate(),
         plogPhotos: (data.Photos || []).map(uri => ({ uri })),
         timeSpent: data.PlogDuration,
-        saving: plog.metadata.hasPendingWrites,
+        saving: plog.metadata && plog.metadata.hasPendingWrites,
     };
 };
 
 export function queryUserPlogs(userId) {
-    return db.collection('plogs').where('UserID', '==', userId);
+    return Plogs.where('UserID', '==', userId);
 }
 
-export const getLocalPlogs = async () => {
-  const plogs = await db.collection('plogs').get();
-
-  return plogs.docs.map(plogDocToState);
-};
-
-export const getPlogs = async (userId) => {
-    const plogs = await db.collection('plogs').where('UserID', '==', userId).get();
-
-    return plogs.docs.map(plogDocToState);
+export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=1000) => {
+    return Plogs.near({
+        center: new GeoPoint(lat, long),
+        radius
+    })
+        .where('Public', '==', true);
 };
 
 export const savePlog = async (plog) => {
-  const doc = db.collection('plogs').doc();
+  const doc = Plogs.doc();
   await doc.set({
     TrashTypes: plog.trashTypes,
     ActivityType: plog.activityType,
-    Location: {
-      Latitude: plog.location ? plog.location.lat : 0,
-      Longitude: plog.location ? plog.location.lng : 0,
-    },
+    coordinates: new GeoPoint(plog.location.lat, plog.location.lng),
     GeoLabel: plog.location ? plog.location.name : "mid atlantic",
     HelperType: plog.groupType,
     PlogType: plog.pickedUp ?

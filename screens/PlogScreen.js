@@ -270,6 +270,7 @@ class PlogScreen extends React.Component {
           {this.renderModeQuestions()}
 
             <Button title={PlogScreen.modes[this.state.selectedMode]}
+                    disabled={!this.props.user}
                     primary
                     onPress={this.onSubmit}
                     style={$S.activeButton} />
@@ -277,10 +278,9 @@ class PlogScreen extends React.Component {
                 <Text style={$S.inputLabel}>
                     Share in Local Feed
                 </Text>
-                <Switch
-                  value={this.props.user && (this.props.user.data || {}).shareActivity}
-                    style={$S.switch}
-                  onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }}
+              <Switch value={this.props.user && (this.props.user.data || {}).shareActivity}
+                      style={$S.switch}
+                      onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }}
                 />
             </View>
 

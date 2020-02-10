@@ -115,7 +115,8 @@ Check on our Slack channel for the shared configuration file. Save it to
    - An existing project: Run `firebase use --add` and follow the prompts. (I
      use the alias `"default"`.)
    - A new project: Run `firebase projects:create` and follow the prompts
-4. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
+4. In `firebase/project/functions` run `npm install`.
+5. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
    options.)
 
 ### OpenWeatherMap (optional)
