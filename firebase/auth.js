@@ -4,8 +4,7 @@ import { auth, firebase, Users } from './init';
 import firebaseConfig from './config';
 
 
-const initialUserData = (uid) => ({
-    UserID: uid,
+const initialUserData = () => ({
     homeBase: '',
     username: 'Unnamed Plogger',
     shareActivity: false,
@@ -42,10 +41,11 @@ export function onAuthStateChanged(callback) {
  * @param {firebase.firestore.DocumentReference} ref
  */
 async function initializeUserData(ref) {
-    const r = await ref.get();
-
-    if (!r.exists) {
-        await ref.set(initialUserData(ref.id));
+    try {
+        const r = await ref.get();
+        if (r.exists) return;
+    } catch (_) {
+        await ref.set(initializeUserData());
     }
 }
 
