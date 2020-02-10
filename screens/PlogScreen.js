@@ -208,8 +208,8 @@ class PlogScreen extends React.Component {
             {params} = this.state;
 
     return (
-      <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={$S.screenContainer}>
+        <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
             <Banner>
                 <PlogScreenWeather />
             </Banner>
@@ -285,14 +285,6 @@ class PlogScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  contentContainer: {
-    paddingTop: 30,
-  },
-
     photoStrip: {
         flex: 1,
         flexDirection: 'row',

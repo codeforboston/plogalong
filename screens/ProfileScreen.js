@@ -21,6 +21,7 @@ import { setPreferences, logout} from '../redux/actions';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
+
 class ProfileScreen extends React.Component {
     constructor(props) {
         super(props);
@@ -79,8 +80,8 @@ class ProfileScreen extends React.Component {
       }
 
     return (
-      <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={$S.screenContainer}>
+        <ScrollView style={$S.screenContainer} contentContainerStyle={[$S.scrollContentContainer, styles.contentContainer]}>
 
           <Banner>
             Plogging since {createdFormatted}
@@ -159,10 +160,6 @@ class ProfileScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   contentContainer: {
     paddingTop: 30,
     padding: 20

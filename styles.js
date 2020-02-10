@@ -12,6 +12,15 @@ export default StyleSheet.create({
         padding: 20
     },
 
+    screenContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+
+    scrollContentContainer: {
+        paddingTop: 30,
+    },
+
     form: {
         flexDirection: 'column'
     },

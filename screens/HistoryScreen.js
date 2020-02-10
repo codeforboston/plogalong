@@ -8,6 +8,7 @@ import MapView, { Marker } from 'react-native-maps';
 import {connect} from 'react-redux';
 
 import Colors from '../constants/Colors';
+import $S from '../styles';
 
 //import AchievementBadge from '../components/AchievementBadge';
 import HistoryBanner from '../components/HistoryBanner';
@@ -18,9 +19,9 @@ import PlogList from '../components/PlogList';
 class HistoryScreen extends React.Component {
   render() {
     return (
-        <View>
-            <ScrollView style={styles.container}>
-                <HistoryBanner />
+        <View style={$S.screenContainer}>
+          <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
+            <HistoryBanner />
                 <View style={{
                     marginLeft: 20,
                     marginTop: 10

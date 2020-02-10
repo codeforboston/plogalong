@@ -24,7 +24,7 @@ const HistoryBanner = () => {
     */
     let plogsThisMonth = 5; // this is also a placeholder value
     return (
-        <View style={{paddingTop: 30}}>
+        <View>
             <Text style={styles.bannerHistory}>
                 You plogged {plogsThisMonth} times this month.
                 {'\n'}
