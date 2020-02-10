@@ -47,7 +47,7 @@ export const Plog = ({plogInfo, currentUserID}) => {
 
     const timeSpent = plogInfo.get('timeSpent');
     const when = plogInfo.get('when');
-    const me = plogInfo.userID === currentUserID;
+    const me = plogInfo.get('userID') === currentUserID;
 
     return (
         <View>
@@ -104,9 +104,9 @@ const Divider = () => (
     <View style={styles.divider}></View>
 );
 
-const PlogList = ({plogs, currentUserID}) => (
-    <FlatList data={plogs}
-              renderItem={({item}) => (<Plog plogInfo={item} />)}
+const PlogList = ({plogs, currentUserID, filter}) => (
+    <FlatList data={filter ? plogs.filter(filter) : plogs}
+              renderItem={({item}) => (<Plog plogInfo={item} currentUserID={currentUserID} />)}
               keyExtractor={(_, i) => ''+i}
               ItemSeparatorComponent={Divider} />
 );
