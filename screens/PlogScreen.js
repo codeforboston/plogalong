@@ -8,7 +8,6 @@ import {
     Text,
 } from 'react-native';
 import * as Permissions from 'expo-permissions';
-import * as Location from 'expo-location';
 import Constants from 'expo-constants';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -69,7 +68,7 @@ class PlogScreen extends React.Component {
             return;
         }
 
-        const coords = this.state.location && this.state.location.coords;
+        const coords = this.props.location;
         const plog = {
             location: coords ? {lat: coords.latitude, lng: coords.longitude, name: 'beach'} : null,
             when: new Date(),
@@ -162,13 +161,8 @@ class PlogScreen extends React.Component {
     async componentDidMount() {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status === 'granted') {
-            let location = await Location.getCurrentPositionAsync({});
-
-            this.setState({ location });
+            this.props.startWatchingLocation();
         }
-
-        /* const {loginWithGoogle} = require('../firebase/auth');
-         * await loginWithGoogle(); */
     }
 
     componentWillUnmount() {
@@ -345,10 +339,14 @@ const styles = StyleSheet.create({
 
 const PlogScreenContainer = connect(state => ({
     user: state.users.get("current").toJS(),
+    location: state.users.get('location'),
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {
                                             dispatch(actions.logPlog(plogInfo));
+                                        },
+                                        startWatchingLocation() {
+                                            dispatch(actions.startWatchingLocation());
                                         }
                                     }))(PlogScreen);
 

@@ -1,6 +1,7 @@
 import { Map, fromJS } from "immutable";
 import * as types from "../actionTypes";
 
+
 export default usersReducer = (state = Map(), {type, payload}) => {
   switch (type) {
     case types.SET_CURRENT_USER: {
@@ -16,6 +17,10 @@ export default usersReducer = (state = Map(), {type, payload}) => {
                            ['current', 'data'] :
                            ['users', payload.UserID, 'data'],
                           fromJS(payload.data));
+    }
+
+    case types.LOCATION_CHANGED: {
+        return state.set('location', payload.location);
     }
 
     case types.SIGNUP_ERROR:

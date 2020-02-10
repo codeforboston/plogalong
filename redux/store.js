@@ -11,6 +11,7 @@ import { fromJS } from "immutable";
 
 import { plogsUpdated, setCurrentUser, gotUserData } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
+import LocationMiddleware from './location-middleware';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -22,7 +23,8 @@ export function initializeStore(prefs) {
         composeEnhancers(
             applyMiddleware(
                 thunk,
-                PreferencesMiddleware
+                PreferencesMiddleware,
+                LocationMiddleware,
             )
         )
     );
@@ -61,7 +63,6 @@ export function initializeStore(prefs) {
                         snap.docs.map(plogDocToState)
                     ));
                 });
-
             } else {
                 store.dispatch(plogsUpdated([]));
             }

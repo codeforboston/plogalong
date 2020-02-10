@@ -3,7 +3,8 @@ import { fromJS } from "immutable";
 import {
     LOG_PLOG,
     SET_CURRENT_USER,
-    PLOGS_UPDATED,
+  PLOGS_UPDATED,
+  LOCAL_PLOGS_UPDATED,
 } from "../actionTypes";
 
 const initialState = fromJS({
@@ -37,7 +38,11 @@ const log = (state = initialState, action) => {
             (history) => history.push(
                 ...action.payload.plogs.map((plog) => fromJS(plog))
             )
-        )
+        );
+    }
+
+    case LOCAL_PLOGS_UPDATED: {
+        console.log('local plogs updated', action.payload);
     }
     default: {
         return state;
