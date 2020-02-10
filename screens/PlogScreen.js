@@ -273,28 +273,13 @@ class PlogScreen extends React.Component {
                     primary
                     onPress={this.onSubmit}
                     style={$S.activeButton} />
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
-                marginLeft: 40,
-                marginRight: 40,
-            }}>
-                <Text
-                    style={{
-                        color: '#5f646b',
-                    }}
-                >
+            <View style={[$S.switchInputGroup, styles.shareInLocalFeed]}>
+                <Text style={$S.inputLabel}>
                     Share in Local Feed
                 </Text>
                 <Switch
                   value={this.props.user && (this.props.user.data || {}).shareActivity}
-                    style={{
-                        borderRadius: 15,
-                        borderColor: Colors.secondaryColor,
-                        borderWidth: 2,
-                        backgroundColor: '#4a8835',
-                    }}
+                    style={$S.switch}
                   onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }}
                 />
             </View>
@@ -348,7 +333,14 @@ const styles = StyleSheet.create({
     clearButton: {
         color: 'grey',
         textDecorationLine: 'underline'
-    }
+    },
+
+    shareInLocalFeed: {
+        margin: 10,
+        marginLeft: 40,
+        marginRight: 40,
+        marginBottom: 20,
+    },
 });
 
 const PlogScreenContainer = connect(state => ({

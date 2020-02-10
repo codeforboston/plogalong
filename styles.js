@@ -40,6 +40,14 @@ export default StyleSheet.create({
         marginBottom: 5,
     },
 
+    switch: {
+        borderRadius: 15,
+        borderColor: Colors.secondaryColor,
+        borderWidth: 2,
+        backgroundColor: '#4a8835',
+        transform: [{ scale: 0.8 }],
+    },
+
     button: {
         borderRadius: 5,
         borderColor: Colors.secondaryColor,

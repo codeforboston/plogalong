@@ -4,7 +4,8 @@ import { auth, firebase, Users } from './init';
 import firebaseConfig from './config';
 
 
-const initialUserData = () => ({
+const initialUserData = (uid) => ({
+    UserID: uid,
     homeBase: '',
     username: 'Unnamed Plogger',
     shareActivity: false,
@@ -44,7 +45,7 @@ async function initializeUserData(ref) {
     const r = await ref.get();
 
     if (!r.exists) {
-        await ref.set(initializeUserData());
+        await ref.set(initialUserData(ref.id));
     }
 }
 
