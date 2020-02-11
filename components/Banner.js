@@ -16,7 +16,7 @@ const Banner = (props) => (
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 0,
         backgroundColor: Colors.bannerBackground,
         borderColor: Colors.borderColor,
         borderWidth: 1,

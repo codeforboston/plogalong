@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
+import moment from 'moment';
 
 import {
   logOut,
@@ -73,87 +74,84 @@ class ProfileScreen extends React.Component {
 
       let createdFormatted;
 
-      try {
-          createdFormatted = new Intl.DateTimeFormat('en-us', {month: 'long', year: 'numeric'}).format(created);
-      } catch(_) {
-          createdFormatted = created.toISOString();
-      }
-
     return (
       <View style={$S.screenContainer}>
         <ScrollView style={$S.screenContainer} contentContainerStyle={[$S.scrollContentContainer, styles.contentContainer]}>
 
           <Banner>
-            Plogging since {createdFormatted}
+            Plogging since {moment(created).format('MMMM D, YYYY')}
           </Banner>
-          {/* // alerts */}
 
-          <View style={styles.personalInfoContainer}>
-            <Image
-              source={
-                __DEV__
-                  ? require('../assets/images/profile.png')
-                  : require('../assets/images/profile.png')
-              }
-              style={styles.profileImage}
-            />
-            <View style={styles.personalInfo}>
-              <Text style={styles.badgeSummary}>
-                0 badges
-              </Text>
-              <Text style={{ fontWeight: '500' }}>
-                Personal Account
-              </Text>
-              <Text style={{ fontWeight: '500' }}>
-                { currentUser.email }
-              </Text>
-            </View>
-          </View>
+          {!currentUser.isAnonymous &&
+           <>
+             <View style={styles.personalInfoContainer}>
+               <Image
+                 source={
+                     __DEV__
+                         ? require('../assets/images/profile.png')
+                         : require('../assets/images/profile.png')
+                 }
+                 style={styles.profileImage}
+               />
+               <View style={styles.personalInfo}>
+                 <Text style={styles.badgeSummary}>
+                   0 badges
+                 </Text>
+                 <Text style={{ fontWeight: '500' }}>
+                   Personal Account
+                 </Text>
+                 <Text style={{ fontWeight: '500' }}>
+                   { currentUser.email }
+                 </Text>
+               </View>
+             </View>
 
-          <View>
-            <Text style={styles.welcomeText}>
-              Hello, {currentUser.displayName||'Fellow Plogger'}!
-            </Text>
-          </View>
+             <View>
+               <Text style={styles.welcomeText}>
+                 Hello, {currentUser.displayName||'Fellow Plogger'}!
+               </Text>
+             </View>
 
-          <View style={$S.inputGroup}>
-            <Text style={$S.inputLabel}>Username (visible to others)</Text>
-            <TextInput style={$S.textInput}
-                       autoCapitalize="none"
-                       value={params.displayName}
-                       autoCompleteType="username"
-                       onChangeText={setParam('displayName')}
-                       onBlur={this.save}
-            />
-          </View>
+             <View style={$S.inputGroup}>
+               <Text style={$S.inputLabel}>Username (visible to others)</Text>
+               <TextInput style={$S.textInput}
+                          autoCapitalize="none"
+                          value={params.displayName}
+                          autoCompleteType="username"
+                          onChangeText={setParam('displayName')}
+                          onBlur={this.save}
+               />
+             </View>
 
-          <View style={$S.inputGroup}>
-            <Text style={$S.inputLabel}>Home Base</Text>
-            <TextInput style={$S.textInput}
-                       autoCapitalize="none"
-                       value={params.homeBase}
-                       onChangeText={setParam('homeBase')}
-                       onBlur={this.save}
-            />
-          </View>
+             <View style={$S.inputGroup}>
+               <Text style={$S.inputLabel}>Home Base</Text>
+               <TextInput style={$S.textInput}
+                          autoCapitalize="none"
+                          value={params.homeBase}
+                          onChangeText={setParam('homeBase')}
+                          onBlur={this.save}
+               />
+             </View>
 
-          <View style={$S.switchInputGroup}>
-            <Text style={$S.inputLabel}>
-              Share in Local Feed
-            </Text>
-            <Switch value={params.shareActivity}  style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('shareActivity')} />
-          </View>
-          <View style={$S.switchInputGroup}>
-            <Text style={$S.inputLabel}>
-              Get email updates ({'< 1/month'})
-            </Text>
-            <Switch value={params.emailUpdatesEnabled} style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('emailUpdatesEnabled')} />
-          </View>
+             <View style={$S.switchInputGroup}>
+               <Text style={$S.inputLabel}>
+                 Share in Local Feed
+               </Text>
+               <Switch value={params.shareActivity}  style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('shareActivity')} />
+             </View>
+             <View style={$S.switchInputGroup}>
+               <Text style={$S.inputLabel}>
+                 Get email updates ({'< 1/month'})
+               </Text>
+               <Switch value={params.emailUpdatesEnabled} style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('emailUpdatesEnabled')} />
+             </View>
+           </>}
 
-          <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
-          <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
+          <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>
+            <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
+            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
+          </View>
         </ScrollView>
-        <View style={{ height: 25 }} />
       </View>
     );
   }
@@ -162,7 +160,8 @@ class ProfileScreen extends React.Component {
 const styles = StyleSheet.create({
   contentContainer: {
     paddingTop: 30,
-    padding: 20
+      padding: 20,
+      height: '100%'
   },
   personalInfoContainer: {
       flexDirection: 'row',
@@ -190,6 +189,13 @@ const styles = StyleSheet.create({
     },
     welcomeText: {
         textAlign: 'center'
+    },
+    anonymousButtonContainer: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    buttonContainer: {
+        flexDirection: 'column',
     }
 });
 
