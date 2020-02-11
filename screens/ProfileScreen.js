@@ -10,8 +10,8 @@ import {
 import { connect } from 'react-redux';
 
 import {
-  loginWithFacebook,
   logOut,
+  setUserData
 } from '../firebase/auth';
 import Banner from '../components/Banner';
 import Button from '../components/Button';
@@ -24,30 +24,59 @@ import $S from '../styles';
 class ProfileScreen extends React.Component {
     constructor(props) {
         super(props);
+
+        const {
+            data: { homeBase = '',
+                    username = 'Unnamed Plogger',
+                    shareActivity = false,
+                    emailUpdatesEnabled = false,
+                  } = {},
+            displayName,
+        } = props.currentUser || { data: {}};
+
         this.state = {
             params: {
-                homeBase: 'Boston, MA',
-                username: 'Beach Bum'
+                displayName,
+                homeBase,
+                username,
+                shareActivity,
+                emailUpdatesEnabled,
             }
         };
     }
 
   handleShareActivityPrefChange = (shareActivity) => {
-    this.props.updatePreferences({ shareActivity })
+      this.props.updatePreferences({ shareActivity });
   }
 
     goToSignup = () => {
         this.props.navigation.navigate('Signup');
     }
 
+    save = event => {
+        setUserData({...this.state.params});
+    }
+
   render() {
       const {params} = this.state;
-    const currentUser = this.props.currentUser && this.props.currentUser.toJS();
+      const currentUser = this.props.currentUser;
 
       const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
+      const toggleParam = param => (_ => {
+          this.setState(({params}) => ({params: { ...params, [param]: !params[param] }}), _ => {
+              this.save();
+          });
+      });
+
       const created = new Date(parseInt(currentUser.createdAt));
 
-      const createdFormatted = new Intl.DateTimeFormat('en-us', {month: 'long', year: 'numeric'}).format(created);
+      let createdFormatted;
+
+      try {
+          createdFormatted = new Intl.DateTimeFormat('en-us', {month: 'long', year: 'numeric'}).format(created);
+      } catch(_) {
+          createdFormatted = created.toISOString();
+      }
 
     return (
       <View style={styles.container}>
@@ -71,10 +100,10 @@ class ProfileScreen extends React.Component {
               <Text style={styles.badgeSummary}>
                 0 badges
               </Text>
-              <Text style={{ fontWeight: 500 }}>
+              <Text style={{ fontWeight: '500' }}>
                 Personal Account
               </Text>
-              <Text style={{ fontWeight: 500 }}>
+              <Text style={{ fontWeight: '500' }}>
                 { currentUser.email }
               </Text>
             </View>
@@ -90,9 +119,10 @@ class ProfileScreen extends React.Component {
             <Text style={$S.inputLabel}>Username (visible to others)</Text>
             <TextInput style={$S.textInput}
                        autoCapitalize="none"
-                       value={params.username}
+                       value={params.displayName}
                        autoCompleteType="username"
-                       onChangeText={setParam('username')}
+                       onChangeText={setParam('displayName')}
+                       onBlur={this.save}
             />
           </View>
 
@@ -102,6 +132,7 @@ class ProfileScreen extends React.Component {
                        autoCapitalize="none"
                        value={params.homeBase}
                        onChangeText={setParam('homeBase')}
+                       onBlur={this.save}
             />
           </View>
 
@@ -109,13 +140,13 @@ class ProfileScreen extends React.Component {
             <Text style={$S.inputLabel}>
               Share in Local Feed
             </Text>
-            <Switch value={params.shareActivity} style={{ transform: [{scale: 0.8}] }}/>
+            <Switch value={params.shareActivity}  style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('shareActivity')} />
           </View>
           <View style={$S.switchInputGroup}>
             <Text style={$S.inputLabel}>
               Get email updates ({'< 1/month'})
             </Text>
-            <Switch value={params.emailUpdatesEnabled} style={{ transform: [{scale: 0.8}] }}/>
+            <Switch value={params.emailUpdatesEnabled} style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('emailUpdatesEnabled')} />
           </View>
 
           <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
@@ -167,7 +198,7 @@ const styles = StyleSheet.create({
 
 export default connect(
   (state) => ({
-    currentUser: state.users.get("current"),
+      currentUser: state.users.get("current") && state.users.get('current').toJS(),
     preferences: state.preferences,
   }),
   (dispatch) => ({

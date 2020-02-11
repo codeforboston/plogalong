@@ -6,7 +6,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "eject": "expo eject",
-    "test": "node ./node_modules/jest/bin/jest.js --watchAll"
+    "test": "node ./node_modules/jest/bin/jest.js --watchAll",
+    "postinstall": "node ./scripts/postinstall.js"
   },
   "jest": {
     "preset": "jest-expo"
@@ -18,13 +19,14 @@
     "expo-google-app-auth": "^6.0.0",
     "expo-image-picker": "~6.0.0",
     "firebase": "^6.0.2",
+    "geofirestore": "^3.4.1",
     "immutable": "^4.0.0-rc.12",
     "moment": "^2.0.0",
     "react": "16.8.3",
     "react-native": "https://github.com/expo/react-native/archive/sdk-34.0.0.tar.gz",
+    "react-native-fbsdk": "^1.0.1",
     "react-native-gesture-handler": "~1.3.0",
     "react-native-maps": "~0.24.0",
-    "react-native-fbsdk": "^1.0.1",
     "react-native-segmented-control-tab": "^3.4.0",
     "react-native-svg": "~9.5.1",
     "react-navigation": "^3.11.1",

@@ -1,54 +1,60 @@
-import db, { storage } from './init';
+import { auth, firebase, storage, Plogs } from './init';
+const { GeoPoint } = firebase.firestore;
 
 
-const plogDocToState = (plog) => {
-  const data = plog.data();
+/**
+ * @param {import('geofirestore').GeoDocumentSnapshot | firebase.firestore.QueryDocumentSnapshot} plog
+ */
+export const plogDocToState = (plog) => {
+    const data = plog.data();
+    /** @type {GeoPoint} */
+    const location = data.coordinates;
 
-  return {
-    trashTypes: data.TrashTypes,
-    activityType: data.ActivityType,
-    location: {
-      lat: data.Location.Latitude,
-      lng: data.Location.Longitude,
-      name: data.GeoLabel,
-    },
-    groupType: data.HelperType,
-    pickedUp: data.PlogType === "Plog",
-    when: data.DateTime.toDate(),
-    plogPhotos: (data.Photos || []).map(uri => ({ uri }))
-  };
+    return {
+        trashTypes: data.TrashTypes,
+        activityType: data.ActivityType,
+        location: {
+            lat: location.latitude,
+            lng: location.longitude,
+            name: data.GeoLabel,
+        },
+        groupType: data.HelperType,
+        pickedUp: data.PlogType === "Plog",
+        when: data.DateTime.toDate(),
+        plogPhotos: (data.Photos || []).map(uri => ({ uri })),
+        timeSpent: data.PlogDuration,
+        saving: plog.metadata && plog.metadata.hasPendingWrites,
+    };
 };
 
-export const getLocalPlogs = async () => {
-  const plogs = await db.collection('plogs').get();
+export function queryUserPlogs(userId) {
+    return Plogs.where('UserID', '==', userId);
+}
 
-  return plogs.docs.map(plogDocToState);
-};
-
-export const getPlogs = async (userId) => {
-    const plogs = await db.collection('plogs').where('UserID', '==', userId).get();
-
-    return plogs.docs.map(plogDocToState);
+export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=1000) => {
+    return Plogs.near({
+        center: new GeoPoint(lat, long),
+        radius
+    })
+        .where('Public', '==', true);
 };
 
 export const savePlog = async (plog) => {
-  const doc = db.collection('plogs').doc();
+  const doc = Plogs.doc();
   await doc.set({
     TrashTypes: plog.trashTypes,
     ActivityType: plog.activityType,
-    Location: {
-      Latitude: plog.location ? plog.location.lat : 0,
-      Longitude: plog.location ? plog.location.lng : 0,
-    },
+    coordinates: new GeoPoint(plog.location.lat, plog.location.lng),
     GeoLabel: plog.location ? plog.location.name : "mid atlantic",
     HelperType: plog.groupType,
     PlogType: plog.pickedUp ?
       "Plog" :
       "Flag",
     DateTime: plog.when,
-    UserID: plog.userID,
+      UserID: auth.currentUser.uid,
     Photos: [],
-    PlogDuration: plog.timeSpent
+      PlogDuration: plog.timeSpent,
+      Public: !!plog.public,
   });
 
     const urls = [];

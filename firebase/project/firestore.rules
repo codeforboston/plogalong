@@ -1,0 +1,15 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /plogs/{any} {
+    	allow read: if request.auth.uid != null && (request.auth.uid == resource.data.d.UserID || resource.data.d.Public)
+      allow write: if request.auth.uid == resource.data.d.UserID
+      allow create: if request.auth.uid == request.resource.data.d.UserID
+    }
+
+    match /users/{UserID} {
+      allow read, write: if UserID == request.auth.uid
+    }
+  }
+}
