@@ -44,9 +44,9 @@ async function initializeUserData(ref) {
     try {
         const r = await ref.get();
         if (r.exists) return;
-    } catch (_) {
-        await ref.set(initializeUserData());
-    }
+    } catch (_) {}
+
+    await ref.set(initialUserData());
 }
 
 /**
