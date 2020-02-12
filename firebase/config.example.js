@@ -12,8 +12,9 @@ export default {
             webClientId: "",
             androidClientID: "",
             androidClientIDExpo: "",
-            iosClientID: "",
-            iosClientIDExpo: ""
+            iosStandaloneAppClientId: "",
+            iosClientId: "",
+            scopes: ['profile'],
         }
     },
 

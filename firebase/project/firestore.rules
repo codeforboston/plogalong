@@ -2,14 +2,19 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+  	function settingField(field) {
+    	return field in request.resource.data;
+    }
+
     match /plogs/{any} {
     	allow read: if request.auth.uid != null && (request.auth.uid == resource.data.d.UserID || resource.data.d.Public)
       allow write: if request.auth.uid == resource.data.d.UserID
       allow create: if request.auth.uid == request.resource.data.d.UserID
     }
 
-    match /users/{UserID} {
-      allow read, write: if UserID == request.auth.uid
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId
+      allow update, create, write: if userId == request.auth.uid && !settingField("achievements") && !settingField("stats")
     }
   }
 }

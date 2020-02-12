@@ -44,7 +44,9 @@ async function initializeUserData(ref) {
     try {
         const r = await ref.get();
         if (r.exists) return;
-    } catch (_) {}
+    } catch (err) {
+        console.warn('error getting user data', err);
+    }
 
     await ref.set(initialUserData());
 }
@@ -53,10 +55,10 @@ async function initializeUserData(ref) {
 
  * @param {firebase.User|firebase.User["uid"]} user
  */
-export const getUserData = (user) => {
+export const getUserData = async (user) => {
     const ref = Users.doc(typeof user === 'string' ? user : user.uid);
 
-    initializeUserData(ref).catch(err => console.warn('Error while attempting to initialize user data', err));
+    await initializeUserData(ref);
 
     return ref;
 };
