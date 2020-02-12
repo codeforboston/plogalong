@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Image,
   ScrollView,
@@ -23,28 +23,30 @@ import Colors from '../constants/Colors';
 import $S from '../styles';
 
 
+const stateFromProps =
+      ({currentUser: { data: { homeBase = '',
+                               username = 'Unnamed Plogger',
+                               shareActivity = false,
+                               emailUpdatesEnabled = false,
+                             } = {},
+                       displayName }} = {}) => ({
+                           params: {
+                               displayName,
+                               homeBase,
+                               username,
+                               shareActivity,
+                               emailUpdatesEnabled,
+                           }
+                       });
+
 class ProfileScreen extends React.Component {
-    constructor(props) {
-        super(props);
+    state = stateFromProps(this.props)
 
-        const {
-            data: { homeBase = '',
-                    username = 'Unnamed Plogger',
-                    shareActivity = false,
-                    emailUpdatesEnabled = false,
-                  } = {},
-            displayName,
-        } = props.currentUser || { data: {}};
-
-        this.state = {
-            params: {
-                displayName,
-                homeBase,
-                username,
-                shareActivity,
-                emailUpdatesEnabled,
-            }
-        };
+    componentDidUpdate(prevProps, prevState) {
+        const {currentUser: {data: {updated}}} = this.props;
+        if (prevProps.currentUser && prevProps.currentUser.data && prevProps.currentUser.data.updated !== updated) {
+            this.setState(stateFromProps(this.props));
+        }
     }
 
   handleShareActivityPrefChange = (shareActivity) => {
@@ -56,13 +58,10 @@ class ProfileScreen extends React.Component {
     }
 
     save = event => {
-        setUserData({...this.state.params});
+        this.props.setUserData({...this.state.params});
     }
 
   render() {
-      const {params} = this.state;
-      const currentUser = this.props.currentUser;
-
       const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
       const toggleParam = param => (_ => {
           this.setState(({params}) => ({params: { ...params, [param]: !params[param] }}), _ => {
@@ -70,9 +69,9 @@ class ProfileScreen extends React.Component {
           });
       });
 
+      const currentUser = this.props.currentUser;
       const created = new Date(parseInt(currentUser.createdAt));
-
-      let createdFormatted;
+      const {params} = this.state;
 
     return (
       <View style={$S.screenContainer}>
@@ -204,10 +203,10 @@ export default connect(
       currentUser: state.users.get("current") && state.users.get('current').toJS(),
     preferences: state.preferences,
   }),
-  (dispatch) => ({
-    updatePreferences(preferences) {
-      dispatch(setPreferences(preferences))
-    },
-
+    (dispatch) => ({
+        updatePreferences(preferences) {
+            dispatch(setPreferences(preferences))
+        },
+        setUserData,
   })
 )(ProfileScreen);
