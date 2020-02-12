@@ -34,18 +34,16 @@ const log = (state = initialState, action) => {
     }
 
     case PLOGS_UPDATED: {
-        return state.update(
+        return state.set(
             "history",
-            (history) => history.push(
-                ...action.payload.plogs.map((plog) => fromJS(plog))
-            )
+            fromJS(action.payload.plogs)
         );
     }
 
     case LOCAL_PLOGS_UPDATED: {
-        return state.update(
+        return state.set(
             "localPlogs",
-            plogs => plogs.push(...action.payload.plogs.map(plog => fromJS(plog)))
+            fromJS(action.payload.plogs)
         );
     }
     default: {
