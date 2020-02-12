@@ -63,7 +63,7 @@ export const savePlog = async (plog) => {
     for (let {uri} of plog.plogPhotos) {
         const response = await fetch(uri);
 
-        const ref = storage.ref().child(`userdata/${plog.userID}/plog/${doc.id}-${i++}.jpg`);
+        const ref = storage.ref().child(`userdata/${auth.currentUser.uid}/plog/${doc.id}-${i++}.jpg`);
         await ref.put(await response.blob());
         urls.push(await ref.getDownloadURL());
     }
