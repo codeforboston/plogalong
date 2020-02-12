@@ -7,12 +7,14 @@ import { getLocalPlogs, plogDocToState } from '../firebase/plogs';
 /** @type {import('redux').Middleware} */
 export default store => {
     let stopWatching;
-    let stopLocalPlogsQuery;
 
     return next => action => {
         if (action.type === START_LOCATION_WATCH) {
-            if (stopWatching) stopWatching();
-            stopWatching = Location.watchPositionAsync({}, location => {
+            if (stopWatching && typeof stopWatching === 'function') stopWatching();
+            stopWatching = Location.watchPositionAsync({
+                accuracy: 4,
+                timeInterval: 500,
+            }, location => {
                 store.dispatch(locationChanged(location && location.coords));
             });
         } else if (action.type === STOP_LOCATION_WATCH) {
@@ -20,13 +22,10 @@ export default store => {
             stopWatching = null;
         } else if (action.type === LOCATION_CHANGED) {
             const {payload: {location}} = action;
-            if (stopLocalPlogsQuery) stopLocalPlogsQuery();
-
             if (location) {
-                stopLocalPlogsQuery =
-                    getLocalPlogs(location.latitude, location.longitude).onSnapshot(snapshot => {
-                        store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState)));
-                    }, console.error);
+                getLocalPlogs(location.latitude, location.longitude).onSnapshot(snapshot => {
+                    store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState)));
+                }, console.warn);
             }
         }
 
