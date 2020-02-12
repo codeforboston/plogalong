@@ -7,9 +7,9 @@ import {
 import { withNavigation } from 'react-navigation';
 
 
-const DismissButton = ({navigation}) => (
-    <TouchableOpacity onPressOut={() => navigation.pop()}>
-      <Text style={styles.dismissButton}>⊗</Text>
+const DismissButton = ({navigation, style, ...props}) => (
+    <TouchableOpacity onPressOut={() => navigation.pop()} {...props}>
+      <Text style={[styles.dismissButton, style]}>⊗</Text>
     </TouchableOpacity>
 );
 
