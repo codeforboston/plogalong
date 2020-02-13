@@ -87,6 +87,11 @@ class LoginScreen extends React.Component {
                       style={[{ marginTop: 20 }]}
                       disabled={this.disabled()} />
 
+              <Button title="Login with Google"
+                      primary
+                      onPress={this.props.loginWithGoogle}
+                      style={[{ marginTop: 20 }]} />
+
               <Link onPress={() => { this.props.loginAnonymously(); }}
                     style={{ marginTop: 30, textAlign: 'center' }}>
                 Skip Registration
@@ -120,5 +125,6 @@ export default connect(
     dispatch => ({
         loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
         loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
+        loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),
     })
 )(LoginScreen);

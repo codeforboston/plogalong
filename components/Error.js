@@ -17,6 +17,8 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.errorBackground,
         color: Colors.errorText,
         padding: 10,
+        margin: 10,
+        marginBottom: 20,
     }
 });
 

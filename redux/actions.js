@@ -1,9 +1,34 @@
 import { AsyncStorage } from 'react-native';
+import * as Google from 'expo-google-app-auth';
+
 import { SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
 import { savePlog } from '../firebase/plogs';
 
+import firebaseConfig from '../firebase/config';
+const { auth: { google: googleConfig } = {} } = firebaseConfig;
+
+
+const loginError = (err) => ({
+    type: types.LOGIN_ERROR,
+    payload: {
+        error: {
+            code: err.code,
+            message: err.message
+        }
+    }
+});
+
+const signupError = (err) => ({
+    type: types.SIGNUP_ERROR,
+    payload: {
+        error: {
+            code: err.code,
+            message: err.message
+        }
+    }
+});
 
 export const logPlog = (plogInfo) => (
     async dispatch => {
@@ -90,18 +115,47 @@ export const loginWithEmail = (email, password) => (
         try {
             await auth.signInWithEmailAndPassword(email, password);
         } catch(err) {
-            dispatch({ type: types.LOGIN_ERROR,
-                       payload: {
-                           error: {
-                               code: err.code,
-                               message: err.message
-                           }
-                       }
-                     });
+            dispatch(loginError(err));
         }
     }
 );
 
+export const linkToGoogle = () => {
+    if (!googleConfig)
+        return signupError({ message: 'Google authentication has not been configured for this app' });
+
+    return async dispatch => {
+        try {
+            const { type, accessToken, idToken } = await Google.logInAsync(googleConfig);
+
+            if (type === 'success') {
+                const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+                await auth.currentUser.linkWithCredential(credential);
+            }
+        } catch (err) {
+            console.warn(signupError(err));
+            dispatch(signupError(err));
+        }
+    };
+};
+
+export const loginWithGoogle = () => {
+    if (!googleConfig)
+        return signupError({ message: 'Google authentication has not been configured for this app' });
+
+    return async dispatch => {
+        try {
+            const { type, accessToken, idToken } = await Google.logInAsync(googleConfig);
+
+            if (type === 'success') {
+                const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+                await auth.signInWithCredential(credential);
+            }
+        } catch (err) {
+            dispatch(loginError(err));
+        }
+    };
+};
 export const loginAnonymously = () => (
     async dispatch => {
         try {
