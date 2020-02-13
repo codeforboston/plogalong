@@ -15,7 +15,7 @@ import { Set } from 'immutable';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
-import PlogPhoto from '../components/PlogPhoto';
+import PhotoButton from '../components/PhotoButton';
 import Question from '../components/Question';
 import Selectable from '../components/Selectable';
 
@@ -252,9 +252,9 @@ class PlogScreen extends React.Component {
             <View style={styles.photoStrip}>
                 {
                     this.state.plogPhotos.map((plogPhoto, idx) => (
-                        <PlogPhoto onPictureSelected={picture => this.addPicture(picture, idx)}
+                        <PhotoButton onPictureSelected={picture => this.addPicture(picture, idx)}
                                    onCleared={_ => this.addPicture(null, idx)}
-                                   plogPhoto={plogPhoto}
+                                   photo={plogPhoto}
                                    key={idx}
                         />
                     ))

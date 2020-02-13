@@ -31,16 +31,16 @@ export default class Button extends React.Component {
               {active} = this.state,
               sharedStyles = [$S.button, !disabled && active && $S.activeButton,
                               disabled && styles.disabled, selected && styles.selected,
-                              primary && $S.primaryButton, (large || primary) && $S.largeButton, style];
+                              primary && $S.primaryButton, (large || primary) && $S.largeButton];
 
         if (icon) {
             const shownIcon = (selected && selectedIcon) || (active && activeIcon) || icon,
                   iconComponent = typeof shownIcon === 'function' ?
                                   React.createElement(shownIcon, {style: styles.iconStyles}) :
-                                  React.cloneElement(shownIcon, {style: [styles.iconStyles, shownIcon.props.styles]});
+                                  React.cloneElement(shownIcon, {style: [styles.iconStyles, shownIcon.props.style]});
 
             return (
-                <View style={[...sharedStyles, styles.iconButton]}>
+                <View style={[...sharedStyles, styles.iconButton, style]}>
                     {iconComponent}
                 </View>
             );
@@ -48,7 +48,7 @@ export default class Button extends React.Component {
 
         if (title) {
             return (
-                <Text style={[...sharedStyles, $S.textButton]}>
+                <Text style={[...sharedStyles, $S.textButton, style]}>
                     {title}
                 </Text>
             );
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
 
     iconButton: {
         width: 50,
-        height: 50
+        height: 50,
     },
 
     selected: {

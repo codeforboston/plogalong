@@ -15,9 +15,9 @@ import icons from '../icons';
 import Button from './Button';
 
 
-class PlogPhoto extends React.Component {
+class PhotoButton extends React.Component {
     chooseImageSource = () => {
-        const extraOptions = this.props.plogPhoto ?
+        const extraOptions = this.props.photo ?
               [{text: 'Clear', onPress: this.clearPhoto}] : [];
 
         Alert.alert('Pick a photo', '', [
@@ -75,20 +75,18 @@ class PlogPhoto extends React.Component {
     }
 
     render() {
-        const {plogPhoto, ...props} = this.props,
-              icon = plogPhoto ? <Image source={{uri: plogPhoto.uri}} style={{flex: 1}}/> :
-              <icons.Camera/>;
+        const {photo, style, imageStyle, defaultIcon: DefaultIcon=icons.Camera, ...props} = this.props,
+              icon = photo ?
+              <Image source={photo} style={[{flex: 1}, imageStyle]}/> :
+              <DefaultIcon/>;
 
         return <Button title="Add Image"
                        icon={icon}
                        onPress={this.chooseImageSource}
+                       style={style}
                />;
     }
 }
 
 
-const styles = StyleSheet.create({
-    plogPhoto: {}
-});
-
-export default withNavigation(PlogPhoto);
+export default withNavigation(PhotoButton);
