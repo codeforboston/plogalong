@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Text} from 'react-native';
+import * as Location from 'expo-location';
 
 import config from '../config';
 
@@ -85,7 +86,7 @@ class PlogScreenWeather extends Component {
         } else {
           plogMessage.message = "It's cold out today - be extra careful about ice!";
         }
-      } else if (tempMax <= -6) {
+      } else if (tempMin <= -6) {
         plogMessage.message = "Don't go plogging, it's too cold!";
       };
       console.log(plogMessage.message);
@@ -99,8 +100,7 @@ class PlogScreenWeather extends Component {
   }
   
   componentDidMount() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
+      Location.getCurrentPositionAsync().then(position => {
         let latit = position.coords.latitude;
         let longit = position.coords.longitude;
         let toGetWeather = "?lat=" + latit.toFixed(4) + "&lon=" + longit.toFixed(4);
@@ -135,11 +135,6 @@ class PlogScreenWeather extends Component {
             })       
         }
       });
-      console.log("geolocation found");
-      console.log(this.state.weatherDetails);
-    } else {
-      console.log("geolocation not found");
-    };
   }
 
   renderError() {
