@@ -5,9 +5,11 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { withNavigation } from 'react-navigation';
 
 import moment from 'moment';
 
@@ -33,7 +35,7 @@ function formatDate(dt) {
     return moment(dt).format('MMMM Do');
 }
 
-export const Plog = ({plogInfo, currentUserID}) => {
+export const Plog = withNavigation(({plogInfo, currentUserID, navigation}) => {
     const latLng = {
         latitude: plogInfo.getIn(['location', 'lat']),
         longitude: plogInfo.getIn(['location', 'lng']),
@@ -48,6 +50,11 @@ export const Plog = ({plogInfo, currentUserID}) => {
     const timeSpent = plogInfo.get('timeSpent');
     const when = plogInfo.get('when');
     const me = plogInfo.get('userID') === currentUserID;
+    const showPhotos = () => {
+        navigation.navigate('PhotoViewer', {
+            photos: plogPhotos
+        });
+    };
 
     return (
         <View>
@@ -86,7 +93,10 @@ export const Plog = ({plogInfo, currentUserID}) => {
             {
                 plogPhotos && plogPhotos.length ?
                     <ScrollView contentContainerStyle={styles.photos}>
-                      {plogPhotos.map(({uri}) => (<Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>))}
+                      {plogPhotos.map(({uri}) => (
+                          <TouchableOpacity onPress={showPhotos} key={uri}>
+                            <Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>
+                          </TouchableOpacity>))}
                     </ScrollView> :
                 null
             }
@@ -98,7 +108,7 @@ export const Plog = ({plogInfo, currentUserID}) => {
           </View>
         </View>
     );
-};
+});
 
 const Divider = () => (
     <View style={styles.divider}></View>
@@ -106,7 +116,8 @@ const Divider = () => (
 
 const PlogList = ({plogs, currentUserID, filter}) => (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
-              renderItem={({item}) => (<Plog plogInfo={item} currentUserID={currentUserID} />)}
+              renderItem={({item}) => (<Plog plogInfo={item}
+                                             currentUserID={currentUserID} />)}
               keyExtractor={(_, i) => ''+i}
               ItemSeparatorComponent={Divider} />
 );
