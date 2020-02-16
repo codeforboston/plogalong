@@ -130,7 +130,7 @@ class ProfileScreen extends React.Component {
              <View style={$S.inputGroup}>
                <Text style={$S.inputLabel}>Home Base</Text>
                <TextInput style={$S.textInput}
-                          autoCapitalize="none"
+                          autoCapitalize="sentences"
                           value={params.homeBase}
                           onChangeText={setParam('homeBase')}
                           onBlur={this.save}
