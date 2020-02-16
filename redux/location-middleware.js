@@ -11,7 +11,14 @@ export default store => {
     return next => action => {
         if (action.type === START_LOCATION_WATCH) {
             if (stopWatching && typeof stopWatching === 'function') stopWatching();
+            Location.getCurrentPositionAsync({}).then(location => {
+                if (location)
+                    store.dispatch(locationChanged(location.coords));
+                // TODO Location error
+            });
+
             stopWatching = Location.watchPositionAsync({
+                enableHighAccuracy: true,
                 accuracy: 4,
                 timeInterval: 500,
             }, location => {
