@@ -34,25 +34,14 @@ class PhotoButton extends React.Component {
     }
 
     takeAndSelectPhoto = async () => {
-        try {
-            const result = await this.takePhoto();
+        const {onPictureSelected} = this.props;
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true
+        });
 
-            if (this.props.onPictureSelected)
-                this.props.onPictureSelected(result);
-        } catch (error) {
-            console.log(error);
+        if (!result.cancelled) {
+            onPictureSelected && onPictureSelected(result);
         }
-    }
-
-    takePhoto = () => {
-      return new Promise((resolve, reject) => {
-          this.props.navigation.navigate('Camera', {
-              gotPhoto: resolve,
-              photoError: reject,
-              takingPhoto: () => this.setState({ capturing: true }),
-              cancel: reject
-          });
-      });
     }
 
     pickImage = async () => {

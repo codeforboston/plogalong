@@ -1,7 +1,6 @@
 import { createAppContainer, createStackNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
-import CameraScreen from '../screens/CameraScreen';
 import PhotoViewer from '../screens/PhotoViewer';
 import ScreenSlider from '../components/ScreenSlider';
 import LoginScreen from '../screens/Login';
@@ -12,7 +11,6 @@ export default createAppContainer(createStackNavigator({
     Main: MainTabNavigator,
     Intro: ScreenSlider,
     // Intro: IntroScreen,
-    Camera: CameraScreen,
     PhotoViewer,
     Login: LoginScreen,
     Signup: SignupScreen,
