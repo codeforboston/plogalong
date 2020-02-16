@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    View,
 } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
@@ -16,7 +17,8 @@ import {
 } from '../firebase/auth';
 import Banner from '../components/Banner';
 import Button from '../components/Button';
-import { Switch } from 'react-native';
+import PhotoButton from '../components/PhotoButton';
+import ProfileImage from '../assets/images/profile.png';
 import { setPreferences, logout} from '../redux/actions';
 
 import Colors from '../constants/Colors';
@@ -61,6 +63,10 @@ class ProfileScreen extends React.Component {
         this.props.setUserData({...this.state.params});
     }
 
+    setProfilePhoto = photo => {
+        this.props.setUserData({ profilePicture: photo });
+    }
+
   render() {
       const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
       const toggleParam = param => (_ => {
@@ -72,6 +78,7 @@ class ProfileScreen extends React.Component {
       const currentUser = this.props.currentUser;
       const created = new Date(parseInt(currentUser.createdAt));
       const {params} = this.state;
+      const {profilePicture} = currentUser.data;
 
     return (
       <View style={$S.screenContainer}>
@@ -84,13 +91,11 @@ class ProfileScreen extends React.Component {
           {!currentUser.isAnonymous &&
            <>
              <View style={styles.personalInfoContainer}>
-               <Image
-                 source={
-                     __DEV__
-                         ? require('../assets/images/profile.png')
-                         : require('../assets/images/profile.png')
-                 }
-                 style={styles.profileImage}
+               <PhotoButton
+                 photo={profilePicture ? {uri: profilePicture} : ProfileImage}
+                 style={styles.profileImageButton}
+                 imageStyle={styles.profileImage}
+                 onPictureSelected={this.setProfilePhoto}
                />
                <View style={styles.personalInfo}>
                  <Text style={styles.badgeSummary}>
@@ -167,13 +172,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-  profileImage: {
-    width: 100,
-    height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
+  profileImageButton: {
+      width: 100,
+      height: 80,
+      marginTop: 3,
+      marginLeft: -10,
+      borderWidth: 0,
   },
+    profileImage: {
+        width: 100,
+        height: 80,
+        resizeMode: 'contain',
+    },
     badgeSummary: {
         borderColor: Colors.borderColor,
         borderRadius: 5,
