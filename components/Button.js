@@ -65,7 +65,7 @@ export default class Button extends React.Component {
         return (
             <TouchableWithoutFeedback accessibilityLabel={accessibilityLabel || title}
                                       accessibilityRole="button"
-                                      accessibilityState={selected ? ['selected'] : null}
+                                      accessibilityState={{selected: !!selected}}
                                       onPressIn={this.onPressIn}
                                       onPressOut={this.onPressOut}
                                       {...props}>
