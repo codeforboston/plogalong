@@ -4,14 +4,18 @@ import {
     Text,
     TouchableOpacity
 } from 'react-native';
-import { withNavigation } from 'react-navigation';
+import { useNavigation } from '@react-navigation/native';
 
 
-const DismissButton = ({navigation, style, ...props}) => (
-    <TouchableOpacity onPressOut={() => navigation.pop()} {...props}>
-      <Text style={[styles.dismissButton, style]}>⊗</Text>
-    </TouchableOpacity>
-);
+const DismissButton = ({style, ...props}) => {
+    const navigation = useNavigation();
+
+    return (
+        <TouchableOpacity onPressOut={() => navigation.pop()} {...props}>
+          <Text style={[styles.dismissButton, style]}>⊗</Text>
+        </TouchableOpacity>
+    );
+};
 
 
 const styles = StyleSheet.create({
@@ -24,4 +28,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default withNavigation(DismissButton);
+export default DismissButton;

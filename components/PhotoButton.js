@@ -4,11 +4,10 @@ import {
     Image,
     StyleSheet,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
-
-import { withNavigation } from 'react-navigation';
 
 import icons from '../icons';
 
@@ -77,5 +76,8 @@ class PhotoButton extends React.Component {
     }
 }
 
+export default ({props}) => {
+    const navigation = useNavigation();
 
-export default withNavigation(PhotoButton);
+    return <PhotoButton navigation={navigation} {...props}/>;
+};

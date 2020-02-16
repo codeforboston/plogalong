@@ -4,9 +4,11 @@ import {
   View,
 } from 'react-native';
 
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator } from '@react-navigation/stack';
 
+import Header from '../components/Header';
 import NavMenu from '../components/NavMenu';
+
 import AboutScreen from './AboutScreen';
 import FAQScreen from './FAQScreen';
 import ActivePloggerMap from './ActivePloggerMap';
@@ -14,6 +16,15 @@ import SuppliesScreen from './SuppliesScreen';
 import CouchPloggingScreen from './CouchPloggingScreen';
 import SocialMediaScreen from './SocialMediaScreen';
 import InviteModalScreen from './InviteModalScreen';
+
+
+const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
+
+const routeName = ({state, params, name}, defaultName=name) => {
+    return state ?
+        routeName(state.routes[state.index]) :
+        (params && params.title || defaultName);
+};
 
 export class MoreScreen extends React.Component {
   constructor(props) {
@@ -35,11 +46,6 @@ export class MoreScreen extends React.Component {
     {label: 'Invite', route: false, handlePress: this.toggleIsInviteModalVisible},
   ];
 
-  static navigationOptions = {
-      header: null,
-      headerBackTitle: 'More'
-  };
-
   render() {
     return (
       <View style={styles.container}>
@@ -50,18 +56,33 @@ export class MoreScreen extends React.Component {
   }
 }
 
-export default createStackNavigator({
-    Menu: MoreScreen,
-    About: AboutScreen,
-    FAQ: FAQScreen,
-    ActivePloggerMap,
-    Supplies: SuppliesScreen,
-    CouchPlogging: CouchPloggingScreen,
-    SocialMedia: SocialMediaScreen,
-    InviteModal: InviteModalScreen
-}, {
-    headerStyle: { height: 100 }
-});
+const Stack = createStackNavigator();
+
+export default ({navigation, route}) => {
+    return (
+        <Stack.Navigator screenOptions={{
+            headerBackTitle: 'More',
+            title: decamel(routeName(route)),
+            headerTitle: (props) => (
+                <Header text={props.children} />
+            ),
+            headerStyle: {
+                backgroundColor: '#fff',
+                borderBottomColor: 'purple',
+                borderBottomWidth: 4,
+            }
+        }}>
+          <Stack.Screen name="More" component={ MoreScreen }/>
+          <Stack.Screen name="About" component={ AboutScreen }/>
+          <Stack.Screen name="FAQ" component={ FAQScreen }/>
+          <Stack.Screen name="ActivePloggerMap" component={ ActivePloggerMap }/>
+          <Stack.Screen name="Supplies" component={ SuppliesScreen }/>
+          <Stack.Screen name="CouchPlogging" component={ CouchPloggingScreen }/>
+          <Stack.Screen name="SocialMedia" component={ SocialMediaScreen }/>
+          <Stack.Screen name="InviteModal" component={ InviteModalScreen}/>
+        </Stack.Navigator>
+    );
+};
 
 const styles = StyleSheet.create({
   container: {

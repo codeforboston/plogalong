@@ -4,7 +4,7 @@ import {
     TouchableOpacity,
 } from 'react-native';
 
-import { withNavigation } from 'react-navigation';
+import { useNavigation } from '@react-navigation/native';
 
 import $S from '../styles';
 
@@ -17,8 +17,9 @@ const Link = ({children, style, ...props}) => (
     </TouchableOpacity>
 );
 
-export const NavLink = withNavigation(({children, navigation, onPress, pop, route, style, ...props}) => {
-    onPress= onPress && onPress.bind(null, navigation);
+export const NavLink = ({children, onPress, pop, route, style, ...props}) => {
+    const navigation = useNavigation();
+    onPress = onPress && onPress.bind(null, navigation);
     const onPressOrig = onPress;
     if (pop)
         onPress = (_, e) => {
@@ -38,6 +39,6 @@ export const NavLink = withNavigation(({children, navigation, onPress, pop, rout
           </Text>
         </TouchableOpacity>
     );
-});
+};
 
 export default Link;

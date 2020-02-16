@@ -9,7 +9,7 @@ import {
     View,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { withNavigation } from 'react-navigation';
+import { useNavigation } from '@react-navigation/native';
 
 import moment from 'moment';
 
@@ -35,7 +35,8 @@ function formatDate(dt) {
     return moment(dt).format('MMMM Do');
 }
 
-export const Plog = withNavigation(({plogInfo, currentUserID, navigation}) => {
+export const Plog = ({plogInfo, currentUserID}) => {
+    const navigation = useNavigation();
     const latLng = {
         latitude: plogInfo.getIn(['location', 'lat']),
         longitude: plogInfo.getIn(['location', 'lng']),
@@ -108,7 +109,7 @@ export const Plog = withNavigation(({plogInfo, currentUserID, navigation}) => {
           </View>
         </View>
     );
-});
+};
 
 const Divider = () => (
     <View style={styles.divider}></View>

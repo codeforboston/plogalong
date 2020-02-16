@@ -7,8 +7,8 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-import { withNavigation } from 'react-navigation';
 
 const Divider = () => (
     <View style={styles.divider}></View>
@@ -22,7 +22,7 @@ const MenuItem = ({label, detail, route, params, action, navigation, handlePress
     } else {
       navigation.push(route, params, action);
     }
-  }
+  };
 
   return (
     <>
@@ -39,28 +39,27 @@ const MenuItem = ({label, detail, route, params, action, navigation, handlePress
       </TouchableOpacity>
     </>
   );
-}
+};
 
-class NavMenu extends React.Component {
-    render() {
-        const {navigation, routes} = this.props;
-        return (
-            <ScrollView style={styles.container}>
-              <FlatList data={routes}
-                        keyExtractor={(item, i) => (item.route || `${i}`)}
-                        renderItem={
-                            ({item}) => <MenuItem navigation={navigation} {...item}/>
-                        }
-                        ItemSeparatorComponent={Divider}
-              />
-              <Divider />
-              <View style={{ height: 25 }} />
-            </ScrollView>
-        );
-    }
-}
+const NavMenu = ({routes}) => {
+    const navigation = useNavigation();
 
-export default withNavigation(NavMenu);
+    return (
+        <ScrollView style={styles.container}>
+          <FlatList data={routes}
+                    keyExtractor={(item, i) => (item.route || `${i}`)}
+                    renderItem={
+                        ({item}) => <MenuItem navigation={navigation} {...item}/>
+                    }
+                    ItemSeparatorComponent={Divider}
+          />
+          <Divider />
+          <View style={{ height: 25 }} />
+        </ScrollView>
+    );
+};
+
+export default NavMenu;
 
 const styles = StyleSheet.create({
   container: {
