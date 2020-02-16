@@ -1,10 +1,9 @@
-import React, {useMemo} from 'react';
+import * as React from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
   View,
-  TouchableOpacity
 } from 'react-native';
 import { connect } from 'react-redux';
 

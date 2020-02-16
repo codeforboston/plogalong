@@ -1,9 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 
 import Colors from '../constants/Colors';
 
 import {
-    Image,
     StyleSheet,
     Text,
     View,

@@ -1,13 +1,10 @@
-import React from 'react';
+import * as React from 'react';
 import {
     ScrollView,
-    Text,
     View,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
 import {connect} from 'react-redux';
 
-import Colors from '../constants/Colors';
 import $S from '../styles';
 
 import Banner from '../components/Banner';

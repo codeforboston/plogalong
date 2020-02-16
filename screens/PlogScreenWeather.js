@@ -1,4 +1,5 @@
-import React, {Component} from 'react';
+import * as React from 'react';
+import {Component} from 'react';
 import {Text} from 'react-native';
 import * as Location from 'expo-location';
 

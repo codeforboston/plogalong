@@ -1,4 +1,5 @@
 import { createAppContainer, createStackNavigator } from 'react-navigation';
+import * as React from 'react';
 
 import MainTabNavigator from './MainTabNavigator';
 import PhotoViewer from '../screens/PhotoViewer';

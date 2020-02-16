@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Image } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator, BottomTabBar } from 'react-navigation';
 import { connect } from 'react-redux';
