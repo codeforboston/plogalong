@@ -81,9 +81,7 @@ class ProfileScreen extends React.Component {
       const {profilePicture} = currentUser.data;
 
     return (
-      <View style={$S.screenContainer}>
         <ScrollView style={$S.screenContainer} contentContainerStyle={[$S.scrollContentContainer, styles.contentContainer]}>
-
           <Banner>
             Plogging since {moment(created).format('MMMM D, YYYY')}
           </Banner>
@@ -141,13 +139,13 @@ class ProfileScreen extends React.Component {
                <Text style={$S.inputLabel}>
                  Share in Local Feed
                </Text>
-               <Switch value={params.shareActivity}  style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('shareActivity')} />
+               <Switch value={params.shareActivity}  style={$S.switch} onValueChange={toggleParam('shareActivity')} />
              </View>
              <View style={$S.switchInputGroup}>
                <Text style={$S.inputLabel}>
                  Get email updates ({'< 1/month'})
                </Text>
-               <Switch value={params.emailUpdatesEnabled} style={{ transform: [{scale: 0.8}] }} onValueChange={toggleParam('emailUpdatesEnabled')} />
+               <Switch value={params.emailUpdatesEnabled} style={$S.switch} onValueChange={toggleParam('emailUpdatesEnabled')} />
              </View>
            </>}
 
@@ -156,14 +154,12 @@ class ProfileScreen extends React.Component {
             <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
           </View>
         </ScrollView>
-      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   contentContainer: {
-    paddingTop: 30,
       padding: 20,
       height: '100%'
   },

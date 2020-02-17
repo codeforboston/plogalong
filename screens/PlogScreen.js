@@ -207,7 +207,6 @@ class PlogScreen extends React.Component {
             {params} = this.state;
 
     return (
-      <View style={$S.screenContainer}>
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
             <Banner>
                 <PlogScreenWeather />
@@ -278,7 +277,6 @@ class PlogScreen extends React.Component {
             </View>
 
         </ScrollView>
-      </View>
     );
   }
 }

@@ -18,7 +18,7 @@ export default StyleSheet.create({
     },
 
     scrollContentContainer: {
-        paddingTop: 30,
+        paddingTop: 20,
     },
 
     form: {
@@ -50,10 +50,6 @@ export default StyleSheet.create({
     },
 
     switch: {
-        borderRadius: 15,
-        borderColor: Colors.secondaryColor,
-        borderWidth: 2,
-        backgroundColor: '#4a8835',
         transform: [{ scale: 0.8 }],
     },
 
