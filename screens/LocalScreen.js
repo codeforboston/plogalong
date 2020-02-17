@@ -17,15 +17,20 @@ class LocalScreen extends React.Component {
 
         return (
             <View style={$S.screenContainer}>
-              <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
-                <Banner>
-                  You're near a beach. Straws and plastic bags pose the biggest problem.
-                </Banner>
                 <PlogList plogs={history.toArray()}
                           filter={plog => plog.get('userID') !== uid}
-                          currentUserID={uid} />
-                <View style={{ height: 25 }} />
-              </ScrollView>
+                          currentUserID={uid}
+                          header={
+                              <View style={{ paddingTop: 20 }}>
+                                <Banner>
+                                  You're near a beach. Straws and plastic bags pose the biggest problem.
+                                </Banner>
+                              </View>
+                          }
+                          footer={
+                              <View style={{ height: 25 }} />
+                          }
+                />
             </View>
         );
     }

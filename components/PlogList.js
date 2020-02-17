@@ -115,12 +115,14 @@ const Divider = () => (
     <View style={styles.divider}></View>
 );
 
-const PlogList = ({plogs, currentUserID, filter}) => (
+const PlogList = ({plogs, currentUserID, filter, header, footer}) => (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
               renderItem={({item}) => (<Plog plogInfo={item}
                                              currentUserID={currentUserID} />)}
               keyExtractor={(_, i) => ''+i}
-              ItemSeparatorComponent={Divider} />
+              ItemSeparatorComponent={Divider}
+              ListHeaderComponent={header}
+              ListFooterComponent={footer} />
 );
 
 const styles = StyleSheet.create({

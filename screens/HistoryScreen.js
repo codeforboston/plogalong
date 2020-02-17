@@ -19,23 +19,26 @@ class HistoryScreen extends React.Component {
   render() {
     return (
         <View style={$S.screenContainer}>
-          <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
-            <HistoryBanner />
-                <View style={{
-                    marginLeft: 20,
-                    marginTop: 10
-                }}>
-                    <Text style={{
-                        fontSize: 25,
-                        marginLeft: 5,
-                        color: Colors.textGray
-                    }}>Achievements</Text>
-                    <AchievementSwipe />
-                </View>
-              <PlogList plogs={this.props.history.toArray()}
-                        currentUserID={this.props.currentUser.uid} />
-                <View style={{ height: 25 }} />
-            </ScrollView>
+          <PlogList plogs={this.props.history.toArray()}
+                    currentUserID={this.props.currentUser.uid}
+                    header={
+                        <View style={{ paddingTop: 20 }}>
+                          <HistoryBanner />
+                          <View style={{
+                              marginLeft: 20,
+                              marginTop: 10
+                          }}>
+                            <Text style={{
+                                fontSize: 25,
+                                marginLeft: 5,
+                                color: Colors.textGray
+                            }}>Achievements</Text>
+                            <AchievementSwipe />
+                          </View>
+                        </View>
+                    }
+                    footer={<View style={{ paddingBottom: 20 }}/>}
+          />
         </View>
     );
   }

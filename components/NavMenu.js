@@ -45,17 +45,16 @@ const NavMenu = ({routes}) => {
     const navigation = useNavigation();
 
     return (
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
           <FlatList data={routes}
                     keyExtractor={(item, i) => (item.route || `${i}`)}
                     renderItem={
                         ({item}) => <MenuItem navigation={navigation} {...item}/>
                     }
                     ItemSeparatorComponent={Divider}
+                    ListFooterComponent={Divider}
           />
-          <Divider />
-          <View style={{ height: 25 }} />
-        </ScrollView>
+        </View>
     );
 };
 
