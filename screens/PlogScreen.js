@@ -102,6 +102,7 @@ class PlogScreen extends React.Component {
 
     addPicture(picture, idx) {
         this.setState(({plogPhotos}) => {
+            plogPhotos = Array.from(plogPhotos);
             plogPhotos[idx] = picture;
 
             return { plogPhotos };
@@ -251,9 +252,9 @@ class PlogScreen extends React.Component {
                 {
                     this.state.plogPhotos.map((plogPhoto, idx) => (
                         <PhotoButton onPictureSelected={picture => this.addPicture(picture, idx)}
-                                   onCleared={_ => this.addPicture(null, idx)}
-                                   photo={plogPhoto}
-                                   key={idx}
+                                     onCleared={_ => this.addPicture(null, idx)}
+                                     photo={plogPhoto}
+                                     key={idx}
                         />
                     ))
                 }

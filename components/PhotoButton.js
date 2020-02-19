@@ -76,7 +76,7 @@ class PhotoButton extends React.Component {
     }
 }
 
-export default ({props}) => {
+export default props => {
     const navigation = useNavigation();
 
     return <PhotoButton navigation={navigation} {...props}/>;
