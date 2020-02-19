@@ -30,7 +30,7 @@
 
   - Clone this repository ([How To Clone A Git Repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository))
 
-  - Node (10.x or 12.x) -- ensure that you have a recent version installed - https://nodejs.org/en/download/
+  - Node (10.x or 12.x) -- ensure that you have a recent version installed - https://nodejs.org/en/download/ **Please use a LTS (even) version**
   
   - Make sure that /usr/local/bin is in your $PATH by opening Terminal and typing in echo $PATH (if it's not, follow directions here: https://opensource.com/article/17/6/set-path-linux)
 
