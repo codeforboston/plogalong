@@ -18,7 +18,6 @@ class LocalScreen extends React.Component {
         return (
             <View style={$S.screenContainer}>
                 <PlogList plogs={history.toArray()}
-                          filter={plog => plog.get('userID') !== uid}
                           currentUserID={uid}
                           header={
                               <View style={{ paddingTop: 20 }}>

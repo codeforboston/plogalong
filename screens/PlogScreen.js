@@ -78,6 +78,8 @@ class PlogScreen extends React.Component {
             plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
             timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0),
             public: this.props.user.data.shareActivity,
+            userProfilePicture: this.props.user.data.profilePicture,
+            userDisplayName: this.props.user.displayName,
         };
         this.props.logPlog(plog);
         // Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);

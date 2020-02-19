@@ -37,7 +37,6 @@ export default class PhotoViewer extends React.Component {
     }
 
     render() {
-        console.log(this.props);
         const {photos} = this.props.route.params;
         const {size} = this.state;
 

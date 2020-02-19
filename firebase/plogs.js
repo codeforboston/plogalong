@@ -24,7 +24,10 @@ export const plogDocToState = (plog) => {
         plogPhotos: (data.Photos || []).map(uri => ({ uri })),
         timeSpent: data.PlogDuration,
         saving: plog.metadata && plog.metadata.hasPendingWrites,
-        userID: data.UserID
+        userID: data.UserID,
+        public: data.Public,
+        userProfilePicture: data.UserProfilePicture,
+        userDisplayName: data.UserDisplayName,
     };
 };
 
@@ -32,7 +35,7 @@ export function queryUserPlogs(userId) {
     return Plogs.where('UserID', '==', userId);
 }
 
-export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=1000) => {
+export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=8000) => {
     return Plogs.near({
         center: new GeoPoint(lat, long),
         radius
@@ -56,6 +59,8 @@ export const savePlog = async (plog) => {
     Photos: [],
       PlogDuration: plog.timeSpent,
       Public: !!plog.public,
+      UserProfilePicture: plog.userProfilePicture,
+      UserDisplayName: plog.userDisplayName,
   });
 
     const urls = [];

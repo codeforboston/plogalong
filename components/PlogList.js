@@ -16,7 +16,7 @@ import moment from 'moment';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
-import ProfileImage from '../assets/images/profile.png';
+import DefaultProfileImage from '../assets/images/profile.png';
 
 
 function formatDuration(s) {
@@ -56,14 +56,16 @@ export const Plog = ({plogInfo, currentUserID}) => {
             photos: plogPhotos
         });
     };
+    const userProfilePicture = plogInfo.get('userProfilePicture');
 
     return (
         <View>
           <View style={[styles.plogStyle, plogInfo.saving && styles.savingStyle]}>
-            <Image source={ProfileImage} style={styles.profileImage} />
+            <Image source={userProfilePicture ? { uri: userProfilePicture } : DefaultProfileImage}
+                   style={styles.profileImage} />
             <View>
               <Text style={styles.actionText}>
-                {me ? 'You' : 'Someone'} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
+                {me ? 'You' : plogInfo.get('userDisplayName', 'A fellow plogger')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
               </Text>
               <Text style={styles.subText}>
                 {moment(plogInfo.get('when')).fromNow()}
@@ -141,7 +143,9 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     profileImage: {
-        margin: 10
+        margin: 10,
+        width: 50,
+        height: 50,
     },
     actionText: {
         fontSize: 18
