@@ -2,8 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  	function settingField(field) {
-    	return field in request.resource.data;
+  	function notSettingField(field) {
+    	return !(field in request.resource.data) || request.resource.data[field] == resource.data[field];
     }
 
     match /plogs/{any} {
@@ -14,7 +14,7 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if request.auth.uid == userId
-      allow update, create, write: if userId == request.auth.uid && !settingField("achievements") && !settingField("stats")
+      allow update, create, write: if userId == request.auth.uid && notSettingField("achievements") && notSettingField("stats")
     }
   }
 }
