@@ -34,16 +34,18 @@ const Plog = ({plogInfo}) => {
     const { plogPhotos = [] } = plogInfo.toJS();
 
     const PloggedTrash = () => {
-        selectTrashTypes = (type) => {
-            Options.trashTypes.get(type).title.toLowerCase().join(', ')
-        };
-        let result;
+        selectTrashTypes = plogInfo.get('trashTypes').map(type => 
+            Options.trashTypes.get(type).title.toLowerCase()).join(', ');
         if (selectTrashTypes === '') {
-            result = 'trash';
+            return (
+                <Text>trash</Text>
+            )
         } else {
-            result = selectTrashTypes;
-        }
-        return result;
+            return (
+                plogInfo.get('trashTypes').map(type => 
+                    Options.trashTypes.get(type).title.toLowerCase()).join(', ')
+            );
+        };
     };
 
     console.log('plogInfo: ', plogInfo);
