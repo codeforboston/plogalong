@@ -33,6 +33,19 @@ const Plog = ({plogInfo}) => {
 
     const { plogPhotos = [] } = plogInfo.toJS();
 
+    const PloggedTrash = () => {
+        selectTrashTypes = (type) => {
+            Options.trashTypes.get(type).title.toLowerCase().join(', ')
+        };
+        let result;
+        if (selectTrashTypes === '') {
+            result = 'trash';
+        } else {
+            result = selectTrashTypes;
+        }
+        return result;
+    };
+
     console.log('plogInfo: ', plogInfo);
 
     return (
@@ -76,7 +89,7 @@ const Plog = ({plogInfo}) => {
             </View>
             <View style={styles.plogStyle}>
                 <Text style={styles.subText}>
-                    Cleaned up {plogInfo.get('trashTypes').map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
+                    Cleaned up <PloggedTrash />.
                 </Text>
             </View>
         </View>
