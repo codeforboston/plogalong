@@ -34,12 +34,12 @@ const Plog = ({plogInfo}) => {
     const { plogPhotos = [] } = plogInfo.toJS();
 
     const PloggedTrash = () => {
-        selectTrashTypes = plogInfo.get('trashTypes').map(type => 
+        let selectTrashTypes = plogInfo.get('trashTypes').map(type => 
             Options.trashTypes.get(type).title.toLowerCase()).join(', ');
         if (selectTrashTypes === '') {
             return (
                 <Text>trash</Text>
-            )
+            );
         } else {
             return (
                 plogInfo.get('trashTypes').map(type => 
