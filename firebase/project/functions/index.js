@@ -3,6 +3,12 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
+/** @template T, S
+  * @typedef {{ [K in keyof T]: T[K] extends S ? K : never }} WithValueType
+  */
+/** @template T, S
+  * @typedef {keyof Pick<T, WithValueType<T, S>[keyof T]>} KeysWithValueType
+  */
 
 function _makeCountAchievement(target) {
     return {
@@ -83,11 +89,78 @@ async function updateAchievements(user, plog, plogData) {
     user.set({achievements}, {merge: true});
 }
 
+/**
+ * Records aggregated stats for a particular time unit
+ *
+ * @typedef {object} PlogStats
+ * @property {string} whenID - used as an identifier for the unit on which the
+ *   stats are aggregated. E.g., if the user's most recent plog is on 4/3/21,
+ *   the year PlogStats would have a `whenID` value of `2021` and the `month`
+ *   PlogStats would have a `whenD` value of `2021-4`
+ * @property {number} minutes - total time plogged during this time period
+ * @property {number} count
+ */
+
+/**
+ * Caches general stats about usage, including aggregates for the month and year
+ * when the user most recently plogged.
+ *
+ * @typedef {object} UserStats
+ * @property {PlogStats} [month]
+ * @property {PlogStats} [year]
+ * @property {PlogStats} [total]
+ */
+
+/** @typedef {KeysWithValueType<UserStats, PlogStats>} TimeUnit */
+/** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */
+
+/** @type {TimeUnitConfig[]} */
+const timeUnits = [
+    { unit: 'month', when: dt => `${dt.getFullYear()}-${dt.getMonth()+1}` },
+    { unit: 'year', when: dt => ''+dt.getFullYear() },
+    { unit: 'total', when: _ => 'total' },
+];
+
+/**
+ * @typedef {object} UserData
+ * @property {UserStats} stats
+ */
+
+/**
+ * @param {UserData} user
+ * @param {PlogData} plog
+ */
+function updateStats(user, plog, date=new Date()) {
+    const { stats = {} } = user;
+
+    for (let {unit, when} of timeUnits) {
+        const whenValue = when(date);
+        let unitStats = stats[unit];
+        if (!unitStats || unitStats.whenID !== whenValue) {
+            unitStats = { minutes: 0, count: 0, whenID: whenValue };
+            stats[unit] = unitStats;
+        }
+
+        unitStats.minutes += plog.PlogDuration || 0;
+        unitStats.count += 1;
+    }
+
+    return stats;
+}
+
 exports.calculateAchievements = functions.firestore.document('/plogs/{documentId}')
     .onCreate(async (snap, context) => {
-        const plogData = snap.data();
+        const plogData = snap.data().d;
         const {UserID} = plogData;
 
-        return updateAchievements(admin.firestore().collection('users').doc(UserID), snap.ref, plogData);
+        await app.firestore().runTransaction(async t => {
+            const userDocRef = app.firestore().collection('users').doc(UserID);
+            const user = await t.get(userDocRef);
+            t.update(userDocRef, {
+                stats: updateStats(user.data(), plogData, snap.createTime.toDate())
+            });
+        });
+        // return updateAchievements(admin.firestore().collection('users').doc(UserID), snap.ref, plogData);
+    });
     });
 
