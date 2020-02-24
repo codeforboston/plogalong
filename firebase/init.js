@@ -7,10 +7,10 @@ import { GeoFirestore } from 'geofirestore';
 if (
   !(
     firebaseConfig.apiKey &&
-    firebaseConfig.authDomain &&
-    firebaseConfig.databaseURL &&
-    firebaseConfig.projectId &&
-    firebaseConfig.appId
+      firebaseConfig.authDomain &&
+      firebaseConfig.databaseURL &&
+      firebaseConfig.projectId &&
+      firebaseConfig.appId
   )
 ) {
   throw new Error("Missing Firestore config parameters; update your configuration");

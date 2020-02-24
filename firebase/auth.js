@@ -8,10 +8,10 @@ import firebaseConfig from './config';
  * @param {firebase.User} [user]
  */
 const initialUserData = user => ({
-    homeBase: '',
-    displayName: user && user.displayName || 'Unnamed Plogger',
-    shareActivity: false,
-    emailUpdatesEnabled: false,
+  homeBase: '',
+  displayName: user && user.displayName || 'Unnamed Plogger',
+  shareActivity: false,
+  emailUpdatesEnabled: false,
 });
 
 export const loginWithFacebook = async () => {
@@ -35,9 +35,9 @@ export const logOut = async () => {
 
 let authStateChangedCallback;
 export function onAuthStateChanged(callback) {
-    authStateChangedCallback = callback;
+  authStateChangedCallback = callback;
 
-    return auth.onAuthStateChanged(callback);
+  return auth.onAuthStateChanged(callback);
 }
 
 /**
@@ -45,14 +45,14 @@ export function onAuthStateChanged(callback) {
  * @param {firebase.User} user
  */
 async function initializeUserData(ref, user) {
-    try {
-        const r = await ref.get();
-        if (r.exists) return;
-    } catch (err) {
-        console.warn('error getting user data', err);
-    }
+  try {
+    const r = await ref.get();
+    if (r.exists) return;
+  } catch (err) {
+    console.warn('error getting user data', err);
+  }
 
-    await ref.set(initialUserData(user));
+  await ref.set(initialUserData(user));
 }
 
 /**
@@ -60,34 +60,34 @@ async function initializeUserData(ref, user) {
  * @param {firebase.User} user
  */
 export const getUserData = async (user) => {
-    const ref = Users.doc(user.uid);
+  const ref = Users.doc(user.uid);
 
-    await initializeUserData(ref, user);
+  await initializeUserData(ref, user);
 
-    return ref;
+  return ref;
 };
 
 export const setUserData = async (data) => {
-    if (!auth.currentUser)
-        return;
+  if (!auth.currentUser)
+    return;
 
-    const {profilePicture} = data;
-    if (profilePicture && typeof profilePicture !== 'string') {
-        delete data['profilePicture'];
-    }
+  const {profilePicture} = data;
+  if (profilePicture && typeof profilePicture !== 'string') {
+    delete data['profilePicture'];
+  }
 
-    Users.doc(auth.currentUser.uid).update(data).catch(x => {
-        console.warn('error updating user', auth.currentUser, data, x);
-    });
+  Users.doc(auth.currentUser.uid).update(data).catch(x => {
+    console.warn('error updating user', auth.currentUser, data, x);
+  });
 
-    if (profilePicture && profilePicture.uri) {
-        setUserPhoto(profilePicture);
-    }
+  if (profilePicture && profilePicture.uri) {
+    setUserPhoto(profilePicture);
+  }
 };
 
 export const setUserPhoto = async ({uri}) => {
-    const ref = storage.ref().child(`userpublic/${auth.currentUser.uid}/plog/profile.jpg`);
-    const response = await fetch(uri);
-    await ref.put(await response.blob());
-    Users.doc(auth.currentUser.uid).update({ profilePicture: await ref.getDownloadURL() });
+  const ref = storage.ref().child(`userpublic/${auth.currentUser.uid}/plog/profile.jpg`);
+  const response = await fetch(uri);
+  await ref.put(await response.blob());
+  Users.doc(auth.currentUser.uid).update({ profilePicture: await ref.getDownloadURL() });
 };
