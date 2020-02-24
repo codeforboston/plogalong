@@ -162,5 +162,38 @@ exports.calculateAchievements = functions.firestore.document('/plogs/{documentId
         });
         // return updateAchievements(admin.firestore().collection('users').doc(UserID), snap.ref, plogData);
     });
+
+
+exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
+    .onUpdate(async (snap, context) => {
+        const before = snap.before.data();
+        const after = snap.after.data();
+
+        if (before.profilePicture !== after.profilePicture || before.displayName !== after.displayName) {
+            const db = app.firestore();
+            const Plogs = db.collection('/plogs');
+            const where = ['d.UserID', '==', context.params.userId];
+            const limit = 100;
+
+            let query = Plogs.where(...where).limit(limit);
+
+            while (true) {
+                const batch = db.batch();
+                const plogs = await query.get();
+
+                for (const plog of plogs.docs) {
+                    batch.update(plog.ref, {
+                        'd.UserProfilePicture': after.profilePicture,
+                        'd.UserDisplayName': after.displayName,
+                    });
+                }
+
+                await batch.commit();
+                if (plogs.size < limit)
+                    break;
+
+                query = Plogs.where(...where).limit(limit).startAfter(plogs.docs[plogs.size-1]);
+            }
+        }
     });
 
