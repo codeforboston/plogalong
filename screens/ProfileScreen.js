@@ -27,19 +27,18 @@ import $S from '../styles';
 
 const stateFromProps =
       ({currentUser: { data: { homeBase = '',
-                               username = 'Unnamed Plogger',
+                               displayName,
                                shareActivity = false,
                                emailUpdatesEnabled = false,
-                             } = {},
-                       displayName }} = {}) => ({
-                           params: {
-                               displayName,
-                               homeBase,
-                               username,
-                               shareActivity,
-                               emailUpdatesEnabled,
-                           }
-                       });
+                             } = {}
+                     }} = {}) => ({
+                         params: {
+                             displayName,
+                             homeBase,
+                             shareActivity,
+                             emailUpdatesEnabled,
+                         }
+                     });
 
 class ProfileScreen extends React.Component {
     state = stateFromProps(this.props)
@@ -75,7 +74,8 @@ class ProfileScreen extends React.Component {
           });
       });
 
-      const currentUser = this.props.currentUser;
+      const {currentUser} = this.props;
+      const userData = currentUser.data || {};
       const created = new Date(parseInt(currentUser.createdAt));
       const {params} = this.state;
       const {profilePicture} = currentUser.data;
@@ -110,7 +110,7 @@ class ProfileScreen extends React.Component {
 
              <View>
                <Text style={styles.welcomeText}>
-                 Hello, {currentUser.displayName||'Fellow Plogger'}!
+                 Hello, {userData.displayName||'Fellow Plogger'}!
                </Text>
              </View>
 

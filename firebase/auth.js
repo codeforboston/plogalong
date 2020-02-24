@@ -4,9 +4,12 @@ import { auth, firebase, storage, Users } from './init';
 import firebaseConfig from './config';
 
 
-const initialUserData = () => ({
+/**
+ * @param {firebase.User} [user]
+ */
+const initialUserData = user => ({
     homeBase: '',
-    username: 'Unnamed Plogger',
+    displayName: user && user.displayName || 'Unnamed Plogger',
     shareActivity: false,
     emailUpdatesEnabled: false,
 });
@@ -39,8 +42,9 @@ export function onAuthStateChanged(callback) {
 
 /**
  * @param {firebase.firestore.DocumentReference} ref
+ * @param {firebase.User} user
  */
-async function initializeUserData(ref) {
+async function initializeUserData(ref, user) {
     try {
         const r = await ref.get();
         if (r.exists) return;
@@ -48,46 +52,33 @@ async function initializeUserData(ref) {
         console.warn('error getting user data', err);
     }
 
-    await ref.set(initialUserData());
+    await ref.set(initialUserData(user));
 }
 
 /**
 
- * @param {firebase.User|firebase.User["uid"]} user
+ * @param {firebase.User} user
  */
 export const getUserData = async (user) => {
-    const ref = Users.doc(typeof user === 'string' ? user : user.uid);
+    const ref = Users.doc(user.uid);
 
-    await initializeUserData(ref);
+    await initializeUserData(ref, user);
 
     return ref;
 };
 
-const profileFields = ['displayName', 'photoURL'];
 export const setUserData = async (data) => {
     if (!auth.currentUser)
         return;
-
-    const updateFields = profileFields.reduce((m, field) => {
-        if (!data[field])
-            return m;
-
-        const val = data[field];
-        delete data[field];
-        return m ? Object.assign(m, { [field]: val }) : { [field]: val };
-    }, null);
-
-    if (updateFields) {
-        await auth.currentUser.updateProfile(updateFields);
-        authStateChangedCallback(auth.currentUser);
-    }
 
     const {profilePicture} = data;
     if (profilePicture && typeof profilePicture !== 'string') {
         delete data['profilePicture'];
     }
 
-    Users.doc(auth.currentUser.uid).update(data);
+    Users.doc(auth.currentUser.uid).update(data).catch(x => {
+        console.warn('error updating user', auth.currentUser, data, x);
+    });
 
     if (profilePicture && profilePicture.uri) {
         setUserPhoto(profilePicture);
