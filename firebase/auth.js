@@ -1,6 +1,7 @@
 import * as Facebook from 'expo-facebook';
 
 import { auth, firebase, storage, Users } from './init';
+import { uploadImage } from './util';
 import firebaseConfig from './config';
 
 
@@ -86,8 +87,7 @@ export const setUserData = async (data) => {
 };
 
 export const setUserPhoto = async ({uri}) => {
-  const ref = storage.ref().child(`userpublic/${auth.currentUser.uid}/plog/profile.jpg`);
-  const response = await fetch(uri);
-  await ref.put(await response.blob());
-  Users.doc(auth.currentUser.uid).update({ profilePicture: await ref.getDownloadURL() });
+  Users.doc(auth.currentUser.uid).update({
+    profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, { resize: { width: 300, height: 300 }})
+  });
 };

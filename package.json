@@ -22,6 +22,7 @@
     "expo-camera": "~8.0.0",
     "expo-facebook": "~8.0.0",
     "expo-google-app-auth": "^8.0.1",
+    "expo-image-manipulator": "~8.0.0",
     "expo-image-picker": "~8.0.1",
     "firebase": "^6.0.2",
     "geofirestore": "^3.4.1",

@@ -1,4 +1,7 @@
+import * as ImageManipulator from 'expo-image-manipulator';
+
 import { auth, firebase, storage, Plogs } from './init';
+import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
 
@@ -63,15 +66,11 @@ export const savePlog = async (plog) => {
     UserDisplayName: plog.userDisplayName,
   });
 
-  const urls = [];
-  let i = 0;
-  for (let {uri} of plog.plogPhotos) {
-    const response = await fetch(uri);
-
-    const ref = storage.ref().child(`userdata/${auth.currentUser.uid}/plog/${doc.id}-${i++}.jpg`);
-    await ref.put(await response.blob());
-    urls.push(await ref.getDownloadURL());
-  }
+  const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
+  const urls = await Promise.all(plog.plogPhotos.map(({uri}, i) => (
+    uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
+                { resize: { width: 300, height: 300 } })
+  )));
 
   await doc.update({ Photos: urls });
 };
