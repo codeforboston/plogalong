@@ -67,9 +67,11 @@ export const savePlog = async (plog) => {
   });
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
-  const urls = await Promise.all(plog.plogPhotos.map(({uri}, i) => (
-    uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
-                { resize: { width: 300, height: 300 } })
+  const urls = await Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
+    width <= 300 && height <= 300 ?
+      uri :
+      uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
+                  { resize: { width: 300, height: 300 } })
   )));
 
   await doc.update({ Photos: urls });

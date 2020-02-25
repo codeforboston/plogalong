@@ -1,19 +1,32 @@
-import React from 'react';
+import * as React from 'react';
 import {
     Alert,
     Image,
-    StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 import icons from '../icons';
 
 import Button from './Button';
 
+/** @typedef {React.ComponentProps<typeof Image>} ImageProps */
+/** @typedef {React.ComponentProps<typeof Button>} ButtonProps */
+/**
+ * @typedef {object} PhotoButtonProps
+ * @property {ImageProps["source"]} [photo]
+ * @property {React.ReactNode} [defaultIcon]
+ * @property {(result: ImagePicker.ImagePickerResult) => void} [onPictureSelected] Called with information about the selected image. If `manipulatorActions` are provided, called again after the actions have run
+ * @property {() => void} [onCleared]
+ * @property {ImageProps["style"]} [imageStyle]
+ * @property {ButtonProps["style"]} [style]
+ * @property {ImageManipulator.Action[]} [manipulatorActions] Apply manipulations to the selected image
+ */
 
+/** @extends {React.Component<PhotoButtonProps>} */
 class PhotoButton extends React.Component {
     chooseImageSource = () => {
         const extraOptions = this.props.photo ?
@@ -44,7 +57,7 @@ class PhotoButton extends React.Component {
     }
 
     pickImage = async () => {
-        const {onPictureSelected} = this.props;
+      const {onPictureSelected, manipulatorActions} = this.props;
         const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
 
         if (status !== 'granted') {
@@ -59,6 +72,11 @@ class PhotoButton extends React.Component {
 
         if (!result.cancelled) {
             onPictureSelected && onPictureSelected(result);
+
+          if (manipulatorActions) {
+            const updatedImage = await ImageManipulator.manipulateAsync(result.uri, manipulatorActions);
+            onPictureSelected && onPictureSelected(updatedImage);
+          }
         }
     }
 
@@ -76,8 +94,9 @@ class PhotoButton extends React.Component {
     }
 }
 
-export default props => {
+
+export default /** @type {React.FunctionComponent<PhotoButtonProps>}/> */(props => {
     const navigation = useNavigation();
 
     return <PhotoButton navigation={navigation} {...props}/>;
-};
+});

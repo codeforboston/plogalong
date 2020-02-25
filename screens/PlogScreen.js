@@ -257,6 +257,9 @@ class PlogScreen extends React.Component {
                                      onCleared={_ => this.addPicture(null, idx)}
                                      photo={plogPhoto}
                                      key={idx}
+                                     manipulatorActions={[
+                                       { resize: { width: 300, height: 300 } },
+                                     ]}
                         />
                     ))
                 }
