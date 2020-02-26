@@ -97,7 +97,7 @@ async function updateAchievements(user, plog, plogData) {
  *   stats are aggregated. E.g., if the user's most recent plog is on 4/3/21,
  *   the year PlogStats would have a `whenID` value of `2021` and the `month`
  *   PlogStats would have a `whenD` value of `2021-4`
- * @property {number} minutes - total time plogged during this time period
+ * @property {number} milliseconds - total time plogged during this time period
  * @property {number} count
  */
 
@@ -137,11 +137,11 @@ function updateStats(user, plog, date=new Date()) {
         const whenValue = when(date);
         let unitStats = stats[unit];
         if (!unitStats || unitStats.whenID !== whenValue) {
-            unitStats = { minutes: 0, count: 0, whenID: whenValue };
+            unitStats = { milliseconds: 0, count: 0, whenID: whenValue };
             stats[unit] = unitStats;
         }
 
-        unitStats.minutes += plog.PlogDuration || 0;
+        unitStats.milliseconds += plog.PlogDuration || 0;
         unitStats.count += 1;
     }
 
