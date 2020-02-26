@@ -36,7 +36,9 @@ const TabBarComponent = props => <BottomTabBar {...props}
                                                style={{
                                                    backgroundColor: '#fff',
                                                    borderTopColor: 'purple',
-                                                   borderTopWidth: 4
+                                                   borderTopWidth: 4,
+                                                   paddingTop: 5,
+                                                   height: 60
                                                }}
                                  />;
 
