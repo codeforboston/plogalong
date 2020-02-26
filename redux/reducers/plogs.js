@@ -2,12 +2,15 @@ import { fromJS } from "immutable";
 
 import {
     LOG_PLOG,
-    UPDATE_PLOGS,
+    SET_CURRENT_USER,
+  PLOGS_UPDATED,
+  LOCAL_PLOGS_UPDATED,
 } from "../actionTypes";
 
 const initialState = fromJS({
     // Look up a plog by ID
-    history: []
+    history: [],
+    localPlogs: [],
 });
 
 const log = (state = initialState, action) => {
@@ -20,13 +23,28 @@ const log = (state = initialState, action) => {
             )
         );
     }
-    case UPDATE_PLOGS: {
-        return state.update(
+
+    case SET_CURRENT_USER: {
+        if (!action.payload.user)
+            return state.set(
+                "history",
+                fromJS([]));
+
+        return state;
+    }
+
+    case PLOGS_UPDATED: {
+        return state.set(
             "history",
-            (history) => history.push(
-                ...action.payload.plogs.map((plog) => fromJS(plog))
-            )
-        )
+            fromJS(action.payload.plogs)
+        );
+    }
+
+    case LOCAL_PLOGS_UPDATED: {
+        return state.set(
+            "localPlogs",
+            fromJS(action.payload.plogs)
+        );
     }
     default: {
         return state;

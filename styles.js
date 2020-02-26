@@ -12,6 +12,15 @@ export default StyleSheet.create({
         padding: 20
     },
 
+    screenContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+
+    scrollContentContainer: {
+        paddingTop: 20,
+    },
+
     form: {
         flexDirection: 'column'
     },
@@ -38,6 +47,10 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         marginBottom: 5,
+    },
+
+    switch: {
+        transform: [{ scale: 0.8 }],
     },
 
     button: {

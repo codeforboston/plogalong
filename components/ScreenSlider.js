@@ -1,9 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import {
     Dimensions,
     FlatList,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
 } from 'react-native';

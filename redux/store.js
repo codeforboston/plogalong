@@ -3,15 +3,15 @@ import thunk from 'redux-thunk';
 
 import rootReducer from './reducers';
 
-import { getLocalPlogs, getPlogs } from '../firebase/plogs';
-import { onAuthStateChanged } from '../firebase/auth';
+import { queryUserPlogs, plogDocToState } from '../firebase/plogs';
+import { onAuthStateChanged, getUserData } from '../firebase/auth';
 import { auth } from '../firebase/init';
 
 import { fromJS } from "immutable";
 
-import { updatePlogs, setCurrentUser } from './actions';
-import FirebaseMiddleware from './firebase-middleware';
+import { plogsUpdated, setCurrentUser, gotUserData } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
+import LocationMiddleware from './location-middleware';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -22,28 +22,17 @@ export function initializeStore(prefs) {
         { preferences: prefs ? fromJS(prefs) : null },
         composeEnhancers(
             applyMiddleware(
-                FirebaseMiddleware,
                 thunk,
-                PreferencesMiddleware
+                PreferencesMiddleware,
+                LocationMiddleware,
             )
         )
     );
-
-    // TODO
-    // getLocalPlogs().then(
-    //     (plogs) => {
-    //         store.dispatch(
-    //             updatePlogs(plogs)
-    //         );
-    //     }
-    // );
 
     let firstStateChange = true;
 
     onAuthStateChanged(
         (user) => {
-            // console.log('user', user);
-
             if (!user && firstStateChange) {
                 // log in anonymously
                 auth.signInAnonymously();
@@ -58,10 +47,24 @@ export function initializeStore(prefs) {
                 )
             );
 
-            if (user) {
-                getPlogs(user.uid).then(plogs => {
-                    store.dispatch(updatePlogs(plogs));
-                });
+            if (user && user.uid) {
+                // Firebase will automatically unsubscribe from snapshot updates
+                // on error.
+                getUserData(user).then(userDoc => userDoc.onSnapshot(snap => {
+                    const data = Object.assign(snap.data(), { updated: Date.now() });
+
+                    if (data) {
+                        store.dispatch(gotUserData(user.uid, data));
+                    }
+                }, console.warn));
+
+                queryUserPlogs(user.uid).onSnapshot(snap => {
+                    store.dispatch(plogsUpdated(
+                        snap.docs.map(plogDocToState)
+                    ));
+                }, console.warn);
+            } else {
+                store.dispatch(plogsUpdated([]));
             }
         }
     );

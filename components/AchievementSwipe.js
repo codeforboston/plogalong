@@ -1,5 +1,5 @@
-import React from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import * as React from 'react';
+import {FlatList, StyleSheet} from 'react-native';
 import AchievementBadge from './AchievementBadge';
 import AchievedMockup from '../constants/AchievedMockup';
 

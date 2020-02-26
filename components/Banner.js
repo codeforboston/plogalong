@@ -1,27 +1,21 @@
-import React from 'react';
+import * as React from 'react';
 import {
     StyleSheet,
     Text,
-    View,
 } from 'react-native';
 
 import Colors from '../constants/Colors';
 
-import plogMessage from '../screens/PlogScreenWeather';
 
 const Banner = (props) => (
-    <View>
-        <Text style={styles.container}>
-            {props.children}{plogMessage.message}
-        </Text>
-    </View>
+    <Text style={[styles.container, props.style]}>
+      {props.children}
+    </Text>
 );
-
-export default Banner;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 0,
         backgroundColor: Colors.bannerBackground,
         borderColor: Colors.borderColor,
         borderWidth: 1,
@@ -30,7 +24,6 @@ const styles = StyleSheet.create({
         padding: 5,
         textAlign: 'center'
     },
-    contentContainer: {
-        paddingTop: 30,
-    },
 });
+
+export default Banner;
