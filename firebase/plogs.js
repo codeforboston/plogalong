@@ -62,7 +62,7 @@ export const savePlog = async (plog) => {
     Photos: [],
     PlogDuration: plog.timeSpent,
     Public: !!plog.public,
-    UserProfilePicture: plog.userProfilePicture,
+    UserProfilePicture: plog.userProfilePicture || null,
     UserDisplayName: plog.userDisplayName,
   });
 
