@@ -1,24 +1,55 @@
 import { AsyncStorage } from 'react-native';
-import { LOG_PLOG, UPDATE_PLOGS, SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
+import * as Google from 'expo-google-app-auth';
+
+import { SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
+import { savePlog } from '../firebase/plogs';
+
+import firebaseConfig from '../firebase/config';
+const { auth: { google: googleConfig } = {} } = firebaseConfig;
 
 
-/**
- * @typedef {Object} PlogInfo
- * @property {Location} location
- * @property {}
- */
-export const logPlog = (plogInfo) => ({
-    type: LOG_PLOG,
-    payload: plogInfo
+const loginError = (err) => ({
+    type: types.LOGIN_ERROR,
+    payload: {
+        error: {
+            code: err.code,
+            message: err.message
+        }
+    }
 });
 
-export const updatePlogs = (plogs) => ({
-    type: UPDATE_PLOGS,
+const signupError = (err) => ({
+    type: types.SIGNUP_ERROR,
+    payload: {
+        error: {
+            code: err.code,
+            message: err.message
+        }
+    }
+});
+
+export const logPlog = (plogInfo) => (
+    async dispatch => {
+        await savePlog(plogInfo);
+    });
+
+export const plogsUpdated = (plogs) => ({
+    type: types.PLOGS_UPDATED,
     payload: {
         plogs,
     },
+});
+
+export const plogUpdated = plog => ({
+    type: types.PLOG_UPDATED,
+    payload: plog
+});
+
+export const localPlogsUpdated = plogs => ({
+    type: types.LOCAL_PLOGS_UPDATED,
+    payload: { plogs }
 });
 
 export const setCurrentUser = (user) => ({
@@ -84,18 +115,47 @@ export const loginWithEmail = (email, password) => (
         try {
             await auth.signInWithEmailAndPassword(email, password);
         } catch(err) {
-            dispatch({ type: types.LOGIN_ERROR,
-                       payload: {
-                           error: {
-                               code: err.code,
-                               message: err.message
-                           }
-                       }
-                     });
+            dispatch(loginError(err));
         }
     }
 );
 
+export const linkToGoogle = () => {
+    if (!googleConfig)
+        return signupError({ message: 'Google authentication has not been configured for this app' });
+
+    return async dispatch => {
+        try {
+            const { type, accessToken, idToken } = await Google.logInAsync(googleConfig);
+
+            if (type === 'success') {
+                const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+                await auth.currentUser.linkWithCredential(credential);
+            }
+        } catch (err) {
+            console.warn(signupError(err));
+            dispatch(signupError(err));
+        }
+    };
+};
+
+export const loginWithGoogle = () => {
+    if (!googleConfig)
+        return signupError({ message: 'Google authentication has not been configured for this app' });
+
+    return async dispatch => {
+        try {
+            const { type, accessToken, idToken } = await Google.logInAsync(googleConfig);
+
+            if (type === 'success') {
+                const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+                await auth.signInWithCredential(credential);
+            }
+        } catch (err) {
+            dispatch(loginError(err));
+        }
+    };
+};
 export const loginAnonymously = () => (
     async dispatch => {
         try {
@@ -106,15 +166,37 @@ export const loginAnonymously = () => (
     }
 );
 
+export const gotUserData = (uid, data) => ({ type: types.USER_DATA, payload: { uid, data }});
+
+export const setUserData = (data) => (
+    async dispatch => {
+
+    }
+);
+
 export const logout = () => (
     async _ => {
         await auth.signOut();
     }
 );
 
+export const setUserField = (field, value) => (
+    async _ => {
+        // await auth.setU
+    }
+);
+
+export const startWatchingLocation = () => ({ type: types.START_LOCATION_WATCH });
+export const stopWatchingLocation = () => ({ type: types.STOP_LOCATION_WATCH });
+
+export const locationChanged = location => ({
+    type: types.LOCATION_CHANGED,
+    payload: { location }
+});
+
 
 export default {
     logPlog,
-    updatePlogs,
+    plogsUpdated,
     setCurrentUser,
 };

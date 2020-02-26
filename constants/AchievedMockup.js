@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import Umbrella from '../assets/svg/achievement_badges_48_48/baseline-beach_access-48px.svg';
 import SingleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_outline-48px.svg';

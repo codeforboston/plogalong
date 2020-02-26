@@ -1,14 +1,12 @@
-import React from 'react';
+import * as React from 'react';
 import {
-    Alert,
     ScrollView,
     StyleSheet,
-    View,
     Switch,
-    Text
+    View,
+    Text,
 } from 'react-native';
 import * as Permissions from 'expo-permissions';
-import * as Location from 'expo-location';
 import Constants from 'expo-constants';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -16,7 +14,7 @@ import { Set } from 'immutable';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
-import PlogPhoto from '../components/PlogPhoto';
+import PhotoButton from '../components/PhotoButton';
 import Question from '../components/Question';
 import Selectable from '../components/Selectable';
 
@@ -26,6 +24,9 @@ import $S from '../styles';
 
 import {connect} from 'react-redux';
 import * as actions from '../redux/actions';
+import {
+    setUserData
+} from '../firebase/auth';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
@@ -61,7 +62,12 @@ class PlogScreen extends React.Component {
     }
 
     onSubmit = () => {
-        const coords = this.state.location && this.state.location.coords;
+        if (!this.props.user) {
+            console.warn('Unauthenticated user; skipping plog');
+            return;
+        }
+
+        const coords = this.props.location;
         const plog = {
             location: coords ? {lat: coords.latitude, lng: coords.longitude, name: 'beach'} : null,
             when: new Date(),
@@ -70,10 +76,13 @@ class PlogScreen extends React.Component {
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0],
             plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
-            timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0)
+            timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0),
+            public: this.props.user.data.shareActivity,
+            userProfilePicture: this.props.user.data.profilePicture,
+            userDisplayName: this.props.user.displayName,
         };
         this.props.logPlog(plog);
-        Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
+        // Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
         this.setState({
             trashTypes: Set([]),
             selectedMode: 0,
@@ -83,6 +92,8 @@ class PlogScreen extends React.Component {
             plogTotalTime: 0,
             plogTimer: '00:00:00',
         });
+
+        this.props.navigation.navigate('History');
     }
 
     toggleTrashType = (trashType) => {
@@ -93,6 +104,7 @@ class PlogScreen extends React.Component {
 
     addPicture(picture, idx) {
         this.setState(({plogPhotos}) => {
+            plogPhotos = Array.from(plogPhotos);
             plogPhotos[idx] = picture;
 
             return { plogPhotos };
@@ -151,13 +163,8 @@ class PlogScreen extends React.Component {
     async componentDidMount() {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status === 'granted') {
-            let location = await Location.getCurrentPositionAsync({});
-
-            this.setState({ location });
+            this.props.startWatchingLocation();
         }
-
-        /* const {loginWithGoogle} = require('../firebase/auth');
-         * await loginWithGoogle(); */
     }
 
     componentWillUnmount() {
@@ -195,10 +202,6 @@ class PlogScreen extends React.Component {
         return null;
     }
 
-    handleShareActivityPrefChange = (shareActivity) => {
-        this.props.updatePreferences({ shareActivity })
-      }
-
     render() {
         const {state} = this,
             typesCount = state.trashTypes.size,
@@ -207,8 +210,7 @@ class PlogScreen extends React.Component {
             {params} = this.state;
 
     return (
-      <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
             <Banner>
                 <PlogScreenWeather />
             </Banner>
@@ -251,10 +253,13 @@ class PlogScreen extends React.Component {
             <View style={styles.photoStrip}>
                 {
                     this.state.plogPhotos.map((plogPhoto, idx) => (
-                        <PlogPhoto onPictureSelected={picture => this.addPicture(picture, idx)}
-                                   onCleared={_ => this.addPicture(null, idx)}
-                                   plogPhoto={plogPhoto}
-                                   key={idx}
+                        <PhotoButton onPictureSelected={picture => this.addPicture(picture, idx)}
+                                     onCleared={_ => this.addPicture(null, idx)}
+                                     photo={plogPhoto}
+                                     key={idx}
+                                     manipulatorActions={[
+                                       { resize: { width: 300, height: 300 } },
+                                     ]}
                         />
                     ))
                 }
@@ -263,50 +268,26 @@ class PlogScreen extends React.Component {
           {this.renderModeQuestions()}
 
             <Button title={PlogScreen.modes[this.state.selectedMode]}
+                    disabled={!this.props.user}
                     primary
                     onPress={this.onSubmit}
                     style={$S.activeButton} />
-            
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
-                marginLeft: 40,
-                marginRight: 40,
-            }}>
-                <Text
-                    style={{
-                        color: '#5f646b',
-                    }}
-                >
+            <View style={[$S.switchInputGroup, styles.shareInLocalFeed]}>
+                <Text style={$S.inputLabel}>
                     Share in Local Feed
                 </Text>
-                <Switch
-                    value={params.shareActivity}
-                    style={{
-                        borderRadius: 15,
-                        borderColor: Colors.secondaryColor,
-                        borderWidth: 2,
-                        backgroundColor: '#4a8835',
-                    }}
+              <Switch value={this.props.user && (this.props.user.data || {}).shareActivity}
+                      style={$S.switch}
+                      onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }}
                 />
             </View>
 
         </ScrollView>
-      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  contentContainer: {
-    paddingTop: 30,
-  },
-
     photoStrip: {
         flex: 1,
         flexDirection: 'row',
@@ -341,17 +322,27 @@ const styles = StyleSheet.create({
     clearButton: {
         color: 'grey',
         textDecorationLine: 'underline'
-    }
+    },
 
+    shareInLocalFeed: {
+        margin: 10,
+        marginLeft: 40,
+        marginRight: 40,
+        marginBottom: 20,
+    },
 });
 
 const PlogScreenContainer = connect(state => ({
-    user: state.users.get("current")
+    user: state.users.get("current").toJS(),
+    location: state.users.get('location'),
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {
                                             dispatch(actions.logPlog(plogInfo));
+                                        },
+                                        startWatchingLocation() {
+                                            dispatch(actions.startWatchingLocation());
                                         }
-                                    }))(PlogScreen)
+                                    }))(PlogScreen);
 
 export default PlogScreenContainer;
