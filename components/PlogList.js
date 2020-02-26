@@ -48,6 +48,21 @@ export const Plog = ({plogInfo, currentUserID}) => {
 
     const { plogPhotos = [] } = plogInfo.toJS();
 
+    const PloggedTrash = () => {
+      let selectTrashTypes = plogInfo.get('trashTypes').map(type => 
+          Options.trashTypes.get(type).title.toLowerCase()).join(', ');
+      if (selectTrashTypes === '') {
+          return (
+              <Text>trash</Text>
+          );
+      } else {
+          return (
+              plogInfo.get('trashTypes').map(type => 
+                  Options.trashTypes.get(type).title.toLowerCase()).join(', ')
+          );
+      };
+    };
+
     const timeSpent = plogInfo.get('timeSpent');
     const when = plogInfo.get('when');
     const me = plogInfo.get('userID') === currentUserID;
@@ -106,7 +121,7 @@ export const Plog = ({plogInfo, currentUserID}) => {
           </View>
           <View style={styles.plogStyle}>
             <Text style={styles.subText}>
-              Cleaned up {plogInfo.get('trashTypes').map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
+              Cleaned up <PloggedTrash />.
             </Text>
           </View>
         </View>
