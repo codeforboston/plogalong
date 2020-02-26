@@ -13,23 +13,11 @@ import { useNavigation } from '@react-navigation/native';
 
 import moment from 'moment';
 
+import { formatDuration } from '../util';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
 import DefaultProfileImage from '../assets/images/profile.png';
-
-
-function formatDuration(s) {
-    if (s < 60)
-        return `${s} seconds`;
-
-    let m = Math.floor(s/60);
-    if (m < 60)
-        return `${m} minute${m === 1 ? '' : 's'}`;
-
-    let h = Math.floor(m/60);
-    return `${h} hour${h === 1 ? '' : 's'}`;
-}
 
 function formatDate(dt) {
     return moment(dt).format('MMMM Do');
