@@ -29,7 +29,7 @@ import Button from './Button';
 /** @extends {React.Component<PhotoButtonProps>} */
 class PhotoButton extends React.Component {
     chooseImageSource = () => {
-        const extraOptions = this.props.photo ?
+        const extraOptions = (this.props.photo && this.props.onCleared) ?
               [{text: 'Clear', onPress: this.clearPhoto}] : [];
 
         Alert.alert('Pick a photo', '', [
