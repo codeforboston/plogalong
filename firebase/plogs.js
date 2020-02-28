@@ -14,6 +14,7 @@ export const plogDocToState = (plog) => {
   const location = data.coordinates;
 
   return {
+    id: plog.id,
     trashTypes: data.TrashTypes,
     activityType: data.ActivityType,
     location: {
@@ -29,6 +30,7 @@ export const plogDocToState = (plog) => {
     saving: plog.metadata && plog.metadata.hasPendingWrites,
     userID: data.UserID,
     public: data.Public,
+    likeCount: data.likeCount || 0,
     userProfilePicture: data.UserProfilePicture,
     userDisplayName: data.UserDisplayName,
   };
@@ -65,6 +67,10 @@ export const savePlog = async (plog) => {
     UserProfilePicture: plog.userProfilePicture || null,
     UserDisplayName: plog.userDisplayName,
   });
+
+  if (!plog.plogPhotos || !plog.plogPhotos.length)
+      return;
+
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
   const urls = await Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (

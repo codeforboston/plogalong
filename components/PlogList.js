@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useCallback } from 'react';
 import {
     FlatList,
     Image,
@@ -10,6 +11,7 @@ import {
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 import moment from 'moment';
 
@@ -23,7 +25,7 @@ function formatDate(dt) {
     return moment(dt).format('MMMM Do');
 }
 
-export const Plog = ({plogInfo, currentUserID}) => {
+export const Plog = ({plogInfo, currentUserID, liked, likePlog}) => {
     const navigation = useNavigation();
     const latLng = {
         latitude: plogInfo.getIn(['location', 'lat']),
@@ -34,17 +36,18 @@ export const Plog = ({plogInfo, currentUserID}) => {
         plogInfo.get('activityType')
     ).icon;
 
-    const { plogPhotos = [] } = plogInfo.toJS();
+  const { plogPhotos = [], timeSpent, when, userID, userProfilePicture, likeCount } = plogInfo.toJS();
+  const me = userID === currentUserID;
 
-    const timeSpent = plogInfo.get('timeSpent');
-    const when = plogInfo.get('when');
-    const me = plogInfo.get('userID') === currentUserID;
-    const showPhotos = () => {
-        navigation.navigate('PhotoViewer', {
-            photos: plogPhotos
-        });
-    };
-    const userProfilePicture = plogInfo.get('userProfilePicture');
+  const onHeartPress = useCallback(() => {
+    likePlog(plogInfo.get('id'), !liked);
+  }, [liked]);
+  const showPhotos = useCallback(() => {
+    navigation.navigate('PhotoViewer', {
+      photos: plogPhotos
+    });
+  }, []);
+
 
     return (
         <View>
@@ -52,7 +55,7 @@ export const Plog = ({plogInfo, currentUserID}) => {
             <Image source={userProfilePicture ? { uri: userProfilePicture } : DefaultProfileImage}
                    style={styles.profileImage} />
             <View>
-              <Text style={styles.actionText}>
+              <Text style={styles.actionText} adjustsFontSizeToFit>
                 {me ? 'You' : plogInfo.get('userDisplayName', 'A fellow plogger')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
               </Text>
               <Text style={styles.subText}>
@@ -92,10 +95,16 @@ export const Plog = ({plogInfo, currentUserID}) => {
                 null
             }
           </View>
-          <View style={styles.plogStyle}>
+          <View style={[styles.plogStyle, styles.detailsStyle]}>
             <Text style={styles.subText}>
               Cleaned up {plogInfo.get('trashTypes').map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
             </Text>
+            <TouchableOpacity onPress={onHeartPress}>
+              <View style={styles.likeCount}>
+                {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
+                <Ionicons size={20} name={liked ? 'md-heart' : 'md-heart-empty'}/>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
     );
@@ -105,11 +114,17 @@ const Divider = () => (
     <View style={styles.divider}></View>
 );
 
-const PlogList = ({plogs, currentUserID, filter, header, footer}) => (
+const doesUserLikePlog = (user, plogID) => {
+  return (user && user.data && user.data.likedPlogs && user.data.likedPlogs[plogID]);
+};
+
+const PlogList = ({plogs, currentUser, filter, header, footer, likePlog}) => (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
               renderItem={({item}) => (<Plog plogInfo={item}
-                                             currentUserID={currentUserID} />)}
-              keyExtractor={(_, i) => ''+i}
+                                             currentUserID={currentUser && currentUser.uid}
+                                             liked={doesUserLikePlog(currentUser, item.get('id'))}
+                                             likePlog={likePlog} />)}
+              keyExtractor={(item) => item.get('id')}
               ItemSeparatorComponent={Divider}
               ListHeaderComponent={header}
               ListFooterComponent={footer} />
@@ -121,6 +136,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 10,
         paddingBottom: 0
+    },
+    detailsStyle: {
+      justifyContent: 'space-between',
+    },
+    likeCount: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    likeCountText: {
+      marginRight: 8,
     },
     savingStyle: {
         opacity: 0.8,

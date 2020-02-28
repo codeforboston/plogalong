@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import {connect} from 'react-redux';
 
+import * as actions from '../redux/actions';
 import { formatDuration, getStats } from '../util';
 import Colors from '../constants/Colors';
 import $S from '../styles';
@@ -26,6 +27,7 @@ class HistoryScreen extends React.Component {
         <View style={$S.screenContainer}>
           <PlogList plogs={this.props.history.toArray()}
                     currentUser={currentUser}
+                    likePlog={this.props.likePlog}
                     header={
                         <View style={{ paddingTop: 20 }}>
                       <Banner>
@@ -54,4 +56,6 @@ class HistoryScreen extends React.Component {
 export default connect(store => ({
     history: store.log.get('history').sort((a, b) => (b.get('when') - a.get('when'))),
     currentUser: store.users.get('current').toJS(),
+}), dispatch => ({
+  likePlog: (...args) => dispatch(actions.likePlog(...args)),
 }))(HistoryScreen);

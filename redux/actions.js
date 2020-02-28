@@ -5,6 +5,7 @@ import { SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
 import { savePlog } from '../firebase/plogs';
+import * as functions from '../firebase/functions';
 
 import firebaseConfig from '../firebase/config';
 const { auth: { google: googleConfig } = {} } = firebaseConfig;
@@ -47,6 +48,12 @@ export const plogUpdated = plog => ({
     type: types.PLOG_UPDATED,
     payload: plog
 });
+
+export const likePlog = (plogID, like) => (
+  async _ => {
+    functions.likePlog(plogID, like);
+  }
+);
 
 export const localPlogsUpdated = plogs => ({
     type: types.LOCAL_PLOGS_UPDATED,

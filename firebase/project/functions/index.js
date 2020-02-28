@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const app = require('./app');
 
-admin.initializeApp();
 const { timeUnits } = require('./shared');
 
 
@@ -20,7 +20,7 @@ function _makeCountAchievement(target) {
                 // latestPlog: size && plogs.docs[(size >= target ? target : size) - 1],
             };
         },
-        update(previous, plogData, plog) {
+        update(previous, plogData) {
             const {count = 0, firstPlog} = previous;
             return {
                 completed: count + 1 >= target ? plogData.DateTime : null,
@@ -41,7 +41,7 @@ const AchievementTypes = new Map([
                 completed: plog ? plog.createTime : null
             };
         },
-        update(_, plogData, plog) {
+        update(_, plogData) {
             return { completed: plogData.DateTime };
         }
     }],
@@ -85,13 +85,40 @@ async function updateAchievements(user, plog, plogData) {
 }
 
 /**
+ * @param {UserData} user
+ * @param {PlogData} plog
  */
+async function updateAchievements(user, plog) {
+  const achievements = user.achievements || {};
+  const needInit = [];
 
+  for (let [achievementType, {init, update}] of AchievementTypes.entries()) {
+    const achievement = achievements[achievementType];
+    if (!achievement) {
+      needInit.push(achievementType);
+    } else if (!achievement.complete) {
+      achievements[achievementType] = update(achievement || {}, plog);
+    }
+  }
 
+  if (needInit.length) {
+    const plogs = await admin.firestore().collection('/plogs').where('UserID', '==', user.id).get();
 
+    for (let type of needInit) {
+      const {init} = AchievementTypes.get(type);
+      if (init)
+        achievements[type] = init(plogs);
+    }
+  }
+
+  console.log(achievements);
+
+  return achievements;
+}
 
 /** @typedef {import('./shared').UserData} UserData */
 
+/**
 /**
  * @param {UserData} user
  * @param {PlogData} plog
@@ -163,3 +190,5 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         }
     });
 
+const { likePlog } = require('./http');
+exports.likePlog = functions.https.onCall(likePlog);
