@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import {connect} from 'react-redux';
 
-import { formatDuration } from '../util';
+import { formatDuration, getStats } from '../util';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -18,19 +18,18 @@ import PlogList from '../components/PlogList';
 class HistoryScreen extends React.Component {
   render() {
     const {currentUser} = this.props;
-    const {data: {stats}} = currentUser;
 
-    const monthPlogCount = stats && stats.month && stats.month.count;
-    const yearPlogTime = stats && stats.year && stats.year.milliseconds;
+    const monthStats = getStats(currentUser, 'month');
+    const yearStats = getStats(currentUser, 'year');
 
     return (
         <View style={$S.screenContainer}>
           <PlogList plogs={this.props.history.toArray()}
-                    currentUserID={this.props.currentUser.uid}
+                    currentUser={currentUser}
                     header={
                         <View style={{ paddingTop: 20 }}>
                       <Banner>
-                        You plogged {monthPlogCount} time{monthPlogCount === 1 ? '' : 's'} this month. You plogged for {formatDuration(yearPlogTime)} this year.
+                        You plogged {monthStats.count} time{monthStats.count === 1 ? '' : 's'} this month. You plogged for {formatDuration(yearStats.milliseconds)} this year.
                       </Banner>
                           <View style={{
                               marginLeft: 20,
