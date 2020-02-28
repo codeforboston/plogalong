@@ -23,6 +23,9 @@ export default usersReducer = (state = Map(), {type, payload}) => {
         return state.set('location', payload.location);
     }
 
+  case types.SIGNUP:
+    return state.merge({ signupError: null });
+
     case types.SIGNUP_ERROR:
       return state.set("signupError", fromJS(payload.error));
 
