@@ -20,20 +20,21 @@ const loginError = (err) => ({
     }
 });
 
-const signupError = (err) => ({
+const signupError = (error) => ({
     type: types.SIGNUP_ERROR,
-    payload: {
-        error: {
-            code: err.code,
-            message: err.message
-        }
-    }
+    payload: { error }
 });
 
 export const logPlog = (plogInfo) => (
-    async dispatch => {
-        await savePlog(plogInfo);
-    });
+  async dispatch => {
+    dispatch({ type: types.LOG_PLOG, payload: { plog: plogInfo }});
+    try {
+      await savePlog(plogInfo);
+      dispatch({ type: types.PLOG_LOGGED, payload: { plog: plogInfo } });
+    } catch (error) {
+      dispatch({ type: types.LOG_PLOG_ERROR, error });
+    }
+  });
 
 export const plogsUpdated = (plogs) => ({
     type: types.PLOGS_UPDATED,
@@ -74,38 +75,29 @@ export const setPreferences = (preferences) => ({
     }
 });
 
+/** @param {'email'|'google'|'facebook'} type */
+const signup = (type, params) => ({ type: types.SIGNUP, payload: { type, params }});
+
 export const signupWithEmail = (email, password) => (
     async dispatch => {
         try {
+          dispatch(signup('email', { email, password }));
             await auth.createUserWithEmailAndPassword(email, password);
-        } catch(err) {
-            dispatch({ type: types.SIGNUP_ERROR,
-                       payload: {
-                           error: {
-                               code: err.code,
-                               message: err.message
-                           }
-                       }
-                     });
+        } catch(error) {
+          dispatch(signupError(err));
         }
     }
 );
 
 export const linkToEmail = (email, password) => (
     async dispatch => {
+      dispatch(signup('google', { email, password }));
         try {
             const credential = firebase.auth.EmailAuthProvider.credential(email, password);
             const creds = await auth.currentUser.linkWithCredential(credential);
             dispatch(setCurrentUser(creds.user.toJSON()));
         } catch(err) {
-            dispatch({ type: types.SIGNUP_ERROR,
-                       payload: {
-                           error: {
-                               code: err.code,
-                               message: err.message
-                           }
-                       }
-                     });
+          dispatch(signupError(err));
         }
     }
 );
@@ -133,7 +125,6 @@ export const linkToGoogle = () => {
                 await auth.currentUser.linkWithCredential(credential);
             }
         } catch (err) {
-            console.warn(signupError(err));
             dispatch(signupError(err));
         }
     };

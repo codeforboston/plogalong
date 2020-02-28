@@ -1,4 +1,6 @@
 export const LOG_PLOG = 'LOG_PLOG';
+export const LOG_PLOG_ERROR = 'LOG_PLOG_ERROR';
+export const PLOG_LOGGED = 'PLOG_LOGGED';
 
 export const PLOGS_UPDATED = 'PLOGS_UPDATED';
 export const PLOG_UPDATED = 'PLOG_UPDATED';
@@ -9,6 +11,8 @@ export const USER_DATA = 'USER_DATA';
 
 export const SET_PREFERENCES = 'SET_PREFERENCES';
 
+export const SIGNUP = 'SIGNUP';
+export const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
 export const SIGNUP_ERROR = 'SIGNUP_ERROR';
 
 export const LOGIN_ERROR = 'LOGIN_ERROR';
