@@ -162,7 +162,6 @@ class ProfileScreen extends React.Component {
 const styles = StyleSheet.create({
   contentContainer: {
       padding: 20,
-      height: '100%'
   },
   personalInfoContainer: {
       flexDirection: 'row',
