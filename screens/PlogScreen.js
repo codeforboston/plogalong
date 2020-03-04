@@ -248,19 +248,11 @@ class PlogScreen extends React.Component {
                 />
             </View>
 
-            <Question question="What did you clean up?" answer={cleanedUp}/>
-            <Selectable selection={state.trashTypes} >
-                {Array.from(Options.trashTypes).map(([value, type]) => (
-                    <Button title={type.title} value={value} icon={type.icon} key={value}
-                            onPress={() => this.toggleTrashType(value)}
-                    />
-                ))}
-            </Selectable>
-
             <View style={styles.photoStrip}>
                 {
                     this.state.plogPhotos.map((plogPhoto, idx) => (
                         <PhotoButton onPictureSelected={picture => this.addPicture(picture, idx)}
+                                     style = {styles.photoButton}
                                      onCleared={_ => this.addPicture(null, idx)}
                                      photo={plogPhoto}
                                      key={idx}
@@ -271,6 +263,15 @@ class PlogScreen extends React.Component {
                     ))
                 }
             </View>
+
+            <Question question="What did you clean up?" answer={cleanedUp}/>
+            <Selectable selection={state.trashTypes} >
+                {Array.from(Options.trashTypes).map(([value, type]) => (
+                    <Button title={type.title} value={value} icon={type.icon} key={value}
+                            onPress={() => this.toggleTrashType(value)}
+                    />
+                ))}
+            </Selectable>
 
           {this.renderModeQuestions()}
 
@@ -300,8 +301,14 @@ const styles = StyleSheet.create({
     photoStrip: {
         flex: 1,
         flexDirection: 'row',
-        marginTop: 10,
+        marginTop: -20,
         justifyContent: 'space-around'
+    },
+
+    photoButton: {
+        flex: 1, 
+        margin: 2, 
+        aspectRatio: 1
     },
 
     map: {
@@ -309,7 +316,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         flex: 1,
         height: 300,
-        margin: 5
+        marginTop: 5,
     },
 
     timerButton: {
