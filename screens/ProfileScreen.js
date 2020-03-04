@@ -94,6 +94,7 @@ class ProfileScreen extends React.Component {
                  style={styles.profileImageButton}
                  imageStyle={styles.profileImage}
                  onPictureSelected={this.setProfilePhoto}
+                 onCleared={() => { this.setProfilePhoto(null); }}
                />
                <View style={styles.personalInfo}>
                  <Text style={styles.badgeSummary}>

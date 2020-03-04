@@ -1,6 +1,7 @@
 import * as firebase from 'firebase';
 import firebaseConfig from './config';
 import 'firebase/firestore';
+import 'firebase/functions';
 import 'firebase/auth';
 import { GeoFirestore } from 'geofirestore';
 
@@ -27,6 +28,7 @@ export const auth = firebase.auth();
 export { firebase };
 
 export const storage = firebase.storage();
+export const functions = firebase.functions();
 
 export const Users = firestore.collection('users');
 export const Plogs = geofirestore.collection('plogs');

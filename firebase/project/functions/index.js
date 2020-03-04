@@ -1,14 +1,9 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const app = require('./app');
 
-admin.initializeApp();
+const { timeUnits } = require('./shared');
 
-/** @template T, S
-  * @typedef {{ [K in keyof T]: T[K] extends S ? K : never }} WithValueType
-  */
-/** @template T, S
-  * @typedef {keyof Pick<T, WithValueType<T, S>[keyof T]>} KeysWithValueType
-  */
 
 function _makeCountAchievement(target) {
     return {
@@ -25,7 +20,7 @@ function _makeCountAchievement(target) {
                 // latestPlog: size && plogs.docs[(size >= target ? target : size) - 1],
             };
         },
-        update(previous, plogData, plog) {
+        update(previous, plogData) {
             const {count = 0, firstPlog} = previous;
             return {
                 completed: count + 1 >= target ? plogData.DateTime : null,
@@ -46,7 +41,7 @@ const AchievementTypes = new Map([
                 completed: plog ? plog.createTime : null
             };
         },
-        update(_, plogData, plog) {
+        update(_, plogData) {
             return { completed: plogData.DateTime };
         }
     }],
@@ -90,42 +85,40 @@ async function updateAchievements(user, plog, plogData) {
 }
 
 /**
- * Records aggregated stats for a particular time unit
- *
- * @typedef {object} PlogStats
- * @property {string} whenID - used as an identifier for the unit on which the
- *   stats are aggregated. E.g., if the user's most recent plog is on 4/3/21,
- *   the year PlogStats would have a `whenID` value of `2021` and the `month`
- *   PlogStats would have a `whenD` value of `2021-4`
- * @property {number} minutes - total time plogged during this time period
- * @property {number} count
+ * @param {UserData} user
+ * @param {PlogData} plog
  */
+async function updateAchievements(user, plog) {
+  const achievements = user.achievements || {};
+  const needInit = [];
+
+  for (let [achievementType, {init, update}] of AchievementTypes.entries()) {
+    const achievement = achievements[achievementType];
+    if (!achievement) {
+      needInit.push(achievementType);
+    } else if (!achievement.complete) {
+      achievements[achievementType] = update(achievement || {}, plog);
+    }
+  }
+
+  if (needInit.length) {
+    const plogs = await admin.firestore().collection('/plogs').where('UserID', '==', user.id).get();
+
+    for (let type of needInit) {
+      const {init} = AchievementTypes.get(type);
+      if (init)
+        achievements[type] = init(plogs);
+    }
+  }
+
+  console.log(achievements);
+
+  return achievements;
+}
+
+/** @typedef {import('./shared').UserData} UserData */
 
 /**
- * Caches general stats about usage, including aggregates for the month and year
- * when the user most recently plogged.
- *
- * @typedef {object} UserStats
- * @property {PlogStats} [month]
- * @property {PlogStats} [year]
- * @property {PlogStats} [total]
- */
-
-/** @typedef {KeysWithValueType<UserStats, PlogStats>} TimeUnit */
-/** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */
-
-/** @type {TimeUnitConfig[]} */
-const timeUnits = [
-    { unit: 'month', when: dt => `${dt.getFullYear()}-${dt.getMonth()+1}` },
-    { unit: 'year', when: dt => ''+dt.getFullYear() },
-    { unit: 'total', when: _ => 'total' },
-];
-
-/**
- * @typedef {object} UserData
- * @property {UserStats} stats
- */
-
 /**
  * @param {UserData} user
  * @param {PlogData} plog
@@ -137,11 +130,11 @@ function updateStats(user, plog, date=new Date()) {
         const whenValue = when(date);
         let unitStats = stats[unit];
         if (!unitStats || unitStats.whenID !== whenValue) {
-            unitStats = { minutes: 0, count: 0, whenID: whenValue };
+            unitStats = { milliseconds: 0, count: 0, whenID: whenValue };
             stats[unit] = unitStats;
         }
 
-        unitStats.minutes += plog.PlogDuration || 0;
+        unitStats.milliseconds += plog.PlogDuration || 0;
         unitStats.count += 1;
     }
 
@@ -197,3 +190,5 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         }
     });
 
+const { likePlog } = require('./http');
+exports.likePlog = functions.https.onCall(likePlog);

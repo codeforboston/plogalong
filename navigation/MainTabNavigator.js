@@ -21,7 +21,7 @@ const Icons = {
 };
 
 const makeTabOptions = (name) => ({
-    tabBarIcon: () => <Image source={Icons[name]} />,
+  tabBarIcon: () => <Image source={Icons[name]} width={40} height={40} />,
 });
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
@@ -38,7 +38,6 @@ const TabBarComponent = props => <BottomTabBar {...props}
                                                    borderTopColor: 'purple',
                                                    borderTopWidth: 4,
                                                    paddingTop: 5,
-                                                   height: 60
                                                }}
                                  />;
 

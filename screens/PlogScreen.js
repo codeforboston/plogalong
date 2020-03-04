@@ -14,6 +14,7 @@ import { Set } from 'immutable';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
+import Error from '../components/Error';
 import PhotoButton from '../components/PhotoButton';
 import Question from '../components/Question';
 import Selectable from '../components/Selectable';
@@ -53,6 +54,23 @@ class PlogScreen extends React.Component {
         };
     }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (!this.props.submitting && prevProps.submitting &&
+        !this.props.error) {
+      this.setState({
+          trashTypes: Set([]),
+          selectedMode: 0,
+          plogPhotos: [null, null, null, null, null],
+          timerInterval: clearInterval(this.state.timerInterval),
+          plogStart: null,
+          plogTotalTime: 0,
+          plogTimer: '00:00:00',
+      });
+
+      this.props.navigation.navigate('History');
+    }
+  }
+
     changeMode = (idx) => {
         this.setState({ selectedMode: idx });
     }
@@ -82,18 +100,6 @@ class PlogScreen extends React.Component {
             userDisplayName: this.props.user.displayName,
         };
         this.props.logPlog(plog);
-        // Alert.alert('Achievement Unlocked!', 'Break the seal: first plogger in the neighborhood', [{text: 'OK!'}]);
-        this.setState({
-            trashTypes: Set([]),
-            selectedMode: 0,
-            plogPhotos: [null, null, null, null, null],
-            timerInterval: clearInterval(this.state.timerInterval),
-            plogStart: null,
-            plogTotalTime: 0,
-            plogTimer: '00:00:00',
-        });
-
-        this.props.navigation.navigate('History');
     }
 
     toggleTrashType = (trashType) => {
@@ -204,16 +210,17 @@ class PlogScreen extends React.Component {
 
     render() {
         const {state} = this,
-            typesCount = state.trashTypes.size,
-            cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-            typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
-            {params} = this.state;
+              typesCount = state.trashTypes.size,
+              cleanedUp = typesCount > 1 ? `${typesCount} selected` :
+              typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
+              {params} = this.state,
+              {user, error} = this.props;
 
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
-            <Banner>
-                <PlogScreenWeather />
-            </Banner>
+          <Banner>
+            <PlogScreenWeather />
+          </Banner>
 
             <Text style={styles.timer}>
                 <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text>
@@ -267,11 +274,13 @@ class PlogScreen extends React.Component {
 
           {this.renderModeQuestions()}
 
+          {error && <Error error={error}/>}
+
             <Button title={PlogScreen.modes[this.state.selectedMode]}
-                    disabled={!this.props.user}
+                    disabled={!this.props.user || this.props.submitting}
                     primary
                     onPress={this.onSubmit}
-                    style={$S.activeButton} />
+            />
             <View style={[$S.switchInputGroup, styles.shareInLocalFeed]}>
                 <Text style={$S.inputLabel}>
                     Share in Local Feed
@@ -332,9 +341,11 @@ const styles = StyleSheet.create({
     },
 });
 
-const PlogScreenContainer = connect(state => ({
-    user: state.users.get("current").toJS(),
-    location: state.users.get('location'),
+const PlogScreenContainer = connect(({users, log}) => ({
+  user: users.get("current").toJS(),
+  location: users.get('location'),
+  submitting: log.get('submitting'),
+  error: log.get('logError'),
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {
