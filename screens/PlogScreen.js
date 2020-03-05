@@ -228,24 +228,27 @@ class PlogScreen extends React.Component {
                 {this.state.plogTimer}
             </Text>
 
-            <MapView
-                style={[styles.map]}
-                initialRegion={{
-                    latitude: 42.387,
-                    longitude: -71.0995,
-                    latitudeDelta: 0.05,
-                    longitudeDelta: 0.04,
-                }}
-                followsUserLocation={true}
-                showsUserLocation={true}
-            />
-            <View style={styles.timerButtonContainer} >
-                <Button
-                    title={this.state.timerInterval ? 'STOP TIMER' : 'START TIMER'}
-                    onPress={this.toggleTimer}
-                    style={styles.timerButton}
-                    selected={!!this.state.timerInterval}
+            <View style={styles.mapContainer}>
+                <MapView
+                    style={[styles.map]}
+                    initialRegion={{
+                        latitude: 42.387,
+                        longitude: -71.0995,
+                        latitudeDelta: 0.05,
+                        longitudeDelta: 0.04,
+                    }}
+                    followsUserLocation={true}
+                    showsUserLocation={true}
                 />
+
+                <View style={styles.timerButtonContainer} >
+                    <Button
+                        title={this.state.timerInterval ? 'STOP TIMER' : 'START TIMER'}
+                        onPress={this.toggleTimer}
+                        style={styles.timerButton}
+                        selected={!!this.state.timerInterval}
+                    />
+                </View>
             </View>
 
             <Question question="What did you clean up?" answer={cleanedUp}/>
@@ -304,12 +307,18 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around'
     },
 
-    map: {
+    mapContainer: {
         borderColor: Colors.borderColor,
         borderWidth: 1,
         flex: 1,
         height: 300,
-        margin: 5
+        margin: 5,
+        position: 'relative'
+    },
+
+    map: {
+        width: '100%',
+        height: '100%'
     },
 
     timerButton: {
@@ -320,7 +329,10 @@ const styles = StyleSheet.create({
 
     timerButtonContainer: {
         alignItems: 'center',
-        top: '-10%'
+        position: 'absolute',
+        bottom: '10%',
+        left: 0,
+        width: '100%'
     },
 
     timer: {
