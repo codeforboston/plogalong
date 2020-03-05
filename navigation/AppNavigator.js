@@ -32,6 +32,7 @@ export default (props) => {
                              headerTitle: (props) => {
                                  return <Header text={props.children} icon={Icons[props.children]} />;
                              },
+                             headerTitleAlign: 'center',
                              headerStyle: {
                                  backgroundColor: '#fff',
                                  borderBottomColor: 'purple',
