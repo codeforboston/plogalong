@@ -90,10 +90,8 @@ const styles = StyleSheet.create({
   },
   closeModal: {
     position: 'absolute',
-    left: 340,
     right: 0,
     top: 40,
-    bottom: 0,
     borderWidth: 0,
   },
   shareButtons: {
