@@ -2,6 +2,9 @@ export const LOG_PLOG = 'LOG_PLOG';
 export const LOG_PLOG_ERROR = 'LOG_PLOG_ERROR';
 export const PLOG_LOGGED = 'PLOG_LOGGED';
 
+export const LIKE_PLOG = 'LIKE_PLOG';
+export const LIKE_PLOG_ERROR = 'LIKE_PLOG_ERROR';
+
 export const PLOGS_UPDATED = 'PLOGS_UPDATED';
 export const PLOG_UPDATED = 'PLOG_UPDATED';
 export const LOCAL_PLOGS_UPDATED = 'LOCAL_PLOGS_UPDATED';
