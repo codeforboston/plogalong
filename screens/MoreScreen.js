@@ -11,10 +11,6 @@ import NavMenu from '../components/NavMenu';
 
 import AboutScreen from './AboutScreen';
 import FAQScreen from './FAQScreen';
-import ActivePloggerMap from './ActivePloggerMap';
-import SuppliesScreen from './SuppliesScreen';
-import CouchPloggingScreen from './CouchPloggingScreen';
-import SocialMediaScreen from './SocialMediaScreen';
 import InviteModalScreen from './InviteModalScreen';
 
 
@@ -39,10 +35,6 @@ export class MoreScreen extends React.Component {
   pages = [
     {label: 'About Plogalong', route: 'About'},
     {label: 'FAQ', route: 'FAQ'},
-    {label: 'Active Plogger Map', route: 'ActivePloggerMap'},
-    {label: 'Plogging Supplies', route: 'Supplies'},
-    {label: 'Couch Plogging', route: 'CouchPlogging'},
-    {label: 'Plogging on Social Media', route: 'SocialMedia'},
     {label: 'Invite', route: false, handlePress: this.toggleIsInviteModalVisible},
   ];
 
@@ -75,10 +67,6 @@ export default ({navigation, route}) => {
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
           <Stack.Screen name="FAQ" component={ FAQScreen }/>
-          <Stack.Screen name="ActivePloggerMap" component={ ActivePloggerMap }/>
-          <Stack.Screen name="Supplies" component={ SuppliesScreen }/>
-          <Stack.Screen name="CouchPlogging" component={ CouchPloggingScreen }/>
-          <Stack.Screen name="SocialMedia" component={ SocialMediaScreen }/>
           <Stack.Screen name="InviteModal" component={ InviteModalScreen}/>
         </Stack.Navigator>
     );
