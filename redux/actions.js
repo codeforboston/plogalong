@@ -50,8 +50,19 @@ export const plogUpdated = plog => ({
 });
 
 export const likePlog = (plogID, like) => (
-  async _ => {
-    functions.likePlog(plogID, like);
+  async dispatch => {
+    try {
+      dispatch({
+        type: types.LIKE_PLOG,
+        payload: { plogID, like }
+      });
+      await functions.likePlog(plogID, like);
+    } catch(error) {
+      dispatch({
+        type: types.LIKE_PLOG_ERROR,
+        payload: { plogID, like, error }
+      });
+    }
   }
 );
 

@@ -1,6 +1,8 @@
 import { Map, fromJS } from "immutable";
 import * as types from "../actionTypes";
 
+import { specUpdate, revert } from '../../util/redux';
+
 
 export default usersReducer = (state = Map(), {type, payload}) => {
   switch (type) {
@@ -18,6 +20,13 @@ export default usersReducer = (state = Map(), {type, payload}) => {
                            ['users', payload.UserID, 'data'],
                           fromJS(payload.data));
     }
+
+  case types.LIKE_PLOG:
+    return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
+                      payload.like);
+
+  case types.LIKE_PLOG_ERROR:
+    return revert(state, ['current', 'data', 'likedPlogs', payload.plogID]);
 
     case types.LOCATION_CHANGED: {
         return state.set('location', payload.location);
