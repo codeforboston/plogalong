@@ -1,4 +1,4 @@
-import { fromJS } from "immutable";
+import { fromJS, Seq } from "immutable";
 
 import {
     LOG_PLOG,
@@ -9,10 +9,12 @@ import {
   LOG_PLOG_ERROR,
 } from "../actionTypes";
 
+/** @type {import('immutable').Map} */
 const initialState = fromJS({
-    // Look up a plog by ID
-    history: [],
-    localPlogs: [],
+  // Look up a plog by ID
+  plogData: {},
+  history: [],
+  localPlogs: [],
 });
 
 const log = (state = initialState, action) => {
@@ -35,22 +37,19 @@ const log = (state = initialState, action) => {
         return state;
     }
 
-    case PLOGS_UPDATED: {
-        return state.set(
-            "history",
-            fromJS(action.payload.plogs)
-        );
+    case PLOGS_UPDATED:
+    case LOCAL_PLOGS_UPDATED: {
+      const {plogs = []} = action.payload;
+      const newState = state.set(
+        action.type === PLOGS_UPDATED ? 'history' : 'localPlogs',
+        Seq(plogs).map(p => p.id)
+      )
+        .mergeIn(['plogData'], Seq(action.payload.plogs).map(plog => ([plog.id, fromJS(plog)])));
+      return newState;
     }
 
-    case LOCAL_PLOGS_UPDATED: {
-        return state.set(
-            "localPlogs",
-            fromJS(action.payload.plogs)
-        );
-    }
-    default: {
-        return state;
-    }
+    default:
+      return state;
     }
 };
 

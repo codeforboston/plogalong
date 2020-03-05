@@ -53,9 +53,13 @@ class HistoryScreen extends React.Component {
   }
 }
 
-export default connect(store => ({
-    history: store.log.get('history').sort((a, b) => (b.get('when') - a.get('when'))),
-    currentUser: store.users.get('current').toJS(),
-}), dispatch => ({
+export default connect(({log, users}) => {
+  const plogs = log.get('plogData');
+
+  return {
+    history: log.get('history').map(id => plogs.get(id)).sort((a, b) => (b.get('when') - a.get('when'))),
+    currentUser: users.get('current').toJS(),
+  };
+}, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),
 }))(HistoryScreen);

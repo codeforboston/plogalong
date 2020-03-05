@@ -37,9 +37,13 @@ class LocalScreen extends React.Component {
     }
 }
 
-export default connect(store => ({
-    history: store.log.get('localPlogs').sort((a, b) => (b.get('when') - a.get('when'))),
-    currentUser: store.users.get('current').toJS(),
-}), dispatch => ({
+export default connect(({log, users}) => {
+  const plogs = log.get('plogData');
+
+  return {
+    history: log.get('localPlogs').map(id => plogs.get(id)).sort((a, b) => (b.get('when') - a.get('when'))),
+    currentUser: users.get('current').toJS(),
+  };
+}, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),
 }))(LocalScreen);
