@@ -66,6 +66,7 @@ export default ({navigation, route}) => {
             headerTitle: (props) => (
                 <Header text={props.children} />
             ),
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: '#fff',
                 borderBottomColor: 'purple',
