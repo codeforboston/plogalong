@@ -21,7 +21,8 @@ import Pointer from './assets/svg/021-pointer-on-map.svg';
 import Track from './assets/svg/022-track.svg';
 import User from './assets/svg/023-user.svg';
 import Backpacker from './assets/svg/backpacker.svg';
+import Profile from './assets/svg/profile.svg';
 
 import Camera from './assets/svg/photo-camera.svg';
 
-export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera};
+export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera, Profile};
