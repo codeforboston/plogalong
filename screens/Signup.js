@@ -58,7 +58,7 @@ class SignupScreen extends React.Component {
 
         return (
             <View style={[$S.container, $S.form]}>
-              <DismissButton/>
+              <DismissButton color="black" />
               {error && <Error error={error}/>}
               {
               !providers['password'] ?
