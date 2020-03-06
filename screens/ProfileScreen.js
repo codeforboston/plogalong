@@ -18,11 +18,11 @@ import {
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import PhotoButton from '../components/PhotoButton';
-import ProfileImage from '../assets/images/profile.png';
 import { setPreferences, logout} from '../redux/actions';
 
 import Colors from '../constants/Colors';
 import $S from '../styles';
+import ProfilePlaceholder from '../components/ProfilePlaceholder';
 
 
 const stateFromProps =
@@ -90,7 +90,8 @@ class ProfileScreen extends React.Component {
            <>
              <View style={styles.personalInfoContainer}>
                <PhotoButton
-                 photo={profilePicture ? {uri: profilePicture} : ProfileImage}
+                 photo={profilePicture ? {uri: profilePicture} : null}
+                 defaultIcon={ProfilePlaceholder}
                  style={styles.profileImageButton}
                  imageStyle={styles.profileImage}
                  onPictureSelected={this.setProfilePhoto}
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     profileImage: {
         width: 100,
         height: 80,
-        resizeMode: 'contain',
+        resizeMode: 'contain', 
     },
     badgeSummary: {
         borderColor: Colors.borderColor,
