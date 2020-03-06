@@ -20,6 +20,7 @@ import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
 import DefaultProfileImage from '../assets/images/profile.png';
+import ProfilePlaceholder from './ProfilePlaceholder';
 
 function formatDate(dt) {
     return moment(dt).format('MMMM Do');
@@ -52,8 +53,11 @@ export const Plog = ({plogInfo, currentUserID, liked, likePlog}) => {
     return (
         <View>
           <View style={[styles.plogStyle, plogInfo.saving && styles.savingStyle]}>
-            <Image source={userProfilePicture ? { uri: userProfilePicture } : DefaultProfileImage}
-                   style={styles.profileImage} />
+            {
+              userProfilePicture ?
+                <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
+              <ProfilePlaceholder style={styles.profileImage} />
+            }
             <View>
               <Text style={styles.actionText} adjustsFontSizeToFit>
                 {me ? 'You' : plogInfo.get('userDisplayName', 'A fellow plogger')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
