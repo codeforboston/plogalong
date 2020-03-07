@@ -4,6 +4,7 @@ import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
 
 import { Provider } from 'react-redux';
+import './fixtimerbug';
 import makeStore from "./redux/store";
 
 import AppNavigator from './navigation/AppNavigator';
