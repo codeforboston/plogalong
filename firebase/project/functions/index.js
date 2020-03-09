@@ -2,159 +2,87 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const app = require('./app');
 
-const { timeUnits } = require('./shared');
-
-
-function _makeCountAchievement(target) {
-    return {
-        /**
-         * @param {admin.firestore.QuerySnapshot} plogs
-         */
-        init(plogs) {
-            const {size} = plogs;
-            return {
-                completed: size >= target ? new Date() : null,
-                updated: new Date(),
-                count: Math.min(size, target),
-                // firstPlog: size && plogs.docs[0].ref,
-                // latestPlog: size && plogs.docs[(size >= target ? target : size) - 1],
-            };
-        },
-        update(previous, plogData) {
-            const {count = 0, firstPlog} = previous;
-            return {
-                completed: count + 1 >= target ? plogData.DateTime : null,
-                updated: plogData.DateTime,
-                count: count + 1,
-                // firstPlog: firstPlog || plog,
-                // latestPlot: plog,
-            };
-        }
-    };
-}
-
-const AchievementTypes = new Map([
-    ['firstPlog', {
-        init(plogs) {
-            const plog = plogs.size && plogs.docs[0];
-            return {
-                completed: plog ? plog.createTime : null
-            };
-        },
-        update(_, plogData) {
-            return { completed: plogData.DateTime };
-        }
-    }],
-
-    ['100Club', _makeCountAchievement(100)],
-    ['1000Club', _makeCountAchievement(1000)]
-]);
+const { updateAchievements, updateStats, AchievementHandlers } = require('./shared');
 
 /**
- * @param {admin.firestore.DocumentReference} user
- * @param {admin.firestore.DocumentReference} plog
- * @param {any} plogData
+ * Async generator that handles pagination and yields documents satisfying the
+ * query.
+ *
+ * @param {admin.firestore.Query} query
+ * @param {number} [limit=100]
  */
-async function updateAchievements(user, plog, plogData) {
-    let {achievements} = await user.get();
-    if (!achievements) achievements = {};
-    const needInit = [];
+async function *queryGen(query, limit=100) {
+  let snap = await query.limit(limit).get();
 
-    for (let [achievementType, {init, update}] of AchievementTypes.entries()) {
-        const achievement = achievements[achievementType];
-        if (!achievement) {
-            needInit.push(achievementType);
-        } else if (!achievement.complete) {
-            achievements[achievementType] = update(achievement || {}, plogData, plog);
-        }
-    }
+  while (true) {
+    yield *snap.docs;
 
-    if (needInit.length) {
-        const plogs = await admin.firestore().collection('/plogs').where('UserID', '==', user.id).get();
-
-        for (let type of needInit) {
-            const {init} = AchievementTypes.get(type);
-            if (init)
-                achievements[type] = init(plogs);
-        }
-    }
-
-    console.log(achievements);
-
-    user.set({achievements}, {merge: true});
+    if (snap.size < limit)
+      break;
+    snap = await query.startAfter(snap.docs[snap.size-1]).limit(limit).get();
+  }
 }
 
+const Users = app.firestore().collection('users');
+const Plogs = app.firestore().collection('plogs');
+
+/** @typedef {import('./shared').AchievementType} AchievementType */
 /**
- * @param {UserData} user
- * @param {PlogData} plog
+ * For each achievement type provided, calls the type's reducer (`update`) on
+ * each of the user's plogs. Used when a user's achievements data is missing one
+ * or more entries.
+ *
+ * @param {string} userID
+ * @param {AchievementType[]} types
  */
-async function updateAchievements(user, plog) {
-  const achievements = user.achievements || {};
-  const needInit = [];
+async function initAchievements(userID, types) {
+  const achievements = types.reduce((m, type) => {
+    m[type] = { ...AchievementHandlers[type].initial };
+    return m;
+  }, {});
 
-  for (let [achievementType, {init, update}] of AchievementTypes.entries()) {
-    const achievement = achievements[achievementType];
-    if (!achievement) {
-      needInit.push(achievementType);
-    } else if (!achievement.complete) {
-      achievements[achievementType] = update(achievement || {}, plog);
+  for await (const plog of queryGen(Plogs.where('d.UserID', '==', userID))) {
+    const plogData = plog.data().d;
+    for (const type of types) {
+      if (!achievements[type].complete)
+        achievements[type] = AchievementHandlers[type].update(
+          achievements[type], plogData);
     }
   }
-
-  if (needInit.length) {
-    const plogs = await admin.firestore().collection('/plogs').where('UserID', '==', user.id).get();
-
-    for (let type of needInit) {
-      const {init} = AchievementTypes.get(type);
-      if (init)
-        achievements[type] = init(plogs);
-    }
-  }
-
-  console.log(achievements);
 
   return achievements;
 }
 
-/** @typedef {import('./shared').UserData} UserData */
-
-/**
-/**
- * @param {UserData} user
- * @param {PlogData} plog
- */
-function updateStats(user, plog, date=new Date()) {
-    const { stats = {} } = user;
-
-    for (let {unit, when} of timeUnits) {
-        const whenValue = when(date);
-        let unitStats = stats[unit];
-        if (!unitStats || unitStats.whenID !== whenValue) {
-            unitStats = { milliseconds: 0, count: 0, whenID: whenValue };
-            stats[unit] = unitStats;
-        }
-
-        unitStats.milliseconds += plog.PlogDuration || 0;
-        unitStats.count += 1;
-    }
-
-    return stats;
-}
-
+// TODO Ignore duplicate events
 exports.calculateAchievements = functions.firestore.document('/plogs/{documentId}')
-    .onCreate(async (snap, context) => {
-        const plogData = snap.data().d;
-        const {UserID} = plogData;
+  .onCreate(async (snap, context) => {
+    const plogData = snap.data().d;
+    const {UserID} = plogData;
+    let initUserAchievements;
+    const userDocRef = Users.doc(UserID);
 
-        await app.firestore().runTransaction(async t => {
-            const userDocRef = app.firestore().collection('users').doc(UserID);
-            const user = await t.get(userDocRef);
-            t.update(userDocRef, {
-                stats: updateStats(user.data(), plogData, snap.createTime.toDate())
-            });
-        });
-        // return updateAchievements(admin.firestore().collection('users').doc(UserID), snap.ref, plogData);
+    await app.firestore().runTransaction(async t => {
+      const user = await t.get(userDocRef);
+      const userData = user.data();
+
+      const {achievements, needInit} = updateAchievements(userData.achievements, plogData);
+
+      t.update(userDocRef, {
+        achievements,
+        stats: updateStats(userData.stats, plogData, snap.createTime.toDate())
+      });
+
+      initUserAchievements = needInit;
     });
+
+    if (initUserAchievements.length) {
+      await app.firestore().runTransaction(async t => {
+        t.update(userDocRef, {
+          achievements: await initAchievements(UserID, initUserAchievements)
+        });
+      });
+    }
+  });
 
 
 exports.updateUserPlogs = functions.firestore.document('/users/{userId}')

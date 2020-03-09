@@ -36,6 +36,24 @@ export const plogDocToState = (plog) => {
   };
 };
 
+export const plogStateToDoc = plog => ({
+  TrashTypes: plog.trashTypes,
+  ActivityType: plog.activityType,
+  coordinates: new GeoPoint(plog.location.lat, plog.location.lng),
+  GeoLabel: plog.location ? plog.location.name : "mid atlantic",
+  HelperType: plog.groupType,
+  PlogType: plog.pickedUp ?
+    "Plog" :
+    "Flag",
+  DateTime: plog.when,
+  UserID: auth.currentUser.uid,
+  Photos: [],
+  PlogDuration: plog.timeSpent,
+  Public: !!plog.public,
+  UserProfilePicture: plog.userProfilePicture || null,
+  UserDisplayName: plog.userDisplayName,
+});
+
 export function queryUserPlogs(userId) {
   return Plogs.where('UserID', '==', userId);
 }
@@ -50,23 +68,7 @@ export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=8000) => {
 
 export const savePlog = async (plog) => {
   const doc = Plogs.doc();
-  await doc.set({
-    TrashTypes: plog.trashTypes,
-    ActivityType: plog.activityType,
-    coordinates: new GeoPoint(plog.location.lat, plog.location.lng),
-    GeoLabel: plog.location ? plog.location.name : "mid atlantic",
-    HelperType: plog.groupType,
-    PlogType: plog.pickedUp ?
-      "Plog" :
-      "Flag",
-    DateTime: plog.when,
-    UserID: auth.currentUser.uid,
-    Photos: [],
-    PlogDuration: plog.timeSpent,
-    Public: !!plog.public,
-    UserProfilePicture: plog.userProfilePicture || null,
-    UserDisplayName: plog.userDisplayName,
-  });
+  await doc.set(plogStateToDoc(plog));
 
   if (!plog.plogPhotos || !plog.plogPhotos.length)
       return;
