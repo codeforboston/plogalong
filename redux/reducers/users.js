@@ -2,8 +2,13 @@ import { Map, fromJS } from "immutable";
 import * as types from "../actionTypes";
 
 import { specUpdate, revert } from '../../util/redux';
+import { updateAchievements, updateStats } from '../../firebase/project/functions/shared';
+import { plogStateToDoc } from '../../firebase/plogs';
 
 
+/**
+ * @param {Map} state
+ */
 export default usersReducer = (state = Map(), {type, payload}) => {
   switch (type) {
     case types.SET_CURRENT_USER: {
@@ -27,6 +32,12 @@ export default usersReducer = (state = Map(), {type, payload}) => {
 
   case types.LIKE_PLOG_ERROR:
     return revert(state, ['current', 'data', 'likedPlogs', payload.plogID]);
+
+  case types.PLOG_LOGGED: {
+    const plogData = plogStateToDoc(payload.plog);
+    return state.updateIn(['current', 'data', 'stats'], Map(), stats => fromJS(updateStats(stats.toJS(), plogData)) )
+      .updateIn(['current', 'data', 'achievements'], Map(), data => fromJS(updateAchievements(data.toJS(), plogData)));
+  }
 
     case types.LOCATION_CHANGED: {
         return state.set('location', payload.location);
