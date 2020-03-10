@@ -113,6 +113,17 @@ class PlogScreen extends React.Component {
             plogPhotos = Array.from(plogPhotos);
             plogPhotos[idx] = picture;
 
+            plogPhotos.sort( function (a,b) {
+                    if (a === b){
+                        return 0
+                    } else if (a === null) {
+                        return 1
+                    } else if (b === null) {
+                        return -1
+                    }
+                }
+            )
+
             return { plogPhotos };
         });
     }
