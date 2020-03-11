@@ -13,15 +13,33 @@
  * @typedef {any} Plog
  */
 
-/** @typedef {{ completed: Timestamp, updated: Timestamp } & { [k in
- PropertyKey ]: any}} AchievementData */
+/** @typedef {{ completed: Timestamp, updated: Timestamp } & { [k in PropertyKey ]: any}} AchievementData */
 /**
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
  * @property {(previous: AchievementData, plog: Plog) => AchievementData} update
  */
 
+/** @typedef {(dt: Date) => Date} FloorDateFn */
+/** @type {FloorDateFn} */
+const floorDay = dt => (new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+/** @type {FloorDateFn} */
+const floorWeek = dt => floorDay(new Date(dt.getTime() - dt.getDay()*86400000));
+/** @type {FloorDateFn} */
+const floorMonth = dt => new Date(dt.getFullYear(), dt.getMonth(), 1);
+
+/** @typedef {(dt: Date, n: number=1) => Date} IncDateFn */
+/** @type {IncDateFn} */
+const incDay = (dt, n=1) => new Date(dt.getTime()+(n*86400000));
+/** @type {IncDateFn} */
+const incWeek = (dt, n=1) => incDay(dt, 7*n);
+/** @type {IncDateFn} */
+const incMonth = (dt, n=1) => new Date(new Date(dt).setMonth(dt.getMonth()+n));
+
 /**
+ * Creates a handler for an achievement that is completed when a user has
+ * plogged a `target` number of plogs.
+ *
  * @returns {AchievementHandler}
  */
 function _makeCountAchievement(target) {
@@ -42,10 +60,64 @@ function _makeCountAchievement(target) {
   };
 }
 
+/**
+ * Creates a handler for an achievement 
+ *
+ * @param {number} target
+ * @param {FloorDateFn} floor
+ * @param {IncDateFn} inc
+ * @returns {AchievementHandler}
+ */
+function _makeStreakHandler(target, floor=floorDay, inc=incDay) {
+  const initial = {
+    completed: null,
+    updated: null,
+    streak: 0,
+    // Set when the streak is lost
+    longestStreak: null,
+    // Date when the longest streak was lost
+    streakLost: null,
+  };
+  return {
+    initial,
+    update(previous, plog) {
+      const {DateTime, TZ = 240} = plog;
+      const localDate = new Date(DateTime.toDate().getTime() - TZ*60000);
+
+      const {updated, streak} = previous;
+      const localUpdated = new Date(updated.toDate().getTime() - TZ*60000);
+      /** @type {Partial<typeof initial>} */
+      const changes = {
+        updated: DateTime
+      };
+
+      if (updated) {
+        if (floor(inc(localDate, -1)).getTime() ===
+            floor(localUpdated).getTime()) {
+          changes.streak = streak + 1;
+          if (changes.streak >= target) {
+            changes.completed = DateTime;
+          }
+        } else {
+          changes.streak = 1;
+
+          if (streak > 1) {
+            changes.longestStreak = streak;
+            changes.streakLost = updated;
+          }
+        }
+      }
+
+      return Object.assign(previous, changes);
+    }
+  };
+}
+
 const AchievementHandlers = {
   ['firstPlog']: _makeCountAchievement(1),
   ['100Club']: _makeCountAchievement(100),
-  ['1000Club']: _makeCountAchievement(1000)
+  ['1000Club']: _makeCountAchievement(1000),
+  // ['jk ']
 };
 
 /** @typedef {keyof typeof AchievementHandlers} AchievementType */

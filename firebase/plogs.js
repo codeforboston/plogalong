@@ -46,6 +46,7 @@ export const plogStateToDoc = plog => ({
     "Plog" :
     "Flag",
   DateTime: plog.when,
+  TZ: plog.when.getTimezoneOffset(),
   UserID: auth.currentUser.uid,
   Photos: [],
   PlogDuration: plog.timeSpent,
@@ -68,6 +69,7 @@ export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=8000) => {
 
 export const savePlog = async (plog) => {
   const doc = Plogs.doc();
+  console.log(plog.when);
   await doc.set(plogStateToDoc(plog));
 
   if (!plog.plogPhotos || !plog.plogPhotos.length)
