@@ -216,6 +216,8 @@ class PlogScreen extends React.Component {
               {params} = this.state,
               {user, error} = this.props;
 
+      const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
+
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
           <Banner>
@@ -262,16 +264,16 @@ class PlogScreen extends React.Component {
 
             <View style={styles.photoStrip}>
                 {
-                    this.state.plogPhotos.map((plogPhoto, idx) => (
-                        <PhotoButton onPictureSelected={picture => this.addPicture(picture, idx)}
-                                     onCleared={_ => this.addPicture(null, idx)}
-                                     photo={plogPhoto}
-                                     key={idx}
-                                     manipulatorActions={[
-                                       { resize: { width: 300, height: 300 } },
-                                     ]}
-                        />
-                    ))
+                  this.state.plogPhotos.map((plogPhoto, idx) => (
+                    <PhotoButton onPictureSelected={picture => this.addPicture(picture, Math.min(idx, firstNullIdx))}
+                                 onCleared={_ => this.addPicture(null, idx)}
+                                 photo={plogPhoto}
+                                 key={idx}
+                                 manipulatorActions={[
+                                   { resize: { width: 300, height: 300 } },
+                                 ]}
+                    />
+                  ))
                 }
             </View>
 
