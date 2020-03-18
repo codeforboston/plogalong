@@ -20,7 +20,7 @@ const makeToggle = (init) => {
 };
 
 export default props => {
-  const {accessibilityLabel, icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, ...otherProps} = props,
+  const {accessibilityLabel, icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, onLayout, ...otherProps} = props,
         {active, turnOn: onPressIn, turnOff: onPressOut} = makeToggle(),
         sharedStyles = [$S.button, !disabled && active && $S.activeButton,
                         disabled && styles.disabled, selected && styles.selected,
@@ -35,13 +35,13 @@ export default props => {
           React.cloneElement(shownIcon, {style: [styles.iconStyles, shownIcon.props.style]});
 
     content = (
-      <View style={[...sharedStyles, styles.iconButton, style]}>
+      <View style={[...sharedStyles, styles.iconButton, style]} onLayout={onLayout}>
         {iconComponent}
       </View>
     );
   } else if (title) {
     content = (
-      <Text style={[...sharedStyles, $S.textButton, style]}>
+      <Text style={[...sharedStyles, $S.textButton, style]} onLayout={onLayout}>
         {title}
       </Text>
     );
