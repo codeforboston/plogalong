@@ -77,6 +77,7 @@ export const Plog = ({plogInfo, currentUserID, liked, likePlog}) => {
               }}
               showsMyLocationButton={false}
               scrollEnabled={false}
+              zoomEnabled={false}
             >
               <Marker coordinate={latLng}
                       tracksViewChanges={false}
