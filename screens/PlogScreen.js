@@ -266,6 +266,8 @@ class PlogScreen extends React.Component {
                 {
                   this.state.plogPhotos.map((plogPhoto, idx) => (
                     <PhotoButton onPictureSelected={picture => this.addPicture(picture, Math.min(idx, firstNullIdx))}
+                                 style={styles.photoButton}
+                                 imageStyle={{ resizeMode: 'contain', width: '90%', height: '80%' }}
                                  onCleared={_ => this.addPicture(null, idx)}
                                  photo={plogPhoto}
                                  key={idx}
@@ -308,6 +310,12 @@ const styles = StyleSheet.create({
         marginTop: 10,
         justifyContent: 'space-around'
     },
+
+  photoButton: {
+    flex: 1,
+    margin: 2,
+    aspectRatio: 1,
+  },
 
     mapContainer: {
         borderColor: Colors.borderColor,
