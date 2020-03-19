@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Image } from 'react-native';
 import { connect } from 'react-redux';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 
 import PlogScreen from '../screens/PlogScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -10,7 +9,6 @@ import LocalScreen from '../screens/LocalScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MoreScreen from '../screens/MoreScreen';
 
-import Header from '../components/Header';
 
 const Icons = {
     Plog: require('../assets/images/plog.png'),
@@ -44,8 +42,7 @@ const TabBarComponent = props => <BottomTabBar {...props}
 const Tab = createBottomTabNavigator();
 
 export default connect(state => ({
-    currentUser: state.users.get("current"),
-    userLoaded: state.users.get("init"),
+    currentUser: state.users.current,
     preferences: state.preferences,
 }))(class extends React.Component {
     componentDidMount() {

@@ -25,7 +25,7 @@ class HistoryScreen extends React.Component {
 
     return (
         <View style={$S.screenContainer}>
-          <PlogList plogs={this.props.history.toArray()}
+          <PlogList plogs={this.props.history}
                     currentUser={currentUser}
                     likePlog={this.props.likePlog}
                     header={
@@ -54,11 +54,11 @@ class HistoryScreen extends React.Component {
 }
 
 export default connect(({log, users}) => {
-  const plogs = log.get('plogData');
+  const {plogData, history} = log;
 
   return {
-    history: log.get('history').map(id => plogs.get(id)).sort((a, b) => (b.get('when') - a.get('when'))),
-    currentUser: users.get('current').toJS(),
+    history: history.map(id => plogData[id]).sort((a, b) => (b.when - a.when)),
+    currentUser: users.current,
   };
 }, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),

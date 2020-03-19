@@ -75,10 +75,9 @@ class ProfileScreen extends React.Component {
       });
 
       const {currentUser} = this.props;
-      const userData = currentUser.data || {};
+      const {displayName, profilePicture} = currentUser.data || {};
       const created = new Date(parseInt(currentUser.createdAt));
       const {params} = this.state;
-      const {profilePicture} = currentUser.data;
 
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={[$S.scrollContentContainer, styles.contentContainer]}>
@@ -112,7 +111,7 @@ class ProfileScreen extends React.Component {
 
              <View>
                <Text style={styles.welcomeText}>
-                 Hello, {userData.displayName||'Fellow Plogger'}!
+                 Hello, {displayName||'Fellow Plogger'}!
                </Text>
              </View>
 
@@ -206,14 +205,14 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-  (state) => ({
-      currentUser: state.users.get("current") && state.users.get('current').toJS(),
-    preferences: state.preferences,
+  ({users, preferences}) => ({
+    currentUser: users.current,
+    preferences,
   }),
-    (dispatch) => ({
-        updatePreferences(preferences) {
-            dispatch(setPreferences(preferences))
-        },
-        setUserData,
+  (dispatch) => ({
+    updatePreferences(preferences) {
+      dispatch(setPreferences(preferences))
+    },
+    setUserData,
   })
 )(ProfileScreen);
