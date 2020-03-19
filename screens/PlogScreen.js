@@ -363,10 +363,10 @@ const styles = StyleSheet.create({
 });
 
 const PlogScreenContainer = connect(({users, log}) => ({
-  user: users.get("current").toJS(),
-  location: users.get('location'),
-  submitting: log.get('submitting'),
-  error: log.get('logError'),
+  user: users.current,
+  location: users.location,
+  submitting: log.submitting,
+  error: log.logError,
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {

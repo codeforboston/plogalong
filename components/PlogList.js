@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useCallback } from 'react';
 import {
     FlatList,
     Image,
@@ -26,93 +25,96 @@ function formatDate(dt) {
     return moment(dt).format('MMMM Do');
 }
 
-export const Plog = ({plogInfo, currentUserID, liked, likePlog}) => {
-    const navigation = useNavigation();
-    const latLng = {
-        latitude: plogInfo.getIn(['location', 'lat']),
-        longitude: plogInfo.getIn(['location', 'lng']),
-    };
+class Plog extends React.PureComponent {
+  onHeartPress = () => {
+    this.props.likePlog(this.props.plogInfo.id, !this.props.liked);
+  }
 
-    const ActivityIcon = Options.activities.get(
-        plogInfo.get('activityType')
-    ).icon;
+    showPhotos = () => {
+        this.props.navigation.navigate('PhotoViewer', {
+            photos: this.props.plogInfo.plogPhotos || []
+        });
+    }
 
-  const { plogPhotos = [], timeSpent, when, userID, userProfilePicture, likeCount } = plogInfo.toJS();
-  const me = userID === currentUserID;
+    render() {
+        const props = this.props;
+        const {plogInfo, currentUserID, liked, likePlog} = props;
+        const ActivityIcon = Options.activities.get(
+            plogInfo.activityType
+        ).icon;
 
-  const onHeartPress = useCallback(() => {
-    likePlog(plogInfo.get('id'), !liked);
-  }, [liked]);
-  const showPhotos = useCallback(() => {
-    navigation.navigate('PhotoViewer', {
-      photos: plogPhotos
-    });
-  }, []);
+        const {
+            id, location: { lat, lng }, likeCount, plogPhotos = [], timeSpent,
+            trashTypes = [], userID, userDisplayName, userProfilePicture, when,
+            saving
+        } = plogInfo;
+        const latLng = { latitude: lat, longitude: lng };
+        const me = userID === currentUserID;
 
-
-    return (
-        <View>
-          <View style={[styles.plogStyle, plogInfo.saving && styles.savingStyle]}>
-            {
-              userProfilePicture ?
-                <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
-              <ProfilePlaceholder style={styles.profileImage} />
-            }
-            <View style={styles.plogInfo}>
-              <Text style={styles.actionText} adjustsFontSizeToFit>
-                {me ? 'You' : plogInfo.get('userDisplayName', 'A fellow plogger')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
-              </Text>
-              <Text style={styles.subText}>
-                {moment(plogInfo.get('when')).fromNow()}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.plogStyle}>
-            <MapView
-              style={styles.map}
-              region={{
-                  ...latLng,
-                  latitudeDelta: 0.05,
-                  longitudeDelta: 0.04,
-              }}
-              showsMyLocationButton={false}
-              scrollEnabled={false}
-              zoomEnabled={false}
-            >
-              <Marker coordinate={latLng}
-                      tracksViewChanges={false}
-              >
-                <ActivityIcon
-                  width={40}
-                  height={40}
-                  fill={Colors.activeColor}
-                />
-              </Marker>
-            </MapView>
-            {
-                plogPhotos && plogPhotos.length ?
-                    <ScrollView contentContainerStyle={styles.photos}>
-                      {plogPhotos.map(({uri}) => (
-                          <TouchableOpacity onPress={showPhotos} key={uri}>
-                            <Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>
-                          </TouchableOpacity>))}
-                    </ScrollView> :
-                null
-            }
-          </View>
-          <View style={[styles.plogStyle, styles.detailsStyle]}>
-            <Text style={styles.subText}>
-              Cleaned up {plogInfo.get('trashTypes').map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
-            </Text>
-            <TouchableOpacity onPress={onHeartPress}>
-              <View style={styles.likeCount}>
-                {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
-                <Ionicons size={20} name={liked ? 'md-heart' : 'md-heart-empty'}/>
+        return (
+            <View>
+              <View style={[styles.plogStyle, saving && styles.savingStyle]}>
+                {
+                    userProfilePicture ?
+                        <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
+                    <ProfilePlaceholder style={styles.profileImage} />
+                }
+                <View style={styles.plogInfo}>
+                  <Text style={styles.actionText} adjustsFontSizeToFit>
+                    {me ? 'You' : ((userDisplayName||'').trim() || 'Anonymous')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
+                  </Text>
+                  <Text style={styles.subText}>
+                    {moment(when).fromNow()}
+                  </Text>
+                </View>
               </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-    );
+              <View style={styles.plogStyle}>
+                <MapView
+                  style={styles.map}
+                  region={{
+                      ...latLng,
+                      latitudeDelta: 0.05,
+                      longitudeDelta: 0.04,
+                  }}
+                  showsMyLocationButton={false}
+                  scrollEnabled={false}
+                  zoomEnabled={false}
+                >
+                  <Marker coordinate={latLng}
+                          tracksViewChanges={false}
+                  >
+                    <ActivityIcon
+                      width={40}
+                      height={40}
+                      fill={Colors.activeColor}
+                    />
+                  </Marker>
+                </MapView>
+                {
+                    plogPhotos && plogPhotos.length ?
+                        <ScrollView contentContainerStyle={styles.photos}>
+                          {plogPhotos.map(({uri}) => (
+                              <TouchableOpacity onPress={this.showPhotos} key={uri}>
+                                <Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>
+                              </TouchableOpacity>))}
+                        </ScrollView> :
+                    null
+                }
+              </View>
+              <View style={[styles.plogStyle, styles.detailsStyle]}>
+                <Text style={styles.subText}>
+                  Cleaned up {trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
+                </Text>
+                <TouchableOpacity onPress={this.onHeartPress}>
+                  <View style={styles.likeCount}>
+                    {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
+                    <Ionicons size={20} name={liked ? 'md-heart' : 'md-heart-empty'}/>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+        );
+    }
 };
 
 const Divider = () => (
@@ -123,17 +125,28 @@ const doesUserLikePlog = (user, plogID) => {
   return (user && user.data && user.data.likedPlogs && user.data.likedPlogs[plogID]);
 };
 
-const PlogList = ({plogs, currentUser, filter, header, footer, likePlog}) => (
-    <FlatList data={filter ? plogs.filter(filter) : plogs}
-              renderItem={({item}) => (<Plog plogInfo={item}
-                                             currentUserID={currentUser && currentUser.uid}
-                                             liked={doesUserLikePlog(currentUser, item.get('id'))}
-                                             likePlog={likePlog} />)}
-              keyExtractor={(item) => item.get('id')}
-              ItemSeparatorComponent={Divider}
-              ListHeaderComponent={header}
-              ListFooterComponent={footer} />
+const likedPlogIds = user => (
+    user && user.data && user.data.likedPlogs && JSON.stringify(user.data.likedPlogs)
 );
+
+const PlogList = ({plogs, currentUser, filter, header, footer, likePlog}) => {
+    const navigation = useNavigation();
+
+    return (
+        <FlatList data={filter ? plogs.filter(filter) : plogs}
+                  renderItem={({item}) => (<Plog plogInfo={item}
+                                                 currentUserID={currentUser && currentUser.uid}
+                                                 liked={doesUserLikePlog(currentUser, item.id)}
+                                                 likePlog={likePlog}
+                                                 navigation={navigation}
+                                           />)}
+                  keyExtractor={(item) => item.id}
+                  extraData={likedPlogIds(currentUser)}
+                  ItemSeparatorComponent={Divider}
+                  ListHeaderComponent={header}
+                  ListFooterComponent={footer} />
+    );
+};
 
 const styles = StyleSheet.create({
     plogStyle: {

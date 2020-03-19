@@ -117,13 +117,13 @@ const styles = StyleSheet.create({
 });
 
 export default connect(
-    state => ({
-        error: state.users.get("loginError"),
-        currentUser: state.users.get("current"),
-    }),
-    dispatch => ({
-        loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
-        loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
-        loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),
-    })
+  ({users}) => ({
+    error: users.loginError,
+    currentUser: users.current,
+  }),
+  dispatch => ({
+    loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
+    loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
+    loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),
+  })
 )(LoginScreen);
