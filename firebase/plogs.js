@@ -1,6 +1,6 @@
 import * as ImageManipulator from 'expo-image-manipulator';
 
-import { auth, firebase, storage, Plogs } from './init';
+import { auth, firebase, storage, Plogs, firestore } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
@@ -45,7 +45,7 @@ export const plogStateToDoc = plog => ({
   PlogType: plog.pickedUp ?
     "Plog" :
     "Flag",
-  DateTime: plog.when,
+  DateTime: new firebase.firestore.Timestamp(Math.floor(plog.when.getTime()/1000)),
   TZ: plog.when.getTimezoneOffset(),
   UserID: auth.currentUser.uid,
   Photos: [],
