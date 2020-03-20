@@ -31,8 +31,13 @@ class HistoryScreen extends React.Component {
                     header={
                         <View style={{ paddingTop: 20 }}>
                       <Banner>
-                        You plogged {monthStats.count} time{monthStats.count === 1 ? '' : 's'} this month. You plogged for {formatDuration(yearStats.milliseconds)} this year.
+                        {monthStats.count ?
+                         `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
+                         'Today is a good day to plog! '}
+                        {yearStats.milliseconds ?
+                         `You plogged for ${formatDuration(yearStats.milliseconds)} this year.` : ''}
                       </Banner>
+
                           <View style={{
                               marginLeft: 20,
                               marginTop: 10
