@@ -22,6 +22,60 @@ import Face from '../assets/svg/achievement_badges_48_48/baseline-face-48px.svg'
 import Airplane from '../assets/svg/achievement_badges_48_48/baseline-flight_land-48px.svg';
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
 
+const AchievementTypes = {
+  ['firstPlog']: {
+    badgeTheme: 'First Plog',
+    icon: SingleCheckmark
+  },
+  ['100Club']: {
+    badgeTheme: '100 Club',
+    icon: DoubleCheckmark,
+    progress: ({count}) => (count || 0)/100
+  },
+  ['1000Club']: {
+    badgeTheme: '1000 Club',
+    icon: Star,
+    progress: ({count}) => (count || 0)/1000
+  },
+  streaker: {
+    badgeTheme: 'Streaker',
+    icon: Star,
+    progress: ({streak}) => (streak || 0)/7
+  },
+  teamEffort: {
+    badgeTheme: 'Team Effort',
+    icon: Team
+  },
+  bugZapper: {
+    badgeTheme: 'Bug Zapper',
+    icon: Flower
+  },
+  dangerPay: {
+    badgeTheme: 'Danger Pay',
+    icon: Syringe
+  },
+  daredevil: {
+    badgeTheme: 'Daredevil',
+    icon: Bike
+  },
+  dogDays: {
+    badgeTheme: 'Dog Days',
+    icon: DogWalking
+  },
+  springChicken: {
+    badgeTheme: 'Spring Chicken',
+    icon: Chicken
+  },
+  fallColor: {
+    badgeTheme: 'Fall Color',
+    icon: Leaves
+  },
+  polarBear: {
+    badgeTheme: 'Polar Bear',
+    icon: Bear
+  },
+};
+
 let AchievedMockup = [
     { 
         id: 0,  
@@ -74,4 +128,4 @@ let AchievedMockup = [
     { id: 21, key: "1000Club_55", badgeTheme: "1000 Club", pic: <Star />, type: "1000Club", dateCompleted: "", month: "", points: "10000", minutes: "", progress: "55" }
 ];
 
-export default AchievedMockup;
+export default AchievementTypes;

@@ -47,7 +47,7 @@ class HistoryScreen extends React.Component {
                                 marginLeft: 5,
                                 color: Colors.textGray
                             }}>Achievements</Text>
-                            <AchievementSwipe />
+                            <AchievementSwipe achievements={currentUser.data.achievements} />
                           </View>
                         </View>
                     }
