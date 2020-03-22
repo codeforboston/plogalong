@@ -103,7 +103,8 @@ class Plog extends React.PureComponent {
               </View>
               <View style={[styles.plogStyle, styles.detailsStyle]}>
                 <Text style={styles.subText}>
-                  Cleaned up {trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
+                  Cleaned up {!trashTypes || !trashTypes.length ? 'trash' :
+                              trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
                 </Text>
                 <TouchableOpacity onPress={this.onHeartPress}>
                   <View style={styles.likeCount}>
