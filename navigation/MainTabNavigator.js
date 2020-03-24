@@ -1,7 +1,10 @@
 import * as React from 'react';
-import { Image } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
+
+import icons from '../icons';
+import Colors from '../constants/Colors';
 
 import PlogScreen from '../screens/PlogScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -11,16 +14,27 @@ import MoreScreen from '../screens/MoreScreen';
 
 
 const Icons = {
-    Plog: require('../assets/images/plog.png'),
-    History: require('../assets/images/history.png'),
-    Local: require('../assets/images/local.png'),
-    Profile: require('../assets/images/profile.png'),
-    More: require('../assets/images/more.png'),
+  Plog: icons.Plog,
+  History: icons.History,
+  Local: icons.Local,
+  Profile: icons.Profile,
+  More: icons.More,
 };
 
-const makeTabOptions = (name) => ({
-  tabBarIcon: () => <Image source={Icons[name]} width={40} height={40} />,
+const makeTabOptions = (name, current) => ({
+  tabBarIcon: () => React.createElement(Icons[name], {
+    width: 25, height: 25, style: [styles.tabIcon],
+    fill: name === current ? Colors.selectionColor : '#666666'
+  }),
 });
+
+const Tabs = [
+  ['Plog', PlogScreen],
+  ['History', HistoryScreen],
+  ['Local', LocalScreen],
+  ['Profile', ProfileScreen],
+  ['More', MoreScreen],
+];
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
 
@@ -76,12 +90,20 @@ export default connect(state => ({
         return (
             <Tab.Navigator initialRouteName="Plog"
                            tabBar={TabBarComponent}>
-              <Tab.Screen name="Plog" component={PlogScreen} options={makeTabOptions('Plog')}/>
-              <Tab.Screen name="History" component={HistoryScreen} options={makeTabOptions('History')}/>
-              <Tab.Screen name="Local" component={LocalScreen} options={makeTabOptions('Local')}/>
-              <Tab.Screen name="Profile" component={ProfileScreen} options={makeTabOptions('Profile')}/>
-              <Tab.Screen name="More" component={MoreScreen} options={makeTabOptions('More')}/>
+              {Tabs.map(([name, component]) =>
+                        <Tab.Screen name={name}
+                                    key={name}
+                                    component={component}
+                                    options={makeTabOptions(name, childRouteName)}/>
+                       )}
             </Tab.Navigator>
         );
     }
+});
+
+const styles = StyleSheet.create({
+  tabIcon: {
+    flex: 1,
+    aspectRatio: 1
+  }
 });
