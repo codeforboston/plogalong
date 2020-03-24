@@ -5,13 +5,13 @@ import * as Location from 'expo-location';
 
 import config from '../config';
 
-
 class PlogScreenWeather extends Component {
   constructor() {
     super();
     this.state = {
       error: null,
-      weatherDetails: null
+      weatherDetails: null,
+      temperature: null
     };
   }
   render() {
@@ -22,6 +22,10 @@ class PlogScreenWeather extends Component {
       return this.renderLoading()
     } else {
       const plogMessage = { message: "Sample welcome message" };
+      const tempC = this.state.temperature/*weatherDetails.main.temp*/;
+      const tempF = (tempC * 9 / 5) + 32;
+      const temps = " " + tempF.toFixed(0) + "\xB0" + "F / " + tempC.toFixed(0) + "\xB0" + "C";
+//      let weatherIcon;
       const tempMin = this.state.weatherDetails.main.temp_min;
       const tempMax = this.state.weatherDetails.main.temp_max;
       const atmospheric = this.state.weatherDetails.weather.id;
@@ -93,7 +97,7 @@ class PlogScreenWeather extends Component {
       console.log(plogMessage.message);
       return (
         <Text>
-          {plogMessage.message}
+          {plogMessage.message} - {/*{weatherIcon}*/} {temps}
         </Text>
       );
     }
@@ -111,8 +115,7 @@ class PlogScreenWeather extends Component {
           {/* console.warn("Missing API key"); */}
         } else {
         fetch("http://api.openweathermap.org/data/2.5/weather" 
-          + toGetWeather 
-            + "&units=metric&APPID=" + apiKey)
+          + toGetWeather + "&units=metric&APPID=" + apiKey)
 // Contact the dev team for the api key, and only use it in your local work for the time being if you need to.
 // This is to avoid losing control of the api key and it being overused or misused.
             .then(response => {
@@ -124,7 +127,8 @@ class PlogScreenWeather extends Component {
               response.json()
               .then(data => {
                 this.setState({
-                  weatherDetails: data
+                  weatherDetails: data,
+                  temperature: data.main.temp
                 })
               })
             })

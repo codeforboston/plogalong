@@ -25,4 +25,21 @@ import Profile from './assets/svg/profile.svg';
 
 import Camera from './assets/svg/photo-camera.svg';
 
-export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera, Profile};
+import ClearSky from './assets/images/weather_icons_pngs/01dSunFlaticon.png';
+import FewClouds from './assets/images/weather_icons_pngs/02dFewCloudsFlaticon.png';
+import ScatteredCloudy from './assets/images/weather_icons_pngs/03dScatteredCloudyFlaticon.png';
+import BrokenClouds from './assets/images/weather_icons_pngs/04dBrokenCloudsFlaticon.png';
+import ShowerRain from './assets/images/weather_icons_pngs/09dShowerRainFlaticon.png';
+import Rain from './assets/images/weather_icons_pngs/10dRainFlaticon.png';
+import Thunderstorm from './assets/images/weather_icons_pngs/11dStormFlaticon.png';
+import Snow from './assets/images/weather_icons_pngs/13dSnowFlaticon.png';
+import Mist from './assets/images/weather_icons_pngs/50dMistFlaticon.png';
+
+
+export default {
+    Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, 
+    Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, 
+    History, Pointer, Track, User, Backpacker, Camera, Profile, 
+    ClearSky, FewClouds, ScatteredCloudy, BrokenClouds,
+    ShowerRain, Rain, Thunderstorm, Snow, Mist
+};
