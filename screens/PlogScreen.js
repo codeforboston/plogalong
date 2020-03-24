@@ -97,7 +97,7 @@ class PlogScreen extends React.Component {
             timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0),
             public: this.props.user.data.shareActivity,
             userProfilePicture: this.props.user.data.profilePicture,
-            userDisplayName: this.props.user.displayName,
+            userDisplayName: this.props.user.data.displayName,
         };
         this.props.logPlog(plog);
     }
