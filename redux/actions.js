@@ -21,7 +21,7 @@ const loginError = (err) => ({
     }
 });
 
-const signupError = (error) => ({
+export const signupError = (error) => ({
     type: types.SIGNUP_ERROR,
     payload: { error }
 });

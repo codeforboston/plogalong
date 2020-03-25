@@ -5,13 +5,23 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import * as actions from '../redux/actions';
 
 
-const DismissButton = ({color = 'black', title, style, ...props}) => {
+const DismissButton = ({color = 'black', title, style, shouldClearError = false, ...props}) => {
     const navigation = useNavigation();
 
+    const onPressOut = () => {
+        if (shouldClearError) {
+            props.clearSignupError()
+        }
+
+        navigation.pop()
+    }
+
     return (
-      <TouchableOpacity onPress={() => navigation.pop()}
+      <TouchableOpacity onPress={onPressOut}
                         accessibilityLabel={title || 'close'}
                         accessibilityRole="button"
                         {...props}>
@@ -28,5 +38,11 @@ const styles = StyleSheet.create({
     }
 });
 
+const ReduxDismissButton = connect(
+    null,
+    dispatch => ({
+        clearSignupError: () => dispatch(actions.signupError()),
+    })
+)(DismissButton);
 
-export default DismissButton;
+export default ReduxDismissButton;
