@@ -18,7 +18,6 @@ import { formatDuration } from '../util';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
-import DefaultProfileImage from '../assets/images/profile.png';
 import ProfilePlaceholder from './ProfilePlaceholder';
 
 function formatDate(dt) {
