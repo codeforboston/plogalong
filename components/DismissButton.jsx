@@ -1,27 +1,32 @@
-import React from 'react';
+import * as React from 'react';
 import {
     StyleSheet,
-    Text,
     TouchableOpacity
 } from 'react-native';
-import { withNavigation } from 'react-navigation';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 
-const DismissButton = ({navigation}) => (
-    <TouchableOpacity onPressOut={() => navigation.pop()}>
-      <Text style={styles.dismissButton}>⊗</Text>
-    </TouchableOpacity>
-);
+const DismissButton = ({color = 'black', title, style, ...props}) => {
+    const navigation = useNavigation();
+
+    return (
+      <TouchableOpacity onPress={() => navigation.pop()}
+                        accessibilityLabel={title || 'close'}
+                        accessibilityRole="button"
+                        {...props}>
+          <Ionicons name="md-close" size={32} color={color} style={[styles.dismissButton, style]} />
+        </TouchableOpacity>
+    );
+};
 
 
 const styles = StyleSheet.create({
     dismissButton: {
-        fontSize: 36,
-        fontWeight: "200",
         paddingTop: 20,
         textAlign: 'right',
     }
 });
 
 
-export default withNavigation(DismissButton);
+export default DismissButton;

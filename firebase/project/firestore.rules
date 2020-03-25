@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+  	function notSettingField(field) {
+    	return !(field in request.resource.data) || request.resource.data[field] == resource.data[field];
+    }
+
+    match /plogs/{any} {
+    	allow read: if request.auth.uid != null && (request.auth.uid == resource.data.d.UserID || resource.data.d.Public)
+      allow write: if request.auth.uid == resource.data.d.UserID
+      allow create: if request.auth.uid == request.resource.data.d.UserID
+    }
+
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId
+      allow update, create, write: if userId == request.auth.uid && notSettingField("achievements") && notSettingField("stats")
+    }
+  }
+}

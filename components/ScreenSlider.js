@@ -1,9 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import {
     Dimensions,
     FlatList,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
 } from 'react-native';
@@ -144,7 +143,7 @@ const styles = StyleSheet.create({
         height: 16,
         justifyContent: 'center',
         margin: 20,
-        marginBottom: 50,
+        marginBottom: 20,
     },
     slider: {
         flex: 1,

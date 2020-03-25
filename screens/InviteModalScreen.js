@@ -1,5 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import {
+  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -10,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../components/Button';
 import Colors from '../constants/Colors';
+import DismissButton from '../components/DismissButton';
 import { ShareDialog } from 'react-native-fbsdk';
 
 export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVisible}) => {
@@ -43,41 +45,41 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
   }
 
   return (
-    <View>
-      <Modal
-        visible={isInviteModalVisible}
-        animationType="slide"
-        transparent={false}
-        onRequestClose={toggleIsInviteModalVisible}
-      >
-        <View style={styles.modal}>
-          <Button
+    <Modal
+      visible={isInviteModalVisible}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={toggleIsInviteModalVisible}
+    >
+      <SafeAreaView style={styles.modal}>
+        <View style={styles.modalControls}>
+          <DismissButton
+            color="white"
             title="back"
-            icon={<Ionicons name="md-close" size={32} color="white" />}
             onPress={toggleIsInviteModalVisible}
-            style={styles.closeModal}
           />
-          <View style={styles.inviteModalContainers}>
-            <Text style={[styles.inviteContainer, { fontSize: 20 }]}>Invite</Text>
-            <TextInput
-              value={PLOGALONG_LINK}
-              selectTextOnFocus
-              style={[styles.textInput, styles.inviteContainer]}
-            />
-            <Button title="Copy Link" onPress={writeToClipboard} style={styles.copyButton} />
-          </View>
-          <View style={styles.inviteModalContainers}>
-            <Button title="Share on Facebook" onPress={shareLinkWithShareDialog} style={styles.shareButtons} />
-          </View>
-          <View style={styles.inviteModalContainers}>
-            <Button title="Share on Twitter" onPress={shareTo} style={styles.shareButtons} />
-          </View>
-          <View style={styles.inviteModalContainers}>
-            <Button title="Share on Instagram" onPress={shareTo} style={styles.shareButtons} />
-          </View>
         </View>
-      </Modal>
-    </View>
+        <View style={styles.inviteModalContainers}>
+          <Text style={[styles.inviteContainer, { fontSize: 20 }]}>Invite</Text>
+          <TextInput
+            value={PLOGALONG_LINK}
+            selectTextOnFocus
+            style={[styles.textInput, styles.inviteContainer]}
+          />
+          <Button title="Copy Link" onPress={writeToClipboard} style={styles.copyButton} />
+        </View>
+        <View style={styles.inviteModalContainers}>
+          <Button title="Share on Facebook" onPress={shareLinkWithShareDialog} style={styles.shareButtons} />
+        </View>
+        <View style={styles.inviteModalContainers}>
+          <Button title="Share on Twitter" onPress={shareTo} style={styles.shareButtons} />
+        </View>
+        <View style={styles.inviteModalContainers}>
+          <Button title="Share on Instagram" onPress={shareTo} style={styles.shareButtons} />
+        </View>
+        <View style={{ flex: 1 }}/>
+      </SafeAreaView>
+    </Modal>
   );
 }
 
@@ -88,13 +90,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.activeColor,
   },
-  closeModal: {
-    position: 'absolute',
-    left: 340,
-    right: 0,
-    top: 40,
-    bottom: 0,
-    borderWidth: 0,
+  modalControls: {
+    flex: 1,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingRight: 20,
   },
   shareButtons: {
     borderWidth: 0,

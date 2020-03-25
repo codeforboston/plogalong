@@ -9,3 +9,5 @@ npm-debug.*
 .DS_Store
 .vscode
 firebase/config.js
+/config.json
+/yarn-error.log

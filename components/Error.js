@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
     StyleSheet,
     Text,
@@ -17,6 +17,8 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.errorBackground,
         color: Colors.errorText,
         padding: 10,
+        margin: 10,
+        marginBottom: 20,
     }
 });
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -10,70 +10,57 @@ import Colors from '../constants/Colors';
 import $S from '../styles';
 
 
-export default class Button extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            active: false
-        };
-    }
+const makeToggle = (init) => {
+  const [active, setActive] = useState(init);
+  return {
+    active,
+    turnOn: () => setActive(true),
+    turnOff: () => setActive(false),
+  };
+};
 
-    onPressIn = (e) => {
-        this.setState({ active: true });
-    }
+export default props => {
+  const {accessibilityLabel, icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, onLayout, ...otherProps} = props,
+        {active, turnOn: onPressIn, turnOff: onPressOut} = makeToggle(),
+        sharedStyles = [$S.button, !disabled && active && $S.activeButton,
+                        disabled && styles.disabled, selected && styles.selected,
+                        primary && $S.primaryButton, (large || primary) && $S.largeButton];
 
-    onPressOut = (e) => {
-        this.setState({ active: false });
-    }
+  let content;
 
-    renderContent() {
-        const {icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, ...props} = this.props,
-              {active} = this.state,
-              sharedStyles = [$S.button, !disabled && active && $S.activeButton,
-                              disabled && styles.disabled, selected && styles.selected,
-                              primary && $S.primaryButton, (large || primary) && $S.largeButton, style];
+  if (icon) {
+    const shownIcon = (selected && selectedIcon) || (active && activeIcon) || icon,
+          iconComponent = typeof shownIcon === 'function' ?
+          React.createElement(shownIcon, {style: styles.iconStyles}) :
+          React.cloneElement(shownIcon, {style: [styles.iconStyles, shownIcon.props.style]});
 
-        if (icon) {
-            const shownIcon = (selected && selectedIcon) || (active && activeIcon) || icon,
-                  iconComponent = typeof shownIcon === 'function' ?
-                                  React.createElement(shownIcon, {style: styles.iconStyles}) :
-                                  React.cloneElement(shownIcon, {style: [styles.iconStyles, shownIcon.props.styles]});
+    content = (
+      <View style={[...sharedStyles, styles.iconButton, style]} onLayout={onLayout}>
+        {iconComponent}
+      </View>
+    );
+  } else if (title) {
+    content = (
+      <Text style={[...sharedStyles, $S.textButton, style]} onLayout={onLayout}>
+        {title}
+      </Text>
+    );
+  }
 
-            return (
-                <View style={[...sharedStyles, styles.iconButton]}>
-                    {iconComponent}
-                </View>
-            );
-        }
+  if (disabled)
+    return content;
 
-        if (title) {
-            return (
-                <Text style={[...sharedStyles, $S.textButton]}>
-                    {title}
-                </Text>
-            );
-        }
-    }
-
-    render() {
-        const {accessibilityLabel, disabled, selected, title, ...props} = this.props,
-              {active} = this.state;
-
-        if (disabled)
-            return this.renderContent();
-
-        return (
-            <TouchableWithoutFeedback accessibilityLabel={accessibilityLabel || title}
-                                      accessibilityRole="button"
-                                      accessibilityState={selected ? ['selected'] : null}
-                                      onPressIn={this.onPressIn}
-                                      onPressOut={this.onPressOut}
-                                      {...props}>
-                {this.renderContent()}
-            </TouchableWithoutFeedback>
-        );
-    }
-}
+  return (
+    <TouchableWithoutFeedback accessibilityLabel={accessibilityLabel || title}
+                              accessibilityRole="button"
+                              accessibilityState={{selected: !!selected}}
+                              onPressIn={onPressIn}
+                              onPressOut={onPressOut}
+                              {...otherProps}>
+      {content}
+    </TouchableWithoutFeedback>
+  );
+};
 
 
 const styles = StyleSheet.create({
@@ -83,7 +70,7 @@ const styles = StyleSheet.create({
 
     iconButton: {
         width: 50,
-        height: 50
+        height: 50,
     },
 
     selected: {

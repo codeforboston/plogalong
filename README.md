@@ -30,7 +30,7 @@
 
   - Clone this repository ([How To Clone A Git Repository](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository))
 
-  - Node (10.x or 12.x) -- ensure that you have a recent version installed - https://nodejs.org/en/download/
+  - Node (10.x or 12.x) -- ensure that you have a recent version installed - https://nodejs.org/en/download/ **Please use a LTS (even) version**
   
   - Make sure that /usr/local/bin is in your $PATH by opening Terminal and typing in echo $PATH (if it's not, follow directions here: https://opensource.com/article/17/6/set-path-linux)
 
@@ -54,8 +54,6 @@
     
   - (Optional) Install `yarn`: https://yarnpkg.com/lang/en/docs/install/
 
-  - Install node modules: `npm install` or `yarn install`
-
   - Install Expo: `npm install expo-cli --global` or `yarn global add expo-cli`
   npm install expo-cli --global)
 
@@ -64,6 +62,8 @@
   in the new config info (which you can find pinned in the #plogalong Slack 
   channel).
   
+  - Install node modules: `npm install` or `yarn install`
+
   - If you're planning on running this on an Android simulator, you'll have to install the Expo app via the simulated 
   device's Google Play Store. To do so, open Android Studio, open the AVD Manager (icon looks like a phone with a green
   Android alien in the top right toolbar), click the Play button under "Actions" to launch the simulator. You can then open
@@ -97,7 +97,37 @@
   <br>4. There should be a message saying 'Building JavaScript Bundle as the Application loads.
   <br>5. Boom! You're ready to Plog.
   
-## Updating Instructions
+## API Keys
+
+### Firebase
+
+#### Using the shared Firebase project
+
+Check on our Slack channel for the shared configuration file. Save it to
+`firebase/config.js`.
+
+#### Setting up your own Firebase project
+
+1. Install Firebase CLI: `npm install -g firebase-tools`
+2. In the `firebase/project` directory, run `firebase login`. If prompted, log
+   in to your Firebase account.
+3. Choose the project to use:
+   - An existing project: Run `firebase use --add` and follow the prompts. (I
+     use the alias `"default"`.)
+   - A new project: Run `firebase projects:create` and follow the prompts
+4. In `firebase/project/functions` run `npm install`.
+5. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
+   options.)
+
+### OpenWeatherMap (optional)
+
+**What it's for**: this API is used to populate the Current Weather box on the
+Plog screen
+
+**What to do**: Register for a free account on [Open Weather](https://openweathermap.org/api "Open Weather API"). Copy your key
+from the "API Keys" tab and paste it into the `openWeatherMapKey` of your `config.json` file.
+
+## Updating
 
 - After a pull request is merged, it may specify that node_modules will need 
 to be deleted. When this is the case, delete the `node_modules` folder on your 

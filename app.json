@@ -3,8 +3,11 @@
     "name": "Plogalong",
     "slug": "plogalong",
     "privacy": "public",
-    "sdkVersion": "34.0.0",
-    "platforms": ["ios", "android"],
+    "sdkVersion": "36.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +19,9 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "infoPlist": {
@@ -25,7 +30,7 @@
     },
     "packagerOpts": {
         "config": "metro.config.js",
-        "sourceExts": ["js", "jsx", "svg"]
+        "sourceExts": ["expo.ts", "expo.tsx", "expo.js", "expo.jsx", "ts", "tsx", "js", "jsx", "json", "wasm", "svg"]
     }
   }
 }

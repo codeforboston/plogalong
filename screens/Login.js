@@ -1,9 +1,8 @@
-import React from 'react';
+import * as React from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
@@ -59,8 +58,8 @@ class LoginScreen extends React.Component {
 
         return (
             <View style={[$S.container, $S.form]}>
-              <DismissButton/>
-              {error && <Error error={error.toJS()}/>}
+              <DismissButton color="black" />
+              {error && <Error error={error}/>}
               <View style={$S.inputGroup}>
                 <Text style={$S.inputLabel}>Email</Text>
                 <TextInput style={$S.textInput}
@@ -86,6 +85,11 @@ class LoginScreen extends React.Component {
                       onPress={this.onSubmit}
                       style={[{ marginTop: 20 }]}
                       disabled={this.disabled()} />
+
+              <Button title="Login with Google"
+                      primary
+                      onPress={this.props.loginWithGoogle}
+                      style={[{ marginTop: 20 }]} />
 
               <Link onPress={() => { this.props.loginAnonymously(); }}
                     style={{ marginTop: 30, textAlign: 'center' }}>
@@ -120,5 +124,6 @@ export default connect(
     dispatch => ({
         loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
         loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
+        loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),
     })
 )(LoginScreen);

@@ -1,10 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 import {
   StyleSheet,
   Text,
   TextInput,
   View,
-  TouchableOpacity
 } from 'react-native';
 import { connect } from 'react-redux';
 
@@ -19,7 +18,6 @@ import $S from '../styles';
 import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
-import Link from '../components/Link';
 
 
 class SignupScreen extends React.Component {
@@ -60,8 +58,8 @@ class SignupScreen extends React.Component {
 
         return (
             <View style={[$S.container, $S.form]}>
-              {error && <Error error={error.toJS()}/>}
-              <DismissButton/>
+              <DismissButton color="black" />
+              {error && <Error error={error}/>}
               {
               !providers['password'] ?
                   <>
@@ -128,7 +126,7 @@ class SignupScreen extends React.Component {
                       (
                           <Button
                             primary
-                            onPress={loginWithFacebook}
+                            onPress={this.props.linkToGoogle}
                             title="Google Login"
                           />
                       )
@@ -155,7 +153,8 @@ const ReduxSignupScreen = connect(
       currentUser: state.users.get("current"),
   }),
     dispatch => ({
-        linkToEmail: (...args) => dispatch(actions.linkToEmail(...args))
+        linkToEmail: (...args) => dispatch(actions.linkToEmail(...args)),
+        linkToGoogle: (...args) => dispatch(actions.linkToGoogle(...args)),
     })
 )(SignupScreen);
 
