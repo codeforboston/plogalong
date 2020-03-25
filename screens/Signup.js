@@ -48,7 +48,14 @@ class SignupScreen extends React.Component {
     render() {
         const {params} = this.state;
         const {error, navigation} = this.props;
-        const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
+        
+        const setParam = param => (text => {
+            this.setState(({params}) => ({params: { ...params, [param]: text }}))
+
+            // Clear error message if user enters new text
+            this.props.clearSignupError()
+        });
+        
         const currentUser = this.props.currentUser && this.props.currentUser.toJS();
         const providers = currentUser && currentUser.providerData.reduce(
             (map, provider) => {
@@ -58,7 +65,7 @@ class SignupScreen extends React.Component {
 
         return (
             <View style={[$S.container, $S.form]}>
-              <DismissButton color="black" />
+              <DismissButton color="black" shouldClearError={true}/>
               {error && <Error error={error}/>}
               {
               !providers['password'] ?
@@ -155,6 +162,7 @@ const ReduxSignupScreen = connect(
     dispatch => ({
         linkToEmail: (...args) => dispatch(actions.linkToEmail(...args)),
         linkToGoogle: (...args) => dispatch(actions.linkToGoogle(...args)),
+        clearSignupError: (...args) => dispatch(actions.signupError()),
     })
 )(SignupScreen);
 
