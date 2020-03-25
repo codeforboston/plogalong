@@ -19,7 +19,9 @@ import { plogStateToDoc } from '../../firebase/plogs';
 
 const initialState = {
   current: null,
-  users: {}
+  users: {},
+  location: null,
+  locationInfo: null
 };
 
 /**
@@ -80,9 +82,17 @@ export default usersReducer = (state = initialState, {type, payload}) => {
     case types.LOCATION_CHANGED: {
       return {
         ...state,
-        location: payload.location
+        location: payload.location,
+        locationInfo: payload.location ? state.locationInfo : null
       };
     }
+
+  case types.LOCATION_INFO: {
+    return {
+      ...state,
+      locationInfo: payload.locationInfo[0]
+    };
+  }
 
   case types.SIGNUP:
     return { ...state, signupError: null };

@@ -203,6 +203,10 @@ export const locationChanged = location => ({
     payload: { location }
 });
 
+export const gotLocationInfo = locationInfo => ({
+  type: types.LOCATION_INFO,
+  payload: { locationInfo }
+});
 
 export default {
     logPlog,

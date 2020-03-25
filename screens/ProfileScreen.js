@@ -6,10 +6,12 @@ import {
     Switch,
     Text,
     TextInput,
+    TouchableOpacity,
     View,
 } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import { Ionicons } from '@expo/vector-icons';
 
 import {
   logOut,
@@ -65,6 +67,13 @@ class ProfileScreen extends React.Component {
     setProfilePhoto = photo => {
         this.props.setUserData({ profilePicture: photo });
     }
+
+  setHomeBaseFromLocationInfo = () => {
+    const { locationInfo } = this.props;
+
+    if (locationInfo)
+      this.props.setUserData({ homeBase: `${locationInfo.city}, ${locationInfo.region}` });
+  }
 
   render() {
       const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
@@ -128,12 +137,17 @@ class ProfileScreen extends React.Component {
 
              <View style={$S.inputGroup}>
                <Text style={$S.inputLabel}>Home Base</Text>
-               <TextInput style={$S.textInput}
-                          autoCapitalize="sentences"
-                          value={params.homeBase}
-                          onChangeText={setParam('homeBase')}
-                          onBlur={this.save}
-               />
+               <View style={{ flexDirection: 'row' }}>
+                 <TextInput style={[$S.textInput, { flexGrow: 1 }]}
+                            autoCapitalize="sentences"
+                            value={params.homeBase}
+                            onChangeText={setParam('homeBase')}
+                            onBlur={this.save}
+                 />
+                 <TouchableOpacity onPressIn={this.setHomeBaseFromLocationInfo}>
+                   <Ionicons size={30} name="ios-navigate" style={{ color: '#666666', padding: 10, paddingRight: 5 }}/>
+                 </TouchableOpacity>
+               </View>
              </View>
 
              <View style={$S.switchInputGroup}>
@@ -207,6 +221,7 @@ const styles = StyleSheet.create({
 export default connect(
   ({users, preferences}) => ({
     currentUser: users.current,
+    locationInfo: users.locationInfo,
     preferences,
   }),
   (dispatch) => ({

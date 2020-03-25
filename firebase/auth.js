@@ -8,9 +8,9 @@ import firebaseConfig from './config';
 /**
  * @param {firebase.User} [user]
  */
-const initialUserData = user => ({
-  homeBase: '',
-  displayName: user && user.displayName || 'Unnamed Plogger',
+const initialUserData = (user, locationInfo) => ({
+  homeBase: locationInfo ? `${locationInfo.city}, ${locationInfo.region}` : '',
+  displayName: user && user.displayName || 'Mysterious Plogger',
   shareActivity: false,
   emailUpdatesEnabled: false,
 });
@@ -45,7 +45,7 @@ export function onAuthStateChanged(callback) {
  * @param {firebase.firestore.DocumentReference} ref
  * @param {firebase.User} user
  */
-async function initializeUserData(ref, user) {
+async function initializeUserData(ref, user, store) {
   try {
     const r = await ref.get();
     if (r.exists) return;
@@ -53,17 +53,19 @@ async function initializeUserData(ref, user) {
     console.warn('error getting user data', err);
   }
 
-  await ref.set(initialUserData(user));
+  // XXX Could easily get raced!
+  const {locationInfo} = store.getState().users;
+  await ref.set(initialUserData(user, locationInfo));
 }
 
 /**
 
  * @param {firebase.User} user
  */
-export const getUserData = async (user) => {
+export const getUserData = async (user, store) => {
   const ref = Users.doc(user.uid);
 
-  await initializeUserData(ref, user);
+  await initializeUserData(ref, user, store);
 
   return ref;
 };
