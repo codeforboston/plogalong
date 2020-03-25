@@ -48,9 +48,10 @@ export function initializeStore(prefs) {
             );
 
             if (user && user.uid) {
+
                 // Firebase will automatically unsubscribe from snapshot updates
                 // on error.
-                getUserData(user).then(userDoc => userDoc.onSnapshot(snap => {
+              getUserData(user, store).then(userDoc => userDoc.onSnapshot(snap => {
                     const data = Object.assign(snap.data(), { updated: Date.now() });
 
                     if (data) {

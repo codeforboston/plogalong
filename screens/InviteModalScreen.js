@@ -8,7 +8,6 @@ import {
   Clipboard,
   TextInput,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import Button from '../components/Button';
 import Colors from '../constants/Colors';
 import DismissButton from '../components/DismissButton';
