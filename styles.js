@@ -49,9 +49,7 @@ export default StyleSheet.create({
         marginBottom: 5,
     },
 
-    switch: {
-        transform: [{ scale: 0.8 }],
-    },
+    switch: {},
 
     button: {
         borderRadius: 5,
