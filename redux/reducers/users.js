@@ -74,7 +74,7 @@ export default usersReducer = (state = initialState, {type, payload}) => {
       data => ({
         ...(data || {}),
         stats: updateStats(data.stats, plogData),
-        achievements: updateAchievements(data.achievements, plogData)
+        achievements: updateAchievements(data.achievements, plogData).achievements
       })
     );
   }
