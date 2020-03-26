@@ -18,6 +18,7 @@
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
  * @property {(previous: AchievementData, plog: Plog) => AchievementData} update
+ * @property {number} points
  */
 
 /** @typedef {(dt: Date) => Date} FloorDateFn */
@@ -40,9 +41,12 @@ const incMonth = (dt, n=1) => new Date(new Date(dt).setMonth(dt.getMonth()+n));
  * Creates a handler for an achievement that is completed when a user has
  * plogged a `target` number of plogs.
  *
+ * @param {number} target
+ * @param {number} points
+ *
  * @returns {AchievementHandler}
  */
-function _makeCountAchievement(target) {
+function _makeCountAchievement(target, points=50) {
   return {
     initial: {
       completed: null,
@@ -56,7 +60,8 @@ function _makeCountAchievement(target) {
         updated: plog.DateTime,
         count: count + 1,
       };
-    }
+    },
+    points
   };
 }
 
@@ -64,11 +69,13 @@ function _makeCountAchievement(target) {
  * Creates a handler for an achievement 
  *
  * @param {number} target
+ * @param {number} points
  * @param {FloorDateFn} floor
  * @param {IncDateFn} inc
+ *
  * @returns {AchievementHandler}
  */
-function _makeStreakHandler(target, floor=floorDay, inc=incDay) {
+function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
   const initial = {
     completed: null,
     updated: null,
@@ -80,6 +87,7 @@ function _makeStreakHandler(target, floor=floorDay, inc=incDay) {
   };
   return {
     initial,
+    points,
     update(previous, plog) {
       const {DateTime, LocalDate, TZ} = plog;
 
@@ -117,10 +125,12 @@ function _makeStreakHandler(target, floor=floorDay, inc=incDay) {
  * satisfies the predicate function `pred`;
  *
  * @param {(plog) => any}
+ * @param {number} [points=50]
  * @returns {AchievementHandler}
  */
-const _makeOneShotAchievement = pred => ({
+const _makeOneShotAchievement = (pred, points=50) => ({
   initial: { completed: null },
+  points,
   update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime } : previous
 });
 
@@ -148,16 +158,16 @@ const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalD
 // don't calculate yet:
 //   Busy Bee, Break the Seal
 const AchievementHandlers = {
-  ['firstPlog']: _makeCountAchievement(1),
-  ['100Club']: _makeCountAchievement(100),
-  ['1000Club']: _makeCountAchievement(1000),
-  streaker: _makeStreakHandler(7),
-  teamEffort: _makeOneShotAchievement(plog => plog.groupType === 'team'),
+  ['firstPlog']: _makeCountAchievement(1, 50),
+  ['100Club']: _makeCountAchievement(100, 1000),
+  ['1000Club']: _makeCountAchievement(1000, 10000),
+  streaker: _makeStreakHandler(7, 250),
+  teamEffort: _makeOneShotAchievement(plog => plog.groupType === 'team', 20),
   bugZapper: _makeOneShotAchievement(
-    plog => (plog.trashTypes||[]).includes('standing_water')),
+    plog => (plog.trashTypes||[]).includes('standing_water'), 20),
   dangerPay: _makeOneShotAchievement(
-    plog => (plog.trashTypes||[]).find(type => type.match(/^glass|standing_water$/))),
-  daredevil: _makeOneShotAchievement(plog => plog.activityType === 'biking'),
+    plog => (plog.trashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20),
+  daredevil: _makeOneShotAchievement(plog => plog.activityType === 'biking', 20),
 
   dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
   springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
