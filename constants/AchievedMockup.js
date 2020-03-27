@@ -1,5 +1,8 @@
 import * as React from 'react';
 
+import { AchievementHandlers } from '../firebase/project/functions/shared';
+import { pluralize } from '../util';
+
 import Umbrella from '../assets/svg/achievement_badges_48_48/baseline-beach_access-48px.svg';
 import SingleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_outline-48px.svg';
 import Team from '../assets/svg/achievement_badges_48_48/011-team-leader_48.svg';
@@ -25,22 +28,25 @@ import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg
 const AchievementTypes = {
   ['firstPlog']: {
     badgeTheme: 'First Plog',
-    icon: SingleCheckmark
+    icon: SingleCheckmark,
   },
   ['100Club']: {
     badgeTheme: '100 Club',
     icon: DoubleCheckmark,
-    progress: ({count}) => (count || 0)/100
+    detailText: ({count}) => `${count}/100`,
+    progress: ({count}) => (count || 0)/100,
   },
   ['1000Club']: {
     badgeTheme: '1000 Club',
     icon: Star,
-    progress: ({count}) => (count || 0)/1000
+    detailText: ({count}) => `${count}/1000`,
+    progress: ({count}) => (count || 0)/1000,
   },
   streaker: {
     badgeTheme: 'Streaker',
     icon: Star,
-    progress: ({streak}) => (streak || 0)/7
+    detailText: ({complete, streak}) => complete ? '' : `${pluralize(streak, 'day')} down, ${7-streak} to go`,
+    progress: ({streak}) => (streak || 0)/7,
   },
   teamEffort: {
     badgeTheme: 'Team Effort',
@@ -75,6 +81,17 @@ const AchievementTypes = {
     icon: Bear
   },
 };
+
+/// Add in config options shared with the backend:
+for (const k in AchievementTypes) {
+  const handler = AchievementHandlers[k];
+
+  if (!handler) continue;
+
+  Object.assign(AchievementTypes[k], {
+    points: handler.points
+  });
+}
 
 let AchievedMockup = [
     { 
