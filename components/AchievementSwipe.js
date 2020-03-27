@@ -18,7 +18,7 @@ class AchievementSwipe extends React.PureComponent {
       const achievements = this.props.achievements || {};
       const data = keep(achType => {
         const a = achievements[achType];
-        const {icon, progress, ...rest} = AchievedTypes[achType];
+        const {icon, progress, detailText, ...rest} = AchievedTypes[achType];
 
         const progressPercent = a.completed ? 100 : progress && a ? progress(a) : 0;
 
@@ -28,6 +28,7 @@ class AchievementSwipe extends React.PureComponent {
           progress: progressPercent,
           icon,
           key: achType,
+          detailText: detailText && detailText(a),
           ...rest,
           ...a
         };
@@ -48,10 +49,12 @@ class AchievementSwipe extends React.PureComponent {
                 data={data}
                 renderItem={({item}) =>
                     <AchievementBadge
-                        badgeImage={React.createElement(item.icon)}
-                        textValue={item.badgeTheme}
-                        plogPoints={item.points}
+                      badgeImage={React.createElement(item.icon)}
+                      textValue={item.badgeTheme}
+                      points={item.points}
+                      completed={item.completed}
                       progress={item.progress}
+                      detailText={item.detailText}
                     />
                 }
                 keyExtractor={item => item.key}
