@@ -18,19 +18,13 @@ import $S from '../styles';
 import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
+import PasswordInput from '../components/PasswordInput';
 
 
 class SignupScreen extends React.Component {
-    static navigationOptions = {
-        title: 'Sign Up'
-    };
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            params: {}
-        };
-    }
+  state = {
+    params: {},
+  }
 
     onSubmit = () => {
         if (this.disabled())
@@ -80,20 +74,16 @@ class SignupScreen extends React.Component {
                     </View>
                     <View style={$S.inputGroup}>
                       <Text style={$S.inputLabel}>Password</Text>
-                      <TextInput style={$S.textInput}
-                                 autoCompleteType="password"
-                                 secureTextEntry={true}
-                                 onChangeText={setParam('password')}
-                                 value={params.password}
+                      <PasswordInput autoCompleteType="password"
+                                     onChangeText={setParam('password')}
+                                     value={params.password}
                       />
                     </View>
                     {!!params.password && <View style={$S.inputGroup}>
                                             <Text style={$S.inputLabel}>Retype Pasword</Text>
-                                            <TextInput style={$S.textInput}
-                                                       autoCompleteType="password"
-                                                       secureTextEntry={true}
-                                                       onChangeText={setParam('confirmPassword')}
-                                                       value={params.confirmPassword}
+                                            <PasswordInput autoCompleteType="password"
+                                                           onChangeText={setParam('confirmPassword')}
+                                                           value={params.confirmPassword}
                                             />
                                           </View>}
                     <Button title="Register"
