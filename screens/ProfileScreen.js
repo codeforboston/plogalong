@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import { Ionicons } from '@expo/vector-icons';
 
 import {
   logOut,
@@ -20,6 +19,7 @@ import {
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import PhotoButton from '../components/PhotoButton';
+import TextInputWithIcon from '../components/TextInputWithIcon';
 import { setPreferences, logout} from '../redux/actions';
 
 import Colors from '../constants/Colors';
@@ -137,17 +137,13 @@ class ProfileScreen extends React.Component {
 
              <View style={$S.inputGroup}>
                <Text style={$S.inputLabel}>Home Base</Text>
-               <View style={{ flexDirection: 'row' }}>
-                 <TextInput style={[$S.textInput, { flexGrow: 1 }]}
-                            autoCapitalize="sentences"
-                            value={params.homeBase}
-                            onChangeText={setParam('homeBase')}
-                            onBlur={this.save}
-                 />
-                 <TouchableOpacity onPressIn={this.setHomeBaseFromLocationInfo}>
-                   <Ionicons size={30} name="ios-navigate" style={{ color: '#666666', padding: 10, paddingRight: 5 }}/>
-                 </TouchableOpacity>
-               </View>
+               <TextInputWithIcon autoCapitalize="sentences"
+                                  value={params.homeBase}
+                                  onChangeText={setParam('homeBase')}
+                                  onBlur={this.save}
+                                  onPress={this.setHomeBaseFromLocationInfo}
+                                  iconName="ios-navigate"
+               />
              </View>
 
              <View style={$S.switchInputGroup}>
