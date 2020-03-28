@@ -13,6 +13,20 @@
           "order": "ASCENDING"
         }
       ]
+    },
+{
+      "collectionGroup": "plogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "d.UserID",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "g",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []
