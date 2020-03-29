@@ -220,9 +220,8 @@ class PlogScreen extends React.Component {
 
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
-          {/*<Banner>*/}
+
             <PlogScreenWeather />
-          {/*</Banner>*/}
 
             <Text style={styles.timer}>
                 <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text>

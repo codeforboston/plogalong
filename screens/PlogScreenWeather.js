@@ -2,22 +2,8 @@ import * as React from 'react';
 import {Component} from 'react';
 import {Image, Text, View} from 'react-native';
 import * as Location from 'expo-location';
-
 import config from '../config';
-
 import Colors from '../constants/Colors';
-//these are for reference:
-import WeatherIcons from '../constants/WeatherIcons';
-import Icons from '../icons';
-import {ClearSky} from '../assets/images/weather_icons_pngs/01dSunFlaticon.png';
-import {FewClouds} from '../assets/images/weather_icons_pngs/02dFewCloudsFlaticon.png';
-import {ScatteredCloudy} from '../assets/images/weather_icons_pngs/03dScatteredCloudyFlaticon.png';
-import {BrokenClouds} from '../assets/images/weather_icons_pngs/04dBrokenCloudsFlaticon.png';
-import {ShowerRain} from '../assets/images/weather_icons_pngs/09dShowerRainFlaticon.png';
-import {Rain} from '../assets/images/weather_icons_pngs/10dRainFlaticon.png';
-import {Thunderstorm} from '../assets/images/weather_icons_pngs/11dStormFlaticon.png';
-import {Snow} from '../assets/images/weather_icons_pngs/13dSnowFlaticon.png';
-import {Mist} from '../assets/images/weather_icons_pngs/50dMistFlaticon.png';
 
 class PlogScreenWeather extends Component {
   constructor() {
@@ -37,7 +23,7 @@ class PlogScreenWeather extends Component {
     } else {
       const plogMessage = { message: "Sample welcome message" };
 
-      const tempC = this.state.temperature/* i.e., weatherDetails.main.temp*/;
+      const tempC = this.state.temperature;
       const tempF = (tempC * 9 / 5) + 32;
       const temps = " " + tempF.toFixed(0) + "\xB0" + "F / " + tempC.toFixed(0) + "\xB0" + "C";
 
@@ -137,25 +123,26 @@ class PlogScreenWeather extends Component {
                 paddingTop: 0,
                 paddingBottom: -10,
                 }}
-              source={this.state.weatherDetails.weather[0].icon==="01d" ?
-                require('../assets/images/weather_icons_pngs/01dSunFlaticon.png')
-              : this.state.weatherDetails.weather[0].icon==="02d" ?
-                require('../assets/images/weather_icons_pngs/02dFewCloudsFlaticon.png')
-              : this.state.weatherDetails.weather[0].icon==="03d" ?
-                require('../assets/images/weather_icons_pngs/03dScatteredCloudyFlaticon.png')
-              : this.state.weatherDetails.weather[0].icon==="04d" ?
-                require('../assets/images/weather_icons_pngs/04dBrokenCloudsFlaticon.png')
-              : this.state.weatherDetails.weather[0].icon==="09d" ?
-                require('../assets/images/weather_icons_pngs/09dShowerRainFlaticon.png')
-              : this.state.weatherDetails.weather[0].icon==="10d" ?
-                require('../assets/images/weather_icons_pngs/10dRainFlaticon.png')
-              :this.state.weatherDetails.weather[0].icon==="11d" ?
-                require('../assets/images/weather_icons_pngs/11dStormFlaticon.png')
-              : this.state.weatherDetails.weather[0].icon==="13d" ?
-                require('../assets/images/weather_icons_pngs/13dSnowFlaticon.png')
-              : this.state.weatherDetails.weather[0].icon==="50d" ?
-                require('../assets/images/weather_icons_pngs/50dMistFlaticon.png')
-              : require('../assets/images/weather_icons_pngs/03dScatteredCloudyFlaticon.png')
+              source={
+                this.state.weatherDetails.weather[0].icon==="01d" ?
+                  require('../assets/images/weather_icons_pngs/01dSunFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="02d" ?
+                  require('../assets/images/weather_icons_pngs/02dFewCloudsFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="03d" ?
+                  require('../assets/images/weather_icons_pngs/03dScatteredCloudyFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="04d" ?
+                  require('../assets/images/weather_icons_pngs/04dBrokenCloudsFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="09d" ?
+                  require('../assets/images/weather_icons_pngs/09dShowerRainFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="10d" ?
+                  require('../assets/images/weather_icons_pngs/10dRainFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="11d" ?
+                  require('../assets/images/weather_icons_pngs/11dStormFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="13d" ?
+                  require('../assets/images/weather_icons_pngs/13dSnowFlaticon.png')
+                : this.state.weatherDetails.weather[0].icon==="50d" ?
+                  require('../assets/images/weather_icons_pngs/50dMistFlaticon.png')
+                : require('../assets/images/weather_icons_pngs/03dScatteredCloudyFlaticon.png')
               }
             />
             &nbsp;{temps}
@@ -210,13 +197,37 @@ class PlogScreenWeather extends Component {
   renderError() {
     console.log('renderError', this.state);
     return (
-      <Text>{this.state.error.message}</Text>
+      <Text
+        style={{
+          backgroundColor: Colors.bannerBackground,
+          borderColor: Colors.borderColor,
+          borderWidth: 1,
+          marginLeft: 20,
+          marginRight: 20,
+          padding: 5,
+          textAlign: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        {this.state.error.message}
+      </Text>
     );
   }
 
   renderLoading() {
     return (
-      <Text>
+      <Text
+        style={{
+          backgroundColor: Colors.bannerBackground,
+          borderColor: Colors.borderColor,
+          borderWidth: 1,
+          marginLeft: 20,
+          marginRight: 20,
+          padding: 5,
+          textAlign: 'center',
+          justifyContent: 'center'
+        }}
+      >
         Every plogging day is a good day!
 {/*        Hi there - sorry, we can't give you weather info right now! */}
       </Text>
