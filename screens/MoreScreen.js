@@ -11,6 +11,7 @@ import NavMenu from '../components/NavMenu';
 
 import AboutScreen from './AboutScreen';
 import FAQScreen from './FAQScreen';
+import ContactScreen from './ContactScreen'
 import InviteModalScreen from './InviteModalScreen';
 
 
@@ -35,14 +36,15 @@ export class MoreScreen extends React.Component {
   pages = [
     {label: 'About Plogalong', route: 'About'},
     {label: 'FAQ', route: 'FAQ'},
+    {label: 'Contact Us', route: 'Contact Us'},
     {label: 'Invite', route: false, handlePress: this.toggleIsInviteModalVisible},
   ];
 
   render() {
     return (
       <View style={styles.container}>
-        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible} isInviteModalVisible={this.state.isInviteModalVisible} />
         <NavMenu routes={this.pages}/>
+        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible} isInviteModalVisible={this.state.isInviteModalVisible} />
       </View>
     );
   }
@@ -68,7 +70,8 @@ export default ({navigation, route}) => {
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
           <Stack.Screen name="FAQ" component={ FAQScreen }/>
-          <Stack.Screen name="InviteModal" component={ InviteModalScreen}/>
+          <Stack.Screen name="Contact Us" component={ ContactScreen }/>
+          <Stack.Screen name="InviteModal" component={ InviteModalScreen }/>
         </Stack.Navigator>
     );
 };
