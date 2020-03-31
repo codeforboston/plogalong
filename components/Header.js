@@ -6,9 +6,11 @@ import {
     View,
 } from 'react-native';
 
+import Colors from '../constants/Colors';
+
 const Header = ({icon, text}) => (
     <View style={styles.container}>
-        {icon && <Image source={icon}  />}
+      {icon && (typeof icon === 'number' || icon.uri ? <Image source={icon}  /> : React.createElement(icon, { width: 25, height: 25, fill: Colors.selectionColor}))}
         <Text style={styles.headerText}>{ text }</Text>
     </View>
 );

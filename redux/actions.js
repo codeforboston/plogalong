@@ -21,7 +21,7 @@ const loginError = (err) => ({
     }
 });
 
-const signupError = (error) => ({
+export const signupError = (error) => ({
     type: types.SIGNUP_ERROR,
     payload: { error }
 });
@@ -203,6 +203,10 @@ export const locationChanged = location => ({
     payload: { location }
 });
 
+export const gotLocationInfo = locationInfo => ({
+  type: types.LOCATION_INFO,
+  payload: { locationInfo }
+});
 
 export default {
     logPlog,

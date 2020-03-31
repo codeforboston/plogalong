@@ -18,19 +18,13 @@ import $S from '../styles';
 import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
+import PasswordInput from '../components/PasswordInput';
 
 
 class SignupScreen extends React.Component {
-    static navigationOptions = {
-        title: 'Sign Up'
-    };
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            params: {}
-        };
-    }
+  state = {
+    params: {},
+  }
 
     onSubmit = () => {
         if (this.disabled())
@@ -47,9 +41,13 @@ class SignupScreen extends React.Component {
 
     render() {
         const {params} = this.state;
-        const {error, navigation} = this.props;
-        const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
-        const currentUser = this.props.currentUser && this.props.currentUser.toJS();
+      const {currentUser, error} = this.props;
+      const setParam = param => (text => {
+        this.setState(({params}) => ({params: { ...params, [param]: text }}));
+
+        // Clear error message if user enters new text
+        this.props.clearSignupError();
+      });
         const providers = currentUser && currentUser.providerData.reduce(
             (map, provider) => {
                 map[provider.providerId] = provider;
@@ -58,7 +56,7 @@ class SignupScreen extends React.Component {
 
         return (
             <View style={[$S.container, $S.form]}>
-              <DismissButton color="black" />
+              <DismissButton color="black" shouldClearError={true}/>
               {error && <Error error={error}/>}
               {
               !providers['password'] ?
@@ -76,20 +74,16 @@ class SignupScreen extends React.Component {
                     </View>
                     <View style={$S.inputGroup}>
                       <Text style={$S.inputLabel}>Password</Text>
-                      <TextInput style={$S.textInput}
-                                 autoCompleteType="password"
-                                 secureTextEntry={true}
-                                 onChangeText={setParam('password')}
-                                 value={params.password}
+                      <PasswordInput autoCompleteType="password"
+                                     onChangeText={setParam('password')}
+                                     value={params.password}
                       />
                     </View>
                     {!!params.password && <View style={$S.inputGroup}>
                                             <Text style={$S.inputLabel}>Retype Pasword</Text>
-                                            <TextInput style={$S.textInput}
-                                                       autoCompleteType="password"
-                                                       secureTextEntry={true}
-                                                       onChangeText={setParam('confirmPassword')}
-                                                       value={params.confirmPassword}
+                                            <PasswordInput autoCompleteType="password"
+                                                           onChangeText={setParam('confirmPassword')}
+                                                           value={params.confirmPassword}
                                             />
                                           </View>}
                     <Button title="Register"
@@ -149,12 +143,13 @@ const styles = StyleSheet.create({
 
 const ReduxSignupScreen = connect(
   state => ({
-      error: state.users.get("signupError"),
-      currentUser: state.users.get("current"),
+      error: state.users.signupError,
+      currentUser: state.users.current,
   }),
     dispatch => ({
         linkToEmail: (...args) => dispatch(actions.linkToEmail(...args)),
         linkToGoogle: (...args) => dispatch(actions.linkToGoogle(...args)),
+        clearSignupError: (...args) => dispatch(actions.signupError()),
     })
 )(SignupScreen);
 

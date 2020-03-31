@@ -11,55 +11,53 @@ import {
   LIKE_PLOG_ERROR,
 } from "../actionTypes";
 
-import { specUpdate, revert } from '../../util/redux';
+import { specUpdate, revert, updateInCopy } from '../../util/redux';
 
 
-/** @type {import('immutable').Map} */
-const initialState = fromJS({
+const initialState = {
   // Look up a plog by ID
   plogData: {},
   history: [],
   localPlogs: [],
-});
+};
 
 const log = (state = initialState, action) => {
   const {type, payload} = action;
 
     switch (action.type) {
     case LOG_PLOG:
-      return state.merge({ submitting: payload.plog, logError: null });
+      return { ...state, submitting: payload.plog, logError: null };
 
     case PLOG_LOGGED:
-      return state.set("submitting", null);
+      return { ...state, submitting: null };
 
     case LOG_PLOG_ERROR:
-      return state.merge({ submitting: null, logError: action.error });
+      return { ...state, submitting: null, logError: action.error };
 
-    case SET_CURRENT_USER: {
-        if (!payload.user)
-            return state.set(
-                "history",
-                fromJS([]));
+    case SET_CURRENT_USER:
+      return payload.user ? state : { ... state, history: [] };
 
-        return state;
-    }
 
     case PLOGS_UPDATED:
     case LOCAL_PLOGS_UPDATED: {
       const {plogs = []} = payload;
-      const newState = state.set(
-        action.type === PLOGS_UPDATED ? 'history' : 'localPlogs',
-        Seq(plogs).map(p => p.id)
-      )
-        .mergeIn(['plogData'], Seq(payload.plogs).map(plog => ([plog.id, fromJS(plog)])));
-      return newState;
+
+      return {
+        ...state,
+        [action.type === PLOGS_UPDATED ? 'history' : 'localPlogs']: plogs.map(p => p.id),
+        plogData: {
+          ...state.plogData,
+          ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})
+        }
+      };
     }
 
     case LIKE_PLOG:
-      return specUpdate(state, ['plogData', payload.plogID, 'likeCount'], 0, count => (payload.like ? count+1 : count-1));
+      return updateInCopy(state, ['plogData', payload.plogID, 'likeCount'], count => count+(payload.like ? 1 : -1), 0);
+      // return specUpdate(state, ['plogData', payload.plogID, 'likeCount'], 0, count => (payload.like ? count+1 : count-1));
 
     case LIKE_PLOG_ERROR:
-      return revert(state, ['plogData', payload.plogID, 'likeCount']);
+      // return revert(state, ['plogData', payload.plogID, 'likeCount']);
 
     default:
       return state;

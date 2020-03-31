@@ -36,3 +36,6 @@ export function getStats(user, unit, now=new Date()) {
   // Ensure that no keys are missing
   return Object.assign(defaults, stats[unit]);
 }
+
+export const pluralize = (n, noun, plural=`${noun}s`) =>
+  `${n} ${n === 1 ? noun : plural}`;
