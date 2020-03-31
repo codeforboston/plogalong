@@ -58,7 +58,7 @@ export const Plog = ({plogInfo, currentUserID, liked, likePlog}) => {
                 <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
               <ProfilePlaceholder style={styles.profileImage} />
             }
-            <View>
+            <View style={styles.plogInfo}>
               <Text style={styles.actionText} adjustsFontSizeToFit>
                 {me ? 'You' : plogInfo.get('userDisplayName', 'A fellow plogger')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
               </Text>
@@ -140,7 +140,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
         padding: 10,
-        paddingBottom: 0
+        paddingBottom: 0,
+    },
+    plogInfo: {
+      paddingTop: 5,
+      flex: 1
     },
     detailsStyle: {
       justifyContent: 'space-between',
@@ -169,7 +173,8 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     subText: {
-        color: Colors.textGray
+        color: Colors.textGray,
+        flex: 1
     },
     map: {
         borderColor: Colors.borderColor,
