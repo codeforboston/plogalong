@@ -1,8 +1,13 @@
 import * as Location from 'expo-location';
 
+import { rateLimited } from '../util/async';
+
 import { START_LOCATION_WATCH, LOCATION_CHANGED, STOP_LOCATION_WATCH, SET_CURRENT_USER } from './actionTypes';
 import { locationChanged, localPlogsUpdated, gotLocationInfo } from './actions';
 import { getLocalPlogs, plogDocToState } from '../firebase/plogs';
+
+
+const reverseGeocode = rateLimited(Location.reverseGeocodeAsync, 10000);
 
 /** @type {import('redux').Middleware} */
 export default store => {
@@ -36,7 +41,7 @@ export default store => {
             }, _ => {});
 
               const middlesexFells = { latitude: 42.437622, longitude: -71.115899};
-              Location.reverseGeocodeAsync(location).then(
+              reverseGeocode(location).then(
                 locationInfo => {
                   store.dispatch(gotLocationInfo(locationInfo));
                 },
