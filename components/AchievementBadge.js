@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.borderColor,
         backgroundColor: '#f1ecf8', // based on Colors.selectionColor #8354c5
+      marginRight: 10,
         padding: 5,
         justifyContent: 'center',
         alignItems: 'center'
@@ -32,7 +33,9 @@ const styles = StyleSheet.create({
     }
 });
 
-function AchievementBadge(props) {
+function AchievementBadge({badgeImage, completed, detailText, points, progressPercent, textValue}) {
+  const detail = completed ? `+ ${points} points` : detailText;
+
     return (
         <View style={styles.achieveBadge}>
             <View style=
@@ -42,20 +45,14 @@ function AchievementBadge(props) {
                     color: '#ac8dd8'
                 }}
             >
-                {props.badgeImage}
+                {badgeImage}
             </View>
-            <Text style={styles.textLarger}>{props.textValue}</Text>
-            <Text style={styles.textSmaller}>+ {props.plogPoints} points</Text>
-            {/* plogPoints in previous line will need to be displayed differently if we want to show `progress` value for 100Club and 1000Club */}
+            <Text style={styles.textLarger}>{textValue}</Text>
+          {
+            detail && <Text style={styles.textSmaller}>{detail}</Text>
+          }
         </View>
-    )
+    );
 };
 
 export default AchievementBadge;
-/*
-export default class AchievementBadge extends React.Component {
-    render() {
-        
-    }
-}
-*/

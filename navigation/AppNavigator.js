@@ -11,13 +11,7 @@ import ScreenSlider from '../components/ScreenSlider';
 import LoginScreen from '../screens/Login';
 import SignupScreen from '../screens/Signup';
 
-const Icons = {
-    Plog: require('../assets/images/plog.png'),
-    History: require('../assets/images/history.png'),
-    Local: require('../assets/images/local.png'),
-    Profile: require('../assets/images/profile.png'),
-    More: require('../assets/images/more.png'),
-};
+import icons from '../icons';
 
 
 const AppStack = createStackNavigator();
@@ -30,7 +24,7 @@ export default (props) => {
                          component={ MainTabNavigator}
                          options={{
                              headerTitle: (props) => {
-                                 return <Header text={props.children} icon={Icons[props.children]} />;
+                                 return <Header text={props.children} icon={icons[props.children]} />;
                              },
                              headerTitleAlign: 'center',
                              headerStyle: {

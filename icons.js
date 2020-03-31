@@ -16,7 +16,6 @@ import Canoe from './assets/svg/016-canoe.svg';
 import Waterpolo from './assets/svg/017-waterpolo.svg';
 import Swimmer from './assets/svg/018-swimmer.svg';
 import Horseriding from './assets/svg/019-horseriding.svg';
-import History from './assets/svg/020-history-clock-button.svg';
 import Pointer from './assets/svg/021-pointer-on-map.svg';
 import Track from './assets/svg/022-track.svg';
 import User from './assets/svg/023-user.svg';
@@ -25,4 +24,9 @@ import Profile from './assets/svg/profile.svg';
 
 import Camera from './assets/svg/photo-camera.svg';
 
-export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera, Profile};
+import Plog from './assets/svg/nav/01-nav-plog.svg';
+import History from './assets/svg/nav/02-nav-history.svg';
+import Local from './assets/svg/nav/03-nav-local.svg';
+import More from './assets/svg/nav/05-nav-more.svg';
+
+export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera, Profile, Local, Plog, More};

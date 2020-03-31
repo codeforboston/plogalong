@@ -18,6 +18,7 @@
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
  * @property {(previous: AchievementData, plog: Plog) => AchievementData} update
+ * @property {number} points
  */
 
 /** @typedef {(dt: Date) => Date} FloorDateFn */
@@ -40,9 +41,12 @@ const incMonth = (dt, n=1) => new Date(new Date(dt).setMonth(dt.getMonth()+n));
  * Creates a handler for an achievement that is completed when a user has
  * plogged a `target` number of plogs.
  *
+ * @param {number} target
+ * @param {number} points
+ *
  * @returns {AchievementHandler}
  */
-function _makeCountAchievement(target) {
+function _makeCountAchievement(target, points=50) {
   return {
     initial: {
       completed: null,
@@ -56,7 +60,8 @@ function _makeCountAchievement(target) {
         updated: plog.DateTime,
         count: count + 1,
       };
-    }
+    },
+    points
   };
 }
 
@@ -64,11 +69,13 @@ function _makeCountAchievement(target) {
  * Creates a handler for an achievement 
  *
  * @param {number} target
+ * @param {number} points
  * @param {FloorDateFn} floor
  * @param {IncDateFn} inc
+ *
  * @returns {AchievementHandler}
  */
-function _makeStreakHandler(target, floor=floorDay, inc=incDay) {
+function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
   const initial = {
     completed: null,
     updated: null,
@@ -80,19 +87,19 @@ function _makeStreakHandler(target, floor=floorDay, inc=incDay) {
   };
   return {
     initial,
+    points,
     update(previous, plog) {
-      const {DateTime, TZ = 240} = plog;
-      const localDate = new Date(DateTime.toDate().getTime() - TZ*60000);
+      const {DateTime, LocalDate, TZ} = plog;
 
       const {updated, streak} = previous;
-      const localUpdated = new Date(updated.toDate().getTime() - TZ*60000);
       /** @type {Partial<typeof initial>} */
       const changes = {
         updated: DateTime
       };
 
       if (updated) {
-        if (floor(inc(localDate, -1)).getTime() ===
+        const localUpdated = new Date(updated.toMillis() - TZ*60000);
+        if (floor(inc(LocalDate, -1)).getTime() ===
             floor(localUpdated).getTime()) {
           changes.streak = streak + 1;
           if (changes.streak >= target) {
@@ -113,11 +120,59 @@ function _makeStreakHandler(target, floor=floorDay, inc=incDay) {
   };
 }
 
+/**
+ * Creates a handler for an achievement that is completed the first time a plog
+ * satisfies the predicate function `pred`;
+ *
+ * @param {(plog) => any}
+ * @param {number} [points=50]
+ * @returns {AchievementHandler}
+ */
+const _makeOneShotAchievement = (pred, points=50) => ({
+  initial: { completed: null },
+  points,
+  update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime } : previous
+});
+
+const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate()));
+
+// Full list of achievements:
+// https://airtable.com/shrHq1EmZzFO7hiQe/tblbArS3zXcLPwdbm/viw9Jk1OkBKdN5Iwc?blocks=bip681nyUrUqlzD8e
+
+// These handlers are only for the achievements that can be calculated using
+// information on the plog and previous achievement data.
+
+// This approach is enough to cover these achievements:
+//   First Plog, Team Effort, True Native, Bug Zapper, Danger Pay, Daredevil,
+//   100 Club, Dog Days, Spring Chicken, Fall Color, Polar Bear, Plog Away, 1000
+//   club, Streaker
+
+// The general approach will also work for these, once we assign geo labels to
+// plogs:
+//   Ranger, City Slicker, Nature Child, Street Cred, Oceanographer
+
+// This has to be triggered by an invite:
+//   Pay it Forward
+
+// These achievements have to be run on local aggregates, which is something we
+// don't calculate yet:
+//   Busy Bee, Break the Seal
 const AchievementHandlers = {
-  ['firstPlog']: _makeCountAchievement(1),
-  ['100Club']: _makeCountAchievement(100),
-  ['1000Club']: _makeCountAchievement(1000),
-  // ['jk ']
+  ['firstPlog']: _makeCountAchievement(1, 50),
+  ['100Club']: _makeCountAchievement(100, 1000),
+  ['1000Club']: _makeCountAchievement(1000, 10000),
+  streaker: _makeStreakHandler(7, 250),
+  teamEffort: _makeOneShotAchievement(plog => plog.groupType === 'team', 20),
+  bugZapper: _makeOneShotAchievement(
+    plog => (plog.trashTypes||[]).includes('standing_water'), 20),
+  dangerPay: _makeOneShotAchievement(
+    plog => (plog.trashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20),
+  daredevil: _makeOneShotAchievement(plog => plog.activityType === 'biking', 20),
+
+  dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
+  springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
+  fallColor: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 8 && d === 21) || m === 9 || m === 10 || (m === 11 && d < 21))),
+  polarBear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11 && d === 21) || m === 0 || m === 1 || (m === 2 && d < 21))),
 };
 
 /** @typedef {keyof typeof AchievementHandlers} AchievementType */
@@ -139,6 +194,10 @@ function updateAchievements(achievements, newPlogs) {
   const needInit = [];
 
   const plogs = Array.isArray(newPlogs) ? newPlogs : [newPlogs];
+  for (const plog of plogs) {
+    const {DateTime, TZ = 240} = plog;
+    plog.LocalDate = new Date(DateTime.toMillis() - TZ*60000);
+  }
 
   const updatedAchievements = names.reduce((updated, name) => {
     const current = updated && updated[name];
@@ -149,10 +208,15 @@ function updateAchievements(achievements, newPlogs) {
     else if (current.completed)
       return updated;
 
-    return Object.assign(
-      updated || {},
-      { [name]: plogs.reduce(handler.update, current || { ...handler.initial }) }
-    );
+    try {
+      return Object.assign(
+        updated || {},
+        { [name]: plogs.reduce(handler.update, current || { ...handler.initial }) }
+      );
+    } catch (err) {
+      console.error(`error updating '${name}' achievement`, err);
+      return updated;
+    }
   }, achievements);
 
   return {

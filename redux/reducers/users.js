@@ -1,56 +1,107 @@
-import { Map, fromJS } from "immutable";
 import * as types from "../actionTypes";
 
-import { specUpdate, revert } from '../../util/redux';
+import { specUpdate, revert, updateInCopy } from '../../util/redux';
 import { updateAchievements, updateStats } from '../../firebase/project/functions/shared';
 import { plogStateToDoc } from '../../firebase/plogs';
 
 
+/** @typedef {string} UserID */
 /**
- * @param {Map} state
+ * @typedef {object} UserData
  */
-export default usersReducer = (state = Map(), {type, payload}) => {
+/**
+ * @typedef {object} User
+ * @property {UserData} [data]
+ * @property {UserID} uid
+ */
+
+/** @typedef {{ current?: User, users: { [k in UserID]: User} }} UserState */
+
+const initialState = {
+  current: null,
+  users: {},
+  location: null,
+  locationInfo: null
+};
+
+/**
+ * @param {UserState} state
+ *
+ * @returns {UserState}
+ */
+export default usersReducer = (state = initialState, {type, payload}) => {
   switch (type) {
     case types.SET_CURRENT_USER: {
-        let current = fromJS(payload.user);
-        if (payload.user)
-            current = current.set('data', state.getIn(['users', payload.user.uid, 'data'], fromJS({})));
-        return state.set("current", current)
-            .set("init", true);
-
-      }
+      /** @type {User} */
+      const user = payload.user;
+      return {
+        ...state,
+        current: user ? {
+          ...user,
+          data: state.users[user.uid] || {}
+        } : null
+      };
+    }
     case types.USER_DATA: {
-        return state.setIn(payload.uid === state.getIn(['current', 'uid']) ?
-                           ['current', 'data'] :
-                           ['users', payload.UserID, 'data'],
-                          fromJS(payload.data));
+      return Object.assign({
+        ...state,
+        users: {
+          ...state.users,
+          [payload.uid]: payload.data
+        }
+      }, payload.uid === (state.current && state.current.uid) && {
+        current: {
+          ...state.current,
+          data: payload.data
+        }
+      });
     }
 
   case types.LIKE_PLOG:
-    return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
-                      payload.like);
+    // Fix speculative updates
+    return updateInCopy(state, ['current', 'data', 'likedPlogs', payload.plogID],
+                                  payload.like);
+   // return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
+   //                   payload.like);
 
   case types.LIKE_PLOG_ERROR:
     return revert(state, ['current', 'data', 'likedPlogs', payload.plogID]);
 
   case types.PLOG_LOGGED: {
     const plogData = plogStateToDoc(payload.plog);
-    return state.updateIn(['current', 'data', 'stats'], Map(), stats => fromJS(updateStats(stats.toJS(), plogData)) )
-      .updateIn(['current', 'data', 'achievements'], Map(), data => fromJS(updateAchievements(data.toJS(), plogData)));
+    return updateInCopy(
+      state, ['current', 'data'],
+      data => ({
+        ...(data || {}),
+        stats: updateStats(data.stats, plogData),
+        achievements: updateAchievements(data.achievements, plogData).achievements
+      })
+    );
   }
 
     case types.LOCATION_CHANGED: {
-        return state.set('location', payload.location);
+      return {
+        ...state,
+        location: payload.location,
+        locationInfo: payload.location ? state.locationInfo : null
+      };
     }
 
+  case types.LOCATION_INFO: {
+    return {
+      ...state,
+      locationInfo: payload.locationInfo[0]
+    };
+  }
+
   case types.SIGNUP:
-    return state.merge({ signupError: null });
+    return { ...state, signupError: null };
 
-    case types.SIGNUP_ERROR:
-      return state.set("signupError", fromJS(payload.error));
+  case types.SIGNUP_ERROR:
+    return { ...state, signupError: payload.error };
 
-    case types.LOGIN_ERROR:
-        return state.set("loginError", fromJS(payload.error));
+  case types.LOGIN_ERROR:
+    return { ...state, loginError: payload.error };
 
     default: {
       return state;

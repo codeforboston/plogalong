@@ -1,5 +1,8 @@
 import * as React from 'react';
 
+import { AchievementHandlers } from '../firebase/project/functions/shared';
+import { pluralize } from '../util';
+
 import Umbrella from '../assets/svg/achievement_badges_48_48/baseline-beach_access-48px.svg';
 import SingleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_outline-48px.svg';
 import Team from '../assets/svg/achievement_badges_48_48/011-team-leader_48.svg';
@@ -21,6 +24,74 @@ import Bear from '../assets/svg/achievement_badges_48_48/bear_48.svg';
 import Face from '../assets/svg/achievement_badges_48_48/baseline-face-48px.svg';
 import Airplane from '../assets/svg/achievement_badges_48_48/baseline-flight_land-48px.svg';
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
+
+const AchievementTypes = {
+  ['firstPlog']: {
+    badgeTheme: 'First Plog',
+    icon: SingleCheckmark,
+  },
+  ['100Club']: {
+    badgeTheme: '100 Club',
+    icon: DoubleCheckmark,
+    detailText: ({count}) => `${count}/100`,
+    progress: ({count}) => (count || 0)/100,
+  },
+  ['1000Club']: {
+    badgeTheme: '1000 Club',
+    icon: Star,
+    detailText: ({count}) => `${count}/1000`,
+    progress: ({count}) => (count || 0)/1000,
+  },
+  streaker: {
+    badgeTheme: 'Streaker',
+    icon: Star,
+    detailText: ({complete, streak}) => complete ? '' : `${pluralize(streak, 'day')} down, ${7-streak} to go`,
+    progress: ({streak}) => (streak || 0)/7,
+  },
+  teamEffort: {
+    badgeTheme: 'Team Effort',
+    icon: Team
+  },
+  bugZapper: {
+    badgeTheme: 'Bug Zapper',
+    icon: Flower
+  },
+  dangerPay: {
+    badgeTheme: 'Danger Pay',
+    icon: Syringe
+  },
+  daredevil: {
+    badgeTheme: 'Daredevil',
+    icon: Bike
+  },
+  dogDays: {
+    badgeTheme: 'Dog Days',
+    icon: DogWalking
+  },
+  springChicken: {
+    badgeTheme: 'Spring Chicken',
+    icon: Chicken
+  },
+  fallColor: {
+    badgeTheme: 'Fall Color',
+    icon: Leaves
+  },
+  polarBear: {
+    badgeTheme: 'Polar Bear',
+    icon: Bear
+  },
+};
+
+/// Add in config options shared with the backend:
+for (const k in AchievementTypes) {
+  const handler = AchievementHandlers[k];
+
+  if (!handler) continue;
+
+  Object.assign(AchievementTypes[k], {
+    points: handler.points
+  });
+}
 
 let AchievedMockup = [
     { 
@@ -74,4 +145,4 @@ let AchievedMockup = [
     { id: 21, key: "1000Club_55", badgeTheme: "1000 Club", pic: <Star />, type: "1000Club", dateCompleted: "", month: "", points: "10000", minutes: "", progress: "55" }
 ];
 
-export default AchievedMockup;
+export default AchievementTypes;

@@ -14,7 +14,8 @@ import * as yup from 'yup';
 const contactSchema = yup.object({
     topic: yup.string()
         .required()
-        .label('Topic'),
+        .label('Topic')
+        .nullable(),
     comment: yup.string()
         .required()
         .label('Comment')
@@ -27,22 +28,22 @@ const contactSchema = yup.object({
 export default ContactForm = () => {
     const placeholder = {
         label: 'Select a topic...',
-        value: '',
+        value: null,
     }
     return (
         <View style={[styles.contactContainer]}>
             <Formik
                 initialValues={{
-                    label: 'Select a topic...',
                     topic: '',
                     comment: '',
                     name: '',
                     email: ''
                 }}
-                onSubmit={ (values, actions) => {
+                onSubmit={(values, actions) => {
                     alert('Thank you for your submission!')
                     actions.resetForm()
-                    console.log(values) 
+
+                    console.log(values)
                 }}
                 validationSchema={contactSchema}
             >
@@ -53,14 +54,14 @@ export default ContactForm = () => {
                             <View style={[$S.textInput, styles.input]}>
                                 <RNPickerSelect
                                     placeholder={placeholder}
+                                    onValueChange={(value) => setFieldValue('topic', value || null)}
                                     selectedValue={values.topic}
                                     useNativeAndroidPickerStyle={false}
-                                    onValueChange={(value) => setFieldValue('topic', value)}
-                                items={[
-                                        { label: 'Bug', value: 'bug' },
-                                        { label: 'Feedback', value: 'feedback' },
-                                        { label: 'Comment', value: 'comment' },
-                                        { label: 'Other', value: 'other' },
+                                    items={[
+                                        { label: 'Bug', value: 'Bug' },
+                                        { label: 'Feedback', value: 'Feedback' },
+                                        { label: 'Comment', value: 'Comment' },
+                                        { label: 'Other', value: 'Other' },
                                     ]}
                                 /> 
                             </View>
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     contactInfoContainer: {
-        marginTop: -10,
+        marginTop: -20,
         marginBottom: 10,
         justifyContent: 'center',
     },
@@ -123,7 +124,6 @@ const styles = StyleSheet.create({
     },
     titleText: {
         paddingTop: 20,
-        fontSize: 13,
     },
     errorText: {
         color: '#ff0000',

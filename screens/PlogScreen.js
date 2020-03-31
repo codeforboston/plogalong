@@ -97,7 +97,7 @@ class PlogScreen extends React.Component {
             timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0),
             public: this.props.user.data.shareActivity,
             userProfilePicture: this.props.user.data.profilePicture,
-            userDisplayName: this.props.user.displayName,
+            userDisplayName: this.props.user.data.displayName,
         };
         this.props.logPlog(plog);
     }
@@ -214,21 +214,25 @@ class PlogScreen extends React.Component {
               cleanedUp = typesCount > 1 ? `${typesCount} selected` :
               typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
               {params} = this.state,
-              {user, error} = this.props;
+              {user, error, locationInfo} = this.props;
 
       const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
 
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
-          <Banner>
-            <PlogScreenWeather />
-          </Banner>
 
-            <Text style={styles.timer}>
-                <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text>
-                <Text> </Text>
-                {this.state.plogTimer}
+            <PlogScreenWeather />
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, paddingTop: 10 }}>
+            <Text style={{ fontWeight: '500', paddingLeft: 10 }}>
+              {locationInfo ? `Plogging near ${locationInfo.street}` : ' '}
             </Text>
+            <Text style={styles.timer}>
+              {/* <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text> */}
+              <Text> </Text>
+              {this.state.plogTimer}
+            </Text>
+          </View>
 
             <View style={styles.mapContainer}>
                 <MapView
@@ -364,10 +368,11 @@ const styles = StyleSheet.create({
 });
 
 const PlogScreenContainer = connect(({users, log}) => ({
-  user: users.get("current").toJS(),
-  location: users.get('location'),
-  submitting: log.get('submitting'),
-  error: log.get('logError'),
+  user: users.current,
+  location: users.location,
+  locationInfo: users.locationInfo,
+  submitting: log.submitting,
+  error: log.logError,
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {

@@ -25,14 +25,19 @@ class HistoryScreen extends React.Component {
 
     return (
         <View style={$S.screenContainer}>
-          <PlogList plogs={this.props.history.toArray()}
+          <PlogList plogs={this.props.history}
                     currentUser={currentUser}
                     likePlog={this.props.likePlog}
                     header={
                         <View style={{ paddingTop: 20 }}>
                       <Banner>
-                        You plogged {monthStats.count} time{monthStats.count === 1 ? '' : 's'} this month. You plogged for {formatDuration(yearStats.milliseconds)} this year.
+                        {monthStats.count ?
+                         `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
+                         'Today is a good day to plog! '}
+                        {yearStats.milliseconds ?
+                         `You plogged for ${formatDuration(yearStats.milliseconds)} this year.` : ''}
                       </Banner>
+
                           <View style={{
                               marginLeft: 20,
                               marginTop: 10
@@ -42,7 +47,7 @@ class HistoryScreen extends React.Component {
                                 marginLeft: 5,
                                 color: Colors.textGray
                             }}>Achievements</Text>
-                            <AchievementSwipe />
+                            <AchievementSwipe achievements={currentUser.data.achievements} />
                           </View>
                         </View>
                     }
@@ -54,11 +59,11 @@ class HistoryScreen extends React.Component {
 }
 
 export default connect(({log, users}) => {
-  const plogs = log.get('plogData');
+  const {plogData, history} = log;
 
   return {
-    history: log.get('history').map(id => plogs.get(id)).sort((a, b) => (b.get('when') - a.get('when'))),
-    currentUser: users.get('current').toJS(),
+    history: history.map(id => plogData[id]).sort((a, b) => (b.when - a.when)),
+    currentUser: users.current,
   };
 }, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),
