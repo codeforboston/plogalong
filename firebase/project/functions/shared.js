@@ -37,6 +37,9 @@ const incWeek = (dt, n=1) => incDay(dt, 7*n);
 /** @type {IncDateFn} */
 const incMonth = (dt, n=1) => new Date(new Date(dt).setMonth(dt.getMonth()+n));
 
+
+const localTZOffset = new Date().getTimezoneOffset();
+const localPlogDate = ({DateTime, TZ}) => new Date(DateTime.toMillis() - (TZ-localTZOffset)*60000);
 /**
  * Creates a handler for an achievement that is completed when a user has
  * plogged a `target` number of plogs.
@@ -272,9 +275,10 @@ const timeUnits = [
  * @param {UserData['stats']} stats
  * @param {PlogData} plog
  */
-function updateStats(stats, plog, date=new Date()) {
+function updateStats(stats, plog) {
   if (!stats) stats = {};
 
+  const date = localPlogDate(plog);
   for (let {unit, when} of timeUnits) {
     const whenValue = when(date);
     let unitStats = stats[unit];
