@@ -89,5 +89,11 @@ export default StyleSheet.create({
     helpLink: {
         textDecorationStyle: 'dotted',
         textDecorationColor: 'black',
+    },
+
+    subheader: {
+      fontSize: 25,
+      margin: 5,
+      color: Colors.textGray
     }
 });

@@ -30,23 +30,19 @@ class HistoryScreen extends React.Component {
                     likePlog={this.props.likePlog}
                     header={
                         <View style={{ paddingTop: 20 }}>
-                      <Banner>
-                        {monthStats.count ?
-                         `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
-                         'Today is a good day to plog! '}
-                        {yearStats.milliseconds ?
-                         `You plogged for ${formatDuration(yearStats.milliseconds)} this year.` : ''}
-                      </Banner>
+                          <Banner>
+                            {monthStats.count ?
+                             `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
+                             'Today is a good day to plog! '}
+                            {yearStats.milliseconds ?
+                             `You plogged for ${formatDuration(yearStats.milliseconds)} this year.` : ''}
+                          </Banner>
 
                           <View style={{
                               marginLeft: 20,
-                              marginTop: 10
+                              marginTop: 5
                           }}>
-                            <Text style={{
-                                fontSize: 25,
-                                marginLeft: 5,
-                                color: Colors.textGray
-                            }}>Achievements</Text>
+                            <Text style={$S.subheader}>Achievements</Text>
                             <AchievementSwipe achievements={currentUser.data.achievements} />
                           </View>
                         </View>
