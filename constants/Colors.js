@@ -8,6 +8,7 @@ export default {
     borderColor: '#c2c1ba',
     activeColor: '#8557C7',
     inactiveColor: '#495564',
+  selectionColorLight: '#ac8dd8',
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,
