@@ -35,6 +35,10 @@ class Plog extends React.PureComponent {
         });
     }
 
+    showUser = () => {
+        this.props.navigation.navigate('User', { userID: this.props.plogInfo.userID });
+    }
+
     render() {
         const props = this.props;
         const {plogInfo, currentUserID, liked, likePlog} = props;
@@ -60,7 +64,12 @@ class Plog extends React.PureComponent {
                 }
                 <View style={styles.plogInfo}>
                   <Text style={styles.actionText} adjustsFontSizeToFit>
-                    {me ? 'You' : ((userDisplayName||'').trim() || 'Anonymous')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
+                    {me ?
+                     'You' :
+                     <Text style={{ fontWeight: '500'}} onPress={this.showUser}>
+                       {(userDisplayName||'').trim() || 'Anonymous'}
+                     </Text>
+                    } plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
                   </Text>
                   <Text style={styles.subText}>
                     {moment(when).fromNow()}

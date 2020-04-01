@@ -118,5 +118,6 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         }
     });
 
-const { likePlog } = require('./http');
+const { likePlog, loadUserProfile } = require('./http');
 exports.likePlog = functions.https.onCall(likePlog);
+exports.loadUserProfile = functions.https.onCall(loadUserProfile);
