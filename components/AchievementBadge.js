@@ -15,21 +15,28 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         borderWidth: 1,
         borderColor: Colors.borderColor,
-        backgroundColor: '#f1ecf8', // based on Colors.selectionColor #8354c5
-        marginRight: 10,
         padding: 5,
         justifyContent: 'center',
         alignItems: 'center'
     },
+  completedBadge: {
+    borderColor: Colors.selectionColor,
+  },
+  completed: {
+    color: Colors.selectionColor
+  },
+  inProgress: {
+    color: '#666666',
+  },
     textLarger: {
         fontSize: 18,
-        color: '#ac8dd8', // based on Colors.selectionColor
-        fontWeight: 'bold'
+      fontWeight: 'bold',
+      color: '#666666'
     },
     textSmaller: {
         fontSize: 12,
         color: '#ac8dd8', // based on Colors.selectionColor
-        fontWeight: 'bold'
+      fontWeight: 'bold',
     }
 });
 
@@ -37,7 +44,7 @@ function AchievementBadge({badgeImage, completed, detailText, points, progressPe
   const detail = completed ? `+ ${points} points` : detailText;
 
     return (
-        <View style={styles.achieveBadge}>
+      <View style={[styles.achieveBadge, completed && styles.completedBadge]}>
             <View style=
                 {{
                     width: 48,
@@ -45,11 +52,13 @@ function AchievementBadge({badgeImage, completed, detailText, points, progressPe
                     color: '#666666'
                 }}
             >
-                {badgeImage}
+              {React.createElement(badgeImage, { fill: completed ? Colors.selectionColor : '#666666' })}
             </View>
-            <Text style={styles.textLarger}>{textValue}</Text>
+        <Text style={[styles.textLarger, completed ?
+                      { color: Colors.selectionColor} : styles.inProgress]}>{textValue}</Text>
           {
-            detail && <Text style={styles.textSmaller}>{detail}</Text>
+            detail && <Text style={[styles.textSmaller,
+                                    completed ? { color: Colors.selectionColorLight } : styles.inProgress]}>{detail}</Text>
           }
         </View>
     );

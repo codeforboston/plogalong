@@ -49,7 +49,7 @@ class AchievementSwipe extends React.PureComponent {
                 data={data}
                 renderItem={({item}) =>
                     <AchievementBadge
-                      badgeImage={React.createElement(item.icon)}
+                      badgeImage={item.icon}
                       textValue={item.badgeTheme}
                       points={item.points}
                       completed={item.completed}
