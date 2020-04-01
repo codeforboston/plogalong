@@ -50,64 +50,22 @@ class Plog extends React.PureComponent {
         const latLng = { latitude: lat, longitude: lng };
         const me = userID === currentUserID;
 
-    return (
-        <View>
-          <View style={[styles.plogStyle, plogInfo.saving && styles.savingStyle]}>
-            {
-              userProfilePicture ?
-                <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
-              <ProfilePlaceholder style={styles.profileImage} />
-            }
-            <View style={styles.plogInfo}>
-              <Text style={styles.actionText} adjustsFontSizeToFit>
-                {me ? 'You' : plogInfo.get('userDisplayName', 'A fellow plogger')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
-              </Text>
-              <Text style={styles.subText}>
-                {moment(plogInfo.get('when')).fromNow()}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.plogStyle}>
-            <MapView
-              style={styles.map}
-              region={{
-                  ...latLng,
-                  latitudeDelta: 0.05,
-                  longitudeDelta: 0.04,
-              }}
-              showsMyLocationButton={false}
-              scrollEnabled={false}
-              zoomEnabled={false}
-            >
-              <Marker coordinate={latLng}
-                      tracksViewChanges={false}
-              >
-                <ActivityIcon
-                  width={40}
-                  height={40}
-                  fill={Colors.activeColor}
-                />
-              </Marker>
-            </MapView>
-            {
-                plogPhotos && plogPhotos.length ?
-                    <ScrollView contentContainerStyle={styles.photos}>
-                      {plogPhotos.map(({uri}) => (
-                          <TouchableOpacity onPress={showPhotos} key={uri}>
-                            <Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>
-                          </TouchableOpacity>))}
-                    </ScrollView> :
-                null
-            }
-          </View>
-          <View style={[styles.plogStyle, styles.detailsStyle]}>
-            <Text style={styles.subText}>
-              Cleaned up {plogInfo.get('trashTypes').map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
-            </Text>
-            <TouchableOpacity onPress={onHeartPress}>
-              <View style={styles.likeCount}>
-                {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
-                <Ionicons size={20} name={liked ? 'md-heart' : 'md-heart-empty'}/>
+        return (
+            <View>
+              <View style={[styles.plogStyle, saving && styles.savingStyle]}>
+                {
+                    userProfilePicture ?
+                        <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
+                    <ProfilePlaceholder style={styles.profileImage} />
+                }
+                <View style={styles.plogInfo}>
+                  <Text style={styles.actionText} adjustsFontSizeToFit>
+                    {me ? 'You' : ((userDisplayName||'').trim() || 'Anonymous')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
+                  </Text>
+                  <Text style={styles.subText}>
+                    {moment(when).fromNow()}
+                  </Text>
+                </View>
               </View>
               <View style={styles.plogStyle}>
                 <MapView
@@ -154,9 +112,7 @@ class Plog extends React.PureComponent {
                   </View>
                 </TouchableOpacity>
               </View>
-            </TouchableOpacity>
             </View>
-        </View>
         );
     }
 };
