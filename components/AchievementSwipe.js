@@ -1,17 +1,11 @@
 import * as React from 'react';
 import {FlatList, StyleSheet} from 'react-native';
+
+import { keep } from '../util';
+
 import AchievementBadge from './AchievementBadge';
 import AchievedTypes from '../constants/AchievedMockup';
 
-
-function keep(fn, xs) {
-  const result = [];
-  for (const x of xs) {
-    const val = fn(x);
-    if (val) result.push(val);
-  }
-  return result;
-}
 
 class AchievementSwipe extends React.PureComponent {
     render() {

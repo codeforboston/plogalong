@@ -39,3 +39,5 @@ export function getStats(user, unit, now=new Date()) {
 
 export const pluralize = (n, noun, plural=`${noun}s`) =>
   `${n} ${n === 1 ? noun : plural}`;
+
+export { keep, times } from './iter';
