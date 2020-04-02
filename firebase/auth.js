@@ -13,6 +13,7 @@ const initialUserData = (user, locationInfo) => ({
   displayName: user && user.displayName || 'Mysterious Plogger',
   shareActivity: false,
   emailUpdatesEnabled: false,
+  privateProfile: false,
 });
 
 export const loginWithFacebook = async () => {

@@ -32,6 +32,7 @@ const stateFromProps =
                                displayName,
                                shareActivity = false,
                                emailUpdatesEnabled = false,
+                               privateProfile = false,
                              } = {}
                      }} = {}) => ({
                          params: {
@@ -39,6 +40,7 @@ const stateFromProps =
                              homeBase,
                              shareActivity,
                              emailUpdatesEnabled,
+                             privateProfile,
                          }
                      });
 
@@ -155,6 +157,12 @@ class ProfileScreen extends React.Component {
                  Share in Local Feed
                </Text>
                <Switch value={params.shareActivity}  style={$S.switch} onValueChange={toggleParam('shareActivity')} />
+             </View>
+             <View style={$S.switchInputGroup}>
+               <Text style={$S.inputLabel}>
+                 Public Achievements
+               </Text>
+               <Switch value={!params.privateProfile} style={$S.switch} onValueChange={toggleParam('privateProfile')} />
              </View>
              <View style={$S.switchInputGroup}>
                <Text style={$S.inputLabel}>
