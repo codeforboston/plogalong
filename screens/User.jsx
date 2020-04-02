@@ -11,10 +11,13 @@ import moment from 'moment';
 import { loadUserProfile } from '../firebase/functions';
 
 import $S from '../styles';
+import $C from '../constants/Colors';
 import { pluralize } from '../util';
+import * as users from '../util/users';
 
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
+import Loading from '../components/Loading';
 import ProfilePlaceholder from '../components/ProfilePlaceholder';
 
 
@@ -42,6 +45,22 @@ const UserProfile = ({user}) => (
       </View>
     </View>
     <Text style={$S.subheader}>Achievements</Text>
+    <FlatList data={users.processAchievements(user.achievements, false)}
+              renderItem={({item}) => (
+                <View style={styles.achievement}>
+                  {React.createElement(item.icon, {
+                    fill: $C.selectionColor,
+                    style: styles.achievementBadge,
+                  })}
+                  <View style={styles.achievementInfo}>
+                    <Text style={$S.itemTitle}>{ item.badgeTheme }</Text>
+                    <Text>
+                      Completed {moment(item.completed.toDate()).fromNow()}
+                    </Text>
+                  </View>
+                </View>
+              )}
+    />
   </View>
 );
 
@@ -82,14 +101,14 @@ class UserScreen extends React.Component {
   }
 
   renderLoading() {
-    return <Text>...</Text>;
+    return <Loading style={{ marginTop: 150 }}/>;
   }
 
   render() {
     const {error, loading, user} = this.state;
 
     return (
-      <View style={[$S.container, $S.form]}>
+      <View style={[styles.container, $S.form]}>
         <DismissButton color="black" shouldClearError={true}/>
         {loading ? this.renderLoading() : <UserProfile user={user} />}
       </View>
@@ -102,6 +121,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20
+  },
+  containerLoading: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   contentContainer: {
     paddingTop: 30,
@@ -122,6 +146,18 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 30,
+  },
+  achievement: {
+    flexDirection: 'row',
+    marginLeft: 10,
+    marginBottom: 10,
+  },
+  achievementBadge: {
+    marginRight: 10
+  },
+  achievementInfo: {
+    flexDirection: 'column',
+    justifyContent: 'center'
   }
 });
 

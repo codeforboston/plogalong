@@ -2,6 +2,7 @@ import * as React from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 
 import { keep } from '../util';
+import * as $u from '../util/users';
 
 import AchievementBadge from './AchievementBadge';
 import AchievedTypes from '../constants/AchievedMockup';
@@ -10,33 +11,7 @@ import AchievedTypes from '../constants/AchievedMockup';
 class AchievementSwipe extends React.PureComponent {
     render() {
       const achievements = this.props.achievements || {};
-      const data = keep(achType => {
-        const a = achievements[achType];
-        const {icon, progress, detailText, ...rest} = AchievedTypes[achType];
-
-        const progressPercent = a.completed ? 100 : progress && a ? progress(a) : 0;
-
-        if (!progressPercent) return null;
-
-        return {
-          progress: progressPercent,
-          icon,
-          key: achType,
-          detailText: detailText && detailText(a),
-          ...rest,
-          ...a
-        };
-      }, Object.keys(achievements)).sort(
-        ({updated: a, completed: ac}, {updated: b, completed: bc}) => (
-          ac ? (bc ?
-                (ac.toMillis() > bc.toMillis() ? -1 : 1)
-                : -1)
-            : (bc ? 1
-               : (a ?
-                  (b ? (a.toMillis() > b.toMillis() ? -1 : 1)
-                   : -1)
-                  : (b ? 1 : -1)))
-        ));
+      const data = $u.processAchievements(achievements);
 
         return (
             <FlatList

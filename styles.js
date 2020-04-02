@@ -95,5 +95,13 @@ export default StyleSheet.create({
       fontSize: 25,
       margin: 5,
       color: Colors.textGray
-    }
+    },
+
+  itemTitle: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: Colors.selectionColor
+  },
+
+  detail: {}
 });
