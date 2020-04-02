@@ -19,7 +19,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export function initializeStore(prefs) {
     const store = createStore(
         rootReducer,
-        { preferences: prefs ? fromJS(prefs) : null },
+        { preferences: prefs },
         composeEnhancers(
             applyMiddleware(
                 thunk,

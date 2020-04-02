@@ -10,8 +10,6 @@ import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import MapView, { Marker } from 'react-native-maps';
 
-import { Set } from 'immutable';
-
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Error from '../components/Error';
@@ -38,7 +36,7 @@ class PlogScreen extends React.Component {
         super(props);
         this.state = {
             selectedMode: 0,
-            trashTypes: Set([]),
+            trashTypes: {},
             activityType: ['walking'],
             groupType: ['alone'],
             plogPhotos: [null, null, null, null, null],
@@ -57,7 +55,7 @@ class PlogScreen extends React.Component {
     if (!this.props.submitting && prevProps.submitting &&
         !this.props.error) {
       this.setState({
-          trashTypes: Set([]),
+          trashTypes: {},
           selectedMode: 0,
           plogPhotos: [null, null, null, null, null],
           timerInterval: clearInterval(this.state.timerInterval),
@@ -89,7 +87,7 @@ class PlogScreen extends React.Component {
             location: coords ? {lat: coords.latitude, lng: coords.longitude, name: 'beach'} : null,
             when: new Date(),
             pickedUp: this.mode === 'Log',
-            trashTypes: this.state.trashTypes.toJS(),
+            trashTypes: Object.keys(this.state.trashTypes),
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0],
             plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
@@ -102,9 +100,13 @@ class PlogScreen extends React.Component {
     }
 
     toggleTrashType = (trashType) => {
-        this.setState(({trashTypes}) => ({
-            trashTypes: trashTypes.has(trashType) ? trashTypes.delete(trashType) : trashTypes.add(trashType)
-        }));
+      this.setState(({trashTypes}) => {
+        if (trashTypes[trashType])
+          delete trashTypes[trashType];
+        else
+          trashTypes[trashType] = true;
+        return { trashTypes };
+      });
     }
 
     addPicture(picture, idx) {
@@ -227,9 +229,10 @@ class PlogScreen extends React.Component {
 
     render() {
         const {state} = this,
-              typesCount = state.trashTypes.size,
+              trashTypes = Object.keys(state.trashTypes),
+              typesCount = trashTypes.length,
               cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-              typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
+              typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
               {params} = this.state,
               {user, error, locationInfo} = this.props;
 
@@ -292,7 +295,7 @@ class PlogScreen extends React.Component {
             </View>
 
             <Question question="What did you clean up?" answer={cleanedUp}/>
-            <Selectable selection={state.trashTypes} >
+            <Selectable selection={trashTypes} >
                 {Array.from(Options.trashTypes).map(([value, type]) => (
                     <Button title={type.title} value={value} icon={type.icon} key={value}
                             onPress={() => this.toggleTrashType(value)}

@@ -1,6 +1,3 @@
-import * as Immutable from "immutable";
-
-
 const $R = Symbol();
 
 export function getIn(m, ks, notFound=undefined) {

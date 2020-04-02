@@ -27,7 +27,6 @@
     "firebase": "^6.0.2",
     "formik": "^2.1.4",
     "geofirestore": "^3.4.1",
-    "immutable": "^4.0.0-rc.12",
     "moment": "^2.0.0",
     "react": "16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.1.tar.gz",

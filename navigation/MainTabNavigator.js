@@ -60,7 +60,7 @@ export default connect(state => ({
     preferences: state.preferences,
 }))(class extends React.Component {
     componentDidMount() {
-        const sawIntro = this.props.preferences.get("sawIntro");
+        const sawIntro = this.props.preferences.sawIntro;
         const {navigation} = this.props;
 
         if (!sawIntro) {
