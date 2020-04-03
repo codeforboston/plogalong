@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -58,6 +59,7 @@ class LoginScreen extends React.Component {
         const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
 
         return (
+          <SafeAreaView style={$S.safeContainer}>
             <View style={[$S.container, $S.form]}>
               {this.props.currentUser && <DismissButton color="black" />}
               {error && <Error error={error}/>}
@@ -100,20 +102,10 @@ class LoginScreen extends React.Component {
                 What is Plogging?
               </Link>
             </View>
+          </SafeAreaView>
         );
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: 20
-    },
-    contentContainer: {
-        paddingTop: 30,
-    },
-});
 
 export default connect(
   ({users}) => ({

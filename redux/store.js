@@ -7,8 +7,6 @@ import { queryUserPlogs, plogDocToState } from '../firebase/plogs';
 import { onAuthStateChanged, getUserData } from '../firebase/auth';
 import { auth } from '../firebase/init';
 
-import { fromJS } from "immutable";
-
 import { plogsUpdated, setCurrentUser, gotUserData } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
 import LocationMiddleware from './location-middleware';

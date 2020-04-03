@@ -1,5 +1,3 @@
-import { fromJS, Seq } from "immutable";
-
 import {
     LOG_PLOG,
     SET_CURRENT_USER,

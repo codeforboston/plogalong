@@ -6,6 +6,10 @@ import Colors from './constants/Colors';
 
 
 export default StyleSheet.create({
+  safeContainer: {
+    backgroundColor: 'white',
+    flex: 1
+  },
     container: {
         flex: 1,
         backgroundColor: '#fff',

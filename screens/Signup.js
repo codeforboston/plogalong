@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -55,6 +56,7 @@ class SignupScreen extends React.Component {
             }, {});
 
         return (
+          <SafeAreaView style={$S.safeContainer}>
             <View style={[$S.container, $S.form]}>
               <DismissButton color="black" shouldClearError={true}/>
               {error && <Error error={error}/>}
@@ -126,6 +128,7 @@ class SignupScreen extends React.Component {
                       )
               }
             </View>
+          </SafeAreaView>
         );
     }
 }
