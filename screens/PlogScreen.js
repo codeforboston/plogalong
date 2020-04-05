@@ -31,7 +31,6 @@ import {
 
 import PlogScreenWeather from './PlogScreenWeather';
 
-
 class PlogScreen extends React.Component {
     static modes = ['Log'];
 
@@ -181,25 +180,43 @@ class PlogScreen extends React.Component {
         const {state} = this,
               activityName = Options.activities.get(state.activityType[0]).title,
               groupName = Options.groups.get(state.groupType[0]).title;
-
+        
         switch (mode) {
         case 'Log':
             return (
                 <>
                   <Question question="What were you up to?" answer={activityName}/>
                   <Selectable selection={state.activityType}>
-                    {Array.from(Options.activities).map(([value, type]) => (
-                        <Button title={type.title} value={value} icon={type.icon} key={value}
-                                onPress={() => this.selectActivityType(value)} />
-                    ))}
+                    {Array.from(Options.activities).map(([value, type]) => {
+                        const { buttonIcon: ButtonIcon=type.icon } = this.props;
+                        const activityIcon = <ButtonIcon fill="#666666" />;
+                        return (
+                            <Button title={type.title} 
+                                value={value} 
+                                icon={activityIcon} 
+                                key={value}
+                                onPress={() => this.selectActivityType(value)} 
+                            />
+                        )
+                    }
+                    )}
                   </Selectable>
 
                   <Question question="Who helped?" answer={groupName} />
                   <Selectable selection={state.groupType}>
-                    {Array.from(Options.groups).map(([value, type]) => (
-                        <Button title={type.title} value={value} icon={type.icon} key={value}
-                                onPress={() => this.selectGroupType(value)} />
-                    ))}
+                    {Array.from(Options.groups).map(([value, type]) => {
+                        const { buttonIcon: ButtonIcon=type.icon } = this.props;
+                        const peopleIcon = <ButtonIcon fill="#666666" />;
+                        return (
+                            <Button title={type.title} 
+                                value={value} 
+                                icon={peopleIcon} 
+                                key={value}
+                                onPress={() => this.selectGroupType(value)}
+                            />
+                        )
+                    }
+                    )}
                   </Selectable>
                 </>
             );

@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Colors.borderColor,
         backgroundColor: '#f1ecf8', // based on Colors.selectionColor #8354c5
-      marginRight: 10,
+        marginRight: 10,
         padding: 5,
         justifyContent: 'center',
         alignItems: 'center'
@@ -42,7 +42,7 @@ function AchievementBadge({badgeImage, completed, detailText, points, progressPe
                 {{
                     width: 48,
                     height: 48,
-                    color: '#ac8dd8'
+                    color: '#666666'
                 }}
             >
                 {badgeImage}
