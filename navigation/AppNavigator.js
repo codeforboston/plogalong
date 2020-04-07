@@ -35,7 +35,7 @@ export default (props) => {
                          }} />
         <AppStack.Screen name="Intro" component={ ScreenSlider} options={{ headerShown: false }}/>
         <AppStack.Screen name="PhotoViewer" component={ PhotoViewer} options={{ headerShown: false }}/>
-        <AppStack.Screen name="Login" component={ LoginScreen} options={{ headerShown: false }}/>
+        <AppStack.Screen name="Login" component={ LoginScreen } options={{ headerShown: false }}/>
         <AppStack.Screen name="Signup" component={ SignupScreen } options={{ headerShown: false }}/>
       </AppStack.Navigator>
     </NavigationContainer>
