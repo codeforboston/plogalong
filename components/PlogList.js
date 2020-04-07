@@ -86,7 +86,10 @@ class Plog extends React.PureComponent {
                   }}
                   showsMyLocationButton={false}
                   scrollEnabled={false}
+                  pitchEnabled={false}
+                  rotateEnabled={false}
                   zoomEnabled={false}
+                  liteMode={true}
                 >
                   <Marker coordinate={latLng}
                           tracksViewChanges={false}
