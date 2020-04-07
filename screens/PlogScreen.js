@@ -5,10 +5,12 @@ import {
     Switch,
     View,
     Text,
+    TouchableOpacity,
 } from 'react-native';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Camera, Marker } from 'react-native-maps';
+import { Ionicons } from '@expo/vector-icons';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
@@ -47,7 +49,9 @@ class PlogScreen extends React.Component {
             params: {
                 homeBase: 'Boston, MA',
                 username: 'Beach Bum'
-            }
+            },
+
+            shouldFollow: true
         };
     }
 
@@ -66,6 +70,26 @@ class PlogScreen extends React.Component {
 
       this.props.navigation.navigate('History');
     }
+
+    if (this.props.location && !prevProps.location) {
+      this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+    }
+  }
+
+  /**
+   * @returns {Camera}
+   */
+  makeCamera = () => (this.props.location && {
+    center: this.props.location,
+    altitude: 1000,
+    pitch: 0,
+    heading: 0,
+    zoom: 14
+  })
+
+  onClickRecenter = () => {
+    this.setState({ shouldFollow: true });
+    this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
   }
 
     changeMode = (idx) => {
@@ -256,15 +280,15 @@ class PlogScreen extends React.Component {
 
             <View style={styles.mapContainer}>
                 <MapView
+                    ref={mapView => this.mapView = mapView}
                     style={[styles.map]}
-                    initialRegion={{
-                        latitude: 42.387,
-                        longitude: -71.0995,
-                        latitudeDelta: 0.05,
-                        longitudeDelta: 0.04,
-                    }}
-                    followsUserLocation={true}
+                    initialCamera={this.makeCamera()}
+                    showsMyLocationButton={true}
+                    showsTraffic={false}
                     showsUserLocation={true}
+                    followsUserLocation={this.state.shouldFollow}
+                    onPanDrag={() => this.setState({ shouldFollow: false })}
+                    zoomControlEnabled={false}
                 />
 
                 <View style={styles.timerButtonContainer} >
@@ -275,6 +299,15 @@ class PlogScreen extends React.Component {
                         selected={!!this.state.timerInterval}
                     />
                 </View>
+
+              <View style={styles.myLocationButtonContainer}>
+                <TouchableOpacity onPress={this.onClickRecenter}
+                                  accessibilityLabel="Recenter map"
+                                  accessibilityRole="button"
+                >
+                  <Ionicons name="md-locate" size={20} style={styles.myLocationButton} />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.photoStrip}>
@@ -373,6 +406,22 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         paddingRight: 5
     },
+
+  myLocationButtonContainer: {
+    height: '100%',
+    padding: 10,
+    paddingBottom: 20,
+    position: 'absolute',
+  },
+
+  myLocationButton: {
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderRadius: 5,
+    borderWidth: 1,
+    padding: 5,
+    paddingBottom: 2,
+  },
 
     clearButton: {
         color: 'grey',
