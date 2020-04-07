@@ -32,6 +32,7 @@ export function rateLimited(fn, ms, throwOnDequeue=false) {
             reject(new Error('Dequeued'));
           return;
         }
+        lastRun = Date.now();
       }
 
       const delay = ms - (Date.now() - lastRun);
@@ -61,7 +62,7 @@ export function rateLimited(fn, ms, throwOnDequeue=false) {
             reject(new Error('Dequeued'));
         };
       } else {
-        run();
+        await run();
       }
     });
 
