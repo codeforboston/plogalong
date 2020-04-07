@@ -5,29 +5,29 @@ import { updateAchievements, updateStats } from '../../firebase/project/function
 import { plogStateToDoc } from '../../firebase/plogs';
 
 
+/**
+ * @typedef {import('../../firebase/project/functions/shared').UserData} UserData
+ */
+/** @typedef {import('firebase').User} FirebaseUser */
 /** @typedef {string} UserID */
-/**
- * @typedef {object} UserData
- */
-/**
- * @typedef {object} User
- * @property {UserData} [data]
- * @property {UserID} uid
- */
-
-/** @typedef {{ current?: User, users: { [k in UserID]: User} }} UserState */
+/** @typedef {FirebaseUser & { data?: UserData }} User */
 
 const initialState = {
+  /** @type {User} */
   current: null,
+  /** @type {{ [k in UserID]: User }} */
   users: {},
   location: null,
-  locationInfo: null
+  locationInfo: null,
+  /** @type {{ type: 'email' | 'google' | 'facebook' | 'anonymous', params: any }} */
+  signingUp: null,
+  signupError: null
 };
 
 /**
- * @param {UserState} state
+ * @param {typeof initialState} state
  *
- * @returns {UserState}
+ * @returns {typeof initialState}
  */
 export default usersReducer = (state = initialState, {type, payload}) => {
   switch (type) {
@@ -39,7 +39,8 @@ export default usersReducer = (state = initialState, {type, payload}) => {
         current: user ? {
           ...user,
           data: state.users[user.uid] || {}
-        } : null
+        } : null,
+        signingUp: null
       };
     }
     case types.USER_DATA: {
@@ -95,13 +96,13 @@ export default usersReducer = (state = initialState, {type, payload}) => {
   }
 
   case types.SIGNUP:
-    return { ...state, signupError: null };
+    return { ...state, signingUp: payload, signupError: null };
 
   case types.SIGNUP_ERROR:
-    return { ...state, signupError: payload.error };
+    return { ...state, signingUp: null, signupError: payload.error };
 
   case types.LOGIN_ERROR:
-    return { ...state, loginError: payload.error };
+    return { ...state, signingUp: null, loginError: payload.error };
 
     default: {
       return state;

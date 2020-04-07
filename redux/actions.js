@@ -1,15 +1,29 @@
 import { AsyncStorage } from 'react-native';
-import * as Google from 'expo-google-app-auth';
 
 import { SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
 import { savePlog } from '../firebase/plogs';
+import * as L from '../firebase/auth';
 import * as functions from '../firebase/functions';
 
-import firebaseConfig from '../firebase/config';
-const { auth: { google: googleConfig } = {} } = firebaseConfig;
 
+const _action = (fn, {pre, err, post}={}) => (
+  (...args) => (
+    async dispatch => {
+      if (pre)
+        dispatch(typeof pre === 'function' ? pre(...args) : pre);
+
+      try {
+        const result = await fn(...args);
+        if (post) dispatch(typeof post === 'function' ? post(result) : post);
+      } catch (e) {
+        if (err) dispatch(err(e));
+        console.error(e);
+      }
+    }
+  )
+);
 
 const loginError = (err) => ({
     type: types.LOGIN_ERROR,
@@ -93,7 +107,7 @@ export const setPreferences = (preferences) => ({
     }
 });
 
-/** @param {'email'|'google'|'facebook'} type */
+/** @param {'email'|'google'|'facebook'|'anonymous'} type */
 const signup = (type, params) => ({ type: types.SIGNUP, payload: { type, params }});
 
 export const signupWithEmail = (email, password) => (
@@ -109,7 +123,7 @@ export const signupWithEmail = (email, password) => (
 
 export const linkToEmail = (email, password) => (
     async dispatch => {
-      dispatch(signup('google', { email, password }));
+      dispatch(signup('email', { email, password }));
         try {
             const credential = firebase.auth.EmailAuthProvider.credential(email, password);
             const creds = await auth.currentUser.linkWithCredential(credential);
@@ -120,60 +134,41 @@ export const linkToEmail = (email, password) => (
     }
 );
 
-export const loginWithEmail = (email, password) => (
-    async dispatch => {
-        try {
-            await auth.signInWithEmailAndPassword(email, password);
-        } catch(err) {
-            dispatch(loginError(err));
-        }
-    }
-);
 
-export const linkToGoogle = () => {
-    if (!googleConfig)
-        return signupError({ message: 'Google authentication has not been configured for this app' });
+export const loginWithEmail = _action(auth.signInWithEmailAndPassword.bind(auth), {
+  pre: signup('email'),
+  err: loginError
+});
 
-    return async dispatch => {
-        try {
-            const { type, accessToken, idToken } = await Google.logInAsync(googleConfig);
+export const loginWithGoogle = _action(L.loginWithGoogle, {
+  pre: signup('google', {}),
+  err: loginError
+});
 
-            if (type === 'success') {
-                const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
-                await auth.currentUser.linkWithCredential(credential);
-            }
-        } catch (err) {
-            dispatch(signupError(err));
-        }
-    };
-};
+export const linkToGoogle = _action(L.linkToGoogle, {
+  pre: signup('google', {}),
+  err: signupError
+});
 
-export const loginWithGoogle = () => {
-    if (!googleConfig)
-        return signupError({ message: 'Google authentication has not been configured for this app' });
+export const unlinkGoogle = _action(L.unlinkGoogle, { err: signupError });
 
-    return async dispatch => {
-        try {
-            const { type, accessToken, idToken } = await Google.logInAsync(googleConfig);
+export const loginWithFacebook = _action(L.loginWithFacebook, {
+  pre: signup('facebook', {}),
+  err: signupError
+});
 
-            if (type === 'success') {
-                const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
-                await auth.signInWithCredential(credential);
-            }
-        } catch (err) {
-            dispatch(loginError(err));
-        }
-    };
-};
-export const loginAnonymously = () => (
-    async dispatch => {
-        try {
-            await auth.signInAnonymously();
-        } catch(err) {
+export const linkToFacebook = _action(L.linkToFacebook, {
+  pre: signup('facebook', {}),
+  err: signupError
+});
 
-        }
-    }
-);
+export const unlinkFacebook = _action(L.unlinkFacebook, { err: signupError });
+
+
+export const loginAnonymously = _action(() => auth.signInAnonymously(), {
+  pre: (autoLogin=false) => signup('anonymous', { autoLogin }),
+  err: signupError
+});
 
 export const gotUserData = (uid, data) => ({ type: types.USER_DATA, payload: { uid, data }});
 

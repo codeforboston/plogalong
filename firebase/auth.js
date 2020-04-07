@@ -1,4 +1,6 @@
 import * as Facebook from 'expo-facebook';
+import * as Google from 'expo-google-app-auth';
+// import * as AppleAuthentication from 'expo-apple-authentication';
 
 import { auth, firebase, storage, Users } from './init';
 import { uploadImage } from './util';
@@ -16,30 +18,97 @@ const initialUserData = (user, locationInfo) => ({
   privateProfile: false,
 });
 
-export const loginWithFacebook = async () => {
-  const { type, token } = await Facebook.logInWithReadPermissionsAsync(
+
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
+
+/**
+ * @type {Unwrapped<ReturnType<typeof Google.logInAsync>>}
+ */
+let x;
+
+/**
+ * @template LoginFn
+ * @param {LoginFn} loginFn
+ * @template {(credentials: Unwrapped<ReturnType<LoginFn>>) => any} CredFn
+ * @param {CredFn} credFn
+ *
+ * @returns {<T>(fn: (result: ReturnType<CredFn>) => Promise<T>, canceledFn: () => any) => T?}
+ */
+const withCredentialFn = (loginFn, credFn) => (
+  (fn, canceledFn=null) => (
+    async () => {
+      const result = await loginFn();
+
+      if (result.type === 'success') {
+        return await fn(credFn(result));
+      }
+
+      if (canceledFn) canceledFn();
+
+      return null;
+    }
+  )
+);
+
+const withFBCredential = withCredentialFn(
+  () => Facebook.logInWithReadPermissionsAsync(
     firebaseConfig.auth.facebook.appId,
     { permissions: ['public_profile'] }
-  );
+  ),
 
-  if (type === 'success') {
-    // Build Firebase credential with the Facebook access token.
-    const credential = firebase.auth.FacebookAuthProvider.credential(token);
+  (c) => firebase.auth.FacebookAuthProvider.credential(c.token)
+);
 
-    // Sign in with credential from the Facebook user.
-    return auth.signInWithCredential(credential);
+
+const withGoogleCredential = withCredentialFn(
+  () => Google.logInAsync(firebaseConfig.auth.google),
+  c => firebase.auth.GoogleAuthProvider.credential(c.idToken, c.accessToken)
+);
+
+const withAppleCredential = (fn) => (
+  async () => {
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.EMAIL
+      ]
+    });
   }
-}
+);
+
+const signInWithCredential = auth.signInWithCredential.bind(auth);
+
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const loginWithFacebook = withFBCredential(signInWithCredential);
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const linkToFacebook = withFBCredential(cred => auth.currentUser.linkWithCredential(cred));
+
+export const unlinkFacebook = () => {
+  auth.currentUser.unlink('facebook.com');
+};
+
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const loginWithGoogle = withGoogleCredential(signInWithCredential);
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred));
+
+export const unlinkGoogle = () => {
+  auth.currentUser.unlink('google.com');
+};
 
 export const logOut = async () => {
   return auth.signOut();
 }
 
-let authStateChangedCallback;
+let unsubscribeAuthStateChange;;
 export function onAuthStateChanged(callback) {
-  authStateChangedCallback = callback;
+  if (unsubscribeAuthStateChange)
+    unsubscribeAuthStateChange();
 
-  return auth.onAuthStateChanged(callback);
+  unsubscribeAuthStateChange = auth.onAuthStateChanged(callback);
+  return unsubscribeAuthStateChange;
 }
 
 /**
