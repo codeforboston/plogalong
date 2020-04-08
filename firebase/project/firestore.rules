@@ -16,5 +16,9 @@ service cloud.firestore {
       allow read: if request.auth.uid == userId
       allow update, create, write: if userId == request.auth.uid && notSettingField("achievements") && notSettingField("stats")
     }
+
+    match /comments/{any} {
+      allow create: if request.auth.uid != null
+    }
   }
 }

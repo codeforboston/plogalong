@@ -60,6 +60,10 @@ class ProfileScreen extends React.Component {
         this.props.navigation.navigate('Signup');
     }
 
+    goToLogin = () => {
+        this.props.navigation.navigate('Login')
+    }
+
     save = event => {
         this.props.setUserData({...this.state.params});
     }
