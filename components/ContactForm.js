@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -10,6 +10,9 @@ import $S from '../styles';
 import Button from '../components/Button';
 import RNPickerSelect from 'react-native-picker-select';
 import * as yup from 'yup';
+
+import Error from '../components/Error';
+import { saveComment } from '../firebase/comments';
 
 const contactSchema = yup.object({
     topic: yup.string()
@@ -29,6 +32,10 @@ export default ContactForm = () => {
         label: 'Select a topic...',
         value: '',
     }
+
+    const [isSubmitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
+
     return (
         <View style={[styles.contactContainer]}>
             <Formik
@@ -39,21 +46,33 @@ export default ContactForm = () => {
                     name: '',
                     email: ''
                 }}
+                validateOnMount={true}
                 onSubmit={ (values, actions) => {
-                    alert('Thank you for your submission!')
-                    actions.resetForm()
-                    console.log(values) 
+                  setSubmitting(true);
+                  saveComment(values).then(
+                    _ => {
+                      alert('Thank you for your submission!')
+                      actions.resetForm();
+                    },
+                    err => {
+                      console.warn(err);
+                      setSubmitError(err);
+                    }
+                  ).finally(_ => {
+                    setSubmitting(false);
+                  });
                 }}
                 validationSchema={contactSchema}
             >
-                {({handleChange, handleSubmit, setFieldValue, values, touched, errors}) => (
+                {({handleChange, handleSubmit, setFieldValue, values, touched, errors, isValid}) => (
                     <View style={styles.contactInfoContainer}>
                         <View style={$S.inputGroup}>
+                          {submitError && <Error error={submitError} />}
                             <Text style={[$S.inputLabel]}> Topic </Text>
                             <View style={[$S.textInput, styles.input]}>
                                 <RNPickerSelect
                                     placeholder={placeholder}
-                                    selectedValue={values.topic}
+                                    value={values.topic}
                                     useNativeAndroidPickerStyle={false}
                                     onValueChange={(value) => setFieldValue('topic', value)}
                                 items={[
@@ -92,6 +111,7 @@ export default ContactForm = () => {
                             <Text style={styles.errorText}>{touched.email && errors.email}</Text>
                             <View style={styles.submitButtonSection}>
                                 <Button 
+                                    disabled={!isValid}
                                     primary
                                     title='Submit' 
                                     onPress={handleSubmit} 
