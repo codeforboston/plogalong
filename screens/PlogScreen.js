@@ -7,6 +7,7 @@ import {
     Text,
     TouchableOpacity,
 } from 'react-native';
+import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import MapView, { Camera, Marker } from 'react-native-maps';
@@ -51,7 +52,9 @@ class PlogScreen extends React.Component {
                 username: 'Beach Bum'
             },
 
-            shouldFollow: true
+          shouldFollow: true,
+          markedLocation: null,
+          markedLocationInfo: null
         };
     }
 
@@ -66,6 +69,9 @@ class PlogScreen extends React.Component {
           plogStart: null,
           plogTotalTime: 0,
           plogTimer: '00:00:00',
+
+          markedLocation: null,
+        markedLocationInfo: null,
       });
 
       this.props.navigation.navigate('History');
@@ -88,8 +94,39 @@ class PlogScreen extends React.Component {
   })
 
   onClickRecenter = () => {
-    this.setState({ shouldFollow: true });
+    this.setState({
+      markedLocation: null,
+      markedLocationInfo: null,
+      shouldFollow: true
+    });
     this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+  }
+
+  onPanDrag = e => {
+    if (!this.state.markedLocation) {
+      this.setState({
+        shouldFollow: false,
+        markedLocation: e.nativeEvent.coordinate
+      });
+    }
+  }
+
+  onRegionChangeComplete = region => {
+    if (this.state.markedLocation) {
+      const coordinates = {
+        latitude: region.latitude,
+        longitude: region.longitude,
+      };
+      this.setState({
+        markedLocation: coordinates
+      });
+
+      Location.reverseGeocodeAsync(coordinates).then(locationInfo => {
+        this.setState({
+          markedLocationInfo: locationInfo[0]
+        });
+      }, console.warn);
+    }
   }
 
     changeMode = (idx) => {
@@ -106,9 +143,10 @@ class PlogScreen extends React.Component {
             return;
         }
 
-        const coords = this.props.location;
+      const coords = this.state.markedLocation || this.props.location,
+            locationInfo = this.state.markedLocationInfo || this.props.locationInfo;
         const plog = {
-            location: coords ? {lat: coords.latitude, lng: coords.longitude, name: 'beach'} : null,
+            location: coords ? {lat: coords.latitude, lng: coords.longitude, name: locationInfo.street } : null,
             when: new Date(),
             pickedUp: this.mode === 'Log',
             trashTypes: Object.keys(this.state.trashTypes),
@@ -206,7 +244,7 @@ class PlogScreen extends React.Component {
         const {state} = this,
               activityName = Options.activities.get(state.activityType[0]).title,
               groupName = Options.groups.get(state.groupType[0]).title;
-        
+
         switch (mode) {
         case 'Log':
             return (
@@ -258,10 +296,11 @@ class PlogScreen extends React.Component {
               cleanedUp = typesCount > 1 ? `${typesCount} selected` :
               typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
               {params} = this.state,
-              {user, error, locationInfo} = this.props;
+              {user, error} = this.props,
+              locationInfo = state.markedLocationInfo || this.props.locationInfo;
+      const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
       const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
-
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
 
@@ -287,9 +326,19 @@ class PlogScreen extends React.Component {
                     showsTraffic={false}
                     showsUserLocation={true}
                     followsUserLocation={this.state.shouldFollow}
-                    onPanDrag={() => this.setState({ shouldFollow: false })}
+                    onPanDrag={this.onPanDrag}
+                    onRegionChangeComplete={this.onRegionChangeComplete}
                     zoomControlEnabled={false}
                 />
+              {state.markedLocation &&
+               <View style={styles.markedLocationIconContainer} pointerEvents="none">
+                 <ActivityIcon
+                   width={40}
+                   height={40}
+                   fill={Colors.activeColor}
+                 />
+               </View>
+              }
 
                 <View style={styles.timerButtonContainer} >
                     <Button
@@ -308,6 +357,7 @@ class PlogScreen extends React.Component {
                   <Ionicons name="md-locate" size={20} style={styles.myLocationButton} />
                 </TouchableOpacity>
               </View>
+
             </View>
 
             <View style={styles.photoStrip}>
@@ -421,6 +471,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 5,
     paddingBottom: 2,
+  },
+
+  markedLocationIconContainer: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
     clearButton: {
