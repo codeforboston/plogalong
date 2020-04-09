@@ -210,7 +210,7 @@ export const locationChanged = location => ({
 });
 
 export const locationError = error => ({
-  types: types.LOCATION_ERROR,
+  type: types.LOCATION_ERROR,
   payload: { error }
 });
 
