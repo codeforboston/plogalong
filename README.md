@@ -139,6 +139,27 @@ so on the iOS simulator, execute `expo client:install:ios` in your terminal. If 
 doesn't take on the first try, try once more. If you're still stuck after two 
 times, consult an expert.
 
+## Remote Debugging
+Debugging Plogalong should be no different than debugging any other React Native project, but below are some useful tools for your convenience.
+### Option 1: React-DevTools
+If you're already familiar with debugging React web apps via Chrome DevTools, this is pretty similar. The [React Native documentation](https://reactnative.dev/docs/debugging#chrome-developer-tools) points out that "the React Developer Tools Chrome extension does not work with React Native" and offers a standalone version of React Developer Tools for debugging. 
+#### Installation
+The steps for installation can be found [here](https://reactnative.dev/docs/debugging#react-developer-tools).
+
+### Option 2: React Native Debugger
+Similar to React-DevTools is the [React Native Debugger published on GitHub](https://github.com/jhen0409/react-native-debugger) by user jhen0409. This standalone app is based on the DevTools in Option 1 above, but may provide more functionality.
+#### Installation
+For installation via Homebrew, you can follow the [README instructions](https://github.com/jhen0409/react-native-debugger#installation). 
+<br>Otherwise, you can simply download the appropriate prebuild binary from the [release page](https://github.com/jhen0409/react-native-debugger/releases) (choose the .dmg file for macOS and .exe for Windows)
+#### Usage
+1. Open React Native Debugger app, and notice that the default port is set to 8081. With this default window open, select Debugger > New Window (or more simply ⌘T or Ctrl+T) to change the port to 19001. Confirm the new packager port.
+2. Fire up the Plogalong app via `expo start` just like you always do.
+3. Navigate to the Expo Developer Menu with a shake gesture (Ctrl ⌘ Z in an iOS Simulator, Cmd+M in an Android Emulator), and select "Debug Remote JS" from the menu that pops up on the device.
+4. The React Native Debugger should connect and you'll see console.log() statements print in the console, be able to inspect elements by triggering the Expo Developer Menu (shake gesture > Toggle Element Inspector), and set breakpoints in the Debugger by navigating to Sources > Page > RNDebuggerWorker.js
+5. When you're finished, you'll save yourself some trouble the next time you start Plogalong if you remember to "Stop Remote Debugging" via the Expo Developer Menu (shake gesture).
+
+
+
 ## How to Contribute
 
   Join us on the Code for Boston Slack. We're in the [#plogalong](https://slack.com/app_redirect?channel=CDQDBALUR "Open in Slack") channel.
