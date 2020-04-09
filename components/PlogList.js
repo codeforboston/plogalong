@@ -106,7 +106,9 @@ class Plog extends React.PureComponent {
                         <ScrollView contentContainerStyle={styles.photos}>
                           {plogPhotos.map(({uri}) => (
                               <TouchableOpacity onPress={this.showPhotos} key={uri}>
-                                <Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>
+                                <Image source={{uri}}
+                                       key={uri}
+                                       style={styles.plogPhoto}/>
                               </TouchableOpacity>))}
                         </ScrollView> :
                     null
@@ -141,7 +143,7 @@ const likedPlogIds = user => (
     user && user.data && user.data.likedPlogs && JSON.stringify(user.data.likedPlogs)
 );
 
-const PlogList = ({plogs, currentUser, filter, header, footer, likePlog}) => {
+const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, loadNextPage}) => {
     const navigation = useNavigation();
 
     return (
@@ -152,6 +154,9 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog}) => {
                                                  likePlog={likePlog}
                                                  navigation={navigation}
                                            />)}
+                  initialNumToRender={3}
+                  onEndReachedThreshold={1}
+                  onEndReached={loadNextPage}
                   keyExtractor={(item) => item.id}
                   extraData={likedPlogIds(currentUser)}
                   ItemSeparatorComponent={Divider}
@@ -170,6 +175,11 @@ const styles = StyleSheet.create({
     plogInfo: {
       paddingTop: 5,
       flex: 1
+    },
+    plogPhoto: {
+      width: 'auto',
+      height: 100,
+      marginBottom: 10
     },
     detailsStyle: {
       justifyContent: 'space-between',

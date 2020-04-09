@@ -9,6 +9,7 @@ import { onAuthStateChanged, getUserData } from '../firebase/auth';
 import { plogsUpdated, setCurrentUser, gotUserData, loginAnonymously } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
 import LocationMiddleware from './location-middleware';
+import PlogMiddleware from './plog-middleware';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -22,6 +23,7 @@ export function initializeStore(prefs) {
                 thunk,
                 PreferencesMiddleware,
                 LocationMiddleware,
+                PlogMiddleware
             )
         )
     );

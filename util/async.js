@@ -10,9 +10,9 @@
  * @param {number} ms
  * @returns {Fn}
  */
-export function rateLimited(fn, ms, throwOnDequeue=false) {
-  let pending, dequeuePending, lastRun = 0, running,
-      waiting, rejectWaiting;
+export function rateLimited(fn, ms, throwOnDequeue=false, delayFirst=false) {
+  let pending, dequeuePending, running, waiting, rejectWaiting,
+      lastRun = delayFirst ? Date.now() : 0;
 
   return (...args) => {
     pending = new Promise(async (resolve, reject) => {

@@ -51,11 +51,18 @@ export const logPlog = (plogInfo) => (
     }
   });
 
-export const plogsUpdated = (plogs) => ({
-    type: types.PLOGS_UPDATED,
-    payload: {
-        plogs,
-    },
+export const loadHistory = (userID, replace=true) => ({
+  type: types.LOAD_HISTORY,
+  payload: { userID, replace }
+});
+
+export const plogsUpdated = (plogs, {prepend=false, replace=false}={}) => ({
+  type: types.PLOGS_UPDATED,
+  payload: {
+    plogs,
+    prepend,
+    replace
+  },
 });
 
 export const plogUpdated = plog => ({
@@ -80,9 +87,13 @@ export const likePlog = (plogID, like) => (
   }
 );
 
-export const localPlogsUpdated = plogs => ({
-    type: types.LOCAL_PLOGS_UPDATED,
-    payload: { plogs }
+export const localPlogsUpdated = (plogs, {prepend=false, replace=false}={}) => ({
+  type: types.LOCAL_PLOGS_UPDATED,
+  payload: {
+    plogs,
+    prepend,
+    replace
+  }
 });
 
 export const setCurrentUser = (user) => ({
@@ -198,10 +209,16 @@ export const locationChanged = location => ({
     payload: { location }
 });
 
+export const locationError = error => ({
+  types: types.LOCATION_ERROR,
+  payload: { error }
+});
+
 export const gotLocationInfo = locationInfo => ({
   type: types.LOCATION_INFO,
   payload: { locationInfo }
 });
+
 
 export default {
     logPlog,

@@ -32,4 +32,5 @@ export const functions = firebase.functions();
 
 export const Users = firestore.collection('users');
 export const Plogs = geofirestore.collection('plogs');
+export const Plogs_ = firestore.collection('plogs');
 export const Comments = firestore.collection('comments');
