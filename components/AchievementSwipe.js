@@ -60,6 +60,7 @@ class AchievementSwipe extends React.PureComponent {
                 keyExtractor={item => item.key}
                 pagingEnabled={true}
                 horizontal={true}
+                showsHorizontalScrollIndicator={false}
             >
             </FlatList>
         );
