@@ -39,7 +39,7 @@ export default store => {
           lastPageLoaded = docs.length < QUERY_LIMIT;
           lastDoc = docs.length ? docs[docs.length-1] : null;
           historyLoading = false;
-        });
+        }, _ => {});
       } else if (!lastPageLoaded) {
         historyLoading = true;
         query.startAfter(lastDoc).get().then(({docs}) => {
