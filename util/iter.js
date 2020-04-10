@@ -56,3 +56,19 @@ export function update(m, spec) {
   });
   return m;
 }
+
+/**
+ * @template T
+ * @param {T[]} xs
+ * @template {keyof T | ((x: T) => any)} Lookup
+ * @param {Lookup} lookup
+ *
+ * @returns {{[k in (Lookup extends keyof T ? T[Lookup] : ReturnType<Lookup>)]: T}}
+ */
+export function indexBy(xs, lookup) {
+  const fn = typeof lookup === 'function' ? lookup : (x => x[lookup]);
+  return xs.reduce((m, item) => {
+    m[fn(item)] = item;
+    return m;
+  }, {});
+}

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,153 +8,153 @@ import {
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
-import {
-    loginWithFacebook,
-    logOut,
-} from '../firebase/auth';
 import * as actions from '../redux/actions';
+import { indexBy } from '../util';
+import { useEffectWithPrevious } from '../util/react';
 
 import $S from '../styles';
 
 import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
+import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 
+/** @typedef {import('../firebase/project/functions/shared').UserData} UserData */
+/** @typedef {import('firebase').User & { data?: UserData }} User */
 
-class SignupScreen extends React.Component {
-  state = {
-    params: {},
-  }
+const makeParams = init => {
+  const [state, setState] = useState(init);
 
-    onSubmit = () => {
-        if (this.disabled())
-            return;
+  return [
+    state,
+    setState,
+    k => (text => setState({ ...state, [k]: text }))
+  ];
+};
 
-        const {params} = this.state;
-        this.props.linkToEmail(params.email, params.password);
+const SignupScreen = props => {
+  const {authenticating, currentUser, error} = props;
+
+  const navigation = useNavigation();
+  useEffectWithPrevious((wasAuthenticating) => {
+    if (wasAuthenticating && !authenticating && !error) {
+      navigation.pop();
     }
+  }, [authenticating, error]);
 
-    disabled = () => {
-        const {params} = this.state;
-        return !params || !params.email || !params.password || (params.password !== params.confirmPassword);
+  const [params, _, setParam] = makeParams({});
+  const enabled = useMemo(() => (
+    params && params.email && params.password && params.password === params.confirmPassword
+  ), [params]);
+
+  const onSubmit = useCallback(() => {
+    if (enabled) {
+      props.linkToEmail(params.email, params.password);
     }
+  }, [enabled && params]);
+  const providers = useMemo(() => indexBy(currentUser.providerData, 'providerId'),
+                            [currentUser]);
 
-    render() {
-        const {params} = this.state;
-      const {currentUser, error} = this.props;
-      const setParam = param => (text => {
-        this.setState(({params}) => ({params: { ...params, [param]: text }}));
+  const content = authenticating ?
+        <Loading /> :
+        <>
+          <DismissButton color="black" shouldClearError={true}/>
+          {error && <Error error={error}/>}
+          {
+            !providers['password'] ?
+              <>
+                <View style={$S.inputGroup}>
+                  <Text style={$S.inputLabel}>Email</Text>
+                  <TextInput style={$S.textInput}
+                             autoCapitalize="none"
+                             autoCompleteType="email"
+                             autoFocus={true}
+                             keyboardType="email-address"
+                             value={params.email}
+                             onChangeText={setParam('email')}
+                  />
+                </View>
+                <View style={$S.inputGroup}>
+                  <Text style={$S.inputLabel}>Password</Text>
+                  <PasswordInput autoCompleteType="password"
+                                 onChangeText={setParam('password')}
+                                 value={params.password}
+                  />
+                </View>
+                {!!params.password && <View style={$S.inputGroup}>
+                     <Text style={$S.inputLabel}>Retype Pasword</Text>
+                     <PasswordInput autoCompleteType="password"
+                                    onChangeText={setParam('confirmPassword')}
+                                    value={params.confirmPassword}
+                     />
+                   </View>}
+                <Button title="Register"
+                        primary
+                        onPress={onSubmit}
+                        style={{ marginTop: 20 }}
+                        disabled={!enabled} />
+              </> :
 
-        // Clear error message if user enters new text
-        this.props.clearSignupError();
-      });
-        const providers = currentUser && currentUser.providerData.reduce(
-            (map, provider) => {
-                map[provider.providerId] = provider;
-                return map;
-            }, {});
+            <>
+              <Text style={{}}>
+                Linked to email address: {providers['password']['email']}
+              </Text>
+            </>
+          }
+          {
+            providers['facebook.com'] ?
+              (
+                <Button primary onPress={props.unlinkFacebook} title="Disconnect Facebook" />
+              ) :
+              (
+                <Button
+                  primary
+                  onPress={props.linkToFacebook}
+                  title="Facebook Login"
+                />
+              )
+          }
+          {
+            providers['google.com'] ?
+              (
+                <Button primary onPress={props.unlinkGoogle} title="Disconnect Google" />
+              ) :
+              (
+                <Button
+                  primary
+                  onPress={props.linkToGoogle}
+                  title="Google Login"
+                />
+              )
+          }
+        </>
+  ;
 
-        return (
-          <SafeAreaView style={$S.safeContainer}>
-            <View style={[$S.container, $S.form]}>
-              <DismissButton color="black" shouldClearError={true}/>
-              {error && <Error error={error}/>}
-              {
-              !providers['password'] ?
-                  <>
-                    <View style={$S.inputGroup}>
-                      <Text style={$S.inputLabel}>Email</Text>
-                      <TextInput style={$S.textInput}
-                                 autoCapitalize="none"
-                                 autoCompleteType="email"
-                                 autoFocus={true}
-                                 keyboardType="email-address"
-                                 value={params.email}
-                                 onChangeText={setParam('email')}
-                      />
-                    </View>
-                    <View style={$S.inputGroup}>
-                      <Text style={$S.inputLabel}>Password</Text>
-                      <PasswordInput autoCompleteType="password"
-                                     onChangeText={setParam('password')}
-                                     value={params.password}
-                      />
-                    </View>
-                    {!!params.password && <View style={$S.inputGroup}>
-                                            <Text style={$S.inputLabel}>Retype Pasword</Text>
-                                            <PasswordInput autoCompleteType="password"
-                                                           onChangeText={setParam('confirmPassword')}
-                                                           value={params.confirmPassword}
-                                            />
-                                          </View>}
-                    <Button title="Register"
-                            primary
-                            onPress={this.onSubmit}
-                            style={{ marginTop: 20 }}
-                            disabled={this.disabled()} />
-                  </> :
+  return (
+    <SafeAreaView style={$S.safeContainer}>
+      <View style={[$S.container, $S.form, authenticating && { justifyContent: 'center' }]}>
+        {content}
+      </View>
+    </SafeAreaView>
+  );
+};
 
-                  <>
-                    <Text style={{}}>
-                      Linked to email address: {providers['password']['email']}
-                    </Text>
-                  </>
-              }
-            {
-                  providers['facebook.com'] ?
-                      (
-                          <Button primary onPress={logOut} title="Disconnect Facebook" />
-                      ) :
-                      (
-                          <Button
-                            primary
-                            onPress={loginWithFacebook}
-                            title="Facebook Login"
-                          />
-                      )
-              }
-              {
-                  providers['google.com'] ?
-                      (
-                          <Button primary onPress={logOut} title="Disconnect Google" />
-                      ) :
-                      (
-                          <Button
-                            primary
-                            onPress={this.props.linkToGoogle}
-                            title="Google Login"
-                          />
-                      )
-              }
-            </View>
-          </SafeAreaView>
-        );
-    }
-}
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        padding: 20
-    },
-    contentContainer: {
-        paddingTop: 30,
-    }
-});
-
-const ReduxSignupScreen = connect(
+export default connect(
   state => ({
-      error: state.users.signupError,
-      currentUser: state.users.current,
+    error: state.users.signupError,
+    currentUser: state.users.current,
+    authenticating: state.users.authenticating,
   }),
-    dispatch => ({
-        linkToEmail: (...args) => dispatch(actions.linkToEmail(...args)),
-        linkToGoogle: (...args) => dispatch(actions.linkToGoogle(...args)),
-        clearSignupError: (...args) => dispatch(actions.signupError()),
-    })
+  dispatch => ({
+    linkToEmail: (...args) => dispatch(actions.linkToEmail(...args)),
+    linkToGoogle: (...args) => dispatch(actions.linkToGoogle(...args)),
+    unlinkGoogle: (...args) => dispatch(actions.unlinkGoogle(...args)),
+    linkToFacebook: (...args) => dispatch(actions.linkToFacebook(...args)),
+    unlinkFacebook: (...args) => dispatch(actions.unlinkFacebook(...args)),
+    clearSignupError: (...args) => dispatch(actions.signupError()),
+  })
 )(SignupScreen);
-
-export default ReduxSignupScreen;

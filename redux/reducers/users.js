@@ -20,7 +20,7 @@ const initialState = {
   location: null,
   locationInfo: null,
   /** @type {{ type: 'email' | 'google' | 'facebook' | 'anonymous', params: any }} */
-  signingUp: null,
+  authenticating: null,
   signupError: null
 };
 
@@ -40,7 +40,7 @@ export default usersReducer = (state = initialState, {type, payload}) => {
           ...user,
           data: state.users[user.uid] || {}
         } : null,
-        signingUp: null
+        authenticating: null
       };
     }
     case types.USER_DATA: {
@@ -96,13 +96,13 @@ export default usersReducer = (state = initialState, {type, payload}) => {
   }
 
   case types.SIGNUP:
-    return { ...state, signingUp: payload, signupError: null };
+    return { ...state, authenticating: payload, signupError: null };
 
   case types.SIGNUP_ERROR:
-    return { ...state, signingUp: null, signupError: payload.error };
+    return { ...state, authenticating: null, signupError: payload.error };
 
   case types.LOGIN_ERROR:
-    return { ...state, signingUp: null, loginError: payload.error };
+    return { ...state, authenticating: null, loginError: payload.error };
 
     default: {
       return state;

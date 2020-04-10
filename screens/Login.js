@@ -148,7 +148,7 @@ export default connect(
   ({users}) => ({
     error: users.loginError,
     currentUser: users.current,
-    loggingIn: users.signingUp,
+    loggingIn: users.authenticating,
   }),
   dispatch => ({
     loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),

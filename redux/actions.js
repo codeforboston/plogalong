@@ -7,6 +7,7 @@ import { savePlog } from '../firebase/plogs';
 import * as L from '../firebase/auth';
 import * as functions from '../firebase/functions';
 
+/** @typedef {import('redux').Action} Action */
 
 const _action = (fn, {pre, err, post}={}) => (
   (...args) => (
@@ -192,12 +193,6 @@ export const setUserData = (data) => (
 export const logout = () => (
     async _ => {
         await auth.signOut();
-    }
-);
-
-export const setUserField = (field, value) => (
-    async _ => {
-        // await auth.setU
     }
 );
 
