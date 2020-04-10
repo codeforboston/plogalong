@@ -22,9 +22,10 @@ const makeToggle = (init) => {
 export default props => {
   const {accessibilityLabel, icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, onLayout, ...otherProps} = props,
         {active, turnOn: onPressIn, turnOff: onPressOut} = makeToggle(),
-        sharedStyles = [$S.button, !disabled && active && $S.activeButton,
-                        disabled && styles.disabled, selected && styles.selected,
-                        primary && $S.primaryButton, (large || primary) && $S.largeButton];
+        sharedStyles = [$S.button, primary && $S.primaryButton,
+                        disabled ? styles.disabled : (active && $S.activeButton),
+                        selected && styles.selected,
+                        (large || primary) && $S.largeButton];
 
   let content;
 
