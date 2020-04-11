@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -53,6 +54,12 @@ export class MoreScreen extends React.Component {
 const Stack = createStackNavigator();
 
 export default ({navigation, route}) => {
+  useEffect(() => {
+    if (route.params && route.params.subscreen)
+      navigation.navigate(route.params.subscreen);
+
+  }, [route.params]);
+
     return (
         <Stack.Navigator screenOptions={{
             headerBackTitle: 'More',
