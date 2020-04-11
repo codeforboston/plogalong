@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -19,7 +20,22 @@ const makeToggle = (init) => {
   };
 };
 
-export default props => {
+/**
+ * @typedef {object} ExtraButtonProps
+ *
+ * @property {React.Component|JSX.Element} icon
+ * @property {React.Component|JSX.Element} activeIcon
+ * @property {React.Component|JSX.Element} selectedIcon
+ * @property {boolean} disabled
+ * @property {boolean} large
+ * @property {boolean} primary
+ * @property {string} [title]
+ * @property {boolean} selected
+ */
+
+/** @typedef {ExtraButtonProps & React.ComponentProps<typeof TouchableWithoutFeedback>} ButtonProps */
+
+export default /** @type {React.FunctionComponent<ButtonProps>} */ (props => {
   const {accessibilityLabel, icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, onLayout, ...otherProps} = props,
         {active, turnOn: onPressIn, turnOff: onPressOut} = makeToggle(),
         sharedStyles = [$S.button, primary && $S.primaryButton,
@@ -61,7 +77,7 @@ export default props => {
       {content}
     </TouchableWithoutFeedback>
   );
-};
+});
 
 
 const styles = StyleSheet.create({
