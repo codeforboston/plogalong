@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
 
     photoButton: {
         flex: 1,
-        margin: 7,
+        marginHorizontal: 7,
         aspectRatio: 1,
     },
 
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         flex: 1,
         height: 300,
-        marginHorizontal: 5,
+        margin: 5,
         position: 'relative'
     },
 
