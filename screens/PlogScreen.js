@@ -274,15 +274,6 @@ class PlogScreen extends React.Component {
                 </View>
             </View>
 
-            <Question question="What did you clean up?" answer={cleanedUp}/>
-            <Selectable selection={state.trashTypes} >
-                {Array.from(Options.trashTypes).map(([value, type]) => (
-                    <Button title={type.title} value={value} icon={type.icon} key={value}
-                            onPress={() => this.toggleTrashType(value)}
-                    />
-                ))}
-            </Selectable>
-
             <View style={styles.photoStrip}>
                 {
                   this.state.plogPhotos.map((plogPhoto, idx) => (
@@ -299,6 +290,15 @@ class PlogScreen extends React.Component {
                   ))
                 }
             </View>
+
+            <Question question="What did you clean up?" answer={cleanedUp}/>
+            <Selectable selection={state.trashTypes} >
+                {Array.from(Options.trashTypes).map(([value, type]) => (
+                    <Button title={type.title} value={value} icon={type.icon} key={value}
+                            onPress={() => this.toggleTrashType(value)}
+                    />
+                ))}
+            </Selectable>
 
           {this.renderModeQuestions()}
 
@@ -332,18 +332,18 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around'
     },
 
-  photoButton: {
-    flex: 1,
-    margin: 2,
-    aspectRatio: 1,
-  },
+    photoButton: {
+        flex: 1,
+        margin: 7,
+        aspectRatio: 1,
+    },
 
     mapContainer: {
         borderColor: Colors.borderColor,
         borderWidth: 1,
         flex: 1,
         height: 300,
-        margin: 5,
+        marginHorizontal: 5,
         position: 'relative'
     },
 
