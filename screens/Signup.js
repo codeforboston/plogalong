@@ -36,7 +36,7 @@ const makeParams = init => {
 };
 
 const SignupScreen = props => {
-  const {authenticating, currentUser, error} = props;
+  const {authenticating, currentUser, error, clearSignupError} = props;
 
   const navigation = useNavigation();
   useEffectWithPrevious((wasAuthenticating) => {
@@ -61,7 +61,7 @@ const SignupScreen = props => {
   const content = authenticating ?
         <Loading /> :
         <>
-          <DismissButton color="black" shouldClearError={true}/>
+          <DismissButton color="black" onPress={clearSignupError}/>
           {error && <Error error={error}/>}
           {
             !providers['password'] ?
