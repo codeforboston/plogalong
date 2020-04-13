@@ -17,28 +17,25 @@ const Link = ({children, style, ...props}) => (
     </TouchableOpacity>
 );
 
-export const NavLink = ({children, onPress, pop, route, style, ...props}) => {
-    const navigation = useNavigation();
-    onPress = onPress && onPress.bind(null, navigation);
-    const onPressOrig = onPress;
-    if (pop)
-        onPress = (_, e) => {
-            navigation.pop();
-            return onPressOrig && onPressOrig(navigation, e);
-        };
-    if (route)
-        onPress = (_, e) => {
-            navigation.navigate(route);
-            return onPressOrig && onPressOrig(navigation, e);
-        };
+export const NavLink = ({children, onPress: onPressOrig, pop, route, style, screen, params, ...props}) => {
+  const navigation = useNavigation();
+  let onPress;
+  if (pop)
+    onPress = (_, e) => {
+      navigation.pop();
+      return onPressOrig && onPressOrig(navigation, e);
+    };
+  else if (route)
+    onPress = (_, e) => {
+      navigation.navigate(route, screen ? { screen, params } : params);
+      return onPressOrig && onPressOrig(navigation, e);
+    };
 
-    return (
-        <TouchableOpacity {...props} onPress={onPress}>
-          <Text style={[$S.link, style]}>
-            {children}
-          </Text>
-        </TouchableOpacity>
-    );
+  return (
+    <Text {...props} style={[$S.link, style]} onPress={onPress}>
+      {children}
+    </Text>
+  );
 };
 
 export default Link;
