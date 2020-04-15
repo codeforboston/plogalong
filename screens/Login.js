@@ -19,6 +19,7 @@ import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
 import Link from '../components/Link';
+import PasswordInput from '../components/PasswordInput';
 
 class LoginScreen extends React.Component {
     static navigationOptions = {
@@ -73,11 +74,9 @@ class LoginScreen extends React.Component {
               </View>
               <View style={$S.inputGroup}>
                 <Text style={$S.inputLabel}>Password</Text>
-                <TextInput style={$S.textInput}
-                           autoCompleteType="password"
-                           secureTextEntry={true}
-                           onChangeText={setParam('password')}
-                           value={params.password}
+                <PasswordInput autoCompleteType="password"
+                               onChangeText={setParam('password')}
+                               value={params.password}
                 />
               </View>
               <Button title="Login"
