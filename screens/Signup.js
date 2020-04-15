@@ -41,13 +41,16 @@ class SignupScreen extends React.Component {
 
     render() {
         const {params} = this.state;
-      const {currentUser, error} = this.props;
-      const setParam = param => (text => {
-        this.setState(({params}) => ({params: { ...params, [param]: text }}));
+        const {error, navigation} = this.props;
+        
+        const setParam = param => (text => {
+            this.setState(({params}) => ({params: { ...params, [param]: text }}))
 
-        // Clear error message if user enters new text
-        this.props.clearSignupError();
-      });
+            // Clear error message if user enters new text
+            this.props.clearSignupError()
+        });
+        
+        const currentUser = this.props.currentUser && this.props.currentUser.toJS();
         const providers = currentUser && currentUser.providerData.reduce(
             (map, provider) => {
                 map[provider.providerId] = provider;
