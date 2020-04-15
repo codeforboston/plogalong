@@ -16,7 +16,7 @@ const DismissButton = ({color = 'black', title, style, shouldClearError = false,
         if (shouldClearError) {
             props.clearSignupError()
         }
-
+        
         navigation.pop()
     }
 
