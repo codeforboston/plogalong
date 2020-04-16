@@ -1,12 +1,10 @@
 import * as React from 'react';
 import {
-    Image,
     ScrollView,
     StyleSheet,
     Switch,
     Text,
     TextInput,
-    TouchableOpacity,
     View,
 } from 'react-native';
 import { connect } from 'react-redux';
@@ -21,6 +19,7 @@ import Button from '../components/Button';
 import PhotoButton from '../components/PhotoButton';
 import TextInputWithIcon from '../components/TextInputWithIcon';
 import { setPreferences, logout} from '../redux/actions';
+import { pluralize } from '../util';
 
 import Colors from '../constants/Colors';
 import $S from '../styles';
@@ -63,8 +62,12 @@ class ProfileScreen extends React.Component {
     }
 
     goToLogin = () => {
-        this.props.navigation.navigate('Login')
+      this.props.navigation.navigate('Login');
     }
+
+  goToChangePassword = () => {
+    this.props.navigation.navigate('ChangePassword');
+  }
 
     save = event => {
         this.props.setUserData({...this.state.params});
@@ -89,10 +92,14 @@ class ProfileScreen extends React.Component {
           });
       });
 
-      const {currentUser} = this.props;
-      const {displayName, profilePicture} = currentUser.data || {};
-      const created = new Date(parseInt(currentUser.createdAt));
-      const {params} = this.state;
+    const {currentUser} = this.props;
+    const {achievements = {}, displayName, profilePicture} = currentUser.data || {};
+    const created = new Date(parseInt(currentUser.createdAt));
+    const {params} = this.state;
+
+    const hasPassword = !!currentUser.providerData.find(pd => pd.providerId === 'password');
+
+    const completedAchievements = Object.values(achievements).filter(ach => ach.completed).length;
 
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={[$S.scrollContentContainer, styles.contentContainer]}>
@@ -113,7 +120,7 @@ class ProfileScreen extends React.Component {
                />
                <View style={styles.personalInfo}>
                  <Text style={styles.badgeSummary}>
-                   0 badges
+                   {pluralize(completedAchievements, 'badge')}
                  </Text>
                  <Text style={{ fontWeight: '500' }}>
                    Personal Account
@@ -138,6 +145,7 @@ class ProfileScreen extends React.Component {
                           autoCompleteType="username"
                           onChangeText={setParam('displayName')}
                           onBlur={this.save}
+                          maxLength={40}
                />
              </View>
 
@@ -149,6 +157,7 @@ class ProfileScreen extends React.Component {
                                   onBlur={this.save}
                                   onPress={this.setHomeBaseFromLocationInfo}
                                   iconName="ios-navigate"
+                                  maxLength={40}
                />
              </View>
 
@@ -175,6 +184,7 @@ class ProfileScreen extends React.Component {
           <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>
             <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
             <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
+            {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
           </View>
         </ScrollView>
     );

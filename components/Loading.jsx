@@ -14,7 +14,8 @@ const Image = Animated.Image;
 
 const LoadingIndicator = ({dots = 3, dotImage=Dot, dotStyle, style, ...props}) => {
   const scale = useRef(times(dots, () => new Animated.Value(1))).current;
-  const start = () => {
+
+  useEffect(() => {
     Animated.loop(
       Animated.parallel(
         scale.map((av, i) =>
@@ -27,10 +28,6 @@ const LoadingIndicator = ({dots = 3, dotImage=Dot, dotStyle, style, ...props}) =
                   ]))
       )
     ).start();
-  };
-
-  useEffect(() => {
-    start();
   }, []);
 
   return (
@@ -40,6 +37,12 @@ const LoadingIndicator = ({dots = 3, dotImage=Dot, dotStyle, style, ...props}) =
   );
 };
 
+export const LoadingOverlay = props => (
+  <View style={styles.overlay}>
+    <LoadingIndicator {...props}/>
+  </View>
+);
+
 const styles = StyleSheet.create({
   loading: {
     flexDirection: 'row',
@@ -47,6 +50,16 @@ const styles = StyleSheet.create({
   },
   dot: {
     margin: 5
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    flexDirection: 'column',
+    justifyContent: 'center',
   }
 });
 
