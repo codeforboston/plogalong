@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "eject": "expo eject",
     "test": "node ./node_modules/jest/bin/jest.js --watchAll",
-    "postinstall": "node ./scripts/postinstall.js"
+    "postinstall": "node ./scripts/postinstall.js",
+    "testDebug": "jest -o --watch --coverage=false"
   },
   "jest": {
     "preset": "jest-expo"
@@ -49,7 +50,8 @@
   "devDependencies": {
     "babel-preset-expo": "^8.0.0",
     "jest-expo": "^36.0.0",
-    "react-native-svg-transformer": "^0.14.3"
+    "react-native-svg-transformer": "^0.14.3",
+    "react-test-renderer": "^16.13.1"
   },
   "private": true
 }

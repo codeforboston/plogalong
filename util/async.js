@@ -69,3 +69,90 @@ export function rateLimited(fn, ms, throwOnDequeue=false, delayFirst=false) {
     return pending;
   };
 }
+
+/**
+ * @template T
+ */
+export class Queue {
+  /** @type {[T, () => ()][]} */
+  _queue = []
+  /** @type {(((item: T) => void), ((error: Queue.Complete) => void))[]} */
+  _waiters = []
+  /** @type {Queue.Complete} */
+  _done = null
+
+  _updateWaiters() {
+    while (this._waiters.length && this._queue.length) {
+      const [item, resolve] = this._queue.shift();
+      const [resolveWaiter] = this._waiters.shift();
+
+      resolveWaiter(item);
+      resolve();
+    }
+  }
+
+  /**
+   * @param {T} item
+   * @returns {Promise<null>}
+   */
+  push(item) {
+    return new Promise((resolve, reject) => {
+      if (this._done) {
+        reject(this._done);
+      } else {
+        this._queue.push([item, resolve]);
+        this._updateWaiters();
+      }
+    });
+  }
+
+  /**
+   * @returns {Promise<T>}
+   */
+  get() {
+    return new Promise((resolve, reject) => {
+      if (this._done) {
+        reject(this._done);
+      } else {
+        this._waiters.push([resolve, reject]);
+        this._updateWaiters();
+      }
+    });
+  }
+
+  done() {
+    const e = new Queue.Complete();
+    for (const [_, rejectWaiter] of this._waiters) {
+      rejectWaiter(e);
+    }
+    this._done = e;
+    this._waiters = [];
+    this._queue = [];
+  }
+
+  /**
+   * @param {(item: T) => Promise<any>} callback
+   * @param {() => any} [onComplete]
+   */
+  async loop(callback, onComplete=null) {
+    try {
+      while (true) {
+        await callback(await this.get());
+      }
+    } catch (_) {
+      if (onComplete) onComplete();
+    }
+  }
+}
+
+Queue.Complete = class extends Error {
+  constructor() {
+    super('Queue complete');
+  }
+};
+
+export function wait(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}

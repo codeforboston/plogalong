@@ -214,6 +214,10 @@ export const gotLocationInfo = locationInfo => ({
   payload: { locationInfo }
 });
 
+export const flashMessage = (message, options=null) => ({
+  type: types.FLASH,
+  payload: { text: message, stamp: Date.now, options }
+});
 
 export default {
     logPlog,
