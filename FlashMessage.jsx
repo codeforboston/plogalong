@@ -42,7 +42,9 @@ const FlashMessage = ({ message }) => {
   }, [message]);
 
   return (
-    <Animated.Text style={[styles.flashMessage, { opacity }]}>
+    <Animated.Text style={[styles.flashMessage, { opacity }]}
+                   allowFontScaling
+                   adjustsFontSizeToFit>
       {text}
     </Animated.Text>
   );
@@ -52,6 +54,8 @@ const styles = StyleSheet.create({
   flashMessage: {
     backgroundColor: Colors.activeColor,
     color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
     position: 'absolute',
     top: 50,
     padding: 10,
