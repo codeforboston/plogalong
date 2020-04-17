@@ -27,11 +27,11 @@ const contactSchema = yup.object({
         .label('Email')
 })
 
-export default ContactForm = () => {
+export default ContactForm = ({onSave}) => {
     const placeholder = {
         label: 'Select a topic...',
         value: '',
-    }
+    };
 
     const [isSubmitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null);
@@ -50,9 +50,10 @@ export default ContactForm = () => {
                 onSubmit={ (values, actions) => {
                   setSubmitting(true);
                   saveComment(values).then(
-                    _ => {
-                      alert('Thank you for your submission!')
+                    doc => {
                       actions.resetForm();
+
+                      if (onSave) onSave(doc);
                     },
                     err => {
                       console.warn(err);
