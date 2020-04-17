@@ -6,7 +6,7 @@ import rootReducer from './reducers';
 import { queryUserPlogs, plogDocToState } from '../firebase/plogs';
 import { onAuthStateChanged, getUserData } from '../firebase/auth';
 
-import { plogsUpdated, setCurrentUser, gotUserData, loginAnonymously } from './actions';
+import { plogsUpdated, setCurrentUser, gotUserData, loginAnonymously, flashMessage } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
 import LocationMiddleware from './location-middleware';
 import PlogMiddleware from './plog-middleware';
@@ -34,7 +34,7 @@ export function initializeStore(prefs) {
         (user) => {
             if (!user && firstStateChange) {
                 // log in anonymously
-              store.dispatch(loginAnonymously(true ));
+              store.dispatch(loginAnonymously(true));
             }
             firstStateChange = false;
 
@@ -47,6 +47,9 @@ export function initializeStore(prefs) {
             );
 
             if (user && user.uid) {
+              if (!user.isAnonymous) {
+                store.dispatch(flashMessage('Welcome back!'));
+              }
                 // Firebase will automatically unsubscribe from snapshot updates
                 // on error.
               getUserData(user, store).then(userDoc => userDoc.onSnapshot(snap => {

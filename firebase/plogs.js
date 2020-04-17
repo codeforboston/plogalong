@@ -71,16 +71,15 @@ export const savePlog = async (plog) => {
   await doc.set(plogStateToDoc(plog));
 
   if (!plog.plogPhotos || !plog.plogPhotos.length)
-      return;
-
+    return Promise.resolve();
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
-  const urls = await Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
+  return Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
     width <= 300 && height <= 300 ?
       uri :
       uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
                   { resize: { width: 300, height: 300 } })
-  )));
-
-  await doc.update({ Photos: urls });
+  ))).then(urls => {
+    return doc.update({ Photos: urls });
+  });
 };

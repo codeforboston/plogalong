@@ -63,10 +63,11 @@ const log = (state = initialState, action) => {
         const idx = plogIds.indexOf(current[0]);
         if (idx > 0)
           updated = plogIds.slice(0, idx).concat(current);
-      } else if (replace) {
-        updated = plogIds;
       } else if (plogIds.length) {
-        updated = current.concat(plogIds);
+        if (replace)
+          updated = plogIds;
+        else
+          updated = current.concat(plogIds);
       }
 
       return {

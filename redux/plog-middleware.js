@@ -31,6 +31,7 @@ export default store => {
 
         firstPageLoaded = lastPageLoaded = false;
         historyLoading = true;
+        lastDoc = null;
         unsubscribe = query.onSnapshot(({docs}) => {
           store.dispatch(plogsUpdated(docs.map(plogDocToState),
                                       { prepend: firstPageLoaded,
@@ -39,7 +40,14 @@ export default store => {
           lastPageLoaded = docs.length < QUERY_LIMIT;
           lastDoc = docs.length ? docs[docs.length-1] : null;
           historyLoading = false;
-        }, _ => {});
+        }, err => {
+          if (!firstPageLoaded) {
+            console.warn(err);
+            store.dispatch(plogsUpdated([], { replace: true }));
+            firstPageLoaded = true;
+            historyLoading = false;
+          }
+        });
       } else if (!lastPageLoaded) {
         historyLoading = true;
         query.startAfter(lastDoc).get().then(({docs}) => {
@@ -49,6 +57,7 @@ export default store => {
           historyLoading = false;
         });
       } else {
+        // Swallow the message
         return;
       }
     } else if (type === LOAD_LOCAL_HISTORY) {
