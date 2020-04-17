@@ -1,5 +1,7 @@
 import * as React from 'react';
 import {
+  Animated,
+  Easing,
     ScrollView,
     StyleSheet,
     Switch,
@@ -9,11 +11,9 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
-import Constants from 'expo-constants';
 import MapView, { Camera, Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
-import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Error from '../components/Error';
 import PhotoButton from '../components/PhotoButton';
@@ -54,7 +54,8 @@ class PlogScreen extends React.Component {
 
           shouldFollow: true,
           markedLocation: null,
-          markedLocationInfo: null
+          markedLocationInfo: null,
+          dragging: false,
         };
     }
 
@@ -104,10 +105,27 @@ class PlogScreen extends React.Component {
 
   onPanDrag = e => {
     if (!this.state.markedLocation) {
+      this._markerScale = new Animated.Value(1);
+
       this.setState({
         shouldFollow: false,
         markedLocation: e.nativeEvent.coordinate
       });
+    }
+
+    if (!this.state.dragging) {
+      this.setState({
+        dragging: true
+      });
+
+      if (this._markerAnimation) this._markerAnimation.stop();
+      this._markerAnimation =
+        Animated.timing(this._markerScale, {
+          duration: 200,
+          easing: Easing.in(Easing.ease),
+          toValue: 1,
+        })
+        .start();
     }
   }
 
@@ -118,7 +136,8 @@ class PlogScreen extends React.Component {
         longitude: region.longitude,
       };
       this.setState({
-        markedLocation: coordinates
+        dragging: false,
+        markedLocation: coordinates,
       });
 
       Location.reverseGeocodeAsync(coordinates).then(locationInfo => {
@@ -126,6 +145,15 @@ class PlogScreen extends React.Component {
           markedLocationInfo: locationInfo[0]
         });
       }, console.warn);
+
+      if (this._markerAnimation) this._markerAnimation.stop();
+
+      this._markerAnimation =
+        Animated.timing(this._markerScale, {
+          duration: 200,
+          easing: Easing.in(Easing.ease),
+          toValue: 0.667
+        }).start();
     }
   }
 
@@ -331,13 +359,15 @@ class PlogScreen extends React.Component {
                     zoomControlEnabled={false}
                 />
               {state.markedLocation &&
-               <View style={styles.markedLocationIconContainer} pointerEvents="none">
+               <Animated.View style={[styles.markedLocationIconContainer,
+                                      { transform: [{ scale: this._markerScale }]}]}
+                              pointerEvents="none">
                  <ActivityIcon
-                   width={40}
-                   height={40}
+                   width={60}
+                   height={60}
                    fill={Colors.activeColor}
                  />
-               </View>
+               </Animated.View>
               }
 
                 <View style={styles.timerButtonContainer} >
