@@ -75,7 +75,8 @@ class LoginScreen extends React.Component {
 
     return (
       <>
-        {this.props.currentUser && <DismissButton color="black" />}
+        {this.props.currentUser &&
+         <DismissButton color="black" onPress={this.props.clearError} />}
         {error && <Error error={error}/>}
         <View style={$S.inputGroup}>
           <Text style={$S.inputLabel}>Email</Text>
@@ -151,6 +152,7 @@ export default connect(
     loggingIn: users.authenticating,
   }),
   dispatch => ({
+    clearError: () => dispatch(actions.loginError()),
     loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
     loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
     loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),

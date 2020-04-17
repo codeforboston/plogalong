@@ -20,20 +20,14 @@ const _action = (fn, {pre, err, post}={}) => (
         if (post) dispatch(typeof post === 'function' ? post(result) : post);
       } catch (e) {
         if (err) dispatch(err(e));
-        console.error(e);
       }
     }
   )
 );
 
-const loginError = (err) => ({
+export const loginError = error => ({
     type: types.LOGIN_ERROR,
-    payload: {
-        error: {
-            code: err.code,
-            message: err.message
-        }
-    }
+    payload: { error }
 });
 
 export const signupError = (error) => ({
