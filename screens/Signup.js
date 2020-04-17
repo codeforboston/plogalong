@@ -17,7 +17,7 @@ import { useEffectWithPrevious } from '../util/react';
 import $S from '../styles';
 
 import Button from '../components/Button';
-import DismissButton from '../components/DismissButton';
+import ModalHeader from '../components/ModalHeader';
 import Error from '../components/Error';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
@@ -61,7 +61,9 @@ const SignupScreen = props => {
   const content = authenticating ?
         <Loading /> :
         <>
-          <DismissButton color="black" onPress={clearSignupError}/>
+          <ModalHeader onDismiss={clearSignupError} dismissButtonColor="black">
+            Create your account
+          </ModalHeader>
           {error && <Error error={error}/>}
           {
             !providers['password'] ?

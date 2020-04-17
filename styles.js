@@ -95,6 +95,12 @@ export default StyleSheet.create({
         textDecorationColor: 'black',
     },
 
+  headline: {
+    color: Colors.secondaryColor,
+    fontSize: 30,
+    fontWeight: '600',
+  },
+
     subheader: {
       fontSize: 25,
       margin: 5,

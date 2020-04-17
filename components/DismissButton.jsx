@@ -13,7 +13,7 @@ const DismissButton = ({color = 'black', title, style, onPress, ...props}) => {
     const onPressOut = (...args) => {
       if (onPress) onPress(...args);
 
-      navigation.pop();
+      navigation.goBack();
     };
 
     return (

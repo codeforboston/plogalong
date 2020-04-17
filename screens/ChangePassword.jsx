@@ -16,7 +16,7 @@ import { firebase, auth } from '../firebase/init';
 import $S from '../styles';
 
 import Button from '../components/Button';
-import DismissButton from '../components/DismissButton';
+import ModalHeader from '../components/ModalHeader';
 import { LoadingOverlay } from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 
@@ -37,7 +37,9 @@ const ChangePassword = ({currentUser, flashMessage}) => {
   return (
     <SafeAreaView style={$S.safeContainer}>
       <View style={[$S.container, $S.form]}>
-        <DismissButton color="black"/>
+        <ModalHeader dismissButtonColor="black">
+          Change password
+        </ModalHeader>
 
         <Formik
           initialValues={{
