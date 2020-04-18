@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Button from '../components/Button';
 import Error from '../components/Error';
 import PhotoButton from '../components/PhotoButton';
+import { ShowHide } from '../components/Anim';
 import Question from '../components/Question';
 import Selectable from '../components/Selectable';
 
@@ -379,14 +380,16 @@ class PlogScreen extends React.Component {
                     />
                 </View>
 
-              <View style={styles.myLocationButtonContainer}>
+              <ShowHide style={styles.myLocationButtonContainer}
+                        animationConfig={{ delay: 500 }}
+                        shown={!this.state.shouldFollow} >
                 <TouchableOpacity onPress={this.onClickRecenter}
                                   accessibilityLabel="Recenter map"
                                   accessibilityRole="button"
                 >
                   <Ionicons name="md-locate" size={20} style={styles.myLocationButton} />
                 </TouchableOpacity>
-              </View>
+              </ShowHide>
 
             </View>
 
