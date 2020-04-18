@@ -8,7 +8,6 @@ import {
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
 
 import * as actions from '../redux/actions';
 import { indexBy } from '../util';
@@ -36,9 +35,8 @@ const makeParams = init => {
 };
 
 const SignupScreen = props => {
-  const {authenticating, currentUser, error, clearSignupError} = props;
+  const {authenticating, currentUser, error, clearSignupError, navigation} = props;
 
-  const navigation = useNavigation();
   useEffectWithPrevious((wasAuthenticating) => {
     if (wasAuthenticating && !authenticating && !error) {
       navigation.pop();
