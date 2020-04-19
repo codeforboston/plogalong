@@ -65,16 +65,23 @@ export default StyleSheet.create({
     },
 
     largeButton: {
-        marginLeft: 40,
-        marginRight: 40,
-        marginTop: 20,
-        paddingTop: 10,
-        paddingBottom: 10,
+      borderRadius: 8,
+      fontSize: 18,
+      marginLeft: 40,
+      marginRight: 40,
+      marginTop: 20,
+      paddingTop: 10,
+      paddingBottom: 10,
     },
 
     primaryButton: {
-        backgroundColor: Colors.secondaryColor,
-        color: 'white',
+      backgroundColor: Colors.secondaryColor,
+      color: 'white',
+      marginLeft: 40,
+      marginRight: 40,
+      marginTop: 20,
+      paddingTop: 10,
+      paddingBottom: 10,
     },
 
     textButton: {

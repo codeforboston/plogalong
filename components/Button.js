@@ -41,7 +41,7 @@ export default /** @type {React.FunctionComponent<ButtonProps>} */ (props => {
         sharedStyles = [$S.button, primary && $S.primaryButton,
                         disabled ? styles.disabled : (active && $S.activeButton),
                         selected && styles.selected,
-                        (large || primary) && $S.largeButton];
+                        large && $S.largeButton];
 
   let content;
 

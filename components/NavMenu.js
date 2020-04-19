@@ -53,6 +53,7 @@ const NavMenu = ({routes}) => {
                     }
                     ItemSeparatorComponent={Divider}
                     ListFooterComponent={Divider}
+                    ListHeaderComponent={Divider}
           />
         </View>
     );
