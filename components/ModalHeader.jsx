@@ -9,14 +9,15 @@ import DismissButton from './DismissButton';
 import $S from '../styles';
 
 
-const ModalHeader = ({children, onDismiss, dismissButtonColor}) => (
+const ModalHeader = ({children, onDismiss, onPressDismiss, dismissButtonColor, Button = DismissButton}) => (
   <View style={styles.modalHeader}>
     <Text style={$S.headline}>
       {children}
     </Text>
-    <DismissButton onPress={onDismiss}
-                   color={dismissButtonColor}
-                   style={{ paddingTop: 0 }}
+    <Button onPress={onPressDismiss}
+            onDismiss={onDismiss}
+            color={dismissButtonColor}
+            style={{ paddingTop: 0 }}
     />
   </View>
 );

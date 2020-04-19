@@ -76,7 +76,7 @@ class LoginScreen extends React.Component {
     return (
       <>
         {this.props.currentUser &&
-         <DismissButton color="black" onPress={this.props.clearError} />}
+         <DismissButton color="black" onDismiss={this.props.clearError} />}
         {error && <Error error={error}/>}
         <View style={$S.inputGroup}>
           <Text style={$S.inputLabel}>Email</Text>
