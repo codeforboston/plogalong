@@ -1,3 +1,5 @@
+import { keep } from '../util/iter';
+
 import { auth, firebase, Plogs, Plogs_ } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
@@ -11,6 +13,9 @@ export const plogDocToState = (plog) => {
   if (data.d) data = data.d;
   /** @type {GeoPoint} */
   const location = data.coordinates;
+  const plogPhotos = keep(
+    ({uri}) => (uri && uri.match(/^https:\/\//) && { uri }),
+    (data.Photos || []));
 
   return {
     id: plog.id,
@@ -24,7 +29,7 @@ export const plogDocToState = (plog) => {
     groupType: data.HelperType,
     pickedUp: data.PlogType === "Plog",
     when: data.DateTime.toDate(),
-    plogPhotos: (data.Photos || []).map(uri => ({ uri })),
+    plogPhotos,
     timeSpent: data.PlogDuration,
     saving: plog.metadata && plog.metadata.hasPendingWrites,
     userID: data.UserID,
