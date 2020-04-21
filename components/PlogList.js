@@ -49,10 +49,11 @@ class Plog extends React.PureComponent {
         const {
             id, location: { lat, lng }, likeCount, plogPhotos = [], timeSpent,
             trashTypes = [], userID, userDisplayName, userProfilePicture, when,
-            saving
+            saving, groupType
         } = plogInfo;
         const latLng = { latitude: lat, longitude: lng };
         const me = userID === currentUserID;
+      const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
 
         return (
             <View>
@@ -115,6 +116,12 @@ class Plog extends React.PureComponent {
                 }
               </View>
               <View style={[styles.plogStyle, styles.detailsStyle]}>
+                <GroupIcon fill={ Colors.textGray }
+                           width={20}
+                           height={20}
+                           style={styles.whoPlogged}
+                           accessibilityLabel={`Plogged `}
+                />
                 <Text style={styles.subText}>
                   Cleaned up {!trashTypes || !trashTypes.length ? 'trash' :
                               trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
@@ -181,6 +188,11 @@ const styles = StyleSheet.create({
       height: 100,
       marginBottom: 10
     },
+  whoPlogged: {
+    flex: 0,
+    marginLeft: 5,
+    marginRight: 5,
+  },
     detailsStyle: {
       justifyContent: 'space-between',
     },
