@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
     FlatList,
     Image,
+    PixelRatio,
     ScrollView,
     StyleSheet,
     Text,
@@ -54,6 +55,7 @@ class Plog extends React.PureComponent {
         const latLng = { latitude: lat, longitude: lng };
         const me = userID === currentUserID;
       const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
+      const ratio = PixelRatio.getFontScale();
 
         return (
             <View>
@@ -117,9 +119,9 @@ class Plog extends React.PureComponent {
               </View>
               <View style={[styles.plogStyle, styles.detailsStyle]}>
                 <GroupIcon fill={ Colors.textGray }
-                           width={20}
-                           height={20}
-                           style={styles.whoPlogged}
+                           width={20*ratio}
+                           height={20*ratio}
+                           style={[styles.whoPlogged, { marginRight: 5*ratio }]}
                            accessibilityLabel={`Plogged `}
                 />
                 <Text style={styles.subText}>
@@ -129,7 +131,7 @@ class Plog extends React.PureComponent {
                 <TouchableOpacity onPress={this.onHeartPress}>
                   <View style={styles.likeCount}>
                     {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
-                    <Ionicons size={20} name={'md-heart'} style={{color: 666666}}/>
+                    <Ionicons size={20*ratio} name={'md-heart'} style={{color: 666666}}/>
                   </View>
                 </TouchableOpacity>
               </View>

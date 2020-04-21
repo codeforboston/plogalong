@@ -1,5 +1,9 @@
 import * as React from 'react';
-import { Image, StyleSheet } from 'react-native';
+import {
+  Image,
+  PixelRatio,
+  StyleSheet,
+} from 'react-native';
 import { connect } from 'react-redux';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
@@ -21,8 +25,8 @@ const Icons = {
   More: icons.More,
 };
 
-const makeTabOptions = (name, current) => ({
-  tabBarIcon: () => React.createElement(Icons[name], {
+const makeTabOptions = (name, current, hideIcon) => ({
+  tabBarIcon: () => !hideIcon && React.createElement(Icons[name], {
     width: 25, height: 25, style: [styles.tabIcon],
     fill: name === current ? Colors.selectionColor : '#666666'
   }),
@@ -77,6 +81,7 @@ export default connect(state => ({
 
     render() {
         const {currentUser, navigation, route, ...props} = this.props;
+        const pr = PixelRatio.getFontScale();
 
         const childRouteName = route.state ? route.state.routes[route.state.index].name : 'Plog';
         navigation.setOptions({
@@ -94,7 +99,7 @@ export default connect(state => ({
                         <Tab.Screen name={name}
                                     key={name}
                                     component={component}
-                                    options={makeTabOptions(name, childRouteName)}/>
+                                    options={makeTabOptions(name, childRouteName, pr > 1.5)}/>
                        )}
             </Tab.Navigator>
         );
