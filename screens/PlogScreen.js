@@ -19,7 +19,6 @@ import Error from '../components/Error';
 import PhotoButton from '../components/PhotoButton';
 import { ShowHide } from '../components/Anim';
 import Question from '../components/Question';
-import Selectable from '../components/Selectable';
 
 import Options from '../constants/Options';
 import Colors from '../constants/Colors';
@@ -258,6 +257,10 @@ class PlogScreen extends React.Component {
         this.setState({plogTimer: `${hours}:${minutes}:${seconds}`});
     }
 
+  toggleDetailedOptions = () => {
+    this.props.setPreferences({ showDetailedOptions: !this.props.preferences.showDetailedOptions });
+  }
+
     async componentDidMount() {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status === 'granted') {
@@ -279,38 +282,40 @@ class PlogScreen extends React.Component {
             return (
                 <>
                   <Question question="What were you up to?" answer={activityName}/>
-                  <Selectable selection={state.activityType}>
+                  <View style={styles.selectable} >
                     {Array.from(Options.activities).map(([value, type]) => {
                         const { buttonIcon: ButtonIcon=type.icon } = this.props;
                         const activityIcon = <ButtonIcon fill="#666666" />;
                         return (
-                            <Button title={type.title} 
-                                value={value} 
-                                icon={activityIcon} 
-                                key={value}
-                                onPress={() => this.selectActivityType(value)} 
+                          <Button title={type.title} 
+                                  value={value} 
+                                  icon={activityIcon} 
+                                  key={value}
+                                  onPress={() => this.selectActivityType(value)} 
+                                  style={styles.selectableItem}
                             />
                         )
                     }
                     )}
-                  </Selectable>
+                  </View>
 
                   <Question question="Who helped?" answer={groupName} />
-                  <Selectable selection={state.groupType}>
+                  <View style={styles.selectable} >
                     {Array.from(Options.groups).map(([value, type]) => {
                         const { buttonIcon: ButtonIcon=type.icon } = this.props;
                         const peopleIcon = <ButtonIcon fill="#666666" />;
                         return (
-                            <Button title={type.title} 
-                                value={value} 
-                                icon={peopleIcon} 
-                                key={value}
-                                onPress={() => this.selectGroupType(value)}
+                          <Button title={type.title} 
+                                  value={value} 
+                                  icon={peopleIcon} 
+                                  key={value}
+                                  onPress={() => this.selectGroupType(value)}
+                                  style={styles.selectableItem}
                             />
                         )
                     }
                     )}
-                  </Selectable>
+                  </View>
                 </>
             );
         }
@@ -325,7 +330,7 @@ class PlogScreen extends React.Component {
               cleanedUp = typesCount > 1 ? `${typesCount} selected` :
               typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
               {params} = this.state,
-              {user, error} = this.props,
+              {user, error, preferences: { showDetailedOptions }} = this.props,
               locationInfo = state.markedLocationInfo || this.props.locationInfo;
       const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
@@ -411,13 +416,18 @@ class PlogScreen extends React.Component {
             </View>
 
             <Question question="What did you clean up?" answer={cleanedUp}/>
-            <Selectable selection={trashTypes} >
-                {Array.from(Options.trashTypes).map(([value, type]) => (
-                    <Button title={type.title} value={value} icon={type.icon} key={value}
-                            onPress={() => this.toggleTrashType(value)}
-                    />
-                ))}
-            </Selectable>
+            <View style={styles.selectable} >
+              {Array.from(Options.trashTypes).slice(0, showDetailedOptions ? undefined : 3).map(([value, type]) => (
+                <Button title={type.title} value={value} icon={type.icon} key={value}
+                        onPress={() => this.toggleTrashType(value)}
+                        selected={state.trashTypes[value]}
+                        style={styles.selectableItem}
+                />
+              ))}
+            </View>
+          <Button title={showDetailedOptions ? 'Hide Detailed Options' : 'Show Detailed Options'}
+                  onPress={this.toggleDetailedOptions}
+          />
 
           {this.renderModeQuestions()}
 
@@ -525,14 +535,25 @@ const styles = StyleSheet.create({
         marginRight: 40,
         marginBottom: 20,
     },
+
+  selectable: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start'
+  },
+
+  selectableItem: {
+    flexGrow: 1
+  }
 });
 
-const PlogScreenContainer = connect(({users, log}) => ({
+const PlogScreenContainer = connect(({preferences, users, log}) => ({
   user: users.current,
   location: users.location,
   locationInfo: users.locationInfo,
   submitting: log.submitting,
   error: log.logError,
+  preferences,
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {
@@ -540,7 +561,8 @@ const PlogScreenContainer = connect(({users, log}) => ({
                                         },
                                         startWatchingLocation() {
                                             dispatch(actions.startWatchingLocation());
-                                        }
+                                        },
+                                      setPreferences: (...args) => dispatch(actions.setPreferences(...args))
                                     }))(PlogScreen);
 
 export default PlogScreenContainer;
