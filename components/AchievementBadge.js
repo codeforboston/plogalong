@@ -10,6 +10,7 @@ import {
   ViewStyle,
   StyleProp
 } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
     achieveBadge: {
@@ -37,9 +38,10 @@ const styles = StyleSheet.create({
     height: 48,
   },
     textLarger: {
-        fontSize: 18,
+      fontSize: 18,
       fontWeight: 'bold',
-      color: '#666666'
+      color: '#666666',
+      textAlign: 'center',
     },
     textSmaller: {
         fontSize: 12,
@@ -57,30 +59,50 @@ const styles = StyleSheet.create({
  * @property {number} points
  * @property {number} progressPercent
  * @property {string} textValue
+ * @property {string} description
  * @property {StyleProp<ViewStyle>} style
+ * @property {(e: any) => any} onPress
  */
 
 /** @type {React.FunctionComponent<AchievementBadgeProps>} */
-const AchievementBadge = props => {
-  const {achievement, completed = null, detailText, points, progressPercent, style} = props;
+const AchievementBadgeComponent = props => {
+  const {achievement, completed = null, detailText, points, progressPercent, style, onPress, description} = props;
   const badge = achievement && AchievementTypes[achievement];
-  const detail = completed ? `+ ${points} points` : detailText;
+  const detail = completed ? `+ ${points} bonus minutes` : detailText;
   const badgeImage = props.badgeImage || (badge && badge.icon);
   const textValue = props.textValue || (badge && badge.badgeTheme);
 
-  return (
+  const content = (
     <View style={[styles.achieveBadge, completed && styles.completedBadge, style]}>
       <View style={styles.iconContainer}>
         {React.createElement(badgeImage, { fill: completed ? Colors.selectionColor : '#666666' })}
       </View>
       <Text style={[styles.textLarger, completed ?
                     { color: Colors.selectionColor} : styles.inProgress]}>{textValue}</Text>
+      {description && <Text style={styles.textSmaller}>{description}</Text>}
       {
         detail && <Text style={[styles.textSmaller,
                                 completed ? { color: Colors.selectionColorLight } : styles.inProgress]}>{detail}</Text>
       }
     </View>
   );
+
+  return onPress ? 
+    <TouchableOpacity onPress={onPress}>{content}</TouchableOpacity> :
+    content;
 };
+
+const AchievementBadge = ({ achievement, showDescription = false, ...props}) => (
+  <AchievementBadgeComponent
+    badgeImage={achievement.icon}
+    textValue={achievement.badgeTheme}
+    points={achievement.points}
+    completed={achievement.completed}
+    progress={achievement.progress}
+    detailText={achievement.detailText}
+    description={showDescription && (achievement.completed ? achievement.description : achievement.incompleteDescription )}
+    {...props}
+  />
+);
 
 export default AchievementBadge;

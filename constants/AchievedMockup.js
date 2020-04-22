@@ -25,16 +25,19 @@ import Face from '../assets/svg/achievement_badges_48_48/baseline-face-48px.svg'
 import Airplane from '../assets/svg/achievement_badges_48_48/baseline-flight_land-48px.svg';
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
 
+
 const AchievementTypes = {
   ['firstPlog']: {
     badgeTheme: 'First Plog',
     icon: SingleCheckmark,
+    description: 'First step is the hardest',
   },
   ['100Club']: {
     badgeTheme: '100 Club',
     icon: DoubleCheckmark,
     detailText: ({count}) => `${count}/100`,
     progress: ({count}) => (count || 0)/100,
+    incompleteDescription: 'Log 100 plogs',
   },
   ['1000Club']: {
     badgeTheme: '1000 Club',
