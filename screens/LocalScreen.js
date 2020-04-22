@@ -20,16 +20,17 @@ const LocalScreen = ({history, currentUser, likePlog, loading}) => (
               header={
                 <View style={{ paddingTop: 20 }}>
                   <Banner>
-                    You're near a beach. Straws and plastic bags pose the biggest problem.
+                    {
+                      history.length === 0 && !loading
+                        ?
+                        "No nearby ploggers.\nPlog to earn your first badge."
+                        :
+                        "You're near a beach. Straws and plastic bags pose the biggest problem."
+                    }
                   </Banner>
                 </View>
               }
               footer={
-                loading ?
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 10 }}>
-                    <Loading/>
-                  </View>
-                :
                 <View style={{ height: 25 }} />
               }
     />
