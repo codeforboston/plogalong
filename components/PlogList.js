@@ -220,11 +220,13 @@ const styles = StyleSheet.create({
         borderBottomColor: '#DCDCDC',
         marginTop: 10
     },
-    profileImage: {
-        margin: 10,
-        width: 50,
-        height: 50,
-    },
+  profileImage: {
+    margin: 10,
+    marginBottom: 0,
+    marginTop: 0,
+    width: 50,
+    height: 50,
+  },
     actionText: {
         fontSize: 18
     },
@@ -233,11 +235,12 @@ const styles = StyleSheet.create({
         flex: 1
     },
     map: {
-        borderColor: Colors.borderColor,
-        borderWidth: 1,
-        flex: 3,
-        height: 300,
-        margin: 5
+      borderColor: Colors.borderColor,
+      borderWidth: 1,
+      flex: 3,
+      height: 300,
+      margin: 5,
+      marginTop: 0,
     },
     photos: {
         flexDirection: 'column',
