@@ -9,6 +9,7 @@ import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom
 
 import icons from '../icons';
 import Colors from '../constants/Colors';
+import { processAchievement } from '../util/users';
 
 import PlogScreen from '../screens/PlogScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -73,9 +74,27 @@ export default connect(state => ({
         }
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.currentUser && !this.props.currentUser) {
+    componentDidUpdate({ currentUser: prevUser }) {
+      const {currentUser} = this.props;
+      
+      if (prevUser && !currentUser) {
             this.props.navigation.navigate("Login");
+        } else if (currentUser && prevUser && currentUser.uid === prevUser.uid) {
+          const {data} = currentUser;
+          const {data: prevData} = prevUser;
+
+          if (prevData && prevData.achievements && data.achievements) {
+            const newAchievements = [];
+            for (const k of Object.keys(data.achievements)) {
+              if ((!prevData.achievements[k] || !prevData.achievements[k].completed) && 
+                  data.achievements[k].completed) {
+                    this.props.navigation.navigate('AchievementModal', { 
+                      achievement: processAchievement(data.achievements[k], k)
+                     });
+                    return;
+              }
+            }
+          }
         }
     }
 

@@ -4,6 +4,20 @@ import AchievedTypes from '../constants/AchievedMockup';
 
 /** @typedef {import('../firebase/project/functions/shared').UserAchievements} UserAchievements */
 
+export const processAchievement = (a, achType) => {
+    const {icon, progress, detailText, ...rest} = AchievedTypes[achType];
+
+    const progressPercent = a.completed ? 100 : progress && a ? progress(a) : 0;
+
+    return {
+      progress: progressPercent,
+      icon,
+      key: achType,
+      detailText: detailText && detailText(a),
+      ...rest,
+      ...a
+    };
+}
 
 export const processAchievements = (achievements = {}, includePartial=true) =>
   keep(achType => {
@@ -12,18 +26,8 @@ export const processAchievements = (achievements = {}, includePartial=true) =>
     if (!includePartial && !a.completed)
       return null;
 
-    const {icon, progress, detailText, ...rest} = AchievedTypes[achType];
-
-    const progressPercent = a.completed ? 100 : progress && a ? progress(a) : 0;
-
-    return progressPercent ? {
-      progress: progressPercent,
-      icon,
-      key: achType,
-      detailText: detailText && detailText(a),
-      ...rest,
-      ...a
-    } : null;
+    const achievement = processAchievement(a, achType);
+    return achievement.progress ? achievement : null;
   }, Object.keys(achievements)).sort(
     ({updated: a, completed: ac}, {updated: b, completed: bc}) => (
       ac ? (bc ?
