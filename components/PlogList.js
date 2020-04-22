@@ -74,10 +74,18 @@ class Plog extends React.PureComponent {
                      </Text>
                     } plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
                   </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 8 }}>
                   <Text style={styles.subText}>
                     {moment(when).fromNow()}
                   </Text>
+                  <TouchableOpacity onPress={this.onHeartPress}>
+                    <View style={styles.likeCount}>
+                      {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
+                      <Ionicons size={20 * ratio} name={'md-heart'} color={liked ? Colors.activeGray : Colors.inactiveGray} />
+                    </View>
+                  </TouchableOpacity>
                 </View>
+              </View>
               </View>
               <View style={styles.plogStyle}>
                 <MapView
@@ -128,12 +136,6 @@ class Plog extends React.PureComponent {
                   Cleaned up {!trashTypes || !trashTypes.length ? 'trash' :
                               trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
                 </Text>
-                <TouchableOpacity onPress={this.onHeartPress}>
-                  <View style={styles.likeCount}>
-                    {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
-                    <Ionicons size={20*ratio} name={'md-heart'} style={{color: 666666}}/>
-                  </View>
-                </TouchableOpacity>
               </View>
             </View>
         );
@@ -191,6 +193,7 @@ const styles = StyleSheet.create({
       marginBottom: 10
     },
   whoPlogged: {
+    alignSelf: 'flex-start',
     flex: 0,
     marginLeft: 5,
     marginRight: 5,
