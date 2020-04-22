@@ -274,8 +274,10 @@ class PlogScreen extends React.Component {
 
     renderModeQuestions(mode=this.mode) {
         const {state} = this,
-              activityName = Options.activities.get(state.activityType[0]).title,
-              groupName = Options.groups.get(state.groupType[0]).title;
+              [activity] = state.activityType,
+              [group] = state.groupType,
+              activityName = Options.activities.get(activity).title,
+              groupName = Options.groups.get(group).title;
 
         switch (mode) {
         case 'Log':
@@ -293,6 +295,7 @@ class PlogScreen extends React.Component {
                                   key={value}
                                   onPress={() => this.selectActivityType(value)} 
                                   style={styles.selectableItem}
+                                  selected={value === activity}
                             />
                         )
                     }
@@ -311,6 +314,7 @@ class PlogScreen extends React.Component {
                                   key={value}
                                   onPress={() => this.selectGroupType(value)}
                                   style={styles.selectableItem}
+                                  selected={value === group}
                             />
                         )
                     }
