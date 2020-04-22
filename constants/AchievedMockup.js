@@ -31,12 +31,14 @@ const AchievementTypes = {
     badgeTheme: 'First Plog',
     icon: SingleCheckmark,
     description: 'First step is the hardest',
+    incompleteDescription: 'Log your first plog',
   },
   ['100Club']: {
     badgeTheme: '100 Club',
     icon: DoubleCheckmark,
     detailText: ({count}) => `${count}/100`,
     progress: ({count}) => (count || 0)/100,
+    description: 'Logged 100 plogs',
     incompleteDescription: 'Log 100 plogs',
   },
   ['1000Club']: {
@@ -44,44 +46,64 @@ const AchievementTypes = {
     icon: Star,
     detailText: ({count}) => `${count}/1000`,
     progress: ({count}) => (count || 0)/1000,
+    description: 'Logged 1000 plogs',
+    incompleteDescription: 'Log 1000 plogs',
   },
   streaker: {
     badgeTheme: 'Streaker',
     icon: Star,
     detailText: ({complete, streak}) => complete ? '' : `${pluralize(streak, 'day')} down, ${7-streak} to go`,
     progress: ({streak}) => (streak || 0)/7,
+    description: 'Plogged 7 days in a row',
+    incompleteDescription: 'Plog 7 days in a row',
   },
   teamEffort: {
     badgeTheme: 'Team Effort',
-    icon: Team
+    icon: Team,
+    description: 'You did it together',
+    incompleteDescription: 'Plog in a group',
   },
   bugZapper: {
     badgeTheme: 'Bug Zapper',
-    icon: Flower
+    icon: Flower,
+    description: 'Removed standing water',
+    incompleteDescription: 'Remove standing water',
   },
   dangerPay: {
     badgeTheme: 'Danger Pay',
-    icon: Syringe
+    icon: Syringe,
+    description: 'Plogged shards or glass',
+    incompleteDescription: 'Plog shards or glass',
   },
   daredevil: {
     badgeTheme: 'Daredevil',
-    icon: Bike
+    icon: Bike,
+    description: 'Plogged while cycling',
+    incompleteDescription: 'Plog while cycling',
   },
   dogDays: {
     badgeTheme: 'Dog Days',
-    icon: DogWalking
+    icon: DogWalking,
+    description: 'First plog of the summer',
+    incompleteDescription: 'Log your first summer plog',
   },
   springChicken: {
     badgeTheme: 'Spring Chicken',
-    icon: Chicken
+    icon: Chicken,
+    description: 'First plog of the spring',
+    incompleteDescription: 'Log your first spring plog',
   },
   fallColor: {
     badgeTheme: 'Fall Color',
-    icon: Leaves
+    icon: Leaves,
+    description: 'First plog of the fall',
+    incompleteDescription: 'Log your first fall plog',
   },
   polarBear: {
     badgeTheme: 'Polar Bear',
-    icon: Bear
+    icon: Bear,
+    description: 'First plog of the winter',
+    incompleteDescription: 'Log your first winter plog',
   },
 };
 
