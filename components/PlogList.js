@@ -60,11 +60,13 @@ class Plog extends React.PureComponent {
         return (
             <View>
               <View style={[styles.plogStyle, saving && styles.savingStyle]}>
-                {
+                <TouchableOpacity onPress={this.showUser}>
+                  {
                     userProfilePicture ?
-                        <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
+                      <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
                     <ProfilePlaceholder style={styles.profileImage} />
-                }
+                  }
+                </TouchableOpacity>
                 <View style={styles.plogInfo}>
                   <Text style={styles.actionText} adjustsFontSizeToFit>
                     {me ?
