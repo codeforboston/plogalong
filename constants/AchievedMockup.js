@@ -26,6 +26,23 @@ import Airplane from '../assets/svg/achievement_badges_48_48/baseline-flight_lan
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
 
 
+/** @typedef {import('../firebase/project/functions/shared').UserAchievements} UserAchievements */
+
+/** @typedef {number} UserAchievements["streaker"]["streak"] */
+
+/**
+ * @template {keyof UserAchievements} K
+ * @typedef {object} AchievementType
+ * @property {string} badgeTheme Descriptive name of the achievement
+ * @property {React.Component} icon
+ * @property {string | (achievement: UserAchievements[K]) => string} [detailText]
+ * @property {(achievement: UserAchievements[K]) => number} [progress]
+ * @property {(achievements: UserAchievements) => boolean} [hide]
+ * @property {string} description Description for completed achievement
+ * @property {string} incompleteDescription Description for incomplete achievement
+ */
+
+/** @type {{ [K in keyof UserAchievements]: AchievementType<K> }} */
 const AchievementTypes = {
   ['firstPlog']: {
     badgeTheme: 'First Plog',
@@ -46,6 +63,7 @@ const AchievementTypes = {
     icon: Star,
     detailText: ({count}) => `${count}/1000`,
     progress: ({count}) => (count || 0)/1000,
+    hide: ({ '100Club': hundred }) => !(hundred && hundred.completed),
     description: 'Logged 1000 plogs',
     incompleteDescription: 'Log 1000 plogs',
   },
@@ -54,6 +72,7 @@ const AchievementTypes = {
     icon: Star,
     detailText: ({complete, streak}) => complete ? '' : `${pluralize(streak, 'day')} down, ${7-streak} to go`,
     progress: ({streak}) => (streak || 0)/7,
+    hide: ({ streaker: { updated, streak }}) => streak < 2,
     description: 'Plogged 7 days in a row',
     incompleteDescription: 'Plog 7 days in a row',
   },
@@ -106,6 +125,7 @@ const AchievementTypes = {
     incompleteDescription: 'Log your first winter plog',
   },
 };
+
 
 /// Add in config options shared with the backend:
 for (const k in AchievementTypes) {
