@@ -10,17 +10,21 @@ const QUERY_LIMIT = 5;
 /** @type {import('redux').Middleware} */
 export default store => {
   let unsubscribe, firstPageLoaded, lastPageLoaded, lastDoc, historyLoading,
-      localUnsubscribe;
+      localUnsubscribe, firstLocalPageLoaded;
 
   const runLocalPlogQuery = rateLimited(
     (location) => {
       if (localUnsubscribe)
         localUnsubscribe();
 
+      firstLocalPageLoaded = false;
       localUnsubscribe = getLocalPlogs(location.latitude, location.longitude).onSnapshot(snapshot => {
-        store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState)));
+        store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState),
+                                         { replace: !firstLocalPageLoaded,
+                                           prepend: firstLocalPageLoaded }));
+        firstLocalPageLoaded = true;
       }, _ => {});
-    }, false, true);
+    }, 60000);
 
   return next => action => {
     const {type, payload} = action;
