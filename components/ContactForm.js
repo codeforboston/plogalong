@@ -13,6 +13,7 @@ import * as yup from 'yup';
 
 import Error from '../components/Error';
 import { saveComment } from '../firebase/comments';
+import Colors from '../constants/Colors';
 
 const contactSchema = yup.object({
     topic: yup.string()
@@ -161,6 +162,14 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 6,
         fontSize: 14,
+    },
+    inputGreen: {
+        borderColor: Colors.secondaryColor,
+        borderWidth: 2,
+    },
+    inputPurple: {
+        borderColor: Colors.selectionColor,
+        borderWidth: 2,
     },
     submitButtonSection: {
         alignItems: 'center'

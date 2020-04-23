@@ -285,7 +285,9 @@ class PlogScreen extends React.Component {
         case 'Log':
             return (
                 <>
-                  <Question question="What were you up to?" answer={activityName}/>
+                  <Question question="What were you up to?"
+                            answer={activityName}
+                            style={$S.h2}/>
                   <View style={styles.selectable} >
                     {Array.from(Options.activities).map(([value, type]) => {
                         const { buttonIcon: ButtonIcon=type.icon } = this.props;
@@ -304,7 +306,9 @@ class PlogScreen extends React.Component {
                     )}
                   </View>
 
-                  <Question question="Who helped?" answer={groupName} />
+                  <Question question="Who helped?"
+                            answer={groupName}
+                            style={$S.h2}/>
                   <View style={styles.selectable} >
                     {Array.from(Options.groups).map(([value, type]) => {
                         const { buttonIcon: ButtonIcon=type.icon } = this.props;
@@ -344,7 +348,9 @@ class PlogScreen extends React.Component {
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
 
-            <PlogScreenWeather />
+          <PlogScreenWeather />
+
+          <Text style={$S.h1}>Log a Plog</Text>
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, paddingTop: 10 }}>
             <Text style={{ fontWeight: '500', paddingLeft: 10 }}>
@@ -421,7 +427,9 @@ class PlogScreen extends React.Component {
                 }
             </View>
 
-            <Question question="What did you clean up?" answer={cleanedUp}/>
+            <Question question="What did you clean up?"
+                      answer={cleanedUp}
+                      style={$S.h2}/>
             <View style={styles.selectable} >
               {Array.from(Options.trashTypes).slice(0, showDetailedOptions ? undefined : 3).map(([value, type]) => (
                 <Button title={type.title} value={value} icon={type.icon} key={value}

@@ -28,6 +28,9 @@ export const HistoryScreen = ({currentUser, history, likePlog, loadHistory, load
 
   return (
     <View style={$S.screenContainer}>
+
+      <Text style={$S.h1}>Your Feed</Text>
+      
       <PlogList plogs={history}
                 currentUser={currentUser}
                 likePlog={likePlog}

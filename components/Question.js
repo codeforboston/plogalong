@@ -5,6 +5,7 @@ import {
     View,
     StyleSheet
 } from 'react-native';
+import Colors from '../constants/Colors';
 
 
 const Question = ({question, answer}) => (
@@ -18,7 +19,8 @@ const styles = StyleSheet.create({
     question: {
         flex: 1,
         justifyContent: 'space-between',
-        flexDirection: 'row',
+     //   flexDirection: 'row',
+        flexDirection: 'column',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
         margin: 5,
@@ -28,7 +30,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     right: {
-
+        color: Colors.textGray,
+        fontSize: 18,
     }
 });
 

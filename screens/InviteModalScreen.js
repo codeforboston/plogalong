@@ -12,6 +12,7 @@ import Button from '../components/Button';
 import Colors from '../constants/Colors';
 import DismissButton from '../components/DismissButton';
 import { ShareDialog } from 'react-native-fbsdk';
+import $S from '../styles';
 
 export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVisible}) => {
   const PLOGALONG_LINK = "http://www.plogalong.com";
@@ -59,7 +60,7 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
           />
         </View>
         <View style={styles.inviteModalContainers}>
-          <Text style={[styles.inviteContainer, { fontSize: 20 }]}>Invite</Text>
+          <Text style={$S.h2}>Invite</Text>
           <TextInput
             value={PLOGALONG_LINK}
             selectTextOnFocus
