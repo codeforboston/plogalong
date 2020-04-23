@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   View,
+  Text
 } from 'react-native';
 import {connect} from 'react-redux';
 
@@ -25,6 +26,7 @@ class LocalScreen extends React.Component {
                       <Banner>
                         You're near a beach. Straws and plastic bags pose the biggest problem.
                       </Banner>
+                      <Text style={$S.h1}>Local Feed</Text>
                     </View>
                   }
                   footer={

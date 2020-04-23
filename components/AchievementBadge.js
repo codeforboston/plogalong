@@ -38,10 +38,14 @@ const styles = StyleSheet.create({
     height: 48,
   },
     textLarger: {
-      fontSize: 18,
+      //fontSize: 18,
       fontWeight: 'bold',
-      color: '#666666',
+      //color: '#666666',
       textAlign: 'center',
+      fontSize: 25,
+      //marginTop: 10,
+      //marginHorizontal: 20,
+      color: Colors.textGray,
     },
     textSmaller: {
         fontSize: 12,

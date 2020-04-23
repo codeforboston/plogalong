@@ -108,11 +108,11 @@ export default StyleSheet.create({
     fontWeight: '600',
   },
 
-    subheader: {
-      fontSize: 25,
-      margin: 5,
-      color: Colors.textGray
-    },
+  subheader: {
+    fontSize: 25,
+    margin: 5,
+    color: Colors.textGray
+  },
 
   itemTitle: {
     fontSize: 20,
@@ -145,6 +145,20 @@ export default StyleSheet.create({
     color: Colors.activeGray,
     backgroundColor: 'white',
     borderWidth: 0,
+  },
+
+  h1: {
+    fontSize: 25,
+    marginTop: 10,
+    marginHorizontal: 20,
+    color: Colors.textGray,
+  },
+
+  h2: {
+    marginLeft: 20,
+    marginRight: 20,
+    padding: 5,
+    textAlign: 'center',
   },
 
   detail: {}
