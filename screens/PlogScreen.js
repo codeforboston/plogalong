@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
-import MapView, { Camera, Marker } from 'react-native-maps';
+import MapView, { Camera } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
 import Button from '../components/Button';
@@ -380,7 +380,7 @@ class PlogScreen extends React.Component {
                </Animated.View>
               }
 
-                <View style={styles.timerButtonContainer} >
+                <View style={styles.timerButtonContainer} pointerEvents="box-none" >
                     <Button
                         title={this.state.timerInterval ? 'STOP TIMER' : 'START TIMER'}
                         onPress={this.toggleTimer}
