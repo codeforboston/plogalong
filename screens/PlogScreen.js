@@ -29,6 +29,7 @@ import * as actions from '../redux/actions';
 import {
     setUserData
 } from '../firebase/auth';
+import { formatAddress } from '../util/location';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
@@ -141,9 +142,10 @@ class PlogScreen extends React.Component {
       });
 
       Location.reverseGeocodeAsync(coordinates).then(locationInfo => {
-        this.setState({
-          markedLocationInfo: locationInfo[0]
-        });
+        const [address] = locationInfo.sort((a1, a2) => (addressScore(a1) - addressScore(a2)));
+        const {markedLocationInfo} = this.state;
+
+        this.setState({ markedLocationInfo: locationInfo[0] });
       }, console.warn);
 
       if (this._markerAnimation) this._markerAnimation.stop();
@@ -346,7 +348,7 @@ class PlogScreen extends React.Component {
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, paddingTop: 10 }}>
             <Text style={{ fontWeight: '500', paddingLeft: 10 }}>
-              {locationInfo ? `Plogging near ${locationInfo.street}` : ' '}
+              {locationInfo ? `Plogging ${formatAddress(locationInfo) || 'off the grid'}` : ' '}
             </Text>
             <Text style={styles.timer}>
               {/* <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text> */}
