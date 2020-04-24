@@ -158,6 +158,8 @@ class ProfileScreen extends React.Component {
                                   onPress={this.setHomeBaseFromLocationInfo}
                                   iconName="ios-navigate"
                                   maxLength={40}
+                                  style={styles.greenOutline}
+                                  // VK note to self - what about purpleOultine when selected???
                />
              </View>
 
@@ -233,7 +235,14 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'column',
-    }
+    },
+    greenOutline: {
+        borderColor: Colors.secondaryColor,
+        borderWidth: 2,
+    },
+    purpleOutline: {
+      borderColor: Colors.selectionColor,
+      borderWidth: 2,},
 });
 
 export default connect(

@@ -105,7 +105,8 @@ class PlogScreenWeather extends Component {
             borderWidth: 1,
             marginLeft: 20,
             marginRight: 20,
-            padding: 5,
+            marginBottom: 10,
+            paddingVertical: 15,
             flexDirection: 'column',
             alignItems: 'center',
             }}
@@ -211,7 +212,8 @@ class PlogScreenWeather extends Component {
           borderWidth: 1,
           marginLeft: 20,
           marginRight: 20,
-          padding: 5,
+          marginBottom: 10,
+          padding: 15,
           textAlign: 'center',
           justifyContent: 'center'
         }}
@@ -230,7 +232,8 @@ class PlogScreenWeather extends Component {
           borderWidth: 1,
           marginLeft: 20,
           marginRight: 20,
-          padding: 5,
+          marginBottom: 10,
+          padding: 15,
           textAlign: 'center',
           justifyContent: 'center'
         }}
