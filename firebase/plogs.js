@@ -49,7 +49,7 @@ export const plogStateToDoc = plog => ({
   PlogType: plog.pickedUp ?
     "Plog" :
     "Flag",
-  DateTime: new firebase.firestore.Timestamp(Math.floor(plog.when.getTime()/1000)),
+  DateTime: new firebase.firestore.Timestamp.fromDate(plog.when),
   TZ: plog.when.getTimezoneOffset(),
   UserID: auth.currentUser.uid,
   Photos: [],
