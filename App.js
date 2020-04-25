@@ -17,6 +17,7 @@ import makeStore from "./redux/store";
 
 import AppNavigator from './navigation/AppNavigator';
 import FlashMessage from './FlashMessage';
+import { PromptRenderer } from './Prompt';
 
 
 export default class App extends React.Component {
@@ -49,7 +50,9 @@ export default class App extends React.Component {
         <Provider store={makeStore(preferences)}>
           <View style={styles.container}>
             {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-            <AppNavigator />
+            <PromptRenderer>
+              <AppNavigator />
+            </PromptRenderer>
             <FlashMessage />
           </View>
         </Provider>

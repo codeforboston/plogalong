@@ -37,9 +37,12 @@ const LoadingIndicator = ({dots = 3, dotImage=Dot, dotStyle, style, ...props}) =
   );
 };
 
-export const LoadingOverlay = props => (
+export const LoadingOverlay = ({children, ...props}) => (
   <View style={styles.overlay}>
-    <LoadingIndicator {...props}/>
+    <View>
+      {children}
+      <LoadingIndicator {...props}/>
+    </View>
   </View>
 );
 
