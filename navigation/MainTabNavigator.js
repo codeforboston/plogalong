@@ -78,7 +78,7 @@ export default connect(state => ({
       const {currentUser} = this.props;
       
       if (prevUser && !currentUser) {
-            this.props.navigation.navigate("Login");
+            this.props.navigation.replace("Login");
         } else if (currentUser && prevUser && currentUser.uid === prevUser.uid) {
           const {data} = currentUser;
           const {data: prevData} = prevUser;
