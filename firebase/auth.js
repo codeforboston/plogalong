@@ -2,9 +2,10 @@ import * as Facebook from 'expo-facebook';
 import * as Google from 'expo-google-app-auth';
 // import * as AppleAuthentication from 'expo-apple-authentication';
 
-import { auth, firebase, storage, Users } from './init';
+import { auth, firebase, Users } from './init';
 import { uploadImage } from './util';
 import firebaseConfig from './config';
+import * as functions from './functions';
 
 
 /**
@@ -23,11 +24,6 @@ const initialUserData = (user, locationInfo) => ({
  * @template P
  * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
  */
-
-/**
- * @type {Unwrapped<ReturnType<typeof Google.logInAsync>>}
- */
-let x;
 
 /**
  * @template LoginFn
@@ -93,6 +89,13 @@ export const unlinkFacebook = () => {
 export const loginWithGoogle = withGoogleCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred));
+
+export const loginWithEmail = auth.signInWithEmailAndPassword.bind(auth);
+
+export const linkToEmail = (email, password) => {
+  const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+  return auth.currentUser.linkWithCredential(credential);
+};
 
 export const unlinkGoogle = () => {
   auth.currentUser.unlink('google.com');
@@ -162,4 +165,22 @@ export const setUserPhoto = async ({uri}) => {
   Users.doc(auth.currentUser.uid).update({
     profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, { resize: { width: 300, height: 300 }})
   });
+};
+
+/**
+ * Called as an anonymous user (A) with the uid of another user (B) to "merge" A
+ * into B. The current session will be reauthenticated as B using `credentials`,
+ * A's plogs will be moved over to B, and A will be deleted.
+ *
+ * @param {firebase.auth.AuthCredential} credential used to switch the current user
+ * @param {any} match
+ */
+export const mergeAnonymousAccount = async (credential, match) => {
+  if (!auth.currentUser || !auth.currentUser.isAnonymous)
+    throw new Error('Must be logged in as an anonymous user');
+
+  const anonUID = auth.currentUser.uid;
+  await setUserData({ allowMergeWith: { providerId: credential.providerId, ...match  } });
+  await auth.signInWithCredential(credential);
+  await functions.mergeWithAccount(anonUID);
 };

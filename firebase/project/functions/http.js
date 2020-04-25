@@ -1,5 +1,8 @@
+const firebase = require('firebase');
 const functions = require('firebase-functions');
+
 const app = require('./app');
+const users = require('./users');
 
 const { HttpsError } = functions.https;
 
@@ -97,7 +100,57 @@ async function loadUserProfile(data, context) {
   };
 }
 
+/**
+ * @typedef {object} MergeAccountRequest
+ * @property {string} userID uid of the anonymous user to merge into this account
+ * @property {string} merge
+ */
+
+const matchKeys = (a, match) => {
+  for (const k of Object.keys(match))
+    if (a[k] !== match[k])
+      return false;
+
+  return true;
+};
+
+/**
+ * Called by an authorized user to merge in the plogs from another user. If the
+ * merge succeeds, the other user is then deleted.
+ *
+ * @param {MergeAccountRequest} data
+ * @param {functions.https.CallableContext} context
+ */
+async function mergeWithAccount(data, context) {
+  if (!context.auth || !context.auth.uid)
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  if (!data.userID)
+    throw new HttpsError('failed-precondition', 'Missing required parameter: userID');
+
+  const [user, otherUserData] = await Promise.all([
+    app.auth().getUser(context.auth.uid),
+    Users.doc(data.userID).get()
+  ]);
+
+  {
+    const { allowMergeWith } = otherUserData && otherUserData.data() || {};
+    const { providerId, ...match } = allowMergeWith;
+    const provider = user.providerData.find(p => p.providerId === providerId);
+    if (!provider || !matchKeys(provider, match))
+      throw new HttpsError('permission-denied', 'Permission denied');
+  }
+
+  await users.mergeUsers(data.userID, context.auth.uid);
+
+  await app.auth().deleteUser(data.userID);
+  await Users.doc(data.userID).delete();
+
+  return {};
+}
+
 module.exports = {
   likePlog,
   loadUserProfile,
+  mergeWithAccount,
 };

@@ -101,6 +101,7 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         }
     });
 
-const { likePlog, loadUserProfile } = require('./http');
+const { likePlog, loadUserProfile, mergeWithAccount } = require('./http');
 exports.likePlog = functions.https.onCall(likePlog);
 exports.loadUserProfile = functions.https.onCall(loadUserProfile);
+exports.mergeWithAccount = functions.https.onCall(mergeWithAccount);
