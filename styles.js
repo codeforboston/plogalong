@@ -6,6 +6,10 @@ import Colors from './constants/Colors';
 
 
 export default StyleSheet.create({
+  safeContainer: {
+    backgroundColor: 'white',
+    flex: 1
+  },
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -61,16 +65,23 @@ export default StyleSheet.create({
     },
 
     largeButton: {
-        marginLeft: 40,
-        marginRight: 40,
-        marginTop: 20,
-        paddingTop: 10,
-        paddingBottom: 10,
+      borderRadius: 8,
+      fontSize: 18,
+      marginLeft: 40,
+      marginRight: 40,
+      marginTop: 20,
+      paddingTop: 10,
+      paddingBottom: 10,
     },
 
     primaryButton: {
-        backgroundColor: Colors.secondaryColor,
-        color: 'white',
+      backgroundColor: Colors.secondaryColor,
+      color: 'white',
+      marginLeft: 40,
+      marginRight: 40,
+      marginTop: 20,
+      paddingTop: 10,
+      paddingBottom: 10,
     },
 
     textButton: {
@@ -89,5 +100,52 @@ export default StyleSheet.create({
     helpLink: {
         textDecorationStyle: 'dotted',
         textDecorationColor: 'black',
-    }
+    },
+
+  headline: {
+    color: Colors.secondaryColor,
+    fontSize: 30,
+    fontWeight: '600',
+  },
+
+    subheader: {
+      fontSize: 25,
+      margin: 5,
+      color: Colors.textGray
+    },
+
+  itemTitle: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: Colors.selectionColor
+  },
+
+  modalContainer: {
+    backgroundColor: Colors.selectionColor,
+    flex: 1,
+  },
+
+  modalContent: {
+    backgroundColor: '#fff',
+    marginTop: 50,
+    padding: 20,
+    paddingBottom: 50,
+    marginLeft: 20,
+    marginRight: 20,
+    minHeight: 400,
+    borderRadius: 10,
+  },
+
+  modalButtonsContainer: {
+    margin: 35,
+    marginTop: 25,
+  },
+
+  modalButton: {
+    color: Colors.activeGray,
+    backgroundColor: 'white',
+    borderWidth: 0,
+  },
+
+  detail: {}
 });

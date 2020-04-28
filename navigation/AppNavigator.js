@@ -10,6 +10,9 @@ import PhotoViewer from '../screens/PhotoViewer';
 import ScreenSlider from '../components/ScreenSlider';
 import LoginScreen from '../screens/Login';
 import SignupScreen from '../screens/Signup';
+import UserScreen from '../screens/User';
+import ChangePassword from '../screens/ChangePassword';
+import AchievementModal from '../screens/AchievementModal';
 
 import icons from '../icons';
 
@@ -37,6 +40,9 @@ export default (props) => {
         <AppStack.Screen name="PhotoViewer" component={ PhotoViewer} options={{ headerShown: false }}/>
         <AppStack.Screen name="Login" component={ LoginScreen } options={{ headerShown: false }}/>
         <AppStack.Screen name="Signup" component={ SignupScreen } options={{ headerShown: false }}/>
+        <AppStack.Screen name="User" component={ UserScreen } options={{ headerShown: false }}/>
+        <AppStack.Screen name="ChangePassword" component={ ChangePassword } options={{ headerShown: false }}/>
+        <AppStack.Screen name="AchievementModal" component={ AchievementModal } options={{ headerShown: false }}/>
       </AppStack.Navigator>
     </NavigationContainer>
 )};

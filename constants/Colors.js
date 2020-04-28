@@ -8,11 +8,14 @@ export default {
     borderColor: '#c2c1ba',
     activeColor: '#8557C7',
     inactiveColor: '#495564',
+  selectionColorLight: '#ac8dd8',
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,
   tabBar: '#fefefe',
   // textGray: '#969FAA',
+  activeGray: '#666666',
+  inactiveGray: '#ccc',
   textGray: '#5f646b',
   errorBackground: 'red',
   errorText: '#fff',
@@ -20,4 +23,5 @@ export default {
   warningText: '#666804',
   noticeBackground: tintColor,
   noticeText: '#fff',
+
 };

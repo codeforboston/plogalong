@@ -14,7 +14,7 @@ const makeToggle = (init=false) => {
 };
 
 /**
- * @typedef {Omit<React.ComponentProps<typeof TextInputWithIcons>, 'icon' | 'iconName' | 'secureTextEntry' | 'onPress'> & { defaultVisible?: boolean }} PasswordInputProps
+ * @typedef {Omit<React.ComponentProps<typeof TextInputWithIcon>, 'icon' | 'iconName' | 'secureTextEntry' | 'onPress'> & { defaultVisible?: boolean }} PasswordInputProps
  */
 
 /** @type {React.FunctionComponent<PasswordInputProps>} */

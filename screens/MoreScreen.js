@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,12 +7,14 @@ import {
 
 import { createStackNavigator } from '@react-navigation/stack';
 
+import Banner from '../components/Banner';
+import Button from '../components/Button';
 import Header from '../components/Header';
 import NavMenu from '../components/NavMenu';
 
 import AboutScreen from './AboutScreen';
 import FAQScreen from './FAQScreen';
-import ContactScreen from './ContactScreen'
+import ContactScreen from './ContactScreen';
 import InviteModalScreen from './InviteModalScreen';
 
 
@@ -24,13 +27,16 @@ const routeName = ({state, params, name}, defaultName=name) => {
 };
 
 export class MoreScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { isInviteModalVisible: false };
-  }
+  state = {
+    isInviteModalVisible: false
+  };
 
   toggleIsInviteModalVisible = () => {
     this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
+  }
+
+  goToPlogScreen = () => {
+    this.props.navigation.navigate('Plog');
   }
 
   pages = [
@@ -42,9 +48,24 @@ export class MoreScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container]}>
+        <Banner style={styles.banner}>
+          Life is hard. Plogging is easy.
+        </Banner>
         <NavMenu routes={this.pages}/>
-        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible} isInviteModalVisible={this.state.isInviteModalVisible} />
+        <View style={{ flex: 1 }}/>
+        <View style={styles.buttons}>
+          <Button title="Invite"
+                  large
+                  onPress={this.toggleIsInviteModalVisible}
+          />
+          <Button title="Plog"
+                  large primary
+                  onPress={this.goToPlogScreen}
+          />
+        </View>
+        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible}
+                           isInviteModalVisible={this.state.isInviteModalVisible} />
       </View>
     );
   }
@@ -53,6 +74,12 @@ export class MoreScreen extends React.Component {
 const Stack = createStackNavigator();
 
 export default ({navigation, route}) => {
+  useEffect(() => {
+    if (route.params && route.params.subscreen)
+      navigation.navigate(route.params.subscreen);
+
+  }, [route.params]);
+
     return (
         <Stack.Navigator screenOptions={{
             headerBackTitle: 'More',
@@ -80,9 +107,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingTop: 20,
   },
   divider: {
       borderBottomWidth: 1,
       borderBottomColor: 'gray'
   },
+  banner: {
+    marginBottom: 20,
+  },
+  buttons: {
+    margin: 30,
+    marginBottom: 50,
+  }
 });

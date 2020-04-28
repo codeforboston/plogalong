@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
     FlatList,
     Image,
+    PixelRatio,
     ScrollView,
     StyleSheet,
     Text,
@@ -35,6 +36,10 @@ class Plog extends React.PureComponent {
         });
     }
 
+    showUser = () => {
+        this.props.navigation.navigate('User', { userID: this.props.plogInfo.userID });
+    }
+
     render() {
         const props = this.props;
         const {plogInfo, currentUserID, liked, likePlog} = props;
@@ -45,10 +50,12 @@ class Plog extends React.PureComponent {
         const {
             id, location: { lat, lng }, likeCount, plogPhotos = [], timeSpent,
             trashTypes = [], userID, userDisplayName, userProfilePicture, when,
-            saving
+            saving, groupType
         } = plogInfo;
         const latLng = { latitude: lat, longitude: lng };
         const me = userID === currentUserID;
+      const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
+      const ratio = PixelRatio.getFontScale();
 
         return (
             <View>
@@ -60,12 +67,29 @@ class Plog extends React.PureComponent {
                 }
                 <View style={styles.plogInfo}>
                   <Text style={styles.actionText} adjustsFontSizeToFit>
-                    {me ? 'You' : ((userDisplayName||'').trim() || 'Anonymous')} plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
+                    {me ?
+                     'You' :
+                     <Text style={{ fontWeight: '500'}} onPress={this.showUser}>
+                       {(userDisplayName||'').trim() || 'Anonymous'}
+                     </Text>
+                    } plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
                   </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 8 }}>
                   <Text style={styles.subText}>
                     {moment(when).fromNow()}
                   </Text>
+                  <TouchableOpacity onPress={this.onHeartPress}>
+                    <View style={styles.likeCount}>
+                      {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
+                      <Ionicons
+                        size={20 * ratio}
+                        name={'md-heart'}
+                        color={liked ? Colors.selectionColor : Colors.activeGray}
+                      />
+                    </View>
+                  </TouchableOpacity>
                 </View>
+              </View>
               </View>
               <View style={styles.plogStyle}>
                 <MapView
@@ -77,7 +101,10 @@ class Plog extends React.PureComponent {
                   }}
                   showsMyLocationButton={false}
                   scrollEnabled={false}
+                  pitchEnabled={false}
+                  rotateEnabled={false}
                   zoomEnabled={false}
+                  liteMode={true}
                 >
                   <Marker coordinate={latLng}
                           tracksViewChanges={false}
@@ -94,23 +121,25 @@ class Plog extends React.PureComponent {
                         <ScrollView contentContainerStyle={styles.photos}>
                           {plogPhotos.map(({uri}) => (
                               <TouchableOpacity onPress={this.showPhotos} key={uri}>
-                                <Image source={{uri}} key={uri} style={{width: 'auto', height: 100, marginBottom: 10}}/>
+                                <Image source={{uri}}
+                                       key={uri}
+                                       style={styles.plogPhoto}/>
                               </TouchableOpacity>))}
                         </ScrollView> :
                     null
                 }
               </View>
               <View style={[styles.plogStyle, styles.detailsStyle]}>
+                <GroupIcon fill={ Colors.textGray }
+                           width={20*ratio}
+                           height={20*ratio}
+                           style={[styles.whoPlogged, { marginRight: 5*ratio }]}
+                           accessibilityLabel={`Plogged `}
+                />
                 <Text style={styles.subText}>
                   Cleaned up {!trashTypes || !trashTypes.length ? 'trash' :
                               trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
                 </Text>
-                <TouchableOpacity onPress={this.onHeartPress}>
-                  <View style={styles.likeCount}>
-                    {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
-                    <Ionicons size={20} name={'md-heart'} style={{color: 666666}}/>
-                  </View>
-                </TouchableOpacity>
               </View>
             </View>
         );
@@ -129,7 +158,7 @@ const likedPlogIds = user => (
     user && user.data && user.data.likedPlogs && JSON.stringify(user.data.likedPlogs)
 );
 
-const PlogList = ({plogs, currentUser, filter, header, footer, likePlog}) => {
+const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, loadNextPage}) => {
     const navigation = useNavigation();
 
     return (
@@ -140,6 +169,9 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog}) => {
                                                  likePlog={likePlog}
                                                  navigation={navigation}
                                            />)}
+                  initialNumToRender={3}
+                  onEndReachedThreshold={1}
+                  onEndReached={loadNextPage}
                   keyExtractor={(item) => item.id}
                   extraData={likedPlogIds(currentUser)}
                   ItemSeparatorComponent={Divider}
@@ -159,6 +191,17 @@ const styles = StyleSheet.create({
       paddingTop: 5,
       flex: 1
     },
+    plogPhoto: {
+      width: 'auto',
+      height: 100,
+      marginBottom: 10
+    },
+  whoPlogged: {
+    alignSelf: 'flex-start',
+    flex: 0,
+    marginLeft: 5,
+    marginRight: 5,
+  },
     detailsStyle: {
       justifyContent: 'space-between',
     },

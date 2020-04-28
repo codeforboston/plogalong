@@ -105,15 +105,15 @@ class PlogScreenWeather extends Component {
             borderWidth: 1,
             marginLeft: 20,
             marginRight: 20,
-            padding: 5
+            padding: 5,
+            flexDirection: 'column',
+            alignItems: 'center',
             }}
         >
-          <Text style={{ 
-            textAlign: 'center', 
-            justifyContent: 'center' 
+          <View style={{ 
+            flexDirection: 'row',
             }}
           >
-            {plogMessage.message}&nbsp; ––&nbsp;  {/*the long hyphen is opt-dash, twice*/}
             <Image
               style={{
                 width: 18,
@@ -145,8 +145,15 @@ class PlogScreenWeather extends Component {
                 : require('../assets/images/weather_icons_pngs/03dScatteredCloudyFlaticon.png')
               }
             />
-            &nbsp;{temps}
-          </Text>
+            <Text>
+              {temps}
+            </Text>
+          </View>
+          <View style={{ marginTop: 5 }}>
+              <Text style={{ textAlign: 'center' }}>
+                {plogMessage.message}
+              </Text>
+            </View>
         </View>
       );
     }

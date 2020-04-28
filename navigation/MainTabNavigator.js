@@ -1,10 +1,15 @@
 import * as React from 'react';
-import { Image, StyleSheet } from 'react-native';
+import {
+  Image,
+  PixelRatio,
+  StyleSheet,
+} from 'react-native';
 import { connect } from 'react-redux';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
 import icons from '../icons';
 import Colors from '../constants/Colors';
+import { processAchievement } from '../util/users';
 
 import PlogScreen from '../screens/PlogScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -21,8 +26,8 @@ const Icons = {
   More: icons.More,
 };
 
-const makeTabOptions = (name, current) => ({
-  tabBarIcon: () => React.createElement(Icons[name], {
+const makeTabOptions = (name, current, hideIcon) => ({
+  tabBarIcon: () => !hideIcon && React.createElement(Icons[name], {
     width: 25, height: 25, style: [styles.tabIcon],
     fill: name === current ? Colors.selectionColor : '#666666'
   }),
@@ -60,7 +65,7 @@ export default connect(state => ({
     preferences: state.preferences,
 }))(class extends React.Component {
     componentDidMount() {
-        const sawIntro = this.props.preferences.get("sawIntro");
+        const sawIntro = this.props.preferences.sawIntro;
         const {navigation} = this.props;
 
         if (!sawIntro) {
@@ -69,14 +74,33 @@ export default connect(state => ({
         }
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.currentUser && !this.props.currentUser) {
+    componentDidUpdate({ currentUser: prevUser }) {
+      const {currentUser} = this.props;
+      
+      if (prevUser && !currentUser) {
             this.props.navigation.navigate("Login");
+        } else if (currentUser && prevUser && currentUser.uid === prevUser.uid) {
+          const {data} = currentUser;
+          const {data: prevData} = prevUser;
+
+          if (prevData && prevData.achievements && data.achievements) {
+            const newAchievements = [];
+            for (const k of Object.keys(data.achievements)) {
+              if ((!prevData.achievements[k] || !prevData.achievements[k].completed) && 
+                  data.achievements[k].completed) {
+                    this.props.navigation.navigate('AchievementModal', { 
+                      achievement: processAchievement(data.achievements[k], k)
+                     });
+                    return;
+              }
+            }
+          }
         }
     }
 
     render() {
         const {currentUser, navigation, route, ...props} = this.props;
+        const pr = PixelRatio.getFontScale();
 
         const childRouteName = route.state ? route.state.routes[route.state.index].name : 'Plog';
         navigation.setOptions({
@@ -94,7 +118,7 @@ export default connect(state => ({
                         <Tab.Screen name={name}
                                     key={name}
                                     component={component}
-                                    options={makeTabOptions(name, childRouteName)}/>
+                                    options={makeTabOptions(name, childRouteName, pr > 1.5)}/>
                        )}
             </Tab.Navigator>
         );

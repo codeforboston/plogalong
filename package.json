@@ -8,7 +8,8 @@
     "ios": "expo start --ios",
     "eject": "expo eject",
     "test": "node ./node_modules/jest/bin/jest.js --watchAll",
-    "postinstall": "node ./scripts/postinstall.js"
+    "postinstall": "node ./scripts/postinstall.js",
+    "testDebug": "jest -o --watch --coverage=false"
   },
   "jest": {
     "preset": "jest-expo"
@@ -24,10 +25,11 @@
     "expo-google-app-auth": "^8.0.1",
     "expo-image-manipulator": "~8.0.0",
     "expo-image-picker": "~8.0.1",
-    "firebase": "^6.0.2",
+    "firebase": "^7.14.0",
     "formik": "^2.1.4",
     "geofirestore": "^3.4.1",
-    "immutable": "^4.0.0-rc.12",
+    "mem": ">=4.0.0",
+    "minimist": ">=1.2.3",
     "moment": "^2.0.0",
     "react": "16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.1.tar.gz",
@@ -48,7 +50,8 @@
   "devDependencies": {
     "babel-preset-expo": "^8.0.0",
     "jest-expo": "^36.0.0",
-    "react-native-svg-transformer": "^0.14.3"
+    "react-native-svg-transformer": "^0.14.3",
+    "react-test-renderer": "^16.13.1"
   },
   "private": true
 }

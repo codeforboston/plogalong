@@ -1,6 +1,6 @@
-import * as ImageManipulator from 'expo-image-manipulator';
+import { keep } from '../util/iter';
 
-import { auth, firebase, storage, Plogs, firestore } from './init';
+import { auth, firebase, Plogs, Plogs_ } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
@@ -9,9 +9,13 @@ const { GeoPoint } = firebase.firestore;
  * @param {import('geofirestore').GeoDocumentSnapshot | firebase.firestore.QueryDocumentSnapshot} plog
  */
 export const plogDocToState = (plog) => {
-  const data = plog.data();
+  let data = plog.data();
+  if (data.d) data = data.d;
   /** @type {GeoPoint} */
   const location = data.coordinates;
+  const plogPhotos = keep(
+    ({uri}) => (uri && uri.match(/^https:\/\//) && { uri }),
+    (data.Photos || []));
 
   return {
     id: plog.id,
@@ -25,7 +29,7 @@ export const plogDocToState = (plog) => {
     groupType: data.HelperType,
     pickedUp: data.PlogType === "Plog",
     when: data.DateTime.toDate(),
-    plogPhotos: (data.Photos || []).map(uri => ({ uri })),
+    plogPhotos,
     timeSpent: data.PlogDuration,
     saving: plog.metadata && plog.metadata.hasPendingWrites,
     userID: data.UserID,
@@ -56,10 +60,10 @@ export const plogStateToDoc = plog => ({
 });
 
 export function queryUserPlogs(userId) {
-  return Plogs.where('UserID', '==', userId);
+  return Plogs_.where('d.UserID', '==', userId).orderBy('d.DateTime', 'desc');
 }
 
-export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=8000) => {
+export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=100) => {
   return Plogs.near({
     center: new GeoPoint(lat, long),
     radius
@@ -69,20 +73,18 @@ export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=8000) => {
 
 export const savePlog = async (plog) => {
   const doc = Plogs.doc();
-  console.log(plog.when);
   await doc.set(plogStateToDoc(plog));
 
   if (!plog.plogPhotos || !plog.plogPhotos.length)
-      return;
-
+    return Promise.resolve();
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
-  const urls = await Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
+  return Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
     width <= 300 && height <= 300 ?
       uri :
       uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
                   { resize: { width: 300, height: 300 } })
-  )));
-
-  await doc.update({ Photos: urls });
+  ))).then(urls => {
+    return doc.update({ Photos: urls });
+  });
 };

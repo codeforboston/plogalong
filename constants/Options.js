@@ -4,6 +4,7 @@ export default {
     trashTypes: new Map([
         ['trash', {title: 'Trash', value: 'trash'}],
         ['recycling', {title: 'Recycling', value: 'recycling'}],
+        ['other', {title: 'Other', value: 'other'}],
         ['bottles', {title: 'Bottles', value: 'bottles'}],
         ['straws', {title: 'Straws', value: 'straws'}],
         ['plastic_bags', {title: 'Plastic Bags', value: 'plastic_bags'}],

@@ -1,23 +1,24 @@
 import * as React from 'react';
 import {
+  Animated,
+  Easing,
     ScrollView,
     StyleSheet,
     Switch,
     View,
     Text,
+    TouchableOpacity,
 } from 'react-native';
+import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
-import Constants from 'expo-constants';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Camera, Marker } from 'react-native-maps';
+import { Ionicons } from '@expo/vector-icons';
 
-import { Set } from 'immutable';
-
-import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Error from '../components/Error';
 import PhotoButton from '../components/PhotoButton';
+import { ShowHide } from '../components/Anim';
 import Question from '../components/Question';
-import Selectable from '../components/Selectable';
 
 import Options from '../constants/Options';
 import Colors from '../constants/Colors';
@@ -38,7 +39,7 @@ class PlogScreen extends React.Component {
         super(props);
         this.state = {
             selectedMode: 0,
-            trashTypes: Set([]),
+            trashTypes: {},
             activityType: ['walking'],
             groupType: ['alone'],
             plogPhotos: [null, null, null, null, null],
@@ -49,7 +50,12 @@ class PlogScreen extends React.Component {
             params: {
                 homeBase: 'Boston, MA',
                 username: 'Beach Bum'
-            }
+            },
+
+          shouldFollow: true,
+          markedLocation: null,
+          markedLocationInfo: null,
+          dragging: false,
         };
     }
 
@@ -57,16 +63,97 @@ class PlogScreen extends React.Component {
     if (!this.props.submitting && prevProps.submitting &&
         !this.props.error) {
       this.setState({
-          trashTypes: Set([]),
+          trashTypes: {},
           selectedMode: 0,
           plogPhotos: [null, null, null, null, null],
           timerInterval: clearInterval(this.state.timerInterval),
           plogStart: null,
           plogTotalTime: 0,
           plogTimer: '00:00:00',
+
+          markedLocation: null,
+        markedLocationInfo: null,
       });
 
       this.props.navigation.navigate('History');
+    }
+
+    if (this.props.location && !prevProps.location) {
+      this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+    }
+  }
+
+  /**
+   * @returns {Camera}
+   */
+  makeCamera = () => (this.props.location && {
+    center: this.props.location,
+    altitude: 1000,
+    pitch: 0,
+    heading: 0,
+    zoom: 14
+  })
+
+  onClickRecenter = () => {
+    this.setState({
+      markedLocation: null,
+      markedLocationInfo: null,
+      shouldFollow: true
+    });
+    this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+  }
+
+  onPanDrag = e => {
+    if (!this.state.markedLocation) {
+      this._markerScale = new Animated.Value(1);
+
+      this.setState({
+        shouldFollow: false,
+        markedLocation: e.nativeEvent.coordinate
+      });
+    }
+
+    if (!this.state.dragging) {
+      this.setState({
+        dragging: true
+      });
+
+      if (this._markerAnimation) this._markerAnimation.stop();
+      this._markerAnimation =
+        Animated.timing(this._markerScale, {
+          duration: 200,
+          easing: Easing.in(Easing.ease),
+          toValue: 1,
+        })
+        .start();
+    }
+  }
+
+  onRegionChangeComplete = region => {
+    if (this.state.markedLocation) {
+      const coordinates = {
+        latitude: region.latitude,
+        longitude: region.longitude,
+      };
+      this.setState({
+        dragging: false,
+        markedLocation: coordinates,
+      });
+
+      Location.reverseGeocodeAsync(coordinates).then(locationInfo => {
+        this.setState({
+          markedLocationInfo: locationInfo[0]
+        });
+      }, console.warn);
+
+      if (this._markerAnimation) this._markerAnimation.stop();
+
+      this._markerAnimation =
+        Animated.timing(this._markerScale, {
+          duration: 200,
+          easing: Easing.in(Easing.ease),
+          toValue: 0.667
+        }).start();
     }
   }
 
@@ -84,12 +171,13 @@ class PlogScreen extends React.Component {
             return;
         }
 
-        const coords = this.props.location;
+      const coords = this.state.markedLocation || this.props.location,
+            locationInfo = this.state.markedLocationInfo || this.props.locationInfo;
         const plog = {
-            location: coords ? {lat: coords.latitude, lng: coords.longitude, name: 'beach'} : null,
+            location: coords ? {lat: coords.latitude, lng: coords.longitude, name: locationInfo.street } : null,
             when: new Date(),
             pickedUp: this.mode === 'Log',
-            trashTypes: this.state.trashTypes.toJS(),
+            trashTypes: Object.keys(this.state.trashTypes),
             activityType: this.state.activityType[0],
             groupType: this.state.groupType[0],
             plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
@@ -102,9 +190,13 @@ class PlogScreen extends React.Component {
     }
 
     toggleTrashType = (trashType) => {
-        this.setState(({trashTypes}) => ({
-            trashTypes: trashTypes.has(trashType) ? trashTypes.delete(trashType) : trashTypes.add(trashType)
-        }));
+      this.setState(({trashTypes}) => {
+        if (trashTypes[trashType])
+          delete trashTypes[trashType];
+        else
+          trashTypes[trashType] = true;
+        return { trashTypes };
+      });
     }
 
     addPicture(picture, idx) {
@@ -165,6 +257,10 @@ class PlogScreen extends React.Component {
         this.setState({plogTimer: `${hours}:${minutes}:${seconds}`});
     }
 
+  toggleDetailedOptions = () => {
+    this.props.setPreferences({ showDetailedOptions: !this.props.preferences.showDetailedOptions });
+  }
+
     async componentDidMount() {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status === 'granted') {
@@ -178,46 +274,52 @@ class PlogScreen extends React.Component {
 
     renderModeQuestions(mode=this.mode) {
         const {state} = this,
-              activityName = Options.activities.get(state.activityType[0]).title,
-              groupName = Options.groups.get(state.groupType[0]).title;
-        
+              [activity] = state.activityType,
+              [group] = state.groupType,
+              activityName = Options.activities.get(activity).title,
+              groupName = Options.groups.get(group).title;
+
         switch (mode) {
         case 'Log':
             return (
                 <>
                   <Question question="What were you up to?" answer={activityName}/>
-                  <Selectable selection={state.activityType}>
+                  <View style={styles.selectable} >
                     {Array.from(Options.activities).map(([value, type]) => {
                         const { buttonIcon: ButtonIcon=type.icon } = this.props;
                         const activityIcon = <ButtonIcon fill="#666666" />;
                         return (
-                            <Button title={type.title} 
-                                value={value} 
-                                icon={activityIcon} 
-                                key={value}
-                                onPress={() => this.selectActivityType(value)} 
+                          <Button title={type.title} 
+                                  value={value} 
+                                  icon={activityIcon} 
+                                  key={value}
+                                  onPress={() => this.selectActivityType(value)} 
+                                  style={styles.selectableItem}
+                                  selected={value === activity}
                             />
                         )
                     }
                     )}
-                  </Selectable>
+                  </View>
 
                   <Question question="Who helped?" answer={groupName} />
-                  <Selectable selection={state.groupType}>
+                  <View style={styles.selectable} >
                     {Array.from(Options.groups).map(([value, type]) => {
                         const { buttonIcon: ButtonIcon=type.icon } = this.props;
                         const peopleIcon = <ButtonIcon fill="#666666" />;
                         return (
-                            <Button title={type.title} 
-                                value={value} 
-                                icon={peopleIcon} 
-                                key={value}
-                                onPress={() => this.selectGroupType(value)}
+                          <Button title={type.title} 
+                                  value={value} 
+                                  icon={peopleIcon} 
+                                  key={value}
+                                  onPress={() => this.selectGroupType(value)}
+                                  style={styles.selectableItem}
+                                  selected={value === group}
                             />
                         )
                     }
                     )}
-                  </Selectable>
+                  </View>
                 </>
             );
         }
@@ -227,14 +329,16 @@ class PlogScreen extends React.Component {
 
     render() {
         const {state} = this,
-              typesCount = state.trashTypes.size,
+              trashTypes = Object.keys(state.trashTypes),
+              typesCount = trashTypes.length,
               cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-              typesCount ? Options.trashTypes.get(state.trashTypes.first()).title : '',
+              typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
               {params} = this.state,
-              {user, error, locationInfo} = this.props;
+              {user, error, preferences: { showDetailedOptions }} = this.props,
+              locationInfo = state.markedLocationInfo || this.props.locationInfo;
+      const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
       const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
-
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
 
@@ -253,16 +357,28 @@ class PlogScreen extends React.Component {
 
             <View style={styles.mapContainer}>
                 <MapView
+                    ref={mapView => this.mapView = mapView}
                     style={[styles.map]}
-                    initialRegion={{
-                        latitude: 42.387,
-                        longitude: -71.0995,
-                        latitudeDelta: 0.05,
-                        longitudeDelta: 0.04,
-                    }}
-                    followsUserLocation={true}
+                    initialCamera={this.makeCamera()}
+                    showsMyLocationButton={true}
+                    showsTraffic={false}
                     showsUserLocation={true}
+                    followsUserLocation={this.state.shouldFollow}
+                    onPanDrag={this.onPanDrag}
+                    onRegionChangeComplete={this.onRegionChangeComplete}
+                    zoomControlEnabled={false}
                 />
+              {state.markedLocation &&
+               <Animated.View style={[styles.markedLocationIconContainer,
+                                      { transform: [{ scale: this._markerScale }]}]}
+                              pointerEvents="none">
+                 <ActivityIcon
+                   width={60}
+                   height={60}
+                   fill={Colors.activeColor}
+                 />
+               </Animated.View>
+              }
 
                 <View style={styles.timerButtonContainer} >
                     <Button
@@ -272,16 +388,19 @@ class PlogScreen extends React.Component {
                         selected={!!this.state.timerInterval}
                     />
                 </View>
-            </View>
 
-            <Question question="What did you clean up?" answer={cleanedUp}/>
-            <Selectable selection={state.trashTypes} >
-                {Array.from(Options.trashTypes).map(([value, type]) => (
-                    <Button title={type.title} value={value} icon={type.icon} key={value}
-                            onPress={() => this.toggleTrashType(value)}
-                    />
-                ))}
-            </Selectable>
+              <ShowHide style={styles.myLocationButtonContainer}
+                        animationConfig={{ delay: 500 }}
+                        shown={!this.state.shouldFollow} >
+                <TouchableOpacity onPress={this.onClickRecenter}
+                                  accessibilityLabel="Recenter map"
+                                  accessibilityRole="button"
+                >
+                  <Ionicons name="md-locate" size={20} style={styles.myLocationButton} />
+                </TouchableOpacity>
+              </ShowHide>
+
+            </View>
 
             <View style={styles.photoStrip}>
                 {
@@ -299,6 +418,20 @@ class PlogScreen extends React.Component {
                   ))
                 }
             </View>
+
+            <Question question="What did you clean up?" answer={cleanedUp}/>
+            <View style={styles.selectable} >
+              {Array.from(Options.trashTypes).slice(0, showDetailedOptions ? undefined : 3).map(([value, type]) => (
+                <Button title={type.title} value={value} icon={type.icon} key={value}
+                        onPress={() => this.toggleTrashType(value)}
+                        selected={state.trashTypes[value]}
+                        style={styles.selectableItem}
+                />
+              ))}
+            </View>
+          <Button title={showDetailedOptions ? 'Hide Detailed Options' : 'Show Detailed Options'}
+                  onPress={this.toggleDetailedOptions}
+          />
 
           {this.renderModeQuestions()}
 
@@ -332,11 +465,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around'
     },
 
-  photoButton: {
-    flex: 1,
-    margin: 2,
-    aspectRatio: 1,
-  },
+    photoButton: {
+        flex: 1,
+        marginHorizontal: 7,
+        aspectRatio: 1,
+    },
 
     mapContainer: {
         borderColor: Colors.borderColor,
@@ -371,6 +504,30 @@ const styles = StyleSheet.create({
         paddingRight: 5
     },
 
+  myLocationButtonContainer: {
+    height: '100%',
+    padding: 10,
+    paddingBottom: 20,
+    position: 'absolute',
+  },
+
+  myLocationButton: {
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderRadius: 5,
+    borderWidth: 1,
+    padding: 5,
+    paddingBottom: 2,
+  },
+
+  markedLocationIconContainer: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
     clearButton: {
         color: 'grey',
         textDecorationLine: 'underline'
@@ -382,14 +539,25 @@ const styles = StyleSheet.create({
         marginRight: 40,
         marginBottom: 20,
     },
+
+  selectable: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start'
+  },
+
+  selectableItem: {
+    flexGrow: 1
+  }
 });
 
-const PlogScreenContainer = connect(({users, log}) => ({
+const PlogScreenContainer = connect(({preferences, users, log}) => ({
   user: users.current,
   location: users.location,
   locationInfo: users.locationInfo,
   submitting: log.submitting,
   error: log.logError,
+  preferences,
 }),
                                     (dispatch) => ({
                                         logPlog(plogInfo) {
@@ -397,7 +565,8 @@ const PlogScreenContainer = connect(({users, log}) => ({
                                         },
                                         startWatchingLocation() {
                                             dispatch(actions.startWatchingLocation());
-                                        }
+                                        },
+                                      setPreferences: (...args) => dispatch(actions.setPreferences(...args))
                                     }))(PlogScreen);
 
 export default PlogScreenContainer;

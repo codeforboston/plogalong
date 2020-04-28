@@ -27,6 +27,20 @@
           "order": "ASCENDING"
         }
       ]
+    },
+{
+      "collectionGroup": "plogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "d.Public",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "d.DateTime",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

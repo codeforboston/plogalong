@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const app = require('./app');
 
 const { updateAchievements, updateStats, AchievementHandlers } = require('./shared');
+const { updatePlogsWhere } = require('./util');
 
 /**
  * Async generator that handles pagination and yields documents satisfying the
@@ -91,32 +92,15 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         const after = snap.after.data();
 
         if (before.profilePicture !== after.profilePicture || before.displayName !== after.displayName) {
-            const db = app.firestore();
-            const Plogs = db.collection('/plogs');
-            const where = ['d.UserID', '==', context.params.userId];
-            const limit = 100;
-
-            let query = Plogs.where(...where).limit(limit);
-
-            while (true) {
-                const batch = db.batch();
-                const plogs = await query.get();
-
-                for (const plog of plogs.docs) {
-                    batch.update(plog.ref, {
-                        'd.UserProfilePicture': after.profilePicture,
-                        'd.UserDisplayName': after.displayName,
-                    });
-                }
-
-                await batch.commit();
-                if (plogs.size < limit)
-                    break;
-
-                query = Plogs.where(...where).limit(limit).startAfter(plogs.docs[plogs.size-1]);
-            }
+          await updatePlogsWhere(
+            ['d.UserID', '==', context.params.userId],
+            {
+              'd.UserProfilePicture': after.profilePicture,
+              'd.UserDisplayName': after.displayName,
+            });
         }
     });
 
-const { likePlog } = require('./http');
+const { likePlog, loadUserProfile } = require('./http');
 exports.likePlog = functions.https.onCall(likePlog);
+exports.loadUserProfile = functions.https.onCall(loadUserProfile);

@@ -1,14 +1,14 @@
-import { fromJS, Seq } from "immutable";
-
 import {
-    LOG_PLOG,
-    SET_CURRENT_USER,
+  LOG_PLOG,
+  SET_CURRENT_USER,
   PLOGS_UPDATED,
   LOCAL_PLOGS_UPDATED,
   PLOG_LOGGED,
   LOG_PLOG_ERROR,
   LIKE_PLOG,
   LIKE_PLOG_ERROR,
+  LOAD_HISTORY,
+  LOAD_LOCAL_HISTORY,
 } from "../actionTypes";
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
@@ -19,12 +19,18 @@ const initialState = {
   plogData: {},
   history: [],
   localPlogs: [],
+  historyLoading: false,
+  localPlogsLoading: false,
 };
 
+/**
+ * @param {typeof initialState} state
+ * @returns {typeof initialState}
+ */
 const log = (state = initialState, action) => {
   const {type, payload} = action;
 
-    switch (action.type) {
+    switch (type) {
     case LOG_PLOG:
       return { ...state, submitting: payload.plog, logError: null };
 
@@ -37,14 +43,37 @@ const log = (state = initialState, action) => {
     case SET_CURRENT_USER:
       return payload.user ? state : { ... state, history: [] };
 
+    case LOAD_HISTORY: {
+      return { ...state, historyLoading: true };
+    }
+
+    case LOAD_LOCAL_HISTORY: {
+      return { ...state, localPlogsLoading: true };
+    }
 
     case PLOGS_UPDATED:
     case LOCAL_PLOGS_UPDATED: {
-      const {plogs = []} = payload;
+      const {plogs = [], prepend, replace} = payload;
+      const k = type === PLOGS_UPDATED ? 'history' : 'localPlogs';
+      const plogIds = plogs.map(p => p.id);
+      const current = state[k];
+      let updated = current;
+
+      if (prepend) {
+        const idx = plogIds.indexOf(current[0]);
+        if (idx > 0)
+          updated = plogIds.slice(0, idx).concat(current);
+      } else if (plogIds.length) {
+        if (replace)
+          updated = plogIds;
+        else
+          updated = current.concat(plogIds);
+      }
 
       return {
         ...state,
-        [action.type === PLOGS_UPDATED ? 'history' : 'localPlogs']: plogs.map(p => p.id),
+        [k]: updated,
+        [`${k}Loading`]: false,
         plogData: {
           ...state.plogData,
           ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})

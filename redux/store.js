@@ -5,13 +5,11 @@ import rootReducer from './reducers';
 
 import { queryUserPlogs, plogDocToState } from '../firebase/plogs';
 import { onAuthStateChanged, getUserData } from '../firebase/auth';
-import { auth } from '../firebase/init';
 
-import { fromJS } from "immutable";
-
-import { plogsUpdated, setCurrentUser, gotUserData } from './actions';
+import { plogsUpdated, setCurrentUser, gotUserData, loginAnonymously, flashMessage } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
 import LocationMiddleware from './location-middleware';
+import PlogMiddleware from './plog-middleware';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -19,12 +17,13 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export function initializeStore(prefs) {
     const store = createStore(
         rootReducer,
-        { preferences: prefs ? fromJS(prefs) : null },
+        { preferences: prefs },
         composeEnhancers(
             applyMiddleware(
                 thunk,
                 PreferencesMiddleware,
                 LocationMiddleware,
+                PlogMiddleware
             )
         )
     );
@@ -35,7 +34,7 @@ export function initializeStore(prefs) {
         (user) => {
             if (!user && firstStateChange) {
                 // log in anonymously
-                auth.signInAnonymously();
+              store.dispatch(loginAnonymously(true));
             }
             firstStateChange = false;
 
@@ -48,6 +47,9 @@ export function initializeStore(prefs) {
             );
 
             if (user && user.uid) {
+              if (!user.isAnonymous) {
+                store.dispatch(flashMessage('Welcome back!'));
+              }
                 // Firebase will automatically unsubscribe from snapshot updates
                 // on error.
               getUserData(user, store).then(userDoc => userDoc.onSnapshot(snap => {

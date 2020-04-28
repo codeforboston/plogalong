@@ -23,8 +23,6 @@ async function likePlog(data, context) {
   if (!auth || !auth.uid)
     throw new HttpsError('unauthenticated', 'Request not authenticated');
 
-  console.log(data, auth.uid);
-
   if (!data.plog)
     throw new HttpsError('failed-precondition', 'Missing required parameter: plog');
 
@@ -60,6 +58,46 @@ async function likePlog(data, context) {
   });
 }
 
+/**
+ * @typedef {object} ProfileRequest
+ * @property {string} userID
+ */
+
+/**
+ * @param {ProfileRequest} data
+ * @param {functions.https.CallableContext} context
+ */
+async function loadUserProfile(data, context) {
+  if (!context.auth || !context.auth.uid)
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  if (!data.userID)
+    throw new HttpsError('failed-precondition', 'Missing required parameter: userID');
+
+  const [user, userData] = await Promise.all([
+    app.auth().getUser(data.userID),
+    Users.doc(data.userID).get()
+  ]);
+
+  if (!userData.exists)
+    throw new HttpsError('not-found', 'Invalid user id');
+
+  const {privateProfile, displayName, profilePicture, achievements = {}, stats = {}} = userData.data();
+
+  if (privateProfile)
+    throw new HttpsError('permission-denied', 'That profile is private');
+
+  return {
+    last: user.metadata.lastSignInTime,
+    created: user.metadata.creationTime,
+    plogCount: stats && stats.total && stats.total.count || 0,
+    displayName,
+    achievements,
+    profilePicture,
+  };
+}
+
 module.exports = {
-  likePlog
+  likePlog,
+  loadUserProfile,
 };
