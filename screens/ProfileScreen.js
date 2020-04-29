@@ -118,23 +118,12 @@ class ProfileScreen extends React.Component {
                  onPictureSelected={this.setProfilePhoto}
                  onCleared={() => { this.setProfilePhoto(null); }}
                />
-               <View style={styles.personalInfo}>
-                 <Text style={styles.badgeSummary}>
-                   {pluralize(completedAchievements, 'badge')}
-                 </Text>
                  <Text style={{ fontWeight: '500' }}>
                    Personal Account
                  </Text>
                  <Text style={{ fontWeight: '500' }}>
                    { currentUser.email }
                  </Text>
-               </View>
-             </View>
-
-             <View>
-               <Text style={styles.welcomeText}>
-                 Hello, {displayName||'Fellow Plogger'}!
-               </Text>
              </View>
 
              <View style={$S.inputGroup}>
@@ -196,36 +185,24 @@ const styles = StyleSheet.create({
       padding: 20,
   },
   personalInfoContainer: {
-      flexDirection: 'row',
+      flexDirection: 'column',
     marginTop: 10,
     marginBottom: 20,
+    alignItems: 'center',
   },
   profileImageButton: {
-      width: 100,
-      height: 80,
-      marginTop: 3,
-      marginLeft: -10,
+      width: 300,
+      height: 300,
+      marginTop: 3,      
       borderWidth: 0,
   },
-    profileImage: {
-        width: 100,
-        height: 80,
-        resizeMode: 'contain', 
-    },
-    badgeSummary: {
-        borderColor: Colors.borderColor,
-        borderRadius: 5,
-        borderWidth: 1,
-        backgroundColor: '#E5E9F2',
-        marginBottom: 10,
-        padding: 10,
+    profileImage: {        
+        resizeMode: 'contain',
+
     },
     personalInfo: {
         flexDirection: 'column',
         flexGrow: 1,
-    },
-    welcomeText: {
-        textAlign: 'center'
     },
     anonymousButtonContainer: {
         flex: 1,
