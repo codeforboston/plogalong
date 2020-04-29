@@ -16,6 +16,7 @@ import AboutScreen from './AboutScreen';
 import FAQScreen from './FAQScreen';
 import ContactScreen from './ContactScreen';
 import InviteModalScreen from './InviteModalScreen';
+import PrivacyAndTerms from './PrivacyAndTerms';
 
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
@@ -43,6 +44,7 @@ export class MoreScreen extends React.Component {
     {label: 'About Plogalong', route: 'About'},
     {label: 'FAQ', route: 'FAQ'},
     {label: 'Contact Us', route: 'Contact Us'},
+    {label: 'Privacy and Terms', route: 'Privacy'},
     {label: 'Invite', route: false, handlePress: this.toggleIsInviteModalVisible},
   ];
 
@@ -98,6 +100,7 @@ export default ({navigation, route}) => {
           <Stack.Screen name="About" component={ AboutScreen }/>
           <Stack.Screen name="FAQ" component={ FAQScreen }/>
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
+          <Stack.Screen name="Privacy" component={ PrivacyAndTerms }/>
           <Stack.Screen name="InviteModal" component={ InviteModalScreen }/>
         </Stack.Navigator>
     );
