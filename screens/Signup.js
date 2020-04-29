@@ -2,16 +2,21 @@ import * as React from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import {
   SafeAreaView,
-  StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
 
+import {
+  linkToEmail, linkToFacebook, linkToGoogle,
+  unlinkFacebook, unlinkGoogle,
+  mergeAnonymousAccount
+} from '../firebase/auth';
 import * as actions from '../redux/actions';
 import { indexBy } from '../util';
-import { useEffectWithPrevious } from '../util/react';
+import { useEffectWithPrevious, useParams } from '../util/react';
+import { withPrompt } from '../Prompt';
 
 import $S from '../styles';
 
@@ -24,42 +29,75 @@ import PasswordInput from '../components/PasswordInput';
 /** @typedef {import('../firebase/project/functions/shared').UserData} UserData */
 /** @typedef {import('firebase').User & { data?: UserData }} User */
 
-const makeParams = init => {
-  const [state, setState] = useState(init);
-
-  return [
-    state,
-    setState,
-    k => (text => setState({ ...state, [k]: text }))
-  ];
-};
-
 const SignupScreen = props => {
-  const {authenticating, currentUser, error, clearSignupError, navigation} = props;
+  const {currentUser, navigation, prompt} = props;
 
-  useEffectWithPrevious((wasAuthenticating) => {
-    if (wasAuthenticating && !authenticating && !error) {
-      navigation.pop();
-    }
-  }, [authenticating, error]);
-
-  const [params, _, setParam] = makeParams({});
+  const {params, setter} = useParams({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   const enabled = useMemo(() => (
     params && params.email && params.password && params.password === params.confirmPassword
   ), [params]);
+  const [authenticating, setAuthenticating] = useState(null);
+  const [error, setError] = useState(null);
+
+  const link = async (fn, ...args) => {
+    try {
+      setError(null);
+      setAuthenticating(true);
+      await fn(...args);
+      navigation.pop();
+    } catch (e) {
+      if (e.code === 'auth/credential-already-in-use') {
+        const { credential } = e;
+
+        const result = await prompt({
+          title: 'Link to existing account?',
+          message: 'Another Plogalong user is already linked to that account. Do you want to add your plogs to the existing user? ',
+          value: '',
+          options: [
+            {
+              title: 'Merge accounts',
+              value: 'merge',
+              run: async (setMessage) => {
+                setMessage('Merging accounts...');
+                await mergeAnonymousAccount(credential, { email: e.email });
+              }
+            },
+
+            {
+              title: 'Cancel',
+              run: () => { },
+            }
+          ]
+        });
+
+        if (result === 'merge')
+          navigation.pop();
+      } else {
+        console.log(e.code);
+        setError(e);
+      }
+    } finally {
+      setAuthenticating(false);
+    }
+  };
 
   const onSubmit = useCallback(() => {
-    if (enabled) {
-      props.linkToEmail(params.email, params.password);
-    }
+    link(linkToEmail, params.email, params.password);
   }, [enabled && params]);
+  const onDismiss = useCallback(() => {
+    setError(null);
+  }, []);
   const providers = useMemo(() => indexBy(currentUser.providerData, 'providerId'),
                             [currentUser]);
 
   const content = authenticating ?
         <Loading /> :
         <>
-          <ModalHeader onDismiss={clearSignupError} dismissButtonColor="black">
+          <ModalHeader onDismiss={onDismiss} dismissButtonColor="black">
             Create your account
           </ModalHeader>
           {error && <Error error={error}/>}
@@ -74,20 +112,20 @@ const SignupScreen = props => {
                              autoFocus={true}
                              keyboardType="email-address"
                              value={params.email}
-                             onChangeText={setParam('email')}
+                             onChangeText={setter('email')}
                   />
                 </View>
                 <View style={$S.inputGroup}>
                   <Text style={$S.inputLabel}>Password</Text>
                   <PasswordInput autoCompleteType="password"
-                                 onChangeText={setParam('password')}
+                                 onChangeText={setter('password')}
                                  value={params.password}
                   />
                 </View>
                 {!!params.password && <View style={$S.inputGroup}>
                      <Text style={$S.inputLabel}>Retype Pasword</Text>
                      <PasswordInput autoCompleteType="password"
-                                    onChangeText={setParam('confirmPassword')}
+                                    onChangeText={setter('confirmPassword')}
                                     value={params.confirmPassword}
                      />
                    </View>}
@@ -107,12 +145,14 @@ const SignupScreen = props => {
           {
             providers['facebook.com'] ?
               (
-                <Button primary onPress={props.unlinkFacebook} title="Disconnect Facebook" />
+                <Button primary
+                        onPress={null}
+                        title="Disconnect Facebook" />
               ) :
               (
                 <Button
                   primary
-                  onPress={props.linkToFacebook}
+                  onPress={_ => link(linkToFacebook)}
                   title="Facebook Login"
                 />
               )
@@ -120,12 +160,14 @@ const SignupScreen = props => {
           {
             providers['google.com'] ?
               (
-                <Button primary onPress={props.unlinkGoogle} title="Disconnect Google" />
+                <Button primary
+                        onPress={null}
+                        title="Disconnect Google" />
               ) :
               (
                 <Button
                   primary
-                  onPress={props.linkToGoogle}
+                  onPress={_ => link(linkToGoogle)}
                   title="Google Login"
                 />
               )
@@ -157,4 +199,4 @@ export default connect(
     unlinkFacebook: (...args) => dispatch(actions.unlinkFacebook(...args)),
     clearSignupError: (...args) => dispatch(actions.signupError()),
   })
-)(SignupScreen);
+)(withPrompt(SignupScreen));

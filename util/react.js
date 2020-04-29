@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 
 export const useEffectWithPrevious = (callback, deps) => {
@@ -9,4 +9,21 @@ export const useEffectWithPrevious = (callback, deps) => {
       r.current = deps[i];
     });
   }, deps);
+};
+
+/** @typedef {<T>(newState: T) => void} SetState */
+
+/**
+ * @template T
+ * @param {T} init
+ */
+export const useParams = init => {
+  const [params, setParams] = useState(init);
+
+  return {
+    params,
+    setParams,
+    /** @type {<K extends keyof T>(key: K) => ((val: T[K]) => void)} */
+    setter: k => (val => setParams({ ...params, [k]: val }))
+  };
 };

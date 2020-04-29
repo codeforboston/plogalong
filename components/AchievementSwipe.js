@@ -8,27 +8,30 @@ import AchievementBadge from './AchievementBadge';
 import AchievedTypes from '../constants/AchievedMockup';
 
 
-const AchievementSwipe = ({achievements}) => {
-    if (!achievements) achievements = {};
-    const data = $u.processAchievements(achievements);
+const AchievementSwipe = ({achievements, showAll=false}) => {
+  if (!achievements) achievements = {};
+  const data = $u.processAchievements(achievements, {
+    unstarted: showAll,
+    hidden: showAll
+  });
 
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
-    return (
-        <FlatList
-            data={data}
-            renderItem={({ item }) =>
-                <AchievementBadge
+  return (
+    <FlatList
+      data={data}
+      renderItem={({ item }) =>
+                  <AchievementBadge
                     achievement={item}
                     onPress={() => navigation.navigate('AchievementModal', { achievement: item })} />
-            }
-            keyExtractor={item => item.key}
-            pagingEnabled={true}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-        >
-        </FlatList>
-    );
-}
+                 }
+      keyExtractor={item => item.key}
+      pagingEnabled={true}
+      horizontal={true}
+      showsHorizontalScrollIndicator={false}
+    >
+    </FlatList>
+  );
+};
 
 export default AchievementSwipe;

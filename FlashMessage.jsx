@@ -3,8 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   StyleSheet,
-  Text,
-  View
 } from 'react-native';
 import { connect } from 'react-redux';
 

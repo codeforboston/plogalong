@@ -8,33 +8,33 @@ import * as actions from '../redux/actions';
 import $S from '../styles';
 
 import Banner from '../components/Banner';
+import Loading from '../components/Loading';
 import PlogList from '../components/PlogList';
 
 
-class LocalScreen extends React.Component {
-  render() {
-    const {history, currentUser} = this.props;
-
-    return (
-      <View style={$S.screenContainer}>
-        <PlogList plogs={history}
-                  currentUser={currentUser}
-                  likePlog={this.props.likePlog}
-                  header={
-                    <View style={{ paddingTop: 20 }}>
-                      <Banner>
-                        You're near a beach. Straws and plastic bags pose the biggest problem.
-                      </Banner>
-                    </View>
-                  }
-                  footer={
-                    <View style={{ height: 25 }} />
-                  }
-        />
-      </View>
-    );
-  }
-}
+const LocalScreen = ({history, currentUser, likePlog, loading}) => (
+  <View style={$S.screenContainer}>
+    <PlogList plogs={history}
+              currentUser={currentUser}
+              likePlog={likePlog}
+              header={
+                <View style={{ paddingTop: 20 }}>
+                  <Banner>
+                    You're near a beach. Straws and plastic bags pose the biggest problem.
+                  </Banner>
+                </View>
+              }
+              footer={
+                loading ?
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 10 }}>
+                    <Loading/>
+                  </View>
+                :
+                <View style={{ height: 25 }} />
+              }
+    />
+  </View>
+);
 
 export default connect(({log, users}) => {
   const {plogData, localPlogs} = log;
@@ -42,6 +42,7 @@ export default connect(({log, users}) => {
   return {
     history: localPlogs.map(id => plogData[id]).sort((a, b) => (b.when - a.when)),
     currentUser: users.current,
+    loading: log.localPlogsLoading,
   };
 }, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),

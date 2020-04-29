@@ -78,18 +78,22 @@ export default connect(state => ({
       const {currentUser} = this.props;
       
       if (prevUser && !currentUser) {
-            this.props.navigation.navigate("Login");
+            this.props.navigation.replace("Login");
         } else if (currentUser && prevUser && currentUser.uid === prevUser.uid) {
           const {data} = currentUser;
           const {data: prevData} = prevUser;
 
           if (prevData && prevData.achievements && data.achievements) {
-            const newAchievements = [];
+            // This code is structured as if we wanted to find ALL the newly
+            // completed achievements. At least for now, though, we're just
+            // showing one modal.
+
+            // const newAchievements = [];
             for (const k of Object.keys(data.achievements)) {
               if ((!prevData.achievements[k] || !prevData.achievements[k].completed) && 
                   data.achievements[k].completed) {
                     this.props.navigation.navigate('AchievementModal', { 
-                      achievement: processAchievement(data.achievements[k], k)
+                      achievement: processAchievement(data.achievements, k)
                      });
                     return;
               }

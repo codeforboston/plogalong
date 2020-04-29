@@ -60,7 +60,7 @@ const UserProfile = ({user}) => (
       }
     />
     <Text style={$S.subheader}>Achievements</Text>
-    <FlatList data={users.processAchievements(user.achievements, false)}
+    <FlatList data={users.processAchievements(user.achievements, { partial: false })}
               renderItem={({item}) => (
                 <View style={styles.achievement}>
                   {React.createElement(item.icon, {

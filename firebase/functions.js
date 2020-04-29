@@ -5,6 +5,7 @@ import { update } from '../util/iter';
 
 const _likePlog = functions.httpsCallable('likePlog');
 const _loadUserProfile = functions.httpsCallable('loadUserProfile');
+const _mergeWithAccount = functions.httpsCallable('mergeWithAccount');
 
 /**
  * @param {string} plogID
@@ -26,4 +27,11 @@ export async function loadUserProfile(userID) {
       updated: convertStamp
     }
   });
+}
+
+/**
+ * @param {string} userID
+ */
+export async function mergeWithAccount(userID) {
+  await _mergeWithAccount({ userID });
 }

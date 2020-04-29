@@ -107,13 +107,18 @@ class LoginScreen extends React.Component {
                 onPress={this.props.loginWithGoogle}
                 style={[{ marginTop: 20 }]} />
 
+        <Link onPress={() => { navigation.navigate('ForgotPassword'); }}
+              style={styles.linkStyle} >
+          Forgot Your Password?
+        </Link>
+
         <Link onPress={() => { this.props.loginAnonymously(); }}
-              style={{ marginTop: 30, textAlign: 'center' }}>
+              style={styles.linkStyle}>
           Skip Registration
         </Link>
 
         <Link onPress={() => { navigation.navigate('Intro'); }}
-              style={[$S.helpLink, { marginTop: 20, textAlign: 'center' }]}>
+              style={[$S.helpLink, styles.linkStyle]}>
           What is Plogging?
         </Link>
       </>
@@ -135,6 +140,10 @@ class LoginScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  linkStyle: {
+    marginTop: 30,
+    textAlign: 'center'
+  },
   loggingIn: {
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -142,7 +151,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 30
-  }
+  },
 });
 
 export default connect(
