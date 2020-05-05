@@ -8,14 +8,14 @@ import {
 import Colors from '../constants/Colors';
 
 
-const Question = ({question, answer}) => (
-    <View style={styles.question}>
-        <Text style={styles.left}>{question}</Text>
+const Answer = ({answer}) => (
+    <View style={styles.answer}>
+        <Text style={styles.right}>{answer}</Text>
     </View>
 );
 
 const styles = StyleSheet.create({
-    question: {
+    answer: {
         flex: 1,
         justifyContent: 'space-between',
         flexDirection: 'column',
@@ -33,4 +33,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Question;
+export default Answer;

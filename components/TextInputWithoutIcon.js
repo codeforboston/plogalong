@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 import $S from '../styles';
 import Colors from '../constants/Colors';
@@ -18,10 +17,8 @@ import Colors from '../constants/Colors';
  */
 
 /** @type {React.FunctionComponent<TextInputWithIconProps>} */
-const TextInputWithIcon = ({onPressIn, onPress, icon, iconName, style, ...props}) => {
+const TextInputWithoutIcon = ({onPressIn, onPress, style, ...props}) => {
   const [isPressed, setPressed] = React.useState(false);
-
-  const sharedIconStyles = [styles.sharedIconStyle, ];
   return (
     <View>
       <TouchableOpacity 
@@ -34,27 +31,17 @@ const TextInputWithIcon = ({onPressIn, onPress, icon, iconName, style, ...props}
           setPressed(false);
         }}
         style={styles.touchableStyle}>
-        {icon ?
-          React.cloneElement(icon, { style: [sharedIconStyles, icon.props.style] }) :
-          iconName ?
-            <Ionicons size={30} style={[styles.iconStyle, sharedIconStyles]}
-              name={iconName} /> :
-            null}
       </TouchableOpacity>
       <TextInput style={[$S.textInput, styles.inputStyle, isPressed ? styles.purpleOutline : styles.greenOutline]} {...props} />
     </View>
   )
 };
 
-export default TextInputWithIcon;
+export default TextInputWithoutIcon;
 
 const styles = StyleSheet.create({
   inputStyle: {
     flexGrow: 1,
-  },
-  sharedIconStyle: {
-    paddingRight: 5,
-    paddingTop: 2,
   },
   touchableStyle: {
     position: 'absolute',
