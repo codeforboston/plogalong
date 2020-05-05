@@ -17,6 +17,7 @@ import {
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import PhotoButton from '../components/PhotoButton';
+import TextInputWithoutIcon from '../components/TextInputWithoutIcon';
 import TextInputWithIcon from '../components/TextInputWithIcon';
 import { setPreferences, logout} from '../redux/actions';
 import { pluralize } from '../util';
@@ -139,7 +140,7 @@ class ProfileScreen extends React.Component {
 
              <View style={$S.inputGroup}>
                <Text style={$S.inputLabel}>Username (visible to others)</Text>
-               <TextInput style={$S.textInput}
+               <TextInputWithoutIcon
                           autoCapitalize="none"
                           value={params.displayName}
                           autoCompleteType="username"
@@ -157,10 +158,7 @@ class ProfileScreen extends React.Component {
                                   onBlur={this.save}
                                   onPress={this.setHomeBaseFromLocationInfo}
                                   iconName="ios-navigate"
-                                  maxLength={40}
-                                  style={styles.greenOutline}
-                                  // VK note to self - what about purpleOultine when selected???
-               />
+                                  maxLength={40}/>
              </View>
 
              <View style={$S.switchInputGroup}>
@@ -236,13 +234,6 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'column',
     },
-    greenOutline: {
-        borderColor: Colors.secondaryColor,
-        borderWidth: 2,
-    },
-    purpleOutline: {
-      borderColor: Colors.selectionColor,
-      borderWidth: 2,},
 });
 
 export default connect(
