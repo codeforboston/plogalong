@@ -55,7 +55,6 @@ export class MoreScreen extends React.Component {
           Life is hard. Plogging is easy.
         </Banner>
         <NavMenu routes={this.pages}/>
-        <View style={{ flex: 1 }}/>
         <View style={styles.buttons}>
           <Button title="Invite"
                   large

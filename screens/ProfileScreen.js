@@ -185,20 +185,22 @@ const styles = StyleSheet.create({
       padding: 20,
   },
   personalInfoContainer: {
-      flexDirection: 'column',
+    flexDirection: 'column',
     marginTop: 10,
     marginBottom: 20,
     alignItems: 'center',
   },
   profileImageButton: {
-      width: 300,
-      height: 300,
-      marginTop: 3,      
+      width: 200,
+      height: 200,
+      marginTop: 3, 
+      marginBottom: 10,     
       borderWidth: 0,
   },
     profileImage: {        
         resizeMode: 'contain',
-
+        width: 200,
+        height: 200,
     },
     personalInfo: {
         flexDirection: 'column',
