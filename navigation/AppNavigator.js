@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Text } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+// import { } from 'react-native';
+import { NavigationContainer, useLinking } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Linking } from 'expo';
 
 import Header from '../components/Header';
 
@@ -20,10 +21,49 @@ import icons from '../icons';
 
 const AppStack = createStackNavigator();
 
+const urlPrefix = Linking.makeUrl('/');
+const linkingConfig = {
+  ForgotPassword: {
+    path: 'forgot'
+  },
+  Signup: {
+    path: 'signup'
+  },
+  Main: {
+    path: ''
+  }
+};
+
+
 export default (props) => {
+const ref = React.useRef();
+
+  const { getInitialState } = useLinking(ref, {
+    prefixes: [urlPrefix],
+    config: linkingConfig
+  });
+
+  const [isReady, setIsReady] = React.useState(false);
+  const [initialState, setInitialState] = React.useState();
+
+  React.useEffect(() => {
+    getInitialState()
+      .catch(() => {})
+      .then(state => {
+        if (state !== undefined) {
+          setInitialState(state);
+        }
+
+        setIsReady(true);
+      });
+  }, [getInitialState]);
+
+  if (!isReady) {
+    return null;
+  }
     return (
-    <NavigationContainer>
-      <AppStack.Navigator initialRouteName="Main" mode="modal" headerMode="screen">
+    <NavigationContainer initialState={initialState} ref={ref}>
+      <AppStack.Navigator mode="modal" headerMode="screen">
         <AppStack.Screen name="Main"
                          component={ MainTabNavigator}
                          options={{

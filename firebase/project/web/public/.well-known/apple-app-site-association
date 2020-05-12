@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{
+      "appID": "JQXQCN3XB5.com.plogalong.plogalong",
+      "paths": ["/*"]
+    }]
+  },
+  "webcredentials": {
+    "apps": [ "JQXQCN3XB5.com.plogalong.plogalong" ]      
+  }
+}
