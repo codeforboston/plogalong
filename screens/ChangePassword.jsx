@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { Formik } from 'formik';
-import { useNavigation } from '@react-navigation/native';
 import * as yup from 'yup';
 
 import * as actions from '../redux/actions';
@@ -24,15 +23,16 @@ import PasswordInput from '../components/PasswordInput';
 /** @typedef {import('firebase').User & { data?: UserData }} User */
 
 
-const schema = yup.object({
-  oldPassword: yup.string().required().label('Old Password'),
-  newPassword: yup.string().required().label('New Password'),
-  confirmPassword: yup.string().required().oneOf([yup.ref('newPassword')], 'The passwords do not match')
-});
-
 /** @type {React.FunctionComponent<{ currentUser: User }>} */
-const ChangePassword = ({currentUser, flashMessage}) => {
-  const navigation = useNavigation();
+const ChangePassword = ({flashMessage, navigation, route}) => {
+  const { params } = route;
+  const oobCode = params && params.oobCode;
+
+  const schema = yup.object({
+    oldPassword: oobCode ? null : yup.string().required().label('Old Password'),
+    newPassword: yup.string().required().label('New Password'),
+    confirmPassword: yup.string().required().oneOf([yup.ref('newPassword')], 'The passwords do not match')
+  });
 
   return (
     <SafeAreaView style={$S.safeContainer}>
@@ -52,25 +52,35 @@ const ChangePassword = ({currentUser, flashMessage}) => {
           validateOnChange={false}
           onSubmit={async (values, bag) => {
             const {currentUser} = auth;
-            const emailProvider = currentUser.providerData.find(pd => pd.providerId === 'password');
-            if (!emailProvider) {
-              bag.setFieldError('oldPassword', 'You are not using password login!');
-              return;
-            }
 
-            const credential = firebase.auth.EmailAuthProvider.credential(emailProvider.email, values.oldPassword);
-            try {
-              await currentUser.reauthenticateWithCredential(credential);
-            } catch (err) {
-              bag.setFieldError('oldPassword', err.message);
-              return;
-            }
+            if (oobCode) {
+              try {
+                await auth.confirmPasswordReset(oobCode, values.newPassword);
+              } catch (err) {
+                bag.setFieldError('newPassword', err.message);
+                return;
+              }
+            } else {
+              const emailProvider = currentUser.providerData.find(pd => pd.providerId === 'password');
+              if (!emailProvider) {
+                bag.setFieldError('oldPassword', 'You are not using password login!');
+                return;
+              }
 
-            try {
-              await currentUser.updatePassword(values.newPassword);
-            } catch (err) {
-              bag.setFieldError('newPassword', err.message);
-              return;
+              const credential = firebase.auth.EmailAuthProvider.credential(emailProvider.email, values.oldPassword);
+              try {
+                await currentUser.reauthenticateWithCredential(credential);
+              } catch (err) {
+                bag.setFieldError('oldPassword', err.message);
+                return;
+              }
+
+              try {
+                await currentUser.updatePassword(values.newPassword);
+              } catch (err) {
+                bag.setFieldError('newPassword', err.message);
+                return;
+              }
             }
 
             flashMessage('Your password has been updated!');
@@ -80,16 +90,19 @@ const ChangePassword = ({currentUser, flashMessage}) => {
           {
             ({handleChange, handleSubmit, values, isSubmitting, errors, isValid}) =>
               <View>
-                <View style={$S.inputGroup}>
-                  {errors.oldPassword && <Text style={styles.errorText}>{errors.oldPassword}</Text>}
-                  <Text style={$S.inputLabel}>Old Password</Text>
-                  <PasswordInput style={$S.textInput}
-                                 autoCompleteType="off"
-                                 autoFocus={true}
-                                 value={values.oldPassword}
-                                 onChangeText={handleChange('oldPassword')}
-                  />
-                </View>
+                {
+                  !oobCode &&
+                  <View style={$S.inputGroup}>
+                    {errors.oldPassword && <Text style={styles.errorText}>{errors.oldPassword}</Text>}
+                    <Text style={$S.inputLabel}>Old Password</Text>
+                    <PasswordInput style={$S.textInput}
+                      autoCompleteType="off"
+                      autoFocus={true}
+                      value={values.oldPassword}
+                      onChangeText={handleChange('oldPassword')}
+                    />
+                  </View>
+                }
                 <View style={$S.inputGroup}>
                   <Text style={styles.errorText}>{errors.newPassword}</Text>
                   <Text style={$S.inputLabel}>New Password</Text>
@@ -100,7 +113,7 @@ const ChangePassword = ({currentUser, flashMessage}) => {
                 </View>
                 <View style={$S.inputGroup}>
                   {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
-                  <Text style={$S.inputLabel}>Old Password</Text>
+                  <Text style={$S.inputLabel}>Confirm New Password</Text>
                   <PasswordInput style={$S.textInput}
                                  value={values.confirmPassword}
                                  onChangeText={handleChange('confirmPassword')}

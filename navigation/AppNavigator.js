@@ -30,9 +30,12 @@ const linkingConfig = {
   Signup: {
     path: 'signup'
   },
+  ChangePassword: {
+    path: 'changePassword',
+  },
   Main: {
     path: ''
-  }
+  },
 };
 
 
