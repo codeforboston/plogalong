@@ -150,7 +150,7 @@ export default StyleSheet.create({
   h1: {
     fontSize: 25,
     marginTop: 10,
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     color: Colors.textGray,
   },
 
