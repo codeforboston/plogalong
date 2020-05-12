@@ -29,8 +29,6 @@ export const HistoryScreen = ({currentUser, history, likePlog, loadHistory, load
   return (
     <View style={$S.screenContainer}>
 
-      <Text style={$S.h1}>Your Feed</Text>
-      
       <PlogList plogs={history}
                 currentUser={currentUser}
                 likePlog={likePlog}
@@ -50,6 +48,7 @@ export const HistoryScreen = ({currentUser, history, likePlog, loadHistory, load
                       <Text style={$S.subheader}>Achievements</Text>
                       <AchievementSwipe achievements={currentUser.data.achievements} />
                     </View>
+                    <Text style={$S.h1}>Your Feed</Text>
                   </View>
                 }
                 footer={
