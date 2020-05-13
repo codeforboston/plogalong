@@ -6,7 +6,7 @@ import rootReducer from './reducers';
 import { queryUserPlogs, plogDocToState } from '../firebase/plogs';
 import { onAuthStateChanged, getUserData } from '../firebase/auth';
 
-import { plogsUpdated, setCurrentUser, gotUserData, loginAnonymously, flashMessage } from './actions';
+import { setCurrentUser, gotUserData, loginAnonymously, flashMessage } from './actions';
 import PreferencesMiddleware from './preferences-middleware';
 import LocationMiddleware from './location-middleware';
 import PlogMiddleware from './plog-middleware';
@@ -59,15 +59,7 @@ export function initializeStore(prefs) {
                         store.dispatch(gotUserData(user.uid, data));
                     }
               }, _ => {}));
-
-                queryUserPlogs(user.uid).onSnapshot(snap => {
-                    store.dispatch(plogsUpdated(
-                        snap.docs.map(plogDocToState)
-                    ));
-                }, _ => {});
-            } else {
-                store.dispatch(plogsUpdated([]));
-            }
+            } 
         }
     );
 

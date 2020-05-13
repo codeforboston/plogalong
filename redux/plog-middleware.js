@@ -18,7 +18,7 @@ export default store => {
         localUnsubscribe();
 
       firstLocalPageLoaded = false;
-      localUnsubscribe = getLocalPlogs(location.latitude, location.longitude).onSnapshot(snapshot => {
+        localUnsubscribe = getLocalPlogs(location.latitude, location.longitude).onSnapshot(snapshot => {
         store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState),
                                          { replace: !firstLocalPageLoaded,
                                            prepend: firstLocalPageLoaded }));
@@ -74,6 +74,8 @@ export default store => {
       }
 
       return result;
+    } else if (type === SET_CURRENT_USER && !action.payload.user) {
+      store.dispatch(plogsUpdated([]));
     }
 
     return next(action);
