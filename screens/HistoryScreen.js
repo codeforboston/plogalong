@@ -43,11 +43,13 @@ export const HistoryScreen = ({currentUser, history, likePlog, loadHistory, load
                     </Banner>
 
                     <View style={{
-                      marginLeft: 20,
                       marginTop: 5
                     }}>
-                      <Text style={$S.subheader}>Achievements</Text>
-                      <AchievementSwipe achievements={currentUser.data.achievements} />
+                      <Text style={$S.h1}>Achievements</Text>
+                      <AchievementSwipe
+                        achievements={currentUser.data.achievements}
+                        style={{marginLeft: 10}}
+                      />
                     </View>
                     <Text style={$S.h1}>Your Feed</Text>
                   </View>
