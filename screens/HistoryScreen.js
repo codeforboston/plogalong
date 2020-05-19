@@ -18,7 +18,7 @@ import PlogList from '../components/PlogList';
 
 class HistoryScreen extends React.Component {
   render() {
-    const {currentUser} = this.props;
+    const {currentUser, numberOfUsers} = this.props;
 
     const monthStats = getStats(currentUser, 'month');
     const yearStats = getStats(currentUser, 'year');
@@ -27,10 +27,14 @@ class HistoryScreen extends React.Component {
         <View style={$S.screenContainer}>
           <PlogList plogs={this.props.history}
                     currentUser={currentUser}
+                    numberOfUsers={numberOfUsers}
                     likePlog={this.props.likePlog}
                     header={
                         <View style={{ paddingTop: 20 }}>
                       <Banner>
+                        {numberOfUsers===1 ?
+                        "No nearby ploggers." :
+                        ""}
                         {monthStats.count ?
                          `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
                          "You haven't plogged yet."}
