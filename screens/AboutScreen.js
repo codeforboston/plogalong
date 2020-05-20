@@ -1,11 +1,13 @@
 import React, { useCallback } from "react";
 import { StyleSheet, Text, View, Button, Linking } from "react-native";
+import $S from '../styles';
 
 const websiteURL = "https://www.plogalong.com/";
 const mainMessage =
   "Plogalong helps you track your plogs, connect with nearby ploggers, earn badges, and access local discounts.";
 const createdBy =
   "Plogalong is currently in the development stage at Code for Boston Hack Nights and Hackathon.";
+
 
 const OpenURLButton = ({ url, children }) => {
   const handlePress = useCallback(async () => {
@@ -28,35 +30,29 @@ export default class AboutScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.mainMessageContainer}>
-          <Text style={styles.mainMessageText}>{mainMessage}</Text>
+      <View style={$S.container}>
+        <View style={$S.bodyContainer}>
+        {/* About Plogalong */}
+
+          <Text style={$S.body}>
+            When you plog, you pick up trash as you go about your daily life... jogging, hiking, or simply walking down the street. Ploggers help keep our neighborhoods, parks, and oceans clean.
+          </Text>
+          <Text style={$S.body}>
+            Plogalong helps you track your plogging history and see who else is plogging nearby. Stay motivated by earning badges and plogging minutes, or sharing your plogs on social media.
+          </Text>
+          <Text style={$S.body}>
+            Plogalong was designed by Slipper Studios (link to slipperstudios.com), and was built as an open source civic project at Code for Boston (link to C4B).
+          </Text>
+          <Text style={$S.body}>
+            Visit Plogalong.com | Like Us on Facebook (https://www.facebook.com/Plogalong-100585405000063/)
+          </Text>
         </View>
         {/* Lines 33-35 can be changed into a custom component*/}
-        <View style={styles.mainMessageContainer}>
-          <Text style={styles.mainMessageText}>{createdBy}</Text>
-        </View>
+        
         <OpenURLButton url={websiteURL}>Visit our Website</OpenURLButton>
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  mainMessageContainer: {
-    marginHorizontal: 10,
-    marginTop: 10,
-    backgroundColor: "aqua", // change this color
-    alignContent: "center",
-    alignItems: "center",
-  },
-  mainMessageText: {
-    fontSize: 18,
-    padding: 15,
-  },
-});
 
 // Using 'OpenURLButton' from https://reactnative.dev/docs/linking

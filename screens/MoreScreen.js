@@ -13,10 +13,10 @@ import Header from '../components/Header';
 import NavMenu from '../components/NavMenu';
 
 import AboutScreen from './AboutScreen';
-import FAQScreen from './FAQScreen';
+import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
 import InviteModalScreen from './InviteModalScreen';
-import PrivacyAndTerms from './PrivacyAndTerms';
+import PrivacyScreen from './PrivacyScreen';
 
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
@@ -42,10 +42,9 @@ export class MoreScreen extends React.Component {
 
   pages = [
     {label: 'About Plogalong', route: 'About'},
-    {label: 'FAQ', route: 'FAQ'},
     {label: 'Contact Us', route: 'Contact Us'},
-    {label: 'Privacy and Terms', route: 'Privacy'},
-    {label: 'Invite', route: false, handlePress: this.toggleIsInviteModalVisible},
+    {label: 'Privacy', route: 'Privacy'},
+    {label: 'Terms', route: 'Terms'},
   ];
 
   render() {
@@ -97,10 +96,10 @@ export default ({navigation, route}) => {
         }}>
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
-          <Stack.Screen name="FAQ" component={ FAQScreen }/>
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
-          <Stack.Screen name="Privacy" component={ PrivacyAndTerms }/>
-          <Stack.Screen name="InviteModal" component={ InviteModalScreen }/>
+          <Stack.Screen name="Privacy" component={ PrivacyScreen }/>
+          <Stack.Screen name="Terms" component={ TermsScreen }/>
+          
         </Stack.Navigator>
     );
 };
