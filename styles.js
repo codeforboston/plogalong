@@ -4,7 +4,6 @@ import {
 
 import Colors from './constants/Colors';
 
-
 export default StyleSheet.create({
   safeContainer: {
     backgroundColor: 'white',
@@ -147,5 +146,18 @@ export default StyleSheet.create({
     borderWidth: 0,
   },
 
-  detail: {}
+  detail: {},
+
+  bodyContainer: {
+    marginHorizontal: 10,
+    marginTop: 10,
+    
+    alignContent: "center",
+    alignItems: "flex-start",
+  },
+
+  body: {
+    fontSize: 18,
+    marginBottom: 15,
+  },
 });
