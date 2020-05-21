@@ -6,6 +6,7 @@ import { Linking } from 'expo';
 
 import Header from '../components/Header';
 
+import InviteModalScreen  from '../screens/InviteModalScreen';
 import MainTabNavigator from './MainTabNavigator';
 import PhotoViewer from '../screens/PhotoViewer';
 import ScreenSlider from '../components/ScreenSlider';
@@ -85,6 +86,7 @@ const ref = React.useRef();
         <AppStack.Screen name="ChangePassword" component={ ChangePassword } options={{ headerShown: false }}/>
         <AppStack.Screen name="ForgotPassword" component={ ForgotPassword } options={{ headerShown: false }}/>
         <AppStack.Screen name="AchievementModal" component={ AchievementModal } options={{ headerShown: false }}/>
+        <AppStack.Screen name="Invite" component={ InviteModalScreen } options={{ headerShown: false }}/>
       </AppStack.Navigator>
     </NavigationContainer>
 )};

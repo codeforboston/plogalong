@@ -15,7 +15,6 @@ import NavMenu from '../components/NavMenu';
 import AboutScreen from './AboutScreen';
 import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
-import InviteModalScreen from './InviteModalScreen';
 import PrivacyScreen from './PrivacyScreen';
 
 
@@ -33,7 +32,7 @@ export class MoreScreen extends React.Component {
   };
 
   toggleIsInviteModalVisible = () => {
-    this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
+    this.props.navigation.navigate('Invite');
   }
 
   goToPlogScreen = () => {
@@ -64,8 +63,6 @@ export class MoreScreen extends React.Component {
                   onPress={this.goToPlogScreen}
           />
         </View>
-        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible}
-                           isInviteModalVisible={this.state.isInviteModalVisible} />
       </View>
     );
   }
@@ -99,7 +96,6 @@ export default ({navigation, route}) => {
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
           <Stack.Screen name="Privacy" component={ PrivacyScreen }/>
           <Stack.Screen name="Terms" component={ TermsScreen }/>
-          
         </Stack.Navigator>
     );
 };
