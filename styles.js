@@ -173,4 +173,10 @@ export default StyleSheet.create({
     padding: 5,
     textAlign: 'center',
   },
+
+  footerButtons: {
+    justifyContent: 'flex-end',
+    marginHorizontal: 30,
+    marginBottom: 50,
+  },
 });

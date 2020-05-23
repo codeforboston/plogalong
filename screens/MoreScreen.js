@@ -17,6 +17,8 @@ import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
 import PrivacyScreen from './PrivacyScreen';
 
+import $S from '../styles';
+
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
 
@@ -53,7 +55,7 @@ export class MoreScreen extends React.Component {
           Life is hard. Plogging is easy.
         </Banner>
         <NavMenu routes={this.pages}/>
-        <View style={styles.buttons}>
+        <View style={$S.footerButtons}>
           <Button title="Invite"
                   large
                   onPress={this.toggleIsInviteModalVisible}
@@ -113,8 +115,4 @@ const styles = StyleSheet.create({
   banner: {
     marginBottom: 20,
   },
-  buttons: {
-    margin: 30,
-    marginBottom: 50,
-  }
 });
