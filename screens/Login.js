@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Image,
+  Keyboard,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -39,11 +40,24 @@ class LoginScreen extends React.Component {
         };
     }
 
-    componentDidUpdate() {
-        if (this.props.currentUser) {
-            this.props.navigation.navigate("Main");
-        }
+  componentDidMount() {
+    this.props.navigation.addListener('blur', () => {
+      Keyboard.dismiss();
+    });
+
+    this.props.navigation.addListener('focus', () => {
+      this._focusTimeout = setTimeout(() => {
+        this._focusInput && this._focusInput.focus();
+      }, 1000);
+    });
+  }
+
+  componentDidUpdate() {
+    if (this.props.currentUser) {
+      clearTimeout(this._focusTimeout);
+      this.props.navigation.navigate("Main");
     }
+  }
 
     onSubmit = () => {
         if (this.disabled())
@@ -83,7 +97,7 @@ class LoginScreen extends React.Component {
           <TextInput style={$S.textInput}
                      autoCapitalize="none"
                      autoCompleteType="email"
-                     autoFocus={true}
+                     ref={input => { this._focusInput = input; }}
                      keyboardType="email-address"
                      value={params.email}
                      onChangeText={setParam('email')}
