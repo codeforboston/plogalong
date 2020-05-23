@@ -93,7 +93,8 @@ export default ContactForm = ({onSave}) => {
                                 style={[styles.inputComment, $S.textInput, styles.input]}
                                 placeholder='Comment'
                                 onChangeText={handleChange('comment')}
-                                value={values.comment}                               
+                                value={values.comment}
+                                returnKeyType="done"
                             />
                             <Text style={styles.errorText}>{touched.comment && errors.comment}</Text>
                             <Text style={[$S.inputLabel, styles.titleText]}> Name (optional) </Text>
@@ -101,7 +102,8 @@ export default ContactForm = ({onSave}) => {
                                 style={[$S.textInput, styles.input ]}
                                 placeholder='Name'
                                 onChangeText={handleChange('name')}
-                                value={values.name}          
+                                value={values.name}
+                                returnKeyType="done"
                             />
                             <Text style={[$S.inputLabel, styles.titleText]}> Email (optional) </Text>
                             <TextInput
@@ -109,6 +111,7 @@ export default ContactForm = ({onSave}) => {
                                 placeholder='Email'
                                 onChangeText={handleChange('email')}
                                 value={values.email}
+                                returnKeyType="done"
                             />
                             <Text style={styles.errorText}>{touched.email && errors.email}</Text>
                             <View style={styles.submitButtonSection}>
