@@ -89,7 +89,7 @@ export default ContactForm = ({onSave}) => {
                             <TextInput
                                 multiline={true}
                                 numberOfLines={10}
-                                style={[styles.inputComment, $S.textInput, styles.input]}
+                                style={$S.textInput}
                                 placeholder='Comment'
                                 onChangeText={handleChange('comment')}
                                 value={values.comment}                               
@@ -97,14 +97,14 @@ export default ContactForm = ({onSave}) => {
                             <Text style={styles.errorText}>{touched.comment && errors.comment}</Text>
                             <Text style={[$S.inputLabel, styles.titleText]}> Name (optional) </Text>
                             <TextInput
-                                style={[$S.textInput, styles.input ]}
+                                style={$S.textInput}
                                 placeholder='Name'
                                 onChangeText={handleChange('name')}
                                 value={values.name}          
                             />
                             <Text style={[$S.inputLabel, styles.titleText]}> Email (optional) </Text>
                             <TextInput
-                                style={[$S.textInput, styles.input]}
+                                style={$S.textInput}
                                 placeholder='Email'
                                 onChangeText={handleChange('email')}
                                 value={values.email}
