@@ -70,10 +70,14 @@ export default ContactForm = ({onSave}) => {
                         <View style={$S.inputGroup}>
                           {submitError && <Error error={submitError} />}
                             <Text style={[$S.inputLabel]}> Topic </Text>
-                            <View style={[$S.textInput, styles.input]}>
+                            <View style={$S.textInput}>
                                 <RNPickerSelect
                                     placeholder={placeholder}
                                     value={values.topic}
+                                    style={{
+                                        inputIOS: { fontSize: 18 },
+                                        inputAndroid: { fontSize: 18 },
+                                    }}
                                     useNativeAndroidPickerStyle={false}
                                     onValueChange={(value) => setFieldValue('topic', value)}
                                 items={[
@@ -89,7 +93,9 @@ export default ContactForm = ({onSave}) => {
                             <TextInput
                                 multiline={true}
                                 numberOfLines={10}
-                                style={$S.textInput}
+                                style={[$S.textInput, {paddingTop: 10}]}
+                                // {paddingTop: 10} allows for multiline,
+                                // while keeping top padding consistent with other boxes
                                 placeholder='Comment'
                                 onChangeText={handleChange('comment')}
                                 value={values.comment}                               
