@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const app = require('./app');
 
-const { updateAchievements, updateStats, AchievementHandlers } = require('./shared');
+const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, localPlogDate} = require('./shared');
 const { updatePlogsWhere } = require('./util');
 
 /**
@@ -44,6 +44,7 @@ async function initAchievements(userID, types) {
 
   for await (const plog of queryGen(Plogs.where('d.UserID', '==', userID))) {
     const plogData = plog.data().d;
+    plogData.LocalDate = localPlogDate(plogData);
     for (const type of types) {
       if (!achievements[type].complete)
         achievements[type] = AchievementHandlers[type].update(
@@ -66,11 +67,11 @@ exports.calculateAchievements = functions.firestore.document('/plogs/{documentId
       const user = await t.get(userDocRef);
       const userData = user.data();
 
-      const {achievements, needInit} = updateAchievements(userData.achievements, plogData);
+      const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData);
 
       t.update(userDocRef, {
         achievements,
-        stats: updateStats(userData.stats, plogData, snap.createTime.toDate())
+        stats: updateStats(userData.stats, plogData, calculateBonusMinutes(completed))
       });
 
       initUserAchievements = needInit;

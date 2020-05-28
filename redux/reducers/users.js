@@ -1,7 +1,7 @@
 import * as types from "../actionTypes";
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
-import { updateAchievements, updateStats } from '../../firebase/project/functions/shared';
+import { calculateBonusMinutes, updateAchievements, updateStats } from '../../firebase/project/functions/shared';
 import { plogStateToDoc } from '../../firebase/plogs';
 
 
@@ -70,13 +70,18 @@ export default usersReducer = (state = initialState, {type, payload}) => {
 
   case types.PLOG_LOGGED: {
     const plogData = plogStateToDoc(payload.plog);
+
     return updateInCopy(
       state, ['current', 'data'],
-      data => ({
-        ...(data || {}),
-        stats: updateStats(data.stats, plogData),
-        achievements: updateAchievements(data.achievements, plogData).achievements
-      })
+      data => {
+        const { achievements, completed } = updateAchievements(data.achievements, plogData);
+
+        return {
+          ...(data || {}),
+          stats: updateStats(data.stats, plogData, calculateBonusMinutes(completed)),
+          achievements
+        };
+      }
     );
   }
 

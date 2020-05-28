@@ -189,12 +189,13 @@ const AchievementHandlers = {
  * @param {UserAchievements} achievements
  * @param {Plog|Plog[]} newPlogs
  *
- * @returns {{ achievements: UserAchievements, needInit: AchievementType[] }}
+ * @returns {{ achievements: UserAchievements, needInit: AchievementType[], completed: AchievementType[] }}
  */
 function updateAchievements(achievements, newPlogs) {
   /** @type {AchievementType[]} */
   const names = Object.keys(AchievementHandlers);
   const needInit = [];
+  const completed = [];
 
   const plogs = Array.isArray(newPlogs) ? newPlogs : [newPlogs];
   for (const plog of plogs) {
@@ -203,18 +204,28 @@ function updateAchievements(achievements, newPlogs) {
   }
 
   const updatedAchievements = names.reduce((updated, name) => {
-    const current = updated && updated[name];
+    let current = updated && updated[name];
     const handler = AchievementHandlers[name];
 
-    if (!current)
+    if (!current) {
       needInit.push(name);
-    else if (current.completed)
+      current = { ...handler.initial };
+    } else if (current.completed)
       return updated;
 
     try {
+      for (const plog of plogs) {
+        current = handler.update(current, plog);
+
+        if (current.completed) {
+          completed.push(name);
+          break;
+        }
+      }
+
       return Object.assign(
         updated || {},
-        { [name]: plogs.reduce(handler.update, current || { ...handler.initial }) }
+        { [name]: current }
       );
     } catch (err) {
       console.error(`error updating '${name}' achievement`, err);
@@ -224,6 +235,7 @@ function updateAchievements(achievements, newPlogs) {
 
   return {
     achievements: updatedAchievements,
+    completed,
     needInit
   };
 }
@@ -274,8 +286,9 @@ const timeUnits = [
 /**
  * @param {UserData['stats']} stats
  * @param {PlogData} plog
+ * @param {number} [bonusMinutes]
  */
-function updateStats(stats, plog) {
+function updateStats(stats, plog, bonusMinutes=0) {
   if (!stats) stats = {};
 
   const date = localPlogDate(plog);
@@ -288,14 +301,25 @@ function updateStats(stats, plog) {
 
     unitStats.milliseconds += plog.PlogDuration || 0;
     unitStats.count += 1;
+    unitStats.bonusMinutes = bonusMinutes;
   }
 
   return stats;
 }
 
+/**
+ * @param {AchievementType[]} achievements
+ * @returns {number}
+ */
+function calculateBonusMinutes(achievements) {
+  return achievements.reduce((total, type) => AchievementHandlers[type].points+total, 0);
+}
+
 module.exports = {
   AchievementHandlers,
   timeUnits,
+  localPlogDate,
+  calculateBonusMinutes,
   updateAchievements,
   updateAchievementsLocal,
   updateStats,
