@@ -120,10 +120,12 @@ class ProfileScreen extends React.Component {
                  onCleared={() => { this.setProfilePhoto(null); }}
                />
                  <Text style={{ fontWeight: '500' }}>
-                   Personal Account
+                   { currentUser ? 
+                     displayName : 
+                     'Mysterious Plogger' }
                  </Text>
                  <Text style={{ fontWeight: '500' }}>
-                   { currentUser.email }
+                   { currentUser ? currentUser.email : '' }
                  </Text>
              </View>
 
@@ -171,8 +173,8 @@ class ProfileScreen extends React.Component {
            </>}
 
           <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>
-            <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
-            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
+            <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>
+            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
             {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
           </View>
         </ScrollView>
@@ -186,14 +188,17 @@ const styles = StyleSheet.create({
   },
   personalInfoContainer: {
     flexDirection: 'column',
-    marginTop: 10,
+    //marginTop: 10,
+    marginTop: 0,
     marginBottom: 20,
     alignItems: 'center',
   },
   profileImageButton: {
       width: 200,
       height: 200,
-      marginTop: 3, 
+      marginTop: 3,
+      //marginTop: 0,
+      //paddingTop: 0,
       marginBottom: 10,     
       borderWidth: 0,
   },

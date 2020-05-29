@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { StyleSheet, Text, View, Button, Linking } from "react-native";
+import Link from '../components/Link';
 import $S from '../styles';
 
 const websiteURL = "https://www.plogalong.com/";
@@ -20,7 +21,11 @@ const OpenURLButton = ({ url, children }) => {
     }
   }, [url]);
 
-  return <Button title={children} onPress={handlePress} />;
+  return (
+    <View style={$S.linkButton}>
+      <Button title="Visit plogalong.com" onPress={handlePress}/>
+    </View>
+  );
 };
 
 export default class AboutScreen extends React.Component {
@@ -44,12 +49,22 @@ export default class AboutScreen extends React.Component {
             Plogalong was designed by Slipper Studios (link to slipperstudios.com), and was built as an open source civic project at Code for Boston (link to C4B).
           </Text>
           <Text style={$S.body}>
-            Visit Plogalong.com | Like Us on Facebook (https://www.facebook.com/Plogalong-100585405000063/)
+            Like Us on Facebook (https://www.facebook.com/Plogalong-100585405000063/)
           </Text>
         </View>
         {/* Lines 33-35 can be changed into a custom component*/}
-        
-        <OpenURLButton url={websiteURL}>Visit our Website</OpenURLButton>
+
+        <OpenURLButton url={websiteURL}>Visit plogalong.com</OpenURLButton>
+
+        {/*
+        <Link 
+          //onPress={handlePress}
+          style={$S.linkButton}
+        >
+          Visit plogalong.com
+        </Link>
+        */}
+
       </View>
     );
   }
