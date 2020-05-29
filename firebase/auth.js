@@ -4,7 +4,7 @@ import * as Google from 'expo-google-app-auth';
 
 import { auth, firebase, Users } from './init';
 import { uploadImage } from './util';
-import firebaseConfig from './config';
+import { firebase as firebaseConfig } from '../config';
 import * as functions from './functions';
 
 

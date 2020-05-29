@@ -118,6 +118,14 @@ Check on our Slack channel for the shared configuration file. Save it to
 4. In `firebase/project/functions` run `npm install`.
 5. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
    options.)
+   
+#### Local Configuration
+
+Some Firebase features require additional configuration in the shared app config
+(`app.config.js`). When building, you can optionally specify a
+`LOCAL_CONFIG_FILE` environment variable. If given, it should be set to the path
+(relative to the working directory) of a JS module that exports a config object.
+See `app.config.js` for the keys you can override.
 
 ### OpenWeatherMap (optional)
 

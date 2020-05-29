@@ -22,6 +22,7 @@
     "base-64": "^0.1.0",
     "expo": "^36.0.0",
     "expo-camera": "~8.0.0",
+    "expo-constants": "^9.0.0",
     "expo-facebook": "~8.0.0",
     "expo-google-app-auth": "^8.0.1",
     "expo-image-manipulator": "~8.0.0",
