@@ -96,6 +96,13 @@ export default StyleSheet.create({
         textDecorationLine: 'underline',
     },
 
+    linkStyle: {
+        color: '#6cbc51',
+        textDecorationLine: 'underline',
+        marginTop: 30,
+        textAlign: 'center'
+    },
+
     helpLink: {
         textDecorationStyle: 'dotted',
         textDecorationColor: 'black',
