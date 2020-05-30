@@ -40,6 +40,21 @@ const incMonth = (dt, n=1) => new Date(new Date(dt).setMonth(dt.getMonth()+n));
 
 const localTZOffset = new Date().getTimezoneOffset();
 const localPlogDate = ({DateTime, TZ}) => new Date(DateTime.toMillis() - (TZ-localTZOffset)*60000);
+
+/**
+ * Add a predicate to an existing achievement handler. Plogs that do not satisfy
+ * `pred()` will be skipped.
+ *
+ * @param {(plog: any) => any} pred only consider plogs that satisfy a predicate
+ * @param {AchievementHandler} handler
+ * @returns {AchievementHandler}
+ */
+const _addPred = (pred, handler) => {
+  const {update} = handler;
+  handler.update = (previous, plog) => pred(plog) ? update(previous, plog) : previous;
+  return handler;
+};
+
 /**
  * Creates a handler for an achievement that is completed when a user has
  * plogged a `target` number of plogs.
@@ -203,14 +218,18 @@ function updateAchievements(achievements, newPlogs) {
     plog.LocalDate = new Date(DateTime.toMillis() - TZ*60000);
   }
 
+  // Loop through all achievement types...
   const updatedAchievements = names.reduce((updated, name) => {
+    // ...checking the user's current progress toward that achievement...
     let current = updated && updated[name];
     const handler = AchievementHandlers[name];
 
     if (!current) {
+      // ...or initializing the achievement progress if necessary
       needInit.push(name);
       current = { ...handler.initial };
     } else if (current.completed)
+      // skip over completed achievements
       return updated;
 
     try {
@@ -281,6 +300,8 @@ const timeUnits = [
  * @typedef {object} UserData
  * @property {UserStats} stats
  * @property {UserAchievements} achievements
+ * @property {string} [profilePicture]
+ * @property {string} displayName
  */
 
 /**
