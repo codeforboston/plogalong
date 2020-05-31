@@ -2,9 +2,11 @@ import * as Facebook from 'expo-facebook';
 import * as Google from 'expo-google-app-auth';
 // import * as AppleAuthentication from 'expo-apple-authentication';
 
+import config from '../config';
+const { firebase: firebaseConfig } = config;
+
 import { auth, firebase, Users } from './init';
 import { uploadImage } from './util';
-import { firebase as firebaseConfig } from '../config';
 import * as functions from './functions';
 
 

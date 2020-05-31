@@ -11,3 +11,6 @@ npm-debug.*
 firebase/config.js
 /config.json
 /yarn-error.log
+GoogleService-Info*.plist
+google-services*.json
+localConfig.js

@@ -4,15 +4,23 @@ if (process.env.LOCAL_CONFIG_FILE) {
   localConfig = require(process.env.LOCAL_CONFIG_FILE);
 }
 
-const firebaseConfig = localConfig.firebase;
-
-const {
-  bundleIdentifier = "com.plogalong.Plogalong",
+let {
+  bundleIdentifier,
   googleServicesPlist = "./GoogleService-Info.plist",
   googleServicesJson = "./google-services.json",
   googleReservedClientId = "com.googleusercontent.apps.682793596171-i7d7f566bivop6gronrpcc67fqdecg3t",
   uriScheme = "plogalong",
+  ...extra
 } = localConfig;
+
+if (!bundleIdentifier) {
+  try {
+    const googleConfig = require(googleServicesJson);
+    bundleIdentifier = googleConfig.client[0].client_info.android_client_info.package_name;
+  } catch (_) {
+    bundleIdentifier = "com.plogalong.Plogalong";
+  }
+}
 
 export default ({config}) => {
   return {
@@ -62,9 +70,7 @@ export default ({config}) => {
         "sourceExts": ["expo.ts", "expo.tsx", "expo.js", "expo.jsx", "ts", "tsx", "js", "jsx", "json", "wasm", "svg"]
       },
       "scheme": uriScheme,
-      "extra": {
-        firebase: firebaseConfig
-      }
+      "extra": extra
     }
   };
 };
