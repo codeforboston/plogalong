@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 
 
+/**
+ * Helper that calls `callback` with the previous `deps` values whenever any of
+ * them change.
+ *
+ * @param {any[]} deps
+ * @param {(...args: typeof deps) => any} callback
+ */
 export const useEffectWithPrevious = (callback, deps) => {
-  const refs = deps.map(() => useRef());
+  const ref = useRef(deps.map(_ => undefined));
   useEffect(() => {
-    callback(...refs.map(r => r.current));
-    refs.forEach((r, i) => {
-      r.current = deps[i];
-    });
+    callback(...ref.current);
+    ref.current = deps;
   }, deps);
 };
 
