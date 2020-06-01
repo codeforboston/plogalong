@@ -4,6 +4,7 @@ const app = require('./app');
 
 const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, localPlogDate} = require('./shared');
 const { updatePlogsWhere } = require('./util');
+const email = require('./email');
 
 /**
  * Async generator that handles pagination and yields documents satisfying the
@@ -101,6 +102,21 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
             });
         }
     });
+
+const { admin_email: ADMIN_EMAIL } = functions.config.plogalong || {};
+exports.onCommentCreate = functions.firestore.document('/comments/{commentId}')
+  .onCreate(async (snap, context) => {
+    if (!ADMIN_EMAIL)
+      return;
+
+    const comment = snap.data();
+
+    await email.send({
+      recipients: ADMIN_EMAIL,
+      subject: `Comment from ${comment.name}`,
+      textContent: comment.comment
+    });
+  });
 
 const { likePlog, loadUserProfile, mergeWithAccount } = require('./http');
 exports.likePlog = functions.https.onCall(likePlog);

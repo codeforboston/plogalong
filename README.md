@@ -119,6 +119,8 @@ Check on our Slack channel for the shared configuration file. Save it to
 5. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
    options.)
    
+**Additional setup:** see the section on SendGrid below.
+
 #### Local Configuration
 
 Some Firebase features require additional configuration in the shared app config
@@ -126,6 +128,23 @@ Some Firebase features require additional configuration in the shared app config
 `LOCAL_CONFIG_FILE` environment variable. If given, it should be set to the path
 (relative to the working directory) of a JS module that exports a config object.
 See `app.config.js` for the keys you can override.
+
+### SendGrid
+
+**What it's for**: this API is used to send certain transactional emails: for
+example, user feedback.
+
+#### Setup
+
+1. [Create an account](https://sendgrid.com)
+2. In the SendGrid dashboard, open [API keys](https://app.sendgrid.com/settings/api_keys)
+3. Create a new API key. If you choose to customize the access levels, set "Mail
+   Send" to Full Access.
+4. In this repo, cd to `firebase/project`
+5. Set the email configuration options:
+  ```bash
+  firebase functions:config:set plogalong.sendgrid_api_key=SG.xxxxxxx admin_email=xxxxxx
+  ```
 
 ### OpenWeatherMap (optional)
 
