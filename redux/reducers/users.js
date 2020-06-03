@@ -38,7 +38,7 @@ export default usersReducer = (state = initialState, {type, payload}) => {
         ...state,
         current: user ? {
           ...user,
-          data: state.users[user.uid] || {}
+          data: state.users[user.uid] || { notLoaded: true }
         } : null,
         authenticating: null
       };
@@ -61,7 +61,7 @@ export default usersReducer = (state = initialState, {type, payload}) => {
   case types.LIKE_PLOG:
     // Fix speculative updates
     return updateInCopy(state, ['current', 'data', 'likedPlogs', payload.plogID],
-                                  payload.like);
+                        payload.like);
    // return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
    //                   payload.like);
 
