@@ -22,6 +22,13 @@ if (!bundleIdentifier) {
   }
 }
 
+const fs = require('fs');
+if (googleServicesPlist && !fs.existsSync(googleServicesPlist))
+  googleServicesPlist = undefined;
+
+if (googleServicesJson && !fs.existsSync(googleServicesJson))
+  googleServicesJson = undefined;
+
 export default ({config}) => {
   return {
     "expo": {
@@ -63,7 +70,7 @@ export default ({config}) => {
       },
       "android": {
         "package": bundleIdentifier,
-        // "googleServicesFile": googleServicesJson
+        "googleServicesFile": googleServicesJson
       },
       "packagerOpts": {
         "config": "metro.config.js",
