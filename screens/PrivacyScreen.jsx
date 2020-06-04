@@ -1,5 +1,11 @@
 import React, { useCallback } from "react";
-import { StyleSheet, Text, View, Button, Linking, FlatList } from "react-native";
+import {
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+
+import { A, OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
@@ -14,20 +20,6 @@ const privacyDetails =
 
 
 
-const OpenURLButton = ({ url, children }) => {
-  const handlePress = useCallback(async () => {
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(`Don't know how to open this URL: ${url}`);
-    }
-  }, [url]);
-
-  return <Button title={children} onPress={handlePress} />;
-};
-
 const DefaultBullet = <Text style={{ fontSize: 30, marginTop: -7 }}>{'\u2022'}</Text>;
 const LI = ({children, bullet=DefaultBullet}) => (
   <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 15 }}>
@@ -36,23 +28,16 @@ const LI = ({children, bullet=DefaultBullet}) => (
   </View>
 )
 
-export default class PrivacyScreen extends React.Component {
-  static navigationOptions = {
-    title: "About Plogalong",
-  };
+export default () => (
+  <ScrollView style={$S.container}>
+    <Text style={$S.h1}>Privacy</Text>
+    <View style={$S.bodyContainer}>
+      <Text style={$S.body} selectable={true}>{mainMessage}<A href={firebasePrivacyURL}>Google Firebase</A></Text>
+      {privacyDetails.split('\n').map((text, i) => (
+        <LI key={i}>{text.trim()}</LI>
+      ))}
+    </View>
 
-  render() {
-    return (
-      <View style={$S.container}>
-        <View style={$S.bodyContainer}>
-          <Text style={$S.body} selectable={true}>{mainMessage}<Text style={$S.link} onPress={() => Linking.openURL(firebasePrivacyURL)}>Google Firebase</Text></Text>
-          {privacyDetails.split('\n').map((text, i) => (
-            <LI key={i}>{text.trim()}</LI>
-          ))}
-        </View>
-
-        <OpenURLButton url={plogalongPrivacyURL}>Visit our Website</OpenURLButton>
-      </View>
-    );
-  }
-}
+    <OpenURLButton url={plogalongPrivacyURL}>Visit our Website</OpenURLButton>
+  </ScrollView>
+);
