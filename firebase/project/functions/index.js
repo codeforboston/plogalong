@@ -103,9 +103,9 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         }
     });
 
-const { admin_email: ADMIN_EMAIL } = functions.config.plogalong || {};
 exports.onCommentCreate = functions.firestore.document('/comments/{commentId}')
   .onCreate(async (snap, context) => {
+    const { admin_email: ADMIN_EMAIL } = functions.config().plogalong || {};
     if (!ADMIN_EMAIL)
       return;
 

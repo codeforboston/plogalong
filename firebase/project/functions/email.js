@@ -1,12 +1,6 @@
 const functions = require('firebase-functions');
 const fetch = require('node-fetch');
 
-const {
-  sendgrid_api_key: SENDGRID_API_KEY,
-  sender_email: SENDER_EMAIL,
-  admin_email: ADMIN_EMAIL
-} = functions.config().plogalong || {};
-
 /** @typedef {{ email: string, name?: string }} EmailAddress */
 
 /**
@@ -25,8 +19,6 @@ function makeEmail(r) {
   return r;
 }
 
-const FROM_EMAIL = makeEmail(SENDER_EMAIL || ADMIN_EMAIL);
-
 /**
  * @typedef {object} EmailOptions
  * @property {string} [apiKey]
@@ -41,6 +33,13 @@ const FROM_EMAIL = makeEmail(SENDER_EMAIL || ADMIN_EMAIL);
  * @param {EmailOptions} options
  */
 async function send(options) {
+  const {
+    sendgrid_api_key: SENDGRID_API_KEY,
+    sender_email: SENDER_EMAIL,
+    admin_email: ADMIN_EMAIL
+  } = functions.config().plogalong || {};
+  const FROM_EMAIL = makeEmail(SENDER_EMAIL || ADMIN_EMAIL);
+
   const content = [
     { type: 'text/plain', value: options.textContent }
   ];
@@ -59,6 +58,7 @@ async function send(options) {
     subject: options.subject,
     content
   };
+  console.log(JSON.stringify(email));
 
   const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
     method: 'POST',
@@ -69,11 +69,10 @@ async function send(options) {
     body: JSON.stringify(email)
   });
 
-  console.log(
-    'ok?', response.ok,
-    'status', response.status,
-    'text', await response.text()
-  );
+  if (!response.ok) {
+    console.error(`Received ${response.status} response from SendGrid:`,
+                  await response.text().catch(_ => `<could not read response body>`));
+  }
 }
 
 exports.send = send;
