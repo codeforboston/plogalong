@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{
+      "appID": "{{ ios.appID }}",
+      "paths": ["/*"]
+    }]
+  },
+  "webcredentials": {
+    "apps": [ "{{ ios.appID }}" ]
+  }
+}

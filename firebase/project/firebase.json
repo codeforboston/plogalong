@@ -8,10 +8,21 @@
   },
   "hosting": {
     "public": "web/public",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "predeploy": [
+      "npm --prefix ./web run render-templates"
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "**/*.template.*",
+      "**/*.template"
     ],
     "appAssociation": "NONE",
     "headers": [
