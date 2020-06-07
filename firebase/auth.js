@@ -1,9 +1,15 @@
+import { YellowBox } from 'react-native';
+
+import * as AppAuth from 'expo-app-auth';
 import * as Facebook from 'expo-facebook';
 import * as Google from 'expo-google-app-auth';
 // import * as AppleAuthentication from 'expo-apple-authentication';
+import * as GoogleSignIn from 'expo-google-sign-in';
 
 import config from '../config';
 const { firebase: firebaseConfig } = config;
+
+const InExpo = AppAuth.OAuthRedirect.indexOf('host.exp.exponent') !== -1;
 
 import { auth, firebase, Users } from './init';
 import { uploadImage } from './util';
@@ -61,12 +67,50 @@ const withFBCredential = withCredentialFn(
 );
 
 
-const withGoogleCredential = withCredentialFn(
-  () => Google.logInAsync(firebaseConfig.auth.google),
-  c => firebase.auth.GoogleAuthProvider.credential(c.idToken, c.accessToken)
-);
+let GoogleInitialized = null;
+const _googleInit = () =>  {
+  if (!GoogleInitialized)
+    GoogleInitialized = GoogleSignIn.initAsync().then(_ => true,
+                                                      err => {
+                                                        console.warn('GoogleSignIn.initAsync error', err);
 
-const withAppleCredential = (fn) => (
+                                                        GoogleInitialized = null;
+                                                      });
+
+  return GoogleInitialized;
+};
+
+/**
+ * @template T
+ * @param {(cred: firebase.auth.OAuthProvider) => Promise<T>} fn
+ */
+const withGoogleCredential =
+      InExpo ?
+      withCredentialFn(
+        () => Google.logInAsync(firebaseConfig.auth.google),
+        c => firebase.auth.GoogleAuthProvider.credential(c.idToken, c.accessToken)
+      )
+      :
+      fn => (async () => {
+        await _googleInit();
+        await GoogleSignIn.askForPlayServicesAsync();
+        const { type, user } = await GoogleSignIn.signInAsync();
+
+        if (type === 'cancel')
+          return null;
+
+        const cred = firebase.auth.GoogleAuthProvider.credential(user.auth.idToken, user.auth.accessToken);
+        return await fn(cred);
+      });
+
+if (InExpo)
+  YellowBox.ignoreWarnings(['Deprecated: You will need to use expo-google-sign-in']);
+
+/**
+ * @template T
+ * @param {(cred: firebase.auth.OAuthProvider) => Promise<T>} fn
+ */
+const withAppleCredential = fn => (
   async () => {
     const credential = await AppleAuthentication.signInAsync({
       requestedScopes: [
@@ -76,6 +120,7 @@ const withAppleCredential = (fn) => (
   }
 );
 
+/** @type {typeof auth.signInWithCredential} */
 const signInWithCredential = auth.signInWithCredential.bind(auth);
 
 /** @type {() => Promise<firebase.auth.UserCredential>} */
@@ -92,6 +137,10 @@ export const loginWithGoogle = withGoogleCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred));
 
+export const unlinkGoogle = () => {
+  auth.currentUser.unlink('google.com');
+};
+
 export const loginWithEmail = auth.signInWithEmailAndPassword.bind(auth);
 
 export const linkToEmail = (email, password) => {
@@ -99,15 +148,9 @@ export const linkToEmail = (email, password) => {
   return auth.currentUser.linkWithCredential(credential);
 };
 
-export const unlinkGoogle = () => {
-  auth.currentUser.unlink('google.com');
-};
+export const logOut = () => auth.signOut();
 
-export const logOut = async () => {
-  return auth.signOut();
-}
-
-let unsubscribeAuthStateChange;;
+let unsubscribeAuthStateChange;
 export function onAuthStateChanged(callback) {
   if (unsubscribeAuthStateChange)
     unsubscribeAuthStateChange();
