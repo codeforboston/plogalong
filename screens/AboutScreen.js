@@ -54,7 +54,7 @@ export default class AboutScreen extends React.Component {
         </View>
         {/* Lines 33-35 can be changed into a custom component*/}
 
-        <OpenURLButton url={websiteURL}>Visit plogalong.com</OpenURLButton>
+        <OpenURLButton url={websiteURL}/>
 
         {/*
         <Link 

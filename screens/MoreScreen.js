@@ -18,6 +18,8 @@ import ContactScreen from './ContactScreen';
 import InviteModalScreen from './InviteModalScreen';
 import PrivacyScreen from './PrivacyScreen';
 
+import arrow from '../assets/svg/headerBackImage/arrow.svg';
+
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
 
@@ -82,7 +84,8 @@ export default ({navigation, route}) => {
 
     return (
         <Stack.Navigator screenOptions={{
-            headerBackTitle: 'More',
+            headerBackTitle: ' ',
+            headerBackImage: arrow,
             title: decamel(routeName(route)),
             headerTitle: (props) => (
                 <Header text={props.children} />
