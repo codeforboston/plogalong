@@ -210,17 +210,20 @@ export const setUserData = async (data) => {
     delete data['profilePicture'];
   }
 
-  Users.doc(auth.currentUser.uid).update(data).catch(x => {
-    console.warn('error updating user', auth.currentUser, data, x);
-  });
+  const tasks = [
+    Users.doc(auth.currentUser.uid).update(data).catch(x => {
+      console.warn('error updating user', auth.currentUser, data, x);
+    })
+  ];
+  
+  if (profilePicture && profilePicture.uri)
+    tasks.push(setUserPhoto(profilePicture));
 
-  if (profilePicture && profilePicture.uri) {
-    setUserPhoto(profilePicture);
-  }
+  await Promise.all(tasks);
 };
 
 export const setUserPhoto = async ({uri}) => {
-  Users.doc(auth.currentUser.uid).update({
+  await Users.doc(auth.currentUser.uid).update({
     profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, { resize: { width: 300, height: 300 }})
   });
 };
