@@ -69,12 +69,15 @@ const styles = StyleSheet.create({
  */
 
 /** @type {React.FunctionComponent<AchievementBadgeProps>} */
-const AchievementBadgeComponent = props => {
+export const AchievementBadgeComponent = props => {
   const {achievement, completed = null, detailText, points, progressPercent, style, onPress, description} = props;
   const badge = achievement && AchievementTypes[achievement];
   const detail = completed ? `+ ${points} bonus minutes` : detailText;
   const badgeImage = props.badgeImage || (badge && badge.icon);
   const textValue = props.textValue || (badge && badge.badgeTheme);
+
+  if (!badgeImage)
+    throw `AchievementBadge must have a valid "achievement" or "badgeImage" prop`;
 
   const content = (
     <View style={[styles.achieveBadge, completed && styles.completedBadge, style]}>
@@ -91,22 +94,26 @@ const AchievementBadgeComponent = props => {
     </View>
   );
 
-  return onPress ? 
+  return onPress ?
     <TouchableOpacity onPress={onPress}>{content}</TouchableOpacity> :
     content;
 };
 
-const AchievementBadge = ({ achievement, showDescription = false, ...props}) => (
-  <AchievementBadgeComponent
-    badgeImage={achievement.icon}
-    textValue={achievement.badgeTheme}
-    points={achievement.points}
-    completed={achievement.completed}
-    progress={achievement.progress}
-    detailText={achievement.detailText}
-    description={showDescription && (achievement.completed ? achievement.description : achievement.incompleteDescription )}
-    {...props}
-  />
-);
+const AchievementBadge = ({ achievement, showDescription = false, ...props}) => {
+  if (typeof achievement === 'string')
+    achievement = AchievementTypes[achievement];
+
+  return (
+    <AchievementBadgeComponent
+      badgeImage={achievement.icon}
+      points={achievement.points}
+      completed={achievement.completed}
+      progress={achievement.progress}
+      detailText={achievement.detailText}
+      description={showDescription && (achievement.completed ? achievement.description : achievement.incompleteDescription )}
+      {...props}
+    />
+  );
+};
 
 export default AchievementBadge;
