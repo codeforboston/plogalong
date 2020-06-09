@@ -30,7 +30,7 @@ const _action = (fn, {pre, err, post, cancel}={}) => (
 );
 
 export const authCancelled = _ => ({
-  type: types.AUTH_CANCELLED
+  type: types.AUTH_CANCELED
 });
 
 export const loginError = error => ({

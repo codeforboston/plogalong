@@ -11,10 +11,12 @@ import {
 import { connect } from 'react-redux';
 
 import {
-    loginWithFacebook,
-    logOut,
+  loginWithFacebook,
+  loginWithApple,
+  logOut,
 } from '../firebase/auth';
 import * as actions from '../redux/actions';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 import $S from '../styles';
 
@@ -29,16 +31,16 @@ import Logo from '../assets/images/plogalong.png';
 
 
 class LoginScreen extends React.Component {
-    static navigationOptions = {
-        title: 'Log In'
-    };
+  static navigationOptions = {
+    title: 'Log In'
+  };
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            params: {}
-        };
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      params: {}
+    };
+  }
 
   componentDidMount() {
     this.props.navigation.addListener('blur', () => {
@@ -59,18 +61,18 @@ class LoginScreen extends React.Component {
     }
   }
 
-    onSubmit = () => {
-        if (this.disabled())
-            return;
+  onSubmit = () => {
+    if (this.disabled())
+      return;
 
-        const {email, password} = this.state.params;
-        this.props.loginWithEmail(email, password);
-    }
+    const {email, password} = this.state.params;
+    this.props.loginWithEmail(email, password);
+  }
 
-    disabled = () => {
-        const {params} = this.state;
-        return !params || !params.email || !params.password;
-    }
+  disabled = () => {
+    const {params} = this.state;
+    return !params || !params.email || !params.password;
+  }
 
   renderLoggingIn() {
     return (
@@ -121,6 +123,12 @@ class LoginScreen extends React.Component {
                 onPress={this.props.loginWithGoogle}
                 style={[{ marginTop: 20 }]} />
 
+        {AppleAuthentication.isAvailableAsync() &&
+         <Button primary
+           onPress={this.props.loginWithApple}
+           title="Login with Apple"
+         />}
+
         <Link onPress={() => { navigation.navigate('ForgotPassword'); }}
               style={styles.linkStyle} >
           Forgot Your Password?
@@ -139,18 +147,18 @@ class LoginScreen extends React.Component {
     );
   }
 
-    render() {
-        return (
-          <SafeAreaView style={$S.safeContainer}>
-            <View style={[$S.container, $S.form,
-                          this.props.loggingIn && styles.loggingIn]}>
-              {this.props.loggingIn ?
-               this.renderLoggingIn() :
-               this.renderForm()}
-            </View>
-          </SafeAreaView>
-        );
-    }
+  render() {
+    return (
+      <SafeAreaView style={$S.safeContainer}>
+        <View style={[$S.container, $S.form,
+                      this.props.loggingIn && styles.loggingIn]}>
+          {this.props.loggingIn ?
+           this.renderLoggingIn() :
+           this.renderForm()}
+        </View>
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -179,5 +187,6 @@ export default connect(
     loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
     loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
     loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),
+    loginWithApple: (...args) => dispatch(actions.loginWithApple(...args)),
   })
 )(LoginScreen);
