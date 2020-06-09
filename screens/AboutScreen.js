@@ -23,7 +23,9 @@ const OpenURLButton = ({ url, children }) => {
 
   return (
     <View style={$S.linkButton}>
-      <Button title="Visit plogalong.com" onPress={handlePress}/>
+      <Text style={$S.linkButtonText} onPress={handlePress}>
+        Visit plogalong.com
+      </Text>
     </View>
   );
 };
@@ -55,15 +57,6 @@ export default class AboutScreen extends React.Component {
         {/* Lines 33-35 can be changed into a custom component*/}
 
         <OpenURLButton url={websiteURL}/>
-
-        {/*
-        <Link 
-          //onPress={handlePress}
-          style={$S.linkButton}
-        >
-          Visit plogalong.com
-        </Link>
-        */}
 
       </View>
     );

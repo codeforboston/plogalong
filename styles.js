@@ -89,9 +89,6 @@ export default StyleSheet.create({
       borderWidth: 2,
       overflow: 'hidden',
       backgroundColor: Colors.secondaryColor,
-      textDecorationColor: 'white', // was `color: 'white'`
-      // but neither changed the link text color.
-      // Note that `textDecorationLine: 'none'` did remove the underline
       marginTop: 20,
       marginBottom: 5,
       marginLeft: 40,
@@ -100,7 +97,12 @@ export default StyleSheet.create({
       paddingBottom: 10,
       paddingLeft: 5,
       paddingRight: 5,
+    },
+
+    linkButtonText: {
+      color: 'white',
       textAlign: 'center',
+      fontSize: 18,
       textDecorationLine: 'none',
     },
 
