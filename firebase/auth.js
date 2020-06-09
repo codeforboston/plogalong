@@ -28,10 +28,27 @@ const initialUserData = (user, locationInfo) => ({
 });
 
 
+let onAuthStateChangedCallback = _ => {};
+let unsubscribeAuthStateChange;
+export function onAuthStateChanged(callback) {
+  if (unsubscribeAuthStateChange)
+    unsubscribeAuthStateChange();
+
+  unsubscribeAuthStateChange = auth.onAuthStateChanged(callback);
+  onAuthStateChangedCallback = callback;
+  return unsubscribeAuthStateChange;
+}
+
 /**
- * @template P
- * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ * @param {firebase.User|firebase.auth.UserCredential} user
  */
+function _refreshUser(user) {
+  if (user.user)
+    user = user.user;
+
+  onAuthStateChangedCallback(user);
+  return user;
+}
 
 /**
  * @template LoginFn
@@ -126,38 +143,34 @@ const signInWithCredential = auth.signInWithCredential.bind(auth);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const loginWithFacebook = withFBCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
-export const linkToFacebook = withFBCredential(cred => auth.currentUser.linkWithCredential(cred));
+export const linkToFacebook = withFBCredential(
+  cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
 
-export const unlinkFacebook = () => {
-  auth.currentUser.unlink('facebook.com');
-};
+export const unlinkFacebook = () =>
+  auth.currentUser.unlink('facebook.com').then(_refreshUser);
 
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const loginWithGoogle = withGoogleCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
-export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred));
+export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
 
-export const unlinkGoogle = () => {
-  auth.currentUser.unlink('google.com');
-};
+export const unlinkGoogle = () => auth.currentUser.unlink('google.com').then(_refreshUser);
+
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const loginWithApple = withAppleCredential(signInWithCredential);
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const linkToApple = withAppleCredential(cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
+export const unlinkApple = () => auth.currentUser.unlink('apple.com').then(_refreshUser);
+;
 
 export const loginWithEmail = auth.signInWithEmailAndPassword.bind(auth);
 
 export const linkToEmail = (email, password) => {
   const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-  return auth.currentUser.linkWithCredential(credential);
+  return auth.currentUser.linkWithCredential(credential).then(_refreshUser);
 };
 
 export const logOut = () => auth.signOut();
-
-let unsubscribeAuthStateChange;
-export function onAuthStateChanged(callback) {
-  if (unsubscribeAuthStateChange)
-    unsubscribeAuthStateChange();
-
-  unsubscribeAuthStateChange = auth.onAuthStateChanged(callback);
-  return unsubscribeAuthStateChange;
-}
 
 /**
  * @param {firebase.firestore.DocumentReference} ref
@@ -177,7 +190,6 @@ async function initializeUserData(ref, user, store) {
 }
 
 /**
-
  * @param {firebase.User} user
  */
 export const getUserData = async (user, store) => {
