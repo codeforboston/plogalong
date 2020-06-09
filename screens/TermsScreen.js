@@ -19,7 +19,13 @@ const OpenURLButton = ({ url, children }) => {
     }
   }, [url]);
 
-  return <Button title={children} onPress={handlePress} />;
+  return (
+    <View style={$S.linkButton}>
+      <Text style={$S.linkButtonText} onPress={handlePress}>
+        Visit plogalong.com
+      </Text>
+    </View>
+  );
 };
 
 export default class TermsScreen extends React.Component {
@@ -36,7 +42,7 @@ export default class TermsScreen extends React.Component {
         </View>
         {/* Lines 33-35 can be changed into a custom component*/}
         
-        <OpenURLButton url={websiteURL}>Visit our Website</OpenURLButton>
+        <OpenURLButton url={websiteURL}/>
       </View>
     );
   }

@@ -25,7 +25,13 @@ const OpenURLButton = ({ url, children }) => {
     }
   }, [url]);
 
-  return <Button title={children} onPress={handlePress} />;
+  return (
+    <View style={$S.linkButton}>
+      <Text style={$S.linkButtonText} onPress={handlePress}>
+        Visit plogalong.com
+      </Text>
+    </View>
+  );
 };
 
 const DefaultBullet = <Text style={{ fontSize: 30, marginTop: -7 }}>{'\u2022'}</Text>;
@@ -51,7 +57,7 @@ export default class PrivacyScreen extends React.Component {
           ))}
         </View>
 
-        <OpenURLButton url={plogalongPrivacyURL}>Visit our Website</OpenURLButton>
+        <OpenURLButton url={plogalongPrivacyURL}/>
       </View>
     );
   }

@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     },  
     submitButton: {
         borderWidth: 0,
-        fontSize: 14,
+        fontSize: 18, // was 14
         width: '50%',
         flexDirection: 'column',
     }   
