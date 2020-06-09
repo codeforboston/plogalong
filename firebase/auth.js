@@ -3,8 +3,8 @@ import { YellowBox } from 'react-native';
 import * as AppAuth from 'expo-app-auth';
 import * as Facebook from 'expo-facebook';
 import * as Google from 'expo-google-app-auth';
-// import * as AppleAuthentication from 'expo-apple-authentication';
 import * as GoogleSignIn from 'expo-google-sign-in';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 import config from '../config';
 const { firebase: firebaseConfig } = config;
@@ -130,11 +130,24 @@ if (InExpo)
  */
 const withAppleCredential = fn => (
   async () => {
-    const credential = await AppleAuthentication.signInAsync({
-      requestedScopes: [
-        AppleAuthentication.AppleAuthenticationScope.EMAIL
-      ]
-    });
+    try {
+      const result = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.EMAIL
+        ]
+      });
+
+      const credential = new firebase.auth.OAuthProvider('apple.com')
+            .credential({
+              idToken: result.identityToken,
+            });
+      return await fn(credential);
+    } catch (err) {
+      if (err.code === 'ERR_CANCELED')
+        return null;
+
+      throw err;
+    }
   }
 );
 
