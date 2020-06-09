@@ -51,25 +51,26 @@ function _refreshUser(user) {
 }
 
 /**
- * @template LoginFn
- * @param {LoginFn} loginFn
- * @template {(credentials: Unwrapped<ReturnType<LoginFn>>) => any} CredFn
- * @param {CredFn} credFn
- *
- * @returns {<T>(fn: (result: ReturnType<CredFn>) => Promise<T>, canceledFn: () => any) => T?}
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
  */
+
 const withCredentialFn = (loginFn, credFn) => (
   (fn, canceledFn=null) => (
     async () => {
-      const result = await loginFn();
+      try {
+        const result = await loginFn();
 
-      if (result.type === 'success') {
-        return await fn(credFn(result));
+        if (result.type === 'success')
+          return await fn(credFn(result));
+
+        return canceledFn ? canceledFn() : null;
+      } catch (err) {
+        if (err.code == -3) // cancelled
+          return null;
+
+        throw err;
       }
-
-      if (canceledFn) canceledFn();
-
-      return null;
     }
   )
 );
