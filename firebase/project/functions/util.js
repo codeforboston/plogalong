@@ -1,13 +1,13 @@
 const app = require('./app');
+const admin = require('firebase-admin');
 
 const db = app.firestore();
 const Plogs = db.collection('plogs');
 
-
 /**
  * @template {firebase.firestore.DocumentData} T
  * @param {firebase.firestore.CollectionReference<T>} collection
- * @param {firebase.firestore.Query<T>} where
+ * @param {Parameters<typeof Plogs.where>} where
  * @param {(batch: firebase.firestore.WriteBatch, doc: firebase.firestore.QueryDocumentSnapshot<T>) => null} fn
  * @param {number} [limit]
  */

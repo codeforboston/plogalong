@@ -118,6 +118,11 @@ exports.onCommentCreate = functions.firestore.document('/comments/{commentId}')
     });
   });
 
+const users = require('./users');
+exports.onUserDeleted = functions.auth.user().onDelete(async user => {
+  await users.deleteUserData(user.uid);
+});
+
 const { likePlog, loadUserProfile, mergeWithAccount } = require('./http');
 exports.likePlog = functions.https.onCall(likePlog);
 exports.loadUserProfile = functions.https.onCall(loadUserProfile);

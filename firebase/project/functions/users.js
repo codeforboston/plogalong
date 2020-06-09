@@ -1,12 +1,13 @@
 const app = require('./app');
 
-const { updatePlogsWhere } = require('./util');
+const { updatePlogsWhere, withBatch } = require('./util');
 
-const Users = app.firestore().collection('plogs');
-
+const Plogs = app.firestore().collection('plogs');
+const Users = app.firestore().collection('users');
 
 async function mergeUsers(fromUserID, toUserID) {
-  const { displayName, profilePicture } = (await Users.doc(toUserID).get()).data();
+  const userDoc = await Users.doc(toUserID).get();
+  const { displayName, profilePicture } = userDoc.data();
   await updatePlogsWhere(
     ['d.UserID', '==', fromUserID],
     {
@@ -17,4 +18,30 @@ async function mergeUsers(fromUserID, toUserID) {
   );
 }
 
-exports.mergeUsers = mergeUsers;
+async function deleteUserPlogs(userID) {
+  await withBatch(Plogs, ['d.UserID', '==', userID], (batch, doc) => {
+    batch.delete(doc.ref);
+  });
+}
+
+async function deleteUserFiles(userID) {
+  await app.storage().bucket().deleteFiles({
+    prefix: `userdata/${userID}`
+  });
+  await app.storage().bucket().deleteFiles({
+    prefix: `userpublic/${userID}`
+  });
+}
+
+async function deleteUserData(userID) {
+  await Users.doc(userID).delete();
+  await deleteUserPlogs(userID);
+  await deleteUserFiles(userID);
+}
+
+module.exports = {
+  mergeUsers,
+  deleteUserData,
+  deleteUserPlogs,
+  deleteUserFiles
+};
