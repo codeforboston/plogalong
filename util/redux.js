@@ -41,7 +41,7 @@ function _doUpdateInCopying(m, ks, fn, missingVal=undefined) {
  * @param {string[]} ks
  */
 export const updateInCopy = (m, ks, fn) => _doUpdateInCopying(m, [...ks],
-                                                              typeof fn === 'function' ? fn : () => fn);
+                                                              typeof fn === 'function' ? fn : v => v);
 
 
 /**
