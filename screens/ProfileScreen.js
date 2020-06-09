@@ -62,10 +62,6 @@ class ProfileScreen extends React.Component {
         this.props.navigation.navigate('Signup');
     }
 
-    goToLogin = () => {
-      this.props.navigation.navigate('Login');
-    }
-
   goToChangePassword = () => {
     this.props.navigation.navigate('ChangePassword');
   }
@@ -171,7 +167,7 @@ class ProfileScreen extends React.Component {
            </>}
 
           <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>
-            <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
+            {currentUser.isAnonymous && <Button primary onPress={this.goToSignup} title="Create Plogalong Account"/>}
             <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
             {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
           </View>
