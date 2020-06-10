@@ -92,7 +92,7 @@ export default StyleSheet.create({
     },
 
     link: {
-        color: Colors.tintColor,
+        color: Colors.secondaryColor,
         textDecorationLine: 'underline',
     },
 

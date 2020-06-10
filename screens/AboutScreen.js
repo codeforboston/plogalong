@@ -8,6 +8,9 @@ const mainMessage =
 const createdBy =
   "Plogalong is currently in the development stage at Code for Boston Hack Nights and Hackathon.";
 
+const slipperStudiosURL = "http://www.slipperstudios.com/";
+const codeForBostonURL = "https://www.codeforboston.org/";
+const plogalongFacebookURL = "https://www.facebook.com/Plogalong-100585405000063/";
 
 const OpenURLButton = ({ url, children }) => {
   const handlePress = useCallback(async () => {
@@ -41,10 +44,26 @@ export default class AboutScreen extends React.Component {
             Plogalong helps you track your plogging history and see who else is plogging nearby. Stay motivated by earning badges and plogging minutes, or sharing your plogs on social media.
           </Text>
           <Text style={$S.body}>
-            Plogalong was designed by Slipper Studios (link to slipperstudios.com), and was built as an open source civic project at Code for Boston (link to C4B).
+            Plogalong was designed by <Text 
+              style={$S.link} 
+              onPress={() => Linking.openURL(slipperStudiosURL)}>
+                Slipper Studios
+              </Text>, and was built as an open source civic project at <Text 
+              style={$S.link} 
+              onPress={() => Linking.openURL(codeForBostonURL)}>
+                Code for Boston
+              </Text>.
           </Text>
           <Text style={$S.body}>
-            Visit Plogalong.com | Like Us on Facebook (https://www.facebook.com/Plogalong-100585405000063/)
+            Visit <Text 
+              style={$S.link} 
+              onPress={() => Linking.openURL(websiteURL)}>
+                plogalong.com
+              </Text> | Like Us on <Text 
+              style={$S.link} 
+              onPress={() => Linking.openURL(plogalongFacebookURL)}>
+                Facebook
+              </Text>
           </Text>
         </View>
         {/* Lines 33-35 can be changed into a custom component*/}
