@@ -71,10 +71,14 @@ export default ContactForm = ({onSave}) => {
                         <View style={$S.inputGroup}>
                           {submitError && <Error error={submitError} />}
                             <Text style={[$S.inputLabel]}> Topic </Text>
-                            <View style={[$S.textInput, styles.input]}>
+                            <View style={$S.textInput}>
                                 <RNPickerSelect
                                     placeholder={placeholder}
                                     value={values.topic}
+                                    style={{
+                                        inputIOS: { fontSize: 18 },
+                                        inputAndroid: { fontSize: 18 },
+                                    }}
                                     useNativeAndroidPickerStyle={false}
                                     onValueChange={(value) => setFieldValue('topic', value)}
                                 items={[
@@ -90,7 +94,9 @@ export default ContactForm = ({onSave}) => {
                             <TextInput
                                 multiline={true}
                                 numberOfLines={10}
-                                style={[styles.inputComment, $S.textInput, styles.input]}
+                                style={[$S.textInput, {paddingTop: 10}]}
+                                // {paddingTop: 10} allows for multiline,
+                                // while keeping top padding consistent with other boxes
                                 placeholder='Comment'
                                 onChangeText={handleChange('comment')}
                                 value={values.comment}
@@ -99,7 +105,7 @@ export default ContactForm = ({onSave}) => {
                             <Text style={styles.errorText}>{touched.comment && errors.comment}</Text>
                             <Text style={[$S.inputLabel, styles.titleText]}> Name (optional) </Text>
                             <TextInput
-                                style={[$S.textInput, styles.input ]}
+                                style={$S.textInput}
                                 placeholder='Name'
                                 onChangeText={handleChange('name')}
                                 value={values.name}
@@ -107,7 +113,7 @@ export default ContactForm = ({onSave}) => {
                             />
                             <Text style={[$S.inputLabel, styles.titleText]}> Email (optional) </Text>
                             <TextInput
-                                style={[$S.textInput, styles.input]}
+                                style={$S.textInput}
                                 placeholder='Email'
                                 onChangeText={handleChange('email')}
                                 value={values.email}
