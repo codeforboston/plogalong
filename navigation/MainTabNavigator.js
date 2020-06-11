@@ -1,15 +1,17 @@
 import * as React from 'react';
 import {
-  Image,
+  Linking,
   PixelRatio,
   StyleSheet,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
+import { auth } from '../firebase/init';
 import icons from '../icons';
 import Colors from '../constants/Colors';
 import { processAchievement } from '../util/users';
+import { flashMessage } from '../redux/actions';
 
 import PlogScreen from '../screens/PlogScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -63,6 +65,8 @@ const Tab = createBottomTabNavigator();
 export default connect(state => ({
     currentUser: state.users.current,
     preferences: state.preferences,
+}), dispatch => ({
+  flashMessage(...args) { dispatch(flashMessage(...args)); }
 }))(class extends React.Component {
     componentDidMount() {
         const sawIntro = this.props.preferences.sawIntro;
@@ -72,7 +76,27 @@ export default connect(state => ({
             navigation.navigate('Intro');
             return;
         }
+
+      Linking.addEventListener('url', this.onURLChanged);
     }
+
+  componentWillUnmount() {
+    Linking.removeEventListener('url', this.onURLChanged);
+  }
+
+  onURLChanged = async ({ url }) => {
+    const [_, search] = url.split('?');
+    const params = search.split('&').reduce((p, kv) => {
+      const [k, v] = kv.split('=');
+      p[decodeURIComponent(k)] = decodeURIComponent(v);
+      return p;
+    }, {});
+
+    if (params['mode'] === 'verifyEmail') {
+      await auth.applyActionCode(params['oobCode']);
+      this.props.flashMessage('Your email address is now confirmed.');
+    }
+  }
 
     componentDidUpdate({ currentUser: prevUser }) {
       const {currentUser} = this.props;
