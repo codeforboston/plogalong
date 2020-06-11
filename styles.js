@@ -179,4 +179,11 @@ export default StyleSheet.create({
     marginHorizontal: 30,
     marginBottom: 50,
   },
+
+  alertText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: Colors.warningText,
+    backgroundColor: Colors.warningBackground,
+  },
 });

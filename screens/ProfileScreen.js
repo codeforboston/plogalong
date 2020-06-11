@@ -121,6 +121,10 @@ class ProfileScreen extends React.Component {
                  <Text style={{ fontWeight: '500' }}>
                    { currentUser.email }
                  </Text>
+                 {!currentUser.emailVerified &&
+                 <Text style={$S.alertText}>
+                   Not verified
+                 </Text> }
              </View>
 
              <View style={$S.inputGroup}>
@@ -158,12 +162,12 @@ class ProfileScreen extends React.Component {
                </Text>
                <Switch value={!params.privateProfile} style={$S.switch} onValueChange={toggleParam('privateProfile')} />
              </View>
-             <View style={$S.switchInputGroup}>
+             {currentUser.emailVerified && <View style={$S.switchInputGroup}>
                <Text style={$S.inputLabel}>
                  Get email updates ({'< 1/month'})
                </Text>
                <Switch value={params.emailUpdatesEnabled} style={$S.switch} onValueChange={toggleParam('emailUpdatesEnabled')} />
-             </View>
+             </View>}
            </>}
 
           <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>

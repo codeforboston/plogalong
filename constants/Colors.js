@@ -8,7 +8,7 @@ export default {
     borderColor: '#c2c1ba',
     activeColor: '#8557C7',
     inactiveColor: '#495564',
-  selectionColorLight: '#ac8dd8',
+  selectionColorLight: '#ac8dd8', // periwinkle
   tintColor,
   tabIconDefault: '#ccc',
   tabIconSelected: tintColor,
@@ -19,8 +19,8 @@ export default {
   textGray: '#5f646b',
   errorBackground: 'red',
   errorText: '#fff',
-  warningBackground: '#EAEB5E',
-  warningText: '#666804',
+  warningBackground: '#7fba5f',
+  warningText: '#fff',
   noticeBackground: tintColor,
   noticeText: '#fff',
 
