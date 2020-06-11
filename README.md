@@ -118,7 +118,52 @@ Check on our Slack channel for the shared configuration file. Save it to
 4. In `firebase/project/functions` run `npm install`.
 5. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
    options.)
+   
+**Additional setup:** see the section on SendGrid below.
 
+#### Local Configuration
+
+Some Firebase features require additional configuration in the shared app config
+(`app.config.js`). When building, you can optionally specify a
+`LOCAL_CONFIG_FILE` environment variable. If given, it should be set to the path
+(relative to the working directory) of a JS module that exports a config object.
+See `app.config.js` for the keys you can override.
+
+### SendGrid
+
+**What it's for**: this API is used to send certain transactional emails: for
+example, user feedback.
+
+#### Get API Key
+
+1. [Create an account](https://sendgrid.com)
+2. In the SendGrid dashboard, open [API keys](https://app.sendgrid.com/settings/api_keys)
+3. Create a new API key. If you choose to customize the access levels, set "Mail
+   Send" to Full Access.
+4. Copy the API key
+   
+##### Sender Authentication
+
+1. Open the [Sender
+Authentication](https://app.sendgrid.com/settings/sender_auth) page under
+Settings
+2. Choose "Authenticate Your Domain" and follow the instructions
+
+
+#### Configure Firebase
+1. In this repo, cd to `firebase/project`
+2. Set the email configuration options: 
+  ```bash firebase functions:config:set
+  plogalong.sendgrid_api_key=SG.xxxxxxx plogalong.admin_email=xxxxxx 
+  ``` 
+
+  Replace `SG.xxxxxxx` with the API key you got earlier. The
+  `plogalong.admin_email` option determines the email address that will receive
+  admin alerts (comment submissions, for instance). It will also be the sender
+  email unless you provide a separate `plogalong.sender_email` option. In either
+  case, you must complete "Sender Authentication" (above) for the sender domain
+  or address.
+  
 ### OpenWeatherMap (optional)
 
 **What it's for**: this API is used to populate the Current Weather box on the

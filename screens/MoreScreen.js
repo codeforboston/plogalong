@@ -15,10 +15,10 @@ import NavMenu from '../components/NavMenu';
 import AboutScreen from './AboutScreen';
 import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
-import InviteModalScreen from './InviteModalScreen';
 import PrivacyScreen from './PrivacyScreen';
 
 import arrow from '../assets/svg/headerBackImage/arrow.svg';
+import $S from '../styles';
 
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
@@ -35,7 +35,7 @@ export class MoreScreen extends React.Component {
   };
 
   toggleIsInviteModalVisible = () => {
-    this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
+    this.props.navigation.navigate('Invite');
   }
 
   goToPlogScreen = () => {
@@ -56,7 +56,7 @@ export class MoreScreen extends React.Component {
           Life is hard. Plogging is easy.
         </Banner>
         <NavMenu routes={this.pages}/>
-        <View style={styles.buttons}>
+        <View style={$S.footerButtons}>
           <Button title="Invite"
                   large
                   onPress={this.toggleIsInviteModalVisible}
@@ -66,8 +66,6 @@ export class MoreScreen extends React.Component {
                   onPress={this.goToPlogScreen}
           />
         </View>
-        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible}
-                           isInviteModalVisible={this.state.isInviteModalVisible} />
       </View>
     );
   }
@@ -102,7 +100,6 @@ export default ({navigation, route}) => {
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
           <Stack.Screen name="Privacy" component={ PrivacyScreen }/>
           <Stack.Screen name="Terms" component={ TermsScreen }/>
-          
         </Stack.Navigator>
     );
 };
@@ -113,15 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: 20,
   },
-  divider: {
-      borderBottomWidth: 1,
-      borderBottomColor: 'gray'
-  },
   banner: {
     marginBottom: 20,
   },
-  buttons: {
-    margin: 30,
-    marginBottom: 50,
-  }
 });

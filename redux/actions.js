@@ -1,6 +1,6 @@
 import { AsyncStorage } from 'react-native';
 
-import { SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
+import { SET_CURRENT_USER, SET_PREFERENCES } from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
 import { savePlog } from '../firebase/plogs';
@@ -9,7 +9,7 @@ import * as functions from '../firebase/functions';
 
 /** @typedef {import('redux').Action} Action */
 
-const _action = (fn, {pre, err, post}={}) => (
+const _action = (fn, {pre, err, post, cancel}={}) => (
   (...args) => (
     async dispatch => {
       if (pre)
@@ -17,7 +17,11 @@ const _action = (fn, {pre, err, post}={}) => (
 
       try {
         const result = await fn(...args);
-        if (post) dispatch(typeof post === 'function' ? post(result) : post);
+
+        if (!result && cancel) {
+          dispatch(typeof cancel === 'function' ? cancel(...args) : cancel);
+        } else if (post)
+          dispatch(typeof post === 'function' ? post(result) : post);
       } catch (e) {
         if (err) dispatch(err(e));
       }
@@ -25,14 +29,18 @@ const _action = (fn, {pre, err, post}={}) => (
   )
 );
 
+export const authCancelled = _ => ({
+  type: types.AUTH_CANCELED
+});
+
 export const loginError = error => ({
-    type: types.LOGIN_ERROR,
-    payload: { error }
+  type: types.LOGIN_ERROR,
+  payload: { error: error.code === 'auth/user-canceled' ? null : error }
 });
 
 export const signupError = (error) => ({
-    type: types.SIGNUP_ERROR,
-    payload: { error }
+  type: types.SIGNUP_ERROR,
+  payload: { error }
 });
 
 export const logPlog = (plogInfo) => (
@@ -148,11 +156,13 @@ export const loginWithEmail = _action(auth.signInWithEmailAndPassword.bind(auth)
 
 export const loginWithGoogle = _action(L.loginWithGoogle, {
   pre: signup('google', {}),
+  cancel: authCancelled,
   err: loginError
 });
 
 export const linkToGoogle = _action(L.linkToGoogle, {
   pre: signup('google', {}),
+  cancel: authCancelled,
   err: signupError
 });
 
@@ -170,6 +180,11 @@ export const linkToFacebook = _action(L.linkToFacebook, {
 
 export const unlinkFacebook = _action(L.unlinkFacebook, { err: signupError });
 
+export const loginWithApple = _action(L.loginWithApple, {
+  pre: signup('apple', {}),
+  cancel: authCancelled,
+  err: signupError
+});
 
 export const loginAnonymously = _action(() => auth.signInAnonymously(), {
   pre: (autoLogin=false) => signup('anonymous', { autoLogin }),

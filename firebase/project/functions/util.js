@@ -1,31 +1,48 @@
 const app = require('./app');
+const admin = require('firebase-admin');
 
 const db = app.firestore();
 const Plogs = db.collection('plogs');
 
+/**
+ * @template {firebase.firestore.DocumentData} T
+ * @param {firebase.firestore.CollectionReference<T>} collection
+ * @param {Parameters<typeof Plogs.where>} where
+ * @param {(batch: firebase.firestore.WriteBatch, doc: firebase.firestore.QueryDocumentSnapshot<T>) => null} fn
+ * @param {number} [limit]
+ */
+async function withBatch(collection, where, fn, limit=100) {
+  let query = collection.where(...where).limit(limit);
+
+  while (true) {
+    const batch = db.batch();
+    const docs = await query.get();
+    let doc;
+
+    for (doc of docs.docs) {
+      fn(batch, doc);
+    }
+
+    await batch.commit();
+    if (docs.size < limit)
+      break;
+
+    query = collection.where(...where).limit(limit).startAfter(doc);
+  }
+}
 
 /**
  * @param {Parameters<typeof Plogs.where>} where
  */
 async function updatePlogsWhere(where, changes, limit=100) {
-  let query = Plogs.where(...where).limit(limit);
-
-  while (true) {
-    const batch = db.batch();
-    const plogs = await query.get();
-
-    for (const plog of plogs.docs) {
-      batch.update(plog.ref, changes);
-    }
-
-    await batch.commit();
-    if (plogs.size < limit)
-      break;
-
-    query = Plogs.where(...where).limit(limit).startAfter(plogs.docs[plogs.size-1]);
-  }
+  await withBatch(Plogs, where,
+                  (batch, plog) => {
+                    batch.update(plog.ref, changes);
+                  },
+                  limit);
 }
 
 module.exports = {
-  updatePlogsWhere
+  updatePlogsWhere,
+  withBatch
 };

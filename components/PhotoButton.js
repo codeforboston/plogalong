@@ -84,8 +84,7 @@ class PhotoButton extends React.Component {
         const {photo, style, imageStyle, defaultIcon: DefaultIcon=icons.Camera, ...props} = this.props,
               icon = photo ?
               <Image source={photo} style={[{flex: 1}, imageStyle]}/> :
-              <DefaultIcon fill="#666666" width={imageStyle && imageStyle.width || 100} 
-                                          height={imageStyle && imageStyle.height || 100}/>;
+              <DefaultIcon fill="#666666" width="100%" height="100%"/>;
 
         return <Button title="Add Image"
                        icon={icon}

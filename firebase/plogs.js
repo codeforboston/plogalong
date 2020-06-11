@@ -14,7 +14,7 @@ export const plogDocToState = (plog) => {
   /** @type {GeoPoint} */
   const location = data.coordinates;
   const plogPhotos = keep(
-    ({uri}) => (uri && uri.match(/^https:\/\//) && { uri }),
+    uri => (uri && uri.match(/^https:\/\//) && { uri }),
     (data.Photos || []));
 
   return {
@@ -80,11 +80,10 @@ export const savePlog = async (plog) => {
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
   return Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
-    width <= 300 && height <= 300 ?
-      uri :
-      uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
-                  { resize: { width: 300, height: 300 } })
+    uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
+      width <= 300 && height <= 300 ? { resize: { width: 300, height: 300 } } : {})
   ))).then(urls => {
+    console.log(urls);
     return doc.update({ Photos: urls });
   });
 };

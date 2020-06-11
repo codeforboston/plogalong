@@ -3,7 +3,6 @@ import thunk from 'redux-thunk';
 
 import rootReducer from './reducers';
 
-import { queryUserPlogs, plogDocToState } from '../firebase/plogs';
 import { onAuthStateChanged, getUserData } from '../firebase/auth';
 
 import { setCurrentUser, gotUserData, loginAnonymously, flashMessage } from './actions';
@@ -29,6 +28,7 @@ export function initializeStore(prefs) {
     );
 
     let firstStateChange = true;
+    let lastUID;
 
     onAuthStateChanged(
         (user) => {
@@ -46,20 +46,22 @@ export function initializeStore(prefs) {
                 )
             );
 
-            if (user && user.uid) {
+            if (user && user.uid !== lastUID) {
               if (!user.isAnonymous) {
                 store.dispatch(flashMessage('Welcome back!'));
               }
                 // Firebase will automatically unsubscribe from snapshot updates
                 // on error.
               getUserData(user, store).then(userDoc => userDoc.onSnapshot(snap => {
-                    const data = Object.assign(snap.data(), { updated: Date.now() });
+                const data = Object.assign(snap.data(), { updated: Date.now() });
 
-                    if (data) {
-                        store.dispatch(gotUserData(user.uid, data));
-                    }
+                if (data) {
+                  store.dispatch(gotUserData(user.uid, data));
+                }
               }, _ => {}));
-            } 
+            }
+
+          lastUID = user && user.uid;
         }
     );
 

@@ -1,5 +1,11 @@
 import React, { useCallback } from "react";
-import { StyleSheet, Text, View, Button, Linking, FlatList } from "react-native";
+import {
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+
+import { A, OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
@@ -11,7 +17,6 @@ const privacyDetails =
    Edit exact location of your plog before you submit by dragging the plogging map 
    Your email address is not shown to other users 
    We will not contact you without your permission`;
-
 
 
 const OpenURLButton = ({ url, children }) => {
@@ -28,7 +33,7 @@ const OpenURLButton = ({ url, children }) => {
   return (
     <View style={$S.linkButton}>
       <Text style={$S.linkButtonText} onPress={handlePress}>
-        Visit plogalong.com
+        {children}
       </Text>
     </View>
   );
@@ -43,10 +48,6 @@ const LI = ({children, bullet=DefaultBullet}) => (
 )
 
 export default class PrivacyScreen extends React.Component {
-  static navigationOptions = {
-    title: "About Plogalong",
-  };
-
   render() {
     return (
       <View style={$S.container}>
@@ -57,7 +58,7 @@ export default class PrivacyScreen extends React.Component {
           ))}
         </View>
 
-        <OpenURLButton url={plogalongPrivacyURL}/>
+        <OpenURLButton url={plogalongPrivacyURL}>View Privacy Policy<OpenURLButton/>
       </View>
     );
   }

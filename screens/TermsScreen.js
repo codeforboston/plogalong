@@ -1,5 +1,14 @@
 import React, { useCallback } from "react";
-import { StyleSheet, Text, View, Button, Linking } from "react-native";
+import {
+  Button,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
+import { OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const websiteURL = "https://www.plogalong.com/";
@@ -29,10 +38,6 @@ const OpenURLButton = ({ url, children }) => {
 };
 
 export default class TermsScreen extends React.Component {
-  static navigationOptions = {
-    title: "Terms",
-  };
-
   render() {
     return (
       <View style={$S.container}>
@@ -40,7 +45,6 @@ export default class TermsScreen extends React.Component {
           <Text style={$S.body}>{mainMessage}</Text>
           <Text style={$S.body}>{createdBy}</Text>
         </View>
-        {/* Lines 33-35 can be changed into a custom component*/}
         
         <OpenURLButton url={websiteURL}/>
       </View>
@@ -48,4 +52,3 @@ export default class TermsScreen extends React.Component {
   }
 }
 
-// Using 'OpenURLButton' from https://reactnative.dev/docs/linking

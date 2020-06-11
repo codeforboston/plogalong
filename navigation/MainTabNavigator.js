@@ -1,15 +1,17 @@
 import * as React from 'react';
 import {
-  Image,
+  Linking,
   PixelRatio,
   StyleSheet,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
+import { auth } from '../firebase/init';
 import icons from '../icons';
 import Colors from '../constants/Colors';
 import { processAchievement } from '../util/users';
+import { flashMessage } from '../redux/actions';
 
 import PlogScreen from '../screens/PlogScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -63,6 +65,8 @@ const Tab = createBottomTabNavigator();
 export default connect(state => ({
     currentUser: state.users.current,
     preferences: state.preferences,
+}), dispatch => ({
+  flashMessage(...args) { dispatch(flashMessage(...args)); }
 }))(class extends React.Component {
     componentDidMount() {
         const sawIntro = this.props.preferences.sawIntro;
@@ -72,27 +76,48 @@ export default connect(state => ({
             navigation.navigate('Intro');
             return;
         }
+
+      Linking.addEventListener('url', this.onURLChanged);
     }
+
+  componentWillUnmount() {
+    Linking.removeEventListener('url', this.onURLChanged);
+  }
+
+  onURLChanged = async ({ url }) => {
+    const [_, search] = url.split('?');
+    const params = search.split('&').reduce((p, kv) => {
+      const [k, v] = kv.split('=');
+      p[decodeURIComponent(k)] = decodeURIComponent(v);
+      return p;
+    }, {});
+
+    if (params['mode'] === 'verifyEmail') {
+      await auth.applyActionCode(params['oobCode']);
+      this.props.flashMessage('Your email address is now confirmed.');
+    }
+  }
 
     componentDidUpdate({ currentUser: prevUser }) {
       const {currentUser} = this.props;
-      
+
       if (prevUser && !currentUser) {
             this.props.navigation.replace("Login");
         } else if (currentUser && prevUser && currentUser.uid === prevUser.uid) {
           const {data} = currentUser;
           const {data: prevData} = prevUser;
 
-          if (prevData && prevData.achievements && data.achievements) {
+          if (prevData && data.achievements && !prevData.notLoaded) {
+            const prevAchievements = prevData.achievements || {};
             // This code is structured as if we wanted to find ALL the newly
             // completed achievements. At least for now, though, we're just
             // showing one modal.
 
             // const newAchievements = [];
             for (const k of Object.keys(data.achievements)) {
-              if ((!prevData.achievements[k] || !prevData.achievements[k].completed) && 
+              if ((!prevAchievements[k] || !prevAchievements[k].completed) &&
                   data.achievements[k].completed) {
-                    this.props.navigation.navigate('AchievementModal', { 
+                    this.props.navigation.navigate('AchievementModal', {
                       achievement: processAchievement(data.achievements, k)
                      });
                     return;

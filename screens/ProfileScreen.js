@@ -62,10 +62,6 @@ class ProfileScreen extends React.Component {
         this.props.navigation.navigate('Signup');
     }
 
-    goToLogin = () => {
-      this.props.navigation.navigate('Login');
-    }
-
   goToChangePassword = () => {
     this.props.navigation.navigate('ChangePassword');
   }
@@ -127,6 +123,10 @@ class ProfileScreen extends React.Component {
                  <Text style={{ fontWeight: '500' }}>
                    { currentUser ? currentUser.email : '' }
                  </Text>
+                 {!currentUser.emailVerified &&
+                 <Text style={$S.alertText}>
+                   Not verified
+                 </Text> }
              </View>
 
              <View style={$S.inputGroup}>
@@ -164,16 +164,18 @@ class ProfileScreen extends React.Component {
                </Text>
                <Switch value={!params.privateProfile} style={$S.switch} onValueChange={toggleParam('privateProfile')} />
              </View>
-             <View style={$S.switchInputGroup}>
+             {currentUser.emailVerified && <View style={$S.switchInputGroup}>
                <Text style={$S.inputLabel}>
                  Get email updates ({'< 1/month'})
                </Text>
                <Switch value={params.emailUpdatesEnabled} style={$S.switch} onValueChange={toggleParam('emailUpdatesEnabled')} />
-             </View>
+             </View>}
            </>}
 
           <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>
             <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>
+            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
+            {currentUser.isAnonymous && <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>}
             <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
             {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
           </View>

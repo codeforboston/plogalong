@@ -1,8 +1,11 @@
 import * as firebase from 'firebase';
-import firebaseConfig from './config';
 import 'firebase/firestore';
 import 'firebase/functions';
 import 'firebase/auth';
+
+import config from '../config';
+const { firebase: firebaseConfig } = config;
+
 import { GeoFirestore } from 'geofirestore';
 
 if (

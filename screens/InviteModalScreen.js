@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useCallback } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -21,13 +22,13 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
     contentUrl: PLOGALONG_LINK,
     contentDescription: "Jus lil ol me, ploggin along",
   };
-  writeToClipboard = async () => {
+  const writeToClipboard = useCallback(async () => {
     await Clipboard.setString(PLOGALONG_LINK);
-  }
+  }, []);
 
-  shareTo = () => {}
+  const shareTo = useCallback(() => {}, []);
 
-  shareLinkWithShareDialog = () => {
+  const shareLinkWithShareDialog = useCallback(() => {
     ShareDialog.canShow(SHARE_LINK_CONTENT).then(canShow => {
       if (canShow) {
         return ShareDialog.show(SHARE_LINK_CONTENT);
@@ -42,7 +43,7 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
     }, error => {
         alert('Share failed with error: ' + error.message);
     });
-  }
+  }, []);
 
   return (
     <Modal
@@ -60,7 +61,7 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
           />
         </View>
         <View style={styles.inviteModalContainers}>
-          <Text style={$S.h2}>Invite</Text>
+          <Text style={[$S.h1, { textAlign: 'center' }]}>Invite</Text>
           <TextInput
             value={PLOGALONG_LINK}
             selectTextOnFocus

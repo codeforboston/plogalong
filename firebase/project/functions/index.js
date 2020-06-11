@@ -2,8 +2,9 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const app = require('./app');
 
-const { updateAchievements, updateStats, AchievementHandlers } = require('./shared');
+const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, localPlogDate} = require('./shared');
 const { updatePlogsWhere } = require('./util');
+const email = require('./email');
 
 /**
  * Async generator that handles pagination and yields documents satisfying the
@@ -44,6 +45,7 @@ async function initAchievements(userID, types) {
 
   for await (const plog of queryGen(Plogs.where('d.UserID', '==', userID))) {
     const plogData = plog.data().d;
+    plogData.LocalDate = localPlogDate(plogData);
     for (const type of types) {
       if (!achievements[type].complete)
         achievements[type] = AchievementHandlers[type].update(
@@ -66,11 +68,11 @@ exports.calculateAchievements = functions.firestore.document('/plogs/{documentId
       const user = await t.get(userDocRef);
       const userData = user.data();
 
-      const {achievements, needInit} = updateAchievements(userData.achievements, plogData);
+      const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData);
 
       t.update(userDocRef, {
         achievements,
-        stats: updateStats(userData.stats, plogData, snap.createTime.toDate())
+        stats: updateStats(userData.stats, plogData, calculateBonusMinutes(completed))
       });
 
       initUserAchievements = needInit;
@@ -100,6 +102,26 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
             });
         }
     });
+
+exports.onCommentCreate = functions.firestore.document('/comments/{commentId}')
+  .onCreate(async (snap, context) => {
+    const { admin_email: ADMIN_EMAIL } = functions.config().plogalong || {};
+    if (!ADMIN_EMAIL)
+      return;
+
+    const comment = snap.data();
+
+    await email.send({
+      recipients: ADMIN_EMAIL,
+      subject: `Comment from ${comment.name}`,
+      textContent: comment.comment
+    });
+  });
+
+const users = require('./users');
+exports.onUserDeleted = functions.auth.user().onDelete(async user => {
+  await users.deleteUserData(user.uid);
+});
 
 const { likePlog, loadUserProfile, mergeWithAccount } = require('./http');
 exports.likePlog = functions.https.onCall(likePlog);

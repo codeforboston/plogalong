@@ -40,6 +40,21 @@ const incMonth = (dt, n=1) => new Date(new Date(dt).setMonth(dt.getMonth()+n));
 
 const localTZOffset = new Date().getTimezoneOffset();
 const localPlogDate = ({DateTime, TZ}) => new Date(DateTime.toMillis() - (TZ-localTZOffset)*60000);
+
+/**
+ * Add a predicate to an existing achievement handler. Plogs that do not satisfy
+ * `pred()` will be skipped.
+ *
+ * @param {(plog: any) => any} pred only consider plogs that satisfy a predicate
+ * @param {AchievementHandler} handler
+ * @returns {AchievementHandler}
+ */
+const _addPred = (pred, handler) => {
+  const {update} = handler;
+  handler.update = (previous, plog) => pred(plog) ? update(previous, plog) : previous;
+  return handler;
+};
+
 /**
  * Creates a handler for an achievement that is completed when a user has
  * plogged a `target` number of plogs.
@@ -189,12 +204,13 @@ const AchievementHandlers = {
  * @param {UserAchievements} achievements
  * @param {Plog|Plog[]} newPlogs
  *
- * @returns {{ achievements: UserAchievements, needInit: AchievementType[] }}
+ * @returns {{ achievements: UserAchievements, needInit: AchievementType[], completed: AchievementType[] }}
  */
 function updateAchievements(achievements, newPlogs) {
   /** @type {AchievementType[]} */
   const names = Object.keys(AchievementHandlers);
   const needInit = [];
+  const completed = [];
 
   const plogs = Array.isArray(newPlogs) ? newPlogs : [newPlogs];
   for (const plog of plogs) {
@@ -202,19 +218,33 @@ function updateAchievements(achievements, newPlogs) {
     plog.LocalDate = new Date(DateTime.toMillis() - TZ*60000);
   }
 
+  // Loop through all achievement types...
   const updatedAchievements = names.reduce((updated, name) => {
-    const current = updated && updated[name];
+    // ...checking the user's current progress toward that achievement...
+    let current = updated && updated[name];
     const handler = AchievementHandlers[name];
 
-    if (!current)
+    if (!current) {
+      // ...or initializing the achievement progress if necessary
       needInit.push(name);
-    else if (current.completed)
+      current = { ...handler.initial };
+    } else if (current.completed)
+      // skip over completed achievements
       return updated;
 
     try {
+      for (const plog of plogs) {
+        current = handler.update(current, plog);
+
+        if (current.completed) {
+          completed.push(name);
+          break;
+        }
+      }
+
       return Object.assign(
         updated || {},
-        { [name]: plogs.reduce(handler.update, current || { ...handler.initial }) }
+        { [name]: current }
       );
     } catch (err) {
       console.error(`error updating '${name}' achievement`, err);
@@ -224,6 +254,7 @@ function updateAchievements(achievements, newPlogs) {
 
   return {
     achievements: updatedAchievements,
+    completed,
     needInit
   };
 }
@@ -269,13 +300,16 @@ const timeUnits = [
  * @typedef {object} UserData
  * @property {UserStats} stats
  * @property {UserAchievements} achievements
+ * @property {string} [profilePicture]
+ * @property {string} displayName
  */
 
 /**
  * @param {UserData['stats']} stats
  * @param {PlogData} plog
+ * @param {number} [bonusMinutes]
  */
-function updateStats(stats, plog) {
+function updateStats(stats, plog, bonusMinutes=0) {
   if (!stats) stats = {};
 
   const date = localPlogDate(plog);
@@ -288,14 +322,25 @@ function updateStats(stats, plog) {
 
     unitStats.milliseconds += plog.PlogDuration || 0;
     unitStats.count += 1;
+    unitStats.bonusMinutes = bonusMinutes;
   }
 
   return stats;
 }
 
+/**
+ * @param {AchievementType[]} achievements
+ * @returns {number}
+ */
+function calculateBonusMinutes(achievements) {
+  return achievements.reduce((total, type) => AchievementHandlers[type].points+total, 0);
+}
+
 module.exports = {
   AchievementHandlers,
   timeUnits,
+  localPlogDate,
+  calculateBonusMinutes,
   updateAchievements,
   updateAchievementsLocal,
   updateStats,

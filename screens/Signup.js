@@ -7,13 +7,15 @@ import {
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 import {
   linkToEmail, linkToFacebook, linkToGoogle,
   unlinkFacebook, unlinkGoogle,
-  mergeAnonymousAccount
+  linkToApple,
+  mergeAnonymousAccount,
+  unlinkApple
 } from '../firebase/auth';
-import * as actions from '../redux/actions';
 import { indexBy } from '../util';
 import { useEffectWithPrevious, useParams } from '../util/react';
 import { withPrompt } from '../Prompt';
@@ -47,8 +49,8 @@ const SignupScreen = props => {
     try {
       setError(null);
       setAuthenticating(true);
-      await fn(...args);
-      navigation.pop();
+      if (await fn(...args))
+        navigation.pop();
     } catch (e) {
       if (e.code === 'auth/credential-already-in-use') {
         const { credential } = e;
@@ -75,8 +77,8 @@ const SignupScreen = props => {
         });
 
         if (result === 'merge')
-          navigation.pop();
-      } else {
+          navigation.goBack();
+      } else if (e.code !== 'auth/user-canceled') {
         console.log(e.code);
         setError(e);
       }
@@ -161,7 +163,7 @@ const SignupScreen = props => {
             providers['google.com'] ?
               (
                 <Button primary
-                        onPress={null}
+                        onPress={unlinkGoogle}
                         title="Disconnect Google" />
               ) :
               (
@@ -171,6 +173,16 @@ const SignupScreen = props => {
                   title="Google Login"
                 />
               )
+          }
+          {AppleAuthentication.isAvailableAsync() &&
+           (providers['apple.com'] ?
+            <Button primary
+                    onPress={unlinkApple}
+                    title="Disconnect Apple" />
+            :
+            <Button primary
+                    onPress={linkToApple}
+                    title="Apple Login"/>)
           }
         </>
   ;
@@ -191,12 +203,5 @@ export default connect(
     currentUser: state.users.current,
     authenticating: state.users.authenticating,
   }),
-  dispatch => ({
-    linkToEmail: (...args) => dispatch(actions.linkToEmail(...args)),
-    linkToGoogle: (...args) => dispatch(actions.linkToGoogle(...args)),
-    unlinkGoogle: (...args) => dispatch(actions.unlinkGoogle(...args)),
-    linkToFacebook: (...args) => dispatch(actions.linkToFacebook(...args)),
-    unlinkFacebook: (...args) => dispatch(actions.unlinkFacebook(...args)),
-    clearSignupError: (...args) => dispatch(actions.signupError()),
-  })
+  dispatch => ({})
 )(withPrompt(SignupScreen));
