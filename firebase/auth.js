@@ -1,4 +1,7 @@
-import { YellowBox } from 'react-native';
+import { 
+  Linking,
+  YellowBox
+ } from 'react-native';
 
 import * as AppAuth from 'expo-app-auth';
 import * as Facebook from 'expo-facebook';
@@ -175,13 +178,19 @@ export const loginWithApple = withAppleCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const linkToApple = withAppleCredential(cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
 export const unlinkApple = () => auth.currentUser.unlink('apple.com').then(_refreshUser);
-;
+
 
 export const loginWithEmail = auth.signInWithEmailAndPassword.bind(auth);
 
-export const linkToEmail = (email, password) => {
+export const linkToEmail = async (email, password) => {
   const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-  return auth.currentUser.linkWithCredential(credential).then(_refreshUser);
+  const userCred = await auth.currentUser.linkWithCredential(credential);
+  
+  _refreshUser(userCred);
+
+  userCred.user.sendEmailVerification().catch(console.warn);
+
+  return userCred.user;
 };
 
 export const logOut = () => auth.signOut();
