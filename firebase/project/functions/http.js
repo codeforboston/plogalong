@@ -103,6 +103,7 @@ async function loadUserProfile(data, context) {
  * @typedef {object} MergeAccountRequest
  * @property {string} userID uid of the anonymous user to merge into this account
  * @property {string} merge
+ * @property {boolean} [skipPlogMerge]
  */
 
 const matchKeys = (a, match) => {
@@ -132,15 +133,20 @@ async function mergeWithAccount(data, context) {
     Users.doc(data.userID).get()
   ]);
 
+  let { skipPlogMerge } = data;
   {
-    const { allowMergeWith } = otherUserData && otherUserData.data() || {};
+    const { allowMergeWith, stats } = otherUserData && otherUserData.data() || {};
     const { providerId, ...match } = allowMergeWith;
     const provider = user.providerData.find(p => p.providerId === providerId);
     if (!provider || !matchKeys(provider, match))
       throw new HttpsError('permission-denied', 'Permission denied');
+
+    if (!stats || !stats.total || !stats.total.count)
+      skipPlogMerge = true;
   }
 
-  await users.mergeUsers(data.userID, context.auth.uid);
+  if (!skipPlogMerge)
+    await users.mergeUsers(data.userID, context.auth.uid);
 
   await app.auth().deleteUser(data.userID);
   await Users.doc(data.userID).delete();

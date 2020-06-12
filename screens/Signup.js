@@ -16,7 +16,7 @@ import {
   mergeAnonymousAccount,
   unlinkApple
 } from '../firebase/auth';
-import { indexBy } from '../util';
+import { getStats, indexBy } from '../util';
 import { useEffectWithPrevious, useParams } from '../util/react';
 import { withPrompt } from '../Prompt';
 
@@ -45,7 +45,7 @@ const SignupScreen = props => {
   const [authenticating, setAuthenticating] = useState(null);
   const [error, setError] = useState(null);
 
-  const link = async (fn, ...args) => {
+  const link = useCallback(async (fn, ...args) => {
     try {
       setError(null);
       setAuthenticating(true);
@@ -55,29 +55,34 @@ const SignupScreen = props => {
       if (e.code === 'auth/credential-already-in-use') {
         const { credential } = e;
 
-        const result = await prompt({
-          title: 'Link to existing account?',
-          message: 'Another Plogalong user is already linked to that account. Do you want to add your plogs to the existing user? ',
-          value: '',
-          options: [
-            {
-              title: 'Merge accounts',
-              value: 'merge',
-              run: async (setMessage) => {
-                setMessage('Merging accounts...');
-                await mergeAnonymousAccount(credential, { email: e.email });
+        if (getStats(currentUser, 'total').count) {
+          const result = await prompt({
+            title: 'Link to existing account?',
+            message: 'Another Plogalong user is already linked to that account. Do you want to add your plogs to the existing user? ',
+            value: '',
+            options: [
+              {
+                title: 'Merge accounts',
+                value: 'merge',
+                run: async (setMessage) => {
+                  setMessage('Merging accounts...');
+                  await mergeAnonymousAccount(credential, { email: e.email });
+                }
+              },
+
+              {
+                title: 'Cancel',
+                run: () => { },
               }
-            },
+            ]
+          });
 
-            {
-              title: 'Cancel',
-              run: () => { },
-            }
-          ]
-        });
-
-        if (result === 'merge')
+          if (result === 'merge')
+            navigation.goBack();
+        } else {
+          await mergeAnonymousAccount(credential, { email: e.email });
           navigation.goBack();
+        }
       } else if (e.code !== 'auth/user-canceled') {
         console.log(e.code);
         setError(e);
@@ -85,7 +90,7 @@ const SignupScreen = props => {
     } finally {
       setAuthenticating(false);
     }
-  };
+  }, [navigation]);
 
   const onSubmit = useCallback(() => {
     link(linkToEmail, params.email, params.password);
