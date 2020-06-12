@@ -8,7 +8,6 @@ import {
   View,
 } from "react-native";
 
-import { OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const websiteURL = "https://www.plogalong.com/";
