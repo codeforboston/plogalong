@@ -5,7 +5,7 @@ import {
   View,
 } from "react-native";
 
-import { A, OpenURLButton } from '../components/Link';
+import { A } from '../components/Link';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
@@ -45,7 +45,7 @@ const LI = ({children, bullet=DefaultBullet}) => (
     {React.cloneElement(bullet, { style: [bullet.props.style, { flex: 0, paddingRight: 10 }] })}
     <Text style={[$S.body, { marginBottom: 0 }]}>{children}</Text>
   </View>
-)
+);
 
 export default class PrivacyScreen extends React.Component {
   render() {
@@ -58,7 +58,7 @@ export default class PrivacyScreen extends React.Component {
           ))}
         </View>
 
-        <OpenURLButton url={plogalongPrivacyURL}>View Privacy Policy<OpenURLButton/>
+        <OpenURLButton url={plogalongPrivacyURL}>View Privacy Policy</OpenURLButton>
       </View>
     );
   }
