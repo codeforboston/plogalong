@@ -18,6 +18,7 @@
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
  * @property {(previous: AchievementData, plog: Plog) => AchievementData} update
+ * @property {(left: AchievementData, right: AchievementData) => Partial<AchievementData>} [merge]
  * @property {number} points
  */
 
@@ -55,6 +56,12 @@ const _addPred = (pred, handler) => {
   return handler;
 };
 
+const min = (a, b) => a <= b ? a : b;
+const max = (a, b) => a >= b ? a : b;
+
+const newest = (a, b) => a ? (b ? max(a, b) : a) : b;
+const oldest = (a, b) => a ? (b ? min(a, b) : a) : b;
+
 /**
  * Creates a handler for an achievement that is completed when a user has
  * plogged a `target` number of plogs.
@@ -79,12 +86,17 @@ function _makeCountAchievement(target, points=50) {
         count: count + 1,
       };
     },
+    merge(left, right) {
+      return {
+        count: (left.count || 0) + (right.count || 0)
+      };
+    },
     points
   };
 }
 
 /**
- * Creates a handler for an achievement 
+ * Creates a handler for an achievement
  *
  * @param {number} target
  * @param {number} points
@@ -134,6 +146,13 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
       }
 
       return Object.assign(previous, changes);
+    },
+    merge(left, right) {
+      return {
+        streak: max(left.streak, right.streak),
+        longestStreak: max(left.longestStreak, right.longestStreak),
+        streakLost: newest(left.streakLost, right.streakLost)
+      };
     }
   };
 }
@@ -265,6 +284,49 @@ function updateAchievements(achievements, newPlogs) {
 const updateAchievementsLocal = (...args) => (updateAchievements(...args).achievements);
 
 /**
+ * @param {UserAchievements} achievementsA
+ * @param {UserAchievements} achievementsB
+ *
+ * @returns {UserAchievements}
+ */
+function mergeAchievements(achievementsA, achievementsB) {
+  if (!achievementsB) return achievementsA;
+  if (!achievementsA) return achievementsB;
+
+  const merged = {};
+  const names = /** @type {AchievementType[]} */(Object.keys(AchievementHandlers));
+
+  for (const name of names) {
+    const a = achievementsA[name];
+    const b = achievementsB[name];
+
+    if (!(a && b)) {
+      merged[name] = a || b;
+      continue;
+    }
+
+    // Choose the one that has completed the achievement. If that's both, choose
+    // the one that was completed first.
+    if (a.completed) {
+      merged[name] = b.completed ? (a.completed <= b.completed ? a : b) : a;
+    } else if (b.completed) {
+      merged[name] = b;
+    } else {
+      // Only call the 'merge' function if neither a nor b has completed the
+      // achievement
+      const fn = AchievementHandlers[name].merge;
+      const shared = {
+        updated: newest(a.updated, b.updated),
+        completed: null
+      };
+      merged[name] = Object.assign(shared, fn ? fn(a, b) : a);
+    }
+  }
+
+  return merged;
+}
+
+/**
  * Records aggregated stats for a particular time unit
  *
  * @typedef {object} PlogStats
@@ -334,6 +396,39 @@ function updateStats(stats, plog, bonusMinutes=0) {
 }
 
 /**
+ * @param {UserStats} statsA
+ * @param {UserStats} statsB
+ */
+function mergeStats(statsA, statsB) {
+  /** @type {UserStats} */
+  const merged = {};
+  for (let {unit} of timeUnits) {
+    const fromUnitStats = statsA[unit];
+    const toUnitStats = statsB[unit];
+
+    if (!toUnitStats)
+      merged[unit] = fromUnitStats;
+    if (!fromUnitStats)
+      merged[unit] = toUnitStats;
+
+    if (fromUnitStats.whenID === toUnitStats.whenID) {
+      merged[unit] = {
+        whenID: fromUnitStats.whenID,
+        milliseconds: fromUnitStats.milliseconds + toUnitStats.milliseconds,
+        count: fromUnitStats.count + toUnitStats.count
+      };
+      continue;
+    }
+
+    /// Relies on the typographic ordering of whenID preserving the
+    /// chronological ordering of the underlying date
+    merged[unit] = fromUnitStats.whenID > toUnitStats.whenID ? fromUnitStats : toUnitStats;
+  }
+
+  return merged;
+}
+
+/**
  * @param {AchievementType[]} achievements
  * @returns {number}
  */
@@ -346,6 +441,8 @@ module.exports = {
   timeUnits,
   localPlogDate,
   calculateBonusMinutes,
+  mergeAchievements,
+  mergeStats,
   updateAchievements,
   updateAchievementsLocal,
   updateStats,
