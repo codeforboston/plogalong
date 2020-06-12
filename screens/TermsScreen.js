@@ -39,14 +39,14 @@ const OpenURLButton = ({ url, children }) => {
 export default class TermsScreen extends React.Component {
   render() {
     return (
-      <View style={$S.container}>
+      <ScrollView style={$S.container}>
         <View style={$S.bodyContainer}>
           <Text style={$S.body}>{mainMessage}</Text>
           <Text style={$S.body}>{createdBy}</Text>
         </View>
-        
-        <OpenURLButton url={websiteURL}/>
-      </View>
+
+        <OpenURLButton url={websiteURL}>Visit plogalong.com</OpenURLButton>
+      </ScrollView>
     );
   }
 }

@@ -5,6 +5,7 @@ import {
   Linking,
   Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
@@ -36,7 +37,13 @@ export const OpenURLButton = ({ url, children }) => {
     }
   }, [url]);
 
-  return <RNButton title={children} onPress={handlePress} />;
+  return (
+    <View style={$S.linkButton}>
+      <Text style={$S.linkButtonText} onPress={handlePress}>
+        {children}
+      </Text>
+    </View>
+  );
 };
 
 

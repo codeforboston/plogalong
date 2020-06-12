@@ -5,7 +5,7 @@ import {
   View,
 } from "react-native";
 
-import { A } from '../components/Link';
+import { OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
@@ -19,26 +19,6 @@ const privacyDetails =
    We will not contact you without your permission`;
 
 
-const OpenURLButton = ({ url, children }) => {
-  const handlePress = useCallback(async () => {
-    const supported = await Linking.canOpenURL(url);
-
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(`Don't know how to open this URL: ${url}`);
-    }
-  }, [url]);
-
-  return (
-    <View style={$S.linkButton}>
-      <Text style={$S.linkButtonText} onPress={handlePress}>
-        {children}
-      </Text>
-    </View>
-  );
-};
-
 const DefaultBullet = <Text style={{ fontSize: 30, marginTop: -7 }}>{'\u2022'}</Text>;
 const LI = ({children, bullet=DefaultBullet}) => (
   <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 15 }}>
@@ -50,7 +30,7 @@ const LI = ({children, bullet=DefaultBullet}) => (
 export default class PrivacyScreen extends React.Component {
   render() {
     return (
-      <View style={$S.container}>
+      <ScrollView style={$S.container}>
         <View style={$S.bodyContainer}>
           <Text style={$S.body} selectable={true}>{mainMessage}<Text style={$S.link} onPress={() => Linking.openURL(firebasePrivacyURL)}>Google Firebase</Text></Text>
           {privacyDetails.split('\n').map((text, i) => (
@@ -59,7 +39,7 @@ export default class PrivacyScreen extends React.Component {
         </View>
 
         <OpenURLButton url={plogalongPrivacyURL}>View Privacy Policy</OpenURLButton>
-      </View>
+      </ScrollView>
     );
   }
 }
