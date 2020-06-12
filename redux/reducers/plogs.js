@@ -9,6 +9,8 @@ import {
   LIKE_PLOG_ERROR,
   LOAD_HISTORY,
   LOAD_LOCAL_HISTORY,
+  DELETE_PLOG,
+  PLOG_DELETED,
 } from "../actionTypes";
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
@@ -78,6 +80,22 @@ const log = (state = initialState, action) => {
           ...state.plogData,
           ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})
         }
+      };
+    }
+
+    case DELETE_PLOG: {
+      return updateInCopy(state, ['plogData', payload.plogID, '_deleting'], true);
+    }
+
+    case PLOG_DELETED: {
+      const { plogData, ...rest } = state;
+
+      return {
+        plogData: {
+          ...plogData,
+          [payload.plogID]: undefined
+        },
+        ...rest
       };
     }
 

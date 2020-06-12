@@ -87,3 +87,7 @@ export const savePlog = async (plog) => {
     return doc.update({ Photos: urls });
   });
 };
+
+export const deletePlog = async (plogID) => {
+  await Plogs.doc(plogID).delete();
+};

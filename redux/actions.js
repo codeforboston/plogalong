@@ -3,7 +3,7 @@ import { AsyncStorage } from 'react-native';
 import { SET_CURRENT_USER, SET_PREFERENCES } from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
-import { savePlog } from '../firebase/plogs';
+import { deletePlog as _deletePlog, savePlog } from '../firebase/plogs';
 import * as L from '../firebase/auth';
 import * as functions from '../firebase/functions';
 
@@ -51,6 +51,17 @@ export const logPlog = (plogInfo) => (
       dispatch({ type: types.PLOG_LOGGED, payload: { plog: plogInfo } });
     } catch (error) {
       dispatch({ type: types.LOG_PLOG_ERROR, error });
+    }
+  });
+
+export const deletePlog = (plogID) => (
+  async dispatch => {
+    dispatch({ type: types.DELETE_PLOG, payload: { plogID } });
+    try {
+      await _deletePlog(plogID);
+      dispatch({ type: types.PLOG_DELETED, payload: { plogID } });
+    } catch (err) {
+
     }
   });
 
