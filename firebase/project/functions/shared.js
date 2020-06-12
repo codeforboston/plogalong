@@ -271,7 +271,7 @@ const updateAchievementsLocal = (...args) => (updateAchievements(...args).achiev
  * @property {string} whenID - used as an identifier for the unit on which the
  *   stats are aggregated. E.g., if the user's most recent plog is on 4/3/21,
  *   the year PlogStats would have a `whenID` value of `2021` and the `month`
- *   PlogStats would have a `whenD` value of `2021-4`
+ *   PlogStats would have a `whenID` value of `2021-04`.
  * @property {number} milliseconds - total time plogged during this time period
  * @property {number} count
  */
@@ -289,9 +289,14 @@ const updateAchievementsLocal = (...args) => (updateAchievements(...args).achiev
 /** @typedef {KeysWithValueType<UserStats, PlogStats>} TimeUnit */
 /** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */
 
+const _zpad = n => `${n < 10 ? '0': ''}${n}`;
+
+/// Within a given time unit, the typographic ordering of whenIDs should
+/// preserve the natural order
+
 /** @type {TimeUnitConfig[]} */
 const timeUnits = [
-  { unit: 'month', when: dt => `${dt.getFullYear()}-${dt.getMonth()+1}` },
+  { unit: 'month', when: dt => `${dt.getFullYear()}-${_zpad(dt.getMonth()+1)}` },
   { unit: 'year', when: dt => ''+dt.getFullYear() },
   { unit: 'total', when: _ => 'total' },
 ];
