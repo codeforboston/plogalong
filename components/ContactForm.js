@@ -71,7 +71,7 @@ export default ContactForm = ({onSave}) => {
                         <View style={$S.inputGroup}>
                           {submitError && <Error error={submitError} />}
                             <Text style={[$S.inputLabel]}> Topic </Text>
-                            <View style={[$S.textInput, styles.input]}>
+                            <View style={[$S.textInput, styles.input, styles.inputGreen]}>
                                 <RNPickerSelect
                                     placeholder={placeholder}
                                     value={values.topic}
@@ -90,7 +90,7 @@ export default ContactForm = ({onSave}) => {
                             <TextInput
                                 multiline={true}
                                 numberOfLines={10}
-                                style={[styles.inputComment, $S.textInput, styles.input]}
+                                style={[styles.inputComment, $S.textInput, styles.input, styles.inputGreen]}
                                 placeholder='Comment'
                                 onChangeText={handleChange('comment')}
                                 value={values.comment}
@@ -99,7 +99,7 @@ export default ContactForm = ({onSave}) => {
                             <Text style={styles.errorText}>{touched.comment && errors.comment}</Text>
                             <Text style={[$S.inputLabel, styles.titleText]}> Name (optional) </Text>
                             <TextInput
-                                style={[$S.textInput, styles.input ]}
+                                style={[$S.textInput, styles.input, styles.inputGreen ]}
                                 placeholder='Name'
                                 onChangeText={handleChange('name')}
                                 value={values.name}
@@ -107,7 +107,7 @@ export default ContactForm = ({onSave}) => {
                             />
                             <Text style={[$S.inputLabel, styles.titleText]}> Email (optional) </Text>
                             <TextInput
-                                style={[$S.textInput, styles.input]}
+                                style={[$S.textInput, styles.input, styles.inputGreen]}
                                 placeholder='Email'
                                 onChangeText={handleChange('email')}
                                 value={values.email}
@@ -163,7 +163,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         width: '100%',
         padding: 12,
-        borderRadius: 6,
         fontSize: 14,
     },
     inputGreen: {
@@ -179,7 +178,7 @@ const styles = StyleSheet.create({
     },  
     submitButton: {
         borderWidth: 0,
-        fontSize: 14,
+        fontSize: 18, // was 14
         width: '50%',
         flexDirection: 'column',
     }   

@@ -5,7 +5,7 @@ import {
   View,
 } from "react-native";
 
-import { A, OpenURLButton } from '../components/Link';
+import { A } from '../components/Link';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
@@ -19,6 +19,25 @@ const privacyDetails =
    We will not contact you without your permission`;
 
 
+const OpenURLButton = ({ url, children }) => {
+  const handlePress = useCallback(async () => {
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
+  }, [url]);
+
+  return (
+    <View style={$S.linkButton}>
+      <Text style={$S.linkButtonText} onPress={handlePress}>
+        {children}
+      </Text>
+    </View>
+  );
+};
 
 const DefaultBullet = <Text style={{ fontSize: 30, marginTop: -7 }}>{'\u2022'}</Text>;
 const LI = ({children, bullet=DefaultBullet}) => (
@@ -26,18 +45,21 @@ const LI = ({children, bullet=DefaultBullet}) => (
     {React.cloneElement(bullet, { style: [bullet.props.style, { flex: 0, paddingRight: 10 }] })}
     <Text style={[$S.body, { marginBottom: 0 }]}>{children}</Text>
   </View>
-)
-
-export default () => (
-  <ScrollView style={$S.container}>
-    <Text style={$S.h1}>Privacy</Text>
-    <View style={$S.bodyContainer}>
-      <Text style={$S.body} selectable={true}>{mainMessage}<A href={firebasePrivacyURL}>Google Firebase</A></Text>
-      {privacyDetails.split('\n').map((text, i) => (
-        <LI key={i}>{text.trim()}</LI>
-      ))}
-    </View>
-
-    <OpenURLButton url={plogalongPrivacyURL}>Visit our Website</OpenURLButton>
-  </ScrollView>
 );
+
+export default class PrivacyScreen extends React.Component {
+  render() {
+    return (
+      <View style={$S.container}>
+        <View style={$S.bodyContainer}>
+          <Text style={$S.body} selectable={true}>{mainMessage}<Text style={$S.link} onPress={() => Linking.openURL(firebasePrivacyURL)}>Google Firebase</Text></Text>
+          {privacyDetails.split('\n').map((text, i) => (
+            <LI key={i}>{text.trim()}</LI>
+          ))}
+        </View>
+
+        <OpenURLButton url={plogalongPrivacyURL}>View Privacy Policy</OpenURLButton>
+      </View>
+    );
+  }
+}

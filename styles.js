@@ -83,6 +83,29 @@ export default StyleSheet.create({
       paddingBottom: 10,
     },
 
+    linkButton: {
+      borderRadius: 5,
+      borderColor: Colors.secondaryColor,
+      borderWidth: 2,
+      overflow: 'hidden',
+      backgroundColor: Colors.secondaryColor,
+      marginTop: 20,
+      marginBottom: 5,
+      marginLeft: 40,
+      marginRight: 40,
+      paddingTop: 10,
+      paddingBottom: 10,
+      paddingLeft: 5,
+      paddingRight: 5,
+    },
+
+    linkButtonText: {
+      color: 'white',
+      textAlign: 'center',
+      fontSize: 18,
+      textDecorationLine: 'none',
+    },
+
     textButton: {
         textAlign: 'center'
     },
@@ -92,7 +115,7 @@ export default StyleSheet.create({
     },
 
     link: {
-        color: Colors.tintColor,
+        color: Colors.secondaryColor,
         textDecorationLine: 'underline',
     },
 

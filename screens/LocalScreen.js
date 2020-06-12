@@ -24,9 +24,9 @@ const LocalScreen = ({history, currentUser, likePlog, loading}) => (
                     {
                       history.length === 0 && !loading
                         ?
-                        "No nearby ploggers.\nPlog to earn your first badge."
+                        "There are no other ploggers nearby.\nStart a trend!"
                         :
-                        "You're near a beach. Straws and plastic bags pose the biggest problem."
+                        `There are ${history.length} ploggers nearby.`
                     }
                   </Banner>
                   <Text style={$S.h1}>Local Feed</Text>

@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
 export const AchievementBadgeComponent = props => {
   const {achievement, completed = null, detailText, points, progressPercent, style, onPress, description} = props;
   const badge = achievement && AchievementTypes[achievement];
-  const detail = completed ? `+ ${points} bonus minutes` : detailText;
+  const detail = completed ? `+ ${points} minutes` : detailText;
   const badgeImage = props.badgeImage || (badge && badge.icon);
   const textValue = props.textValue || (badge && badge.badgeTheme);
 

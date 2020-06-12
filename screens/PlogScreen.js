@@ -302,7 +302,7 @@ class PlogScreen extends React.Component {
                 />
               )
             }
-                                               )}
+          )}
           </View>
           <Answer answer={activityName} style={$S.h2}/>
 
@@ -414,7 +414,11 @@ class PlogScreen extends React.Component {
             this.state.plogPhotos.map((plogPhoto, idx) => (
               <PhotoButton onPictureSelected={picture => this.addPicture(picture, Math.min(idx, firstNullIdx))}
                            style={styles.photoButton}
-                           imageStyle={{ resizeMode: 'contain', width: '90%', height: '80%' }}
+                           imageStyle={{ 
+                              resizeMode: 'contain',
+                              width: '90%', 
+                              height: '80%', 
+                           }}
                            onCleared={_ => this.addPicture(null, idx)}
                            photo={plogPhoto}
                            key={idx}
@@ -466,51 +470,53 @@ class PlogScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  photoStrip: {
-    flex: 1,
-    flexDirection: 'row',
-    marginTop: 10,
-    justifyContent: 'space-around'
-  },
+    photoStrip: {
+        flex: 1,
+        flexDirection: 'row',
+        marginTop: 10,
+        justifyContent: 'space-around'
+    },
 
-  photoButton: {
-    flex: 1,
-    marginHorizontal: 7,
-    aspectRatio: 1,
-  },
+    photoButton: {
+        flex: 1,
+        marginHorizontal: 7,
+        aspectRatio: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 
-  mapContainer: {
-    borderColor: Colors.borderColor,
-    borderWidth: 1,
-    flex: 1,
-    height: 300,
-    margin: 5,
-    position: 'relative'
-  },
+    mapContainer: {
+        borderColor: Colors.borderColor,
+        borderWidth: 1,
+        flex: 1,
+        height: 300,
+        margin: 5,
+        position: 'relative'
+    },
 
-  map: {
-    width: '100%',
-    height: '100%'
-  },
+    map: {
+        width: '100%',
+        height: '100%'
+    },
 
-  timerButton: {
-    width: '30%',
-    margin: 'auto',
-    backgroundColor: 'white'
-  },
+    timerButton: {
+        width: '30%',
+        margin: 'auto',
+        backgroundColor: 'white'
+    },
 
-  timerButtonContainer: {
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: '10%',
-    left: 0,
-    width: '100%'
-  },
+    timerButtonContainer: {
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: '10%',
+        left: 0,
+        width: '100%'
+    },
 
-  timer: {
-    textAlign: 'right',
-    paddingRight: 5
-  },
+    timer: {
+        textAlign: 'right',
+        paddingRight: 5
+    },
 
   myLocationButtonContainer: {
     height: '100%',

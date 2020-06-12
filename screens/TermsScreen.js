@@ -8,7 +8,6 @@ import {
   View,
 } from "react-native";
 
-import { OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const websiteURL = "https://www.plogalong.com/";
@@ -17,15 +16,38 @@ const mainMessage =
 const createdBy =
   "";
 
-export default () =>(
-  <ScrollView style={$S.container}>
-    <Text style={$S.h1}>About Plogalong</Text>
-    <View style={$S.bodyContainer}>
-      <Text style={$S.body}>{mainMessage}</Text>
-      <Text style={$S.body}>{createdBy}</Text>
-    </View>
-    <OpenURLButton url={websiteURL}>Visit our Website</OpenURLButton>
-  </ScrollView>
-);
+const OpenURLButton = ({ url, children }) => {
+  const handlePress = useCallback(async () => {
+    const supported = await Linking.canOpenURL(url);
 
-// Using 'OpenURLButton' from https://reactnative.dev/docs/linking
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
+  }, [url]);
+
+  return (
+    <View style={$S.linkButton}>
+      <Text style={$S.linkButtonText} onPress={handlePress}>
+        Visit plogalong.com
+      </Text>
+    </View>
+  );
+};
+
+export default class TermsScreen extends React.Component {
+  render() {
+    return (
+      <View style={$S.container}>
+        <View style={$S.bodyContainer}>
+          <Text style={$S.body}>{mainMessage}</Text>
+          <Text style={$S.body}>{createdBy}</Text>
+        </View>
+        
+        <OpenURLButton url={websiteURL}/>
+      </View>
+    );
+  }
+}
+

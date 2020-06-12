@@ -17,6 +17,7 @@ import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
 import PrivacyScreen from './PrivacyScreen';
 
+import arrow from '../assets/svg/headerBackImage/arrow.svg';
 import $S from '../styles';
 
 
@@ -81,7 +82,8 @@ export default ({navigation, route}) => {
 
     return (
         <Stack.Navigator screenOptions={{
-            headerBackTitle: 'More',
+            headerBackTitle: ' ',
+            headerBackImage: arrow,
             title: decamel(routeName(route)),
             headerTitle: (props) => (
                 <Header text={props.children} />
@@ -107,10 +109,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 20,
-  },
-  divider: {
-      borderBottomWidth: 1,
-      borderBottomColor: 'gray'
   },
   banner: {
     marginBottom: 20,
