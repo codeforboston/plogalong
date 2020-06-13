@@ -48,7 +48,6 @@ export default ({config}) => {
       "name": "Plogalong",
       "slug": "plogalong",
       "privacy": "public",
-      "sdkVersion": "36.0.0",
       "platforms": [
         "ios",
         "android"
