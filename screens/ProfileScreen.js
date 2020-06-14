@@ -172,9 +172,7 @@ class ProfileScreen extends React.Component {
              </View>}
            </>}
 
-          <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>
-            <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>
-            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
+          <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer, $S.footerButtons]}>
             {currentUser.isAnonymous && <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>}
             <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
             {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
@@ -186,11 +184,11 @@ class ProfileScreen extends React.Component {
 
 const styles = StyleSheet.create({
   contentContainer: {
-      padding: 20,
+    padding: 20,
+    minHeight: '100%',
   },
   personalInfoContainer: {
     flexDirection: 'column',
-    //marginTop: 10,
     marginTop: 0,
     marginBottom: 20,
     alignItems: 'center',
@@ -199,12 +197,10 @@ const styles = StyleSheet.create({
       width: 200,
       height: 200,
       marginTop: 3,
-      //marginTop: 0,
-      //paddingTop: 0,
-      marginBottom: 10,     
+      marginBottom: 10,
       borderWidth: 0,
   },
-    profileImage: {        
+    profileImage: {
         resizeMode: 'contain',
         width: 200,
         height: 200,
