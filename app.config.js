@@ -12,6 +12,7 @@ let {
   googleServicesJson = "./google-services.json",
   googleReservedClientId,
   uriScheme = "plogalong",
+  amazonAffiliateSourceFile = './assets/other/amazon.html',
   ...extra
 } = localConfig;
 
@@ -41,6 +42,9 @@ if (googleServicesPlist && !fs.existsSync(googleServicesPlist))
 
 if (googleServicesJson && !fs.existsSync(googleServicesJson))
   googleServicesJson = undefined;
+
+if (!extra.amazonAffiliateSource && amazonAffiliateSourceFile)
+  extra.amazonAffiliateSource = fs.readFileSync(amazonAffiliateSourceFile).toString();
 
 export default ({config}) => {
   return {
