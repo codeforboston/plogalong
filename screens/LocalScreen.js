@@ -13,31 +13,41 @@ import Loading from '../components/Loading';
 import PlogList from '../components/PlogList';
 
 
-const LocalScreen = ({history, currentUser, likePlog, loading}) => (
-  <View style={$S.screenContainer}>
-    <PlogList plogs={history}
-              currentUser={currentUser}
-              likePlog={likePlog}
-              header={
-                <View style={{ paddingTop: 20 }}>
-                  <Banner>
-                    {
-                      history.length === 0 && !loading
-                        ?
-                        "There are no other ploggers nearby.\nStart a trend!"
-                        :
-                        `There are ${history.length} ploggers nearby.`
-                    }
-                  </Banner>
-                  <Text style={$S.h1}>Local Feed</Text>
-                </View>
-              }
-              footer={
-                <View style={{ height: 25 }} />
-              }
-    />
-  </View>
-);
+const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory}) => {
+  React.useEffect(() => {
+    loadLocalHistory();
+  }, []);
+
+  return (
+    <View style={$S.screenContainer}>
+      <PlogList plogs={history}
+                currentUser={currentUser}
+                likePlog={likePlog}
+                header={
+                  <View style={{ paddingTop: 20 }}>
+                    <Banner>
+                      {
+                        history.length === 0 && !loading
+                          ?
+                          "There are no other ploggers nearby.\nStart a trend!"
+                          :
+                          `There are ${history.length} ploggers nearby.`
+                      }
+                    </Banner>
+                    <Text style={$S.h1}>Local Feed</Text>
+                  </View>
+                }
+                footer={
+                  loading ?
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 10 }}>
+                      <Loading/>
+                    </View>
+                  :
+                  <View style={{ height: 25 }} />
+                }
+      />
+    </View>
+)};
 
 export default connect(({log, users}) => {
   const {plogData, localPlogs} = log;
@@ -49,4 +59,5 @@ export default connect(({log, users}) => {
   };
 }, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),
+  loadLocalHistory: (...args) => dispatch(actions.loadLocalHistory(...args)),
 }))(LocalScreen);

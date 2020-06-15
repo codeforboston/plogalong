@@ -11,6 +11,7 @@ const QUERY_LIMIT = 5;
 export default store => {
   let unsubscribe, firstPageLoaded, lastPageLoaded, lastDoc, historyLoading,
       localUnsubscribe, firstLocalPageLoaded;
+  let shouldLoadLocalHistory = false;
 
   const runLocalPlogQuery = rateLimited(
     (location) => {
@@ -18,12 +19,14 @@ export default store => {
         localUnsubscribe();
 
       firstLocalPageLoaded = false;
-        localUnsubscribe = getLocalPlogs(location.latitude, location.longitude).onSnapshot(snapshot => {
-        store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState),
-                                         { replace: !firstLocalPageLoaded,
-                                           prepend: firstLocalPageLoaded }));
-        firstLocalPageLoaded = true;
-      }, _ => {});
+      localUnsubscribe = getLocalPlogs(location.latitude, location.longitude)
+        .limit(20)
+        .onSnapshot(snapshot => {
+          store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState),
+                                           { replace: !firstLocalPageLoaded,
+                                             prepend: firstLocalPageLoaded }));
+          firstLocalPageLoaded = true;
+        }, _ => {});
     }, 60000);
 
   return next => action => {
@@ -64,12 +67,14 @@ export default store => {
         // Swallow the message
         return;
       }
-    } else if (type === LOAD_LOCAL_HISTORY) {
-    } else if (type === LOCATION_CHANGED || type === SET_CURRENT_USER) {
+    } else if (type === LOCATION_CHANGED || type === SET_CURRENT_USER || type === LOAD_LOCAL_HISTORY) {
       const result = next(action);
       const {current, location} = store.getState().users;
 
-      if (location && current) {
+      if (type === LOAD_LOCAL_HISTORY)
+        shouldLoadLocalHistory = true;
+
+      if (location && current && shouldLoadLocalHistory) {
         runLocalPlogQuery(location);
       }
 
