@@ -1,6 +1,7 @@
 const app = require('./app');
+const admin = require('firebase-admin');
 
-const { updatePlogsWhere, withBatch } = require('./util');
+const { updatePlogsWhere, withBatch, withDocs } = require('./util');
 
 const Plogs = app.firestore().collection('plogs');
 const Users = app.firestore().collection('users');
@@ -39,9 +40,60 @@ async function deleteUserData(userID) {
   await deleteUserFiles(userID);
 }
 
+/** @type {(fn: (user: admin.auth.UserRecord) => void, perPage?: number ) => Promise<void>} */
+async function withUsers(fn, perPage = 1000) {
+  /** @type {string} */
+  let pageToken;
+
+  while (true) {
+    const result = await app.auth().listUsers(perPage, pageToken);
+    result.users.forEach(fn);
+
+    if (!(pageToken = result.pageToken))
+      break;
+  }
+}
+
+/**
+ * @returns {Promise<admin.auth.UserRecord[]>}
+ */
+async function getInactiveUsers(threshold=86400000*30) {
+  const found = [];
+  const cutoff = new Date(Date.now() - threshold);
+
+  await withUsers(user => {
+    // user.
+    const lastActive = new Date(user.metadata.lastSignInTime || user.metadata.creationTime);
+    if (lastActive <= cutoff)
+      found.push(user);
+  });
+
+  return found;
+}
+
+async function getUserIdsToDelete() {
+  const uids = await getInactiveUsers().then(users => users.map(u => u.uid));
+  const uidsToDelete = [];
+  await withDocs(Users, [admin.firestore.FieldPath.documentId(), 'in', uids],
+                 userDoc => {
+                   const {stats} = userDoc.data();
+                   if (!stats || !stats.total || !stats.total.count)
+                     uidsToDelete.push(userDoc.id);
+                 });
+  return uidsToDelete;
+}
+
+async function deleteInactiveUsers() {
+  const uids = await getUserIdsToDelete();
+  await admin.auth().deleteUsers(uids);
+}
+
+
 module.exports = {
   mergeUsers,
+  getInactiveUsers,
   deleteUserData,
   deleteUserPlogs,
-  deleteUserFiles
+  deleteUserFiles,
+  deleteInactiveUsers,
 };
