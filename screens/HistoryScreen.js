@@ -17,7 +17,7 @@ import Loading from '../components/Loading';
 import PlogList from '../components/PlogList';
 
 
-export const HistoryScreen = ({currentUser, history, likePlog, loadHistory, loading}) => {
+export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
   const monthStats = getStats(currentUser, 'month');
   const yearStats = getStats(currentUser, 'year');
 
@@ -31,7 +31,6 @@ export const HistoryScreen = ({currentUser, history, likePlog, loadHistory, load
 
       <PlogList plogs={history}
                 currentUser={currentUser}
-                likePlog={likePlog}
                 header={
                   <View style={{ paddingTop: 20 }}>
                     <Banner>
@@ -79,6 +78,5 @@ export default connect(({log, users}) => {
     currentUser: users.current,
   };
 }, dispatch => ({
-  likePlog: (...args) => dispatch(actions.likePlog(...args)),
   loadHistory: (...args) => dispatch(actions.loadHistory(...args)),
 }))(HistoryScreen);

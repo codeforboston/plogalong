@@ -8,13 +8,16 @@ import {
     Text,
     TouchableOpacity,
     View,
+    Alert,
 } from 'react-native';
+import {connect} from 'react-redux';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
 import moment from 'moment';
 
+import * as actions from '../redux/actions';
 import { formatDuration } from '../util';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
@@ -42,7 +45,7 @@ class Plog extends React.PureComponent {
 
     render() {
         const props = this.props;
-        const {plogInfo, currentUserID, liked, likePlog} = props;
+        const {plogInfo, currentUserID, liked, deletePlog} = props;
         const ActivityIcon = Options.activities.get(
             plogInfo.activityType
         ).icon;
@@ -59,7 +62,7 @@ class Plog extends React.PureComponent {
 
         return (
             <View>
-              <View style={[styles.plogStyle, saving && styles.savingStyle]}>
+              <View style={[styles.plogStyle, saving || plogInfo._deleting && styles.savingStyle]}>
                 <TouchableOpacity onPress={this.showUser}>
                   {
                     userProfilePicture ?
@@ -107,6 +110,21 @@ class Plog extends React.PureComponent {
                   rotateEnabled={false}
                   zoomEnabled={false}
                   liteMode={true}
+                  onLongPress={() => {
+
+                    if (me) {
+                      Alert.alert('Delete plog?', 'This plog will be gone forever', [
+                        {
+                          text: 'Cancel',
+                          style: 'cancel',
+                        },
+                        {
+                          text: 'Delete',
+                          onPress() { deletePlog(id); }
+                        }
+                      ]);
+                    }
+                  }}
                 >
                   <Marker coordinate={latLng}
                           tracksViewChanges={false}
@@ -160,7 +178,7 @@ const likedPlogIds = user => (
     user && user.data && user.data.likedPlogs && JSON.stringify(user.data.likedPlogs)
 );
 
-const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, loadNextPage}) => {
+const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deletePlog, loadNextPage}) => {
     const navigation = useNavigation();
 
     return (
@@ -169,6 +187,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, loadNex
                                                  currentUserID={currentUser && currentUser.uid}
                                                  liked={doesUserLikePlog(currentUser, item.id)}
                                                  likePlog={likePlog}
+                                                 deletePlog={deletePlog}
                                                  navigation={navigation}
                                            />)}
                   initialNumToRender={3}
@@ -255,4 +274,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default PlogList;
+export default connect(null, dispatch => ({
+  likePlog: (...args) => dispatch(actions.likePlog(...args)),
+  deletePlog: (...args) => dispatch(actions.deletePlog(...args)),
+}))(PlogList);
