@@ -10,7 +10,6 @@ import {
 import { A } from '../components/Link';
 import $S from '../styles';
 
-const websiteURL = "https://www.plogalong.com/";
 const mainMessage =
   "Plogalong helps you track your plogs, connect with nearby ploggers, earn badges, and access local discounts.";
 const createdBy =
@@ -54,7 +53,7 @@ export default class AboutScreen extends React.Component {
 
         </View>
 
-        <OpenURLButton url={websiteURL}/>
+        <OpenURLButton url="https://www.plogalong.com/"/>
         <OpenURLButton url="https://www.facebook.com/Plogalong-100585405000063/">Like Us On Facebook</OpenURLButton>
       </View>
     );
