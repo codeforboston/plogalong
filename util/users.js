@@ -58,3 +58,5 @@ export const processAchievements = (achievements, show = {}) => {
               : (b ? 1 : -1)))
     ));
   };
+
+/** @typedef {ReturnType<typeof processAchievements>[0]} AchievementInstance */

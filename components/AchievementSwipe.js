@@ -25,7 +25,11 @@ const AchievementSwipe = ({achievements, showAll=false, style}) => {
       renderItem={({ item }) =>
                   <AchievementBadge
                     achievement={item}
-                    onPress={() => navigation.navigate('AchievementModal', { achievement: item })} />
+                    onPress={() => navigation.navigate('AchievementModal', { achievement: item })}
+                    accessibilityLabel="Achievement details"
+                    accessibilityHint="Click to view achievement details"
+                    accessibilityRole="button"
+                  />
                  }
       keyExtractor={item => item.key}
       pagingEnabled={true}
