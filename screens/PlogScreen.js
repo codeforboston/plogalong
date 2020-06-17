@@ -58,6 +58,7 @@ class PlogScreen extends React.Component {
       markedLocation: null,
       markedLocationInfo: null,
       dragging: false,
+      viewHeight: 500
     };
   }
 
@@ -345,7 +346,15 @@ class PlogScreen extends React.Component {
 
     const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
     return (
-      <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
+      <ScrollView 
+        style={$S.screenContainer} 
+        contentContainerStyle={$S.scrollContentContainer}
+        onLayout={e => {
+          this.setState({
+            viewHeight: e.nativeEvent.layout.height
+          });
+        }}
+        >
 
         <PlogScreenWeather />
 
@@ -362,7 +371,7 @@ class PlogScreen extends React.Component {
           </Text>
         </View>
 
-        <View style={styles.mapContainer}>
+        <View style={[styles.mapContainer, { height: state.viewHeight*0.5 }]}>
           <MapView
             ref={mapView => this.mapView = mapView}
             style={[styles.map]}
