@@ -125,7 +125,7 @@ export default StyleSheet.create({
     },
 
   headline: {
-    color: Colors.secondaryColor,
+    color: Colors.textGray,
     fontSize: 30,
     fontWeight: '600',
   },
