@@ -13,17 +13,17 @@ import {
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
-    achieveBadge: {
-        width: 150,
-        height: 150,
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: Colors.borderColor,
-        padding: 5,
-        justifyContent: 'center',
-      alignItems: 'center',
-      marginRight: 10
-    },
+  achieveBadge: {
+    width: 150,
+    height: 150,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.borderColor,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10
+  },
   completedBadge: {
     borderColor: Colors.selectionColor,
   },
@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
     }
 });
+
+export const BadgeWidth = styles.achieveBadge.width + styles.achieveBadge.marginRight;
 
 /**
  * @typedef {object} AchievementBadgeProps
@@ -105,6 +107,7 @@ const AchievementBadge = ({ achievement, showDescription = false, ...props}) => 
 
   return (
     <AchievementBadgeComponent
+      achievement={achievement}
       badgeImage={achievement.icon}
       points={achievement.points}
       completed={achievement.completed}
