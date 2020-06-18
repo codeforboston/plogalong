@@ -176,7 +176,7 @@ class ProfileScreen extends React.Component {
             <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>
             <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
             {currentUser.isAnonymous && <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>}
-            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
+{/*            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} /> */}
             {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
           </View>
         </ScrollView>
