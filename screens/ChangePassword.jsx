@@ -104,7 +104,7 @@ const ChangePassword = ({flashMessage, navigation, route}) => {
                   </View>
                 }
                 <View style={$S.inputGroup}>
-                  <Text style={styles.errorText}>{errors.newPassword}</Text>
+                  {errors.newPassword && <Text style={styles.errorText}>{errors.newPassword}</Text>}
                   <Text style={$S.inputLabel}>New Password</Text>
                   <PasswordInput style={$S.textInput}
                                  value={values.newPassword}
@@ -113,7 +113,7 @@ const ChangePassword = ({flashMessage, navigation, route}) => {
                 </View>
                 <View style={$S.inputGroup}>
                   {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
-                  <Text style={$S.inputLabel}>Confirm New Password</Text>
+                  <Text style={$S.inputLabel}>Retype Password</Text>
                   <PasswordInput style={$S.textInput}
                                  value={values.confirmPassword}
                                  onChangeText={handleChange('confirmPassword')}
