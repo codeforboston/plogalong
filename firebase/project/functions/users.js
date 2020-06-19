@@ -9,14 +9,15 @@ const Users = app.firestore().collection('users');
 async function mergeUsers(fromUserID, toUserID) {
   const userDoc = await Users.doc(toUserID).get();
   const { displayName, profilePicture } = userDoc.data();
-  await updatePlogsWhere(
-    ['d.UserID', '==', fromUserID],
-    {
-      'd.UserID': toUserID,
-      'd.UserDisplayName': displayName,
-      'd.UserProfilePicture': profilePicture
-    }
-  );
+  const updates = { 'd.UserID': toUserID, };
+
+  if (displayName)
+    updates['d.UserDisplayName'] = displayName;
+  if (profilePicture)
+    updates['d.UserProfilePicture'] = profilePicture;
+
+  console.log('updates:', updates);
+  await updatePlogsWhere(['d.UserID', '==', fromUserID], changes);
 }
 
 async function deleteUserPlogs(userID) {
@@ -55,6 +56,9 @@ async function withUsers(fn, perPage = 1000) {
 }
 
 /**
+ * @param {number} [threshold] Consider users who last signed in more than
+ *   `threshold` milliseconds ago as inactive
+ *
  * @returns {Promise<admin.auth.UserRecord[]>}
  */
 async function getInactiveUsers(threshold=86400000*30) {
@@ -62,7 +66,6 @@ async function getInactiveUsers(threshold=86400000*30) {
   const cutoff = new Date(Date.now() - threshold);
 
   await withUsers(user => {
-    // user.
     const lastActive = new Date(user.metadata.lastSignInTime || user.metadata.creationTime);
     if (lastActive <= cutoff)
       found.push(user);
@@ -71,8 +74,8 @@ async function getInactiveUsers(threshold=86400000*30) {
   return found;
 }
 
-async function getUserIdsToDelete() {
-  const uids = await getInactiveUsers().then(users => users.map(u => u.uid));
+async function getUserIdsToDelete(threshold) {
+  const uids = await getInactiveUsers(threshold).then(users => users.map(u => u.uid));
   const uidsToDelete = [];
   await withDocs(Users, [admin.firestore.FieldPath.documentId(), 'in', uids],
                  userDoc => {
