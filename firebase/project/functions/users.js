@@ -16,8 +16,7 @@ async function mergeUsers(fromUserID, toUserID) {
   if (profilePicture)
     updates['d.UserProfilePicture'] = profilePicture;
 
-  console.log('updates:', updates);
-  await updatePlogsWhere(['d.UserID', '==', fromUserID], changes);
+  await updatePlogsWhere(['d.UserID', '==', fromUserID], updates);
 }
 
 async function deleteUserPlogs(userID) {
