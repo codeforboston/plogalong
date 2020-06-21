@@ -86,7 +86,7 @@ export default connect(state => ({
 
   onURLChanged = async ({ url }) => {
     const [_, search] = url.split('?');
-    const params = search.split('&').reduce((p, kv) => {
+    const params = !search ? [] : search.split('&').reduce((p, kv) => {
       const [k, v] = kv.split('=');
       p[decodeURIComponent(k)] = decodeURIComponent(v);
       return p;
