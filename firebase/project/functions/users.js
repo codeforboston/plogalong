@@ -87,7 +87,7 @@ async function getUserIdsToDelete(threshold) {
 
 async function deleteInactiveUsers() {
   const uids = await getUserIdsToDelete();
-  await admin.auth().deleteUsers(uids);
+  return await admin.auth().deleteUsers(uids);
 }
 
 
