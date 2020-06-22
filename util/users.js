@@ -44,7 +44,7 @@ const achievementSorter = ({updated: a, completed: ac, key: ak},
       (ac ? (bc ? (cmp(bc, ac) || cmp(ak, bk)) : -1)
        : (bc ? 1
           : (a ?
-             (b ? (cmp(b, c) || cmp(ak, bk)) : -1)
+             (b ? (cmp(b, a) || cmp(ak, bk)) : -1)
              : (b ? 1 : cmp(ak, bk)))));
 
 /**
