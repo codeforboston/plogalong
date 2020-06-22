@@ -84,7 +84,7 @@ const log = (state = initialState, action) => {
     }
 
     case DELETE_PLOG: {
-      return updateInCopy(state, ['plogData', payload.plogID, '_deleting'], () => true);
+      return updateInCopy(state, ['plogData', payload.id, '_deleting'], () => true);
     }
 
     case PLOG_DELETED: {
@@ -93,10 +93,10 @@ const log = (state = initialState, action) => {
       return {
         plogData: {
           ...plogData,
-          [payload.plogID]: undefined
+          [payload.id]: undefined
         },
-        history: history.filter(id => id !== payload.plogID),
-        localPlogs: localPlogs.filter(id => id !== payload.plogID),
+        history: history.filter(id => id !== payload.id),
+        localPlogs: localPlogs.filter(id => id !== payload.id),
         ...rest
       };
     }

@@ -1,6 +1,6 @@
 import { keep } from '../util/iter';
 
-import { auth, firebase, Plogs, Plogs_ } from './init';
+import { auth, firebase, storage, Plogs, Plogs_ } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
@@ -80,14 +80,20 @@ export const savePlog = async (plog) => {
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
   return Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
-    uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
+    uploadImage(uri, `${dir}/${doc.id}/${i}.jpg`,
       width <= 300 && height <= 300 ? { resize: { width: 300, height: 300 } } : {})
   ))).then(urls => {
-    console.log(urls);
     return doc.update({ Photos: urls });
   });
 };
 
-export const deletePlog = async (plogID) => {
-  await Plogs.doc(plogID).delete();
+/**
+ * @param {{ id: string, userID: string, public: boolean, plogPhotos: { uri: string }[] }} plog
+ */
+export const deletePlog = async plog=> {
+  await Plogs.doc(plog.id).delete();
+  for (const {uri} of plog.plogPhotos) {
+    const ref = storage.refFromURL(uri);
+    return ref.delete().catch(console.warn);
+  }
 };

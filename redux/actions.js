@@ -54,12 +54,15 @@ export const logPlog = (plogInfo) => (
     }
   });
 
-export const deletePlog = (plogID) => (
+/**
+ * @param {{ id: string, userID: string, public: boolean}} plogInfo
+ */
+export const deletePlog = (plogInfo) => (
   async dispatch => {
-    dispatch({ type: types.DELETE_PLOG, payload: { plogID } });
+    dispatch({ type: types.DELETE_PLOG, payload: plogInfo });
     try {
-      await _deletePlog(plogID);
-      dispatch({ type: types.PLOG_DELETED, payload: { plogID } });
+      await _deletePlog(plogInfo);
+      dispatch({ type: types.PLOG_DELETED, payload: plogInfo });
     } catch (err) {
 
     }

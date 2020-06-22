@@ -120,7 +120,7 @@ class Plog extends React.PureComponent {
                         },
                         {
                           text: 'Delete',
-                          onPress() { deletePlog(id); }
+                          onPress() { deletePlog(plogInfo); }
                         }
                       ]);
                     }
