@@ -2,23 +2,58 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  	function notSettingField(field) {
-    	return !(field in request.resource.data) || request.resource.data[field] == resource.data[field];
+  	function checkSize(field, size) {
+      return !(field in request.resource.data) || request.resource.data[field].size() <= size
+    }
+
+    function timestampCurrent(stamp, seconds) {
+      return duration.abs(stamp - request.time) <= duration.value(seconds, "s")
+    }
+
+    function doCheckUserFields(plogData, user) {
+       return plogData["UserProfilePicture"] == user.data["profilePicture"]
+              && plogData["UserDisplayName"] == user.data["displayName"]
+    }
+
+    function checkUserFields() {
+       return doCheckUserFields(request.resource.data["d"],
+                                get(/databases/$(database)/documents/users/$(request.resource.data["d"]["UserID"])))
     }
 
     match /plogs/{any} {
     	allow read: if request.auth.uid != null && (request.auth.uid == resource.data.d.UserID || resource.data.d.Public)
       allow write: if request.auth.uid == resource.data.d.UserID
+                   && request.resource.data.d.diff(resource.data.d).affectedKeys().hasOnly([
+                      "Photos", "Public"
+                   ])
       allow create: if request.auth.uid == request.resource.data.d.UserID
+                    && request.resource.data.keys().hasOnly([
+                       "d", "g", "l"
+                    ])
+                    && request.resource.data.d.keys().hasOnly([
+                      "TrashTypes", "ActivityType", "coordinates", "GeoLabel", "HelperType", "PlogType", "DateTime", "TZ", "UserID", "Photos", "PlogDuration", "Public", "UserProfilePicture", "UserDisplayName"
+                    ])
+                    && timestampCurrent(request.resource.data.d.DateTime, 60)
+                    && checkUserFields()
     }
 
     match /users/{userId} {
       allow read: if request.auth.uid == userId
-      allow update, create, write: if userId == request.auth.uid && notSettingField("achievements") && notSettingField("stats")
+      allow update, create, write: if userId == request.auth.uid
+                                   && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                                      "homeBase", "displayName", "shareActivity",
+                                      "emailUpdatesEnabled", "privateProfile",
+                                      "profilePicture"
+                                   ])
+                                   && checkSize("displayName", 40)
+                                   && checkSize("homeBase", 40)
     }
 
     match /comments/{any} {
       allow create: if request.auth.uid != null
+                    && request.resource.data.keys().hasOnly([
+                       "comment", "email", "label", "name", "topic"
+                    ])
     }
   }
 }
