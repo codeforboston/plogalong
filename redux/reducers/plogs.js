@@ -102,11 +102,10 @@ const log = (state = initialState, action) => {
     }
 
     case LIKE_PLOG:
-      return updateInCopy(state, ['plogData', payload.plogID, 'likeCount'], count => count+(payload.like ? 1 : -1), 0);
-      // return specUpdate(state, ['plogData', payload.plogID, 'likeCount'], 0, count => (payload.like ? count+1 : count-1));
+      return specUpdate(state, ['plogData', payload.plogID, 'likeCount'], count => count + (payload.like ? 1 : -1), 0);
 
     case LIKE_PLOG_ERROR:
-      // return revert(state, ['plogData', payload.plogID, 'likeCount']);
+      return revert(state, ['plogData', payload.plogID, 'likeCount']);
 
     default:
       return state;
