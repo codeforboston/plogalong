@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,14 +9,100 @@ import {
   Clipboard,
   TextInput,
 } from 'react-native';
+// import Clipboard from "@react-native-community/clipboard";
 import Button from '../components/Button';
 import Colors from '../constants/Colors';
 import DismissButton from '../components/DismissButton';
 import { ShareDialog } from 'react-native-fbsdk';
 import $S from '../styles';
 
+/*
+class InviteModalScreen extends React.Component {
+  constructor(props){
+    super(props);
+    this.state={
+      shareLinkContent : {
+        contentType: 'link',
+        contentUrl: "http://www.plogalong.com",
+        contentDescription: "Jus lil ol me, ploggin along",
+      },
+    }
+  }
+
+  /*
+  writeToClipboard = useCallback(async () => {
+    await Clipboard.setString("http://www.plogalong.com");
+  }, []);
+
+  shareTo = useCallback(() => {}, []);
+  */
+  /*
+  shareLinkWithShareDialog() {
+    var tmp = this;
+    ShareDialog.canShow(tmp.state.shareLinkContent)
+      .then(function(canShow) {
+        if (canShow) {
+          return ShareDialog.show(tmp.state.shareLinkContent);
+        }
+      })
+      .then(function(result) {
+        console.log('handle result: ' + result);
+      },
+      function(error) {
+        console.log('Share fail with error: ' + error);
+      });
+  };
+
+  render() {
+    return (
+      <Modal
+        visible={isInviteModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={toggleIsInviteModalVisible}
+      >
+        <SafeAreaView style={styles.modal}>
+          <View style={styles.modalControls}>
+            <DismissButton
+              color="white"
+              title="back"
+              onPress={toggleIsInviteModalVisible}
+            />
+          </View>
+          <View style={styles.inviteModalContainers}>
+            <Text style={[$S.h1, { textAlign: 'center' }]}>Invite</Text>
+            <TextInput
+              value={PLOGALONG_LINK}
+              selectTextOnFocus
+              style={[styles.textInput, styles.inviteContainer]}
+            />
+            <Button title="Copy Link" onPress={writeToClipboard} style={styles.copyButton} />
+          </View>
+          <View style={styles.inviteModalContainers}>
+            <Button title="Share on Facebook" onPress={shareLinkWithShareDialog} style={styles.shareButtons} />
+          </View>
+          <View style={styles.inviteModalContainers}>
+            <Button title="Share on Twitter" onPress={shareTo} style={styles.shareButtons} />
+          </View>
+          <View style={styles.inviteModalContainers}>
+            <Button title="Share on Instagram" onPress={shareTo} style={styles.shareButtons} />
+          </View>
+          <View style={{ flex: 1 }}/>
+        </SafeAreaView>
+      </Modal>
+    );
+  }
+}
+
+export default InviteModalScreen;
+
+*/
+/** */
 export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVisible}) => {
-  const PLOGALONG_LINK = "http://www.plogalong.com";
+  // https://natehoffelder.com/blog/making-your-own-custom-facebook-and-twitter-share-links-buttons-for-beginners/
+  // 
+  //  const [ linkString, setLinkString ] = useState('')
+  const PLOGALONG_LINK = "https://www.plogalong.com";
   const SHARE_LINK_CONTENT = {
     contentType: 'link',
     contentUrl: PLOGALONG_LINK,
@@ -24,11 +110,12 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
   };
   const writeToClipboard = useCallback(async () => {
     await Clipboard.setString(PLOGALONG_LINK);
-  }, []);
+  }, [PLOGALONG_LINK]);
 
   const shareTo = useCallback(() => {}, []);
 
   const shareLinkWithShareDialog = useCallback(() => {
+//    let tmp = this;
     ShareDialog.canShow(SHARE_LINK_CONTENT).then(canShow => {
       if (canShow) {
         return ShareDialog.show(SHARE_LINK_CONTENT);
@@ -83,6 +170,7 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
     </Modal>
   );
 }
+/* */
 
 const styles = StyleSheet.create({
   modal: {
