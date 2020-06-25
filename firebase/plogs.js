@@ -56,7 +56,7 @@ export const plogStateToDoc = plog => ({
   PlogDuration: plog.timeSpent,
   Public: !!plog.public,
   UserProfilePicture: plog.userProfilePicture || null,
-  UserDisplayName: plog.userDisplayName,
+  UserDisplayName: plog.userDisplayName || null,
 });
 
 export function queryUserPlogs(userId) {

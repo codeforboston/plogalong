@@ -20,12 +20,14 @@ service cloud.firestore {
                                 get(/databases/$(database)/documents/users/$(request.resource.data["d"]["UserID"])))
     }
 
+    function changedFields() {
+       return resource == null ?
+                       request.resource.data.keys().toSet() :
+                       request.resource.data.diff(resource.data).affectedKeys()
+    }
+
     match /plogs/{any} {
     	allow read: if request.auth.uid != null && (request.auth.uid == resource.data.d.UserID || resource.data.d.Public)
-      allow write: if request.auth.uid == resource.data.d.UserID
-                   && request.resource.data.d.diff(resource.data.d).affectedKeys().hasOnly([
-                      "Photos", "Public"
-                   ])
       allow create: if request.auth.uid == request.resource.data.d.UserID
                     && request.resource.data.keys().hasOnly([
                        "d", "g", "l"
@@ -35,12 +37,17 @@ service cloud.firestore {
                     ])
                     && timestampCurrent(request.resource.data.d.DateTime, 60)
                     && checkUserFields()
+      allow write: if request.method == "create" ||
+      							(request.auth.uid == resource.data.d.UserID
+                   	&& request.resource.data.d.diff(resource.data.d).affectedKeys().hasOnly([
+                      "Photos", "Public"
+                   	]))
     }
 
     match /users/{userId} {
       allow read: if request.auth.uid == userId
       allow update, create, write: if userId == request.auth.uid
-                                   && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                                   && changedFields().hasOnly([
                                       "homeBase", "displayName", "shareActivity",
                                       "emailUpdatesEnabled", "privateProfile",
                                       "profilePicture"
