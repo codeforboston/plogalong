@@ -38,8 +38,7 @@ const AchievementSwipe = ({achievements, showAll=false, style}) => {
       snapToInterval={BadgeWidth}
       showsHorizontalScrollIndicator={false}
       style={style}
-    >
-    </FlatList>
+    />
   );
 };
 

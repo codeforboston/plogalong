@@ -226,7 +226,7 @@ export default connect(
   }),
   (dispatch) => ({
     updatePreferences(preferences) {
-      dispatch(setPreferences(preferences))
+      dispatch(setPreferences(preferences));
     },
     setUserData,
   })

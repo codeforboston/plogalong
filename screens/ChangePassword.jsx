@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -23,7 +22,6 @@ import PasswordInput from '../components/PasswordInput';
 /** @typedef {import('firebase').User & { data?: UserData }} User */
 
 
-/** @type {React.FunctionComponent<{ currentUser: User }>} */
 const ChangePassword = ({flashMessage, navigation, route}) => {
   const { params } = route;
   const oobCode = params && params.oobCode;
@@ -147,9 +145,7 @@ const styles = StyleSheet.create({
 
 
 export default connect(
-  ({users}) => ({
-    currentUser: users.current,
-  }),
+  null,
   dispatch => ({
     flashMessage(message) { dispatch(actions.flashMessage(message)); }
   })
