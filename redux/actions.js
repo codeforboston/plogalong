@@ -47,8 +47,9 @@ export const logPlog = (plogInfo) => (
   async dispatch => {
     dispatch({ type: types.LOG_PLOG, payload: { plog: plogInfo }});
     try {
-      await savePlog(plogInfo);
-      dispatch({ type: types.PLOG_LOGGED, payload: { plog: plogInfo } });
+      const plogID = await savePlog(plogInfo, null, console.warn);
+      dispatch({ type: types.PLOG_LOGGED,
+                 payload: { plog: plogInfo, plogID } });
     } catch (error) {
       dispatch({ type: types.LOG_PLOG_ERROR, error });
     }

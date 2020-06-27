@@ -67,6 +67,7 @@ export default usersReducer = (state = initialState, {type, payload}) => {
 
   case types.PLOG_LOGGED: {
     const plogData = plogStateToDoc(payload.plog);
+    plogData.id = payload.plogID;
 
     return updateInCopy(
       state, ['current', 'data'],

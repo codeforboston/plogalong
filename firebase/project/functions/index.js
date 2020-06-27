@@ -46,6 +46,7 @@ async function initAchievements(userID, types) {
   for await (const plog of queryGen(Plogs.where('d.UserID', '==', userID))) {
     const plogData = plog.data().d;
     plogData.LocalDate = localPlogDate(plogData);
+    plogData.id = plog.id;
     for (const type of types) {
       if (!achievements[type].complete)
         achievements[type] = AchievementHandlers[type].update(
@@ -57,7 +58,7 @@ async function initAchievements(userID, types) {
 }
 
 // TODO Ignore duplicate events
-exports.calculateAchievements = functions.firestore.document('/plogs/{documentId}')
+exports.calculateAchievements = functions.firestore.document('/plogs/{documentID}')
   .onCreate(async (snap, context) => {
     const plogData = snap.data().d;
     const {UserID} = plogData;
@@ -68,6 +69,7 @@ exports.calculateAchievements = functions.firestore.document('/plogs/{documentId
       const user = await t.get(userDocRef);
       const userData = user.data();
 
+      plogData.id = snap.id;
       const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData);
 
       t.update(userDocRef, {

@@ -13,7 +13,9 @@
  * @typedef {any} Plog
  */
 
-/** @typedef {{ completed: Timestamp, updated: Timestamp } & { [k in PropertyKey ]: any}} AchievementData */
+/**
+  * @typedef {{ completed: Timestamp, updated: Timestamp, refID: string } & { [k in PropertyKey ]: any}} AchievementData
+  */
 /**
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
@@ -76,14 +78,18 @@ function _makeCountAchievement(target, points=50) {
     initial: {
       completed: null,
       updated: null,
-      count: 0
+      count: 0,
+      refID: null
     },
     update(previous, plog) {
       const {count = 0} = previous;
+      const completed = count + 1 >= target ? plog.DateTime : null;
+
       return {
-        completed: count + 1 >= target ? plog.DateTime : null,
+        completed,
         updated: plog.DateTime,
         count: count + 1,
+        refID: completed ? plog.id : null
       };
     },
     merge(left, right) {
@@ -110,6 +116,7 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
     completed: null,
     updated: null,
     streak: 0,
+    refID: null,
     // Set when the streak is lost
     longestStreak: null,
     // Date when the longest streak was lost
@@ -134,6 +141,7 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
           changes.streak = streak + 1;
           if (changes.streak >= target) {
             changes.completed = DateTime;
+            changes.refID = plog.id;
           }
         } else {
           changes.streak = 1;
@@ -166,9 +174,9 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
  * @returns {AchievementHandler}
  */
 const _makeOneShotAchievement = (pred, points=50) => ({
-  initial: { completed: null },
+  initial: { completed: null, refID: null },
   points,
-  update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime } : previous
+  update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime, refID: plog.id } : previous
 });
 
 const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate()));

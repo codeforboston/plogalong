@@ -71,20 +71,26 @@ export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=100) => {
     .where('Public', '==', true);
 };
 
-export const savePlog = async (plog) => {
+export const savePlog = async (plog, uploadComplete, uploadError) => {
   const doc = Plogs.doc();
-  await doc.set(plogStateToDoc(plog));
+  const data = plogStateToDoc(plog);
+  await doc.set(data);
 
   if (!plog.plogPhotos || !plog.plogPhotos.length)
-    return Promise.resolve();
+    return doc.id;
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
-  return Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
+  let uploadPromise = Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
     uploadImage(uri, `${dir}/${doc.id}/${i}.jpg`,
-      width <= 300 && height <= 300 ? { resize: { width: 300, height: 300 } } : {})
-  ))).then(urls => {
-    return doc.update({ Photos: urls });
-  });
+                width <= 300 && height <= 300 ? { resize: { width: 300, height: 300 } } : {})
+  ))).then(urls => doc.update({ Photos: urls }));
+
+  if (uploadComplete !== undefined || uploadError !== undefined)
+    await uploadPromise;
+  else
+    uploadPromise = uploadPromise.then(uploadComplete, uploadError);
+
+  return doc.id;
 };
 
 /**
