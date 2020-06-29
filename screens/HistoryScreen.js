@@ -30,7 +30,7 @@ const renderEmpty = () => (
                       style={{ backgroundColor: '#eee' }}
                       showDescription={true} />
     <Text style={[$S.subheader, styles.subheader]}>
-      <L to="More" params={{ subscreen: 'FAQ' }}>Check our FAQ</L> for some tips. Once you've plogged something,
+      <L to="More" params={{ subscreen: 'About' }}>Check the About Screen</L> for some tips. Once you've plogged something,
       record it on the <L to="Plog">Plogging Screen</L> to get your first achievement!
     </Text>
   </View>
