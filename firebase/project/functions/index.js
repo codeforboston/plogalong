@@ -125,7 +125,8 @@ exports.onUserDeleted = functions.auth.user().onDelete(async user => {
   await users.deleteUserData(user.uid);
 });
 
-const { likePlog, loadUserProfile, mergeWithAccount } = require('./http');
-exports.likePlog = functions.https.onCall(likePlog);
-exports.loadUserProfile = functions.https.onCall(loadUserProfile);
-exports.mergeWithAccount = functions.https.onCall(mergeWithAccount);
+const http = require('./http');
+exports.likePlog = functions.https.onCall(http.likePlog);
+exports.loadUserProfile = functions.https.onCall(http.loadUserProfile);
+exports.mergeWithAccount = functions.https.onCall(http.mergeWithAccount);
+exports.reportPlog = functions.https.onCall(http.reportPlog);

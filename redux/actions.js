@@ -69,6 +69,26 @@ export const deletePlog = (plogInfo) => (
     }
   });
 
+export const reportPlog = plogID => (
+  async dispatch => {
+    dispatch({
+      type: types.REPORT_PLOG,
+      payload: { plogID }
+    });
+    try {
+      await functions.reportPlog(plogID);
+      dispatch(flashMessage(
+        'Thanks for reporting'
+      ));
+    } catch (error) {
+      console.log(error);
+      dispatch({
+        type: types.REPORT_PLOG_ERROR,
+        payload: { plogID, error }
+      });
+    }
+  });
+
 export const loadHistory = (userID, replace=true) => ({
   type: types.LOAD_HISTORY,
   payload: { userID, replace }

@@ -53,7 +53,7 @@ class Plog extends React.PureComponent {
 
     render() {
         const props = this.props;
-        const {plogInfo, currentUserID, liked, deletePlog} = props;
+        const {plogInfo, currentUserID, liked, deletePlog, reportPlog} = props;
         const ActivityIcon = Options.activities.get(
             plogInfo.activityType
         ).icon;
@@ -131,6 +131,17 @@ class Plog extends React.PureComponent {
                           onPress() { deletePlog(plogInfo); }
                         }
                       ]);
+                    } else {
+                      Alert.alert('Report plog?', 'Do you really want to report this plog?', [
+                        {
+                          text: 'Nevermind',
+                          style: 'cancel'
+                        },
+                        {
+                          text: 'Report',
+                          onPress() { reportPlog(id); }
+                        }
+                      ]);
                     }
                   }}
                 >
@@ -186,7 +197,7 @@ const likedPlogIds = user => (
     user && user.data && user.data.likedPlogs && JSON.stringify(user.data.likedPlogs)
 );
 
-const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deletePlog, loadNextPage}) => {
+const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deletePlog, reportPlog, loadNextPage}) => {
     const navigation = useNavigation();
 
     return (
@@ -196,6 +207,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
                                                  liked={doesUserLikePlog(currentUser, item.id)}
                                                  likePlog={likePlog}
                                                  deletePlog={deletePlog}
+                                                 reportPlog={reportPlog}
                                                  navigation={navigation}
                                            />)}
                   initialNumToRender={3}
@@ -285,4 +297,5 @@ const styles = StyleSheet.create({
 export default connect(null, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),
   deletePlog: (...args) => dispatch(actions.deletePlog(...args)),
+  reportPlog: (...args) => dispatch(actions.reportPlog(...args)),
 }))(PlogList);

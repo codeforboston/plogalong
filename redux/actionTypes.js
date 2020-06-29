@@ -6,6 +6,8 @@ export const PLOG_DELETED = 'PLOG_DELETED';
 
 export const LIKE_PLOG = 'LIKE_PLOG';
 export const LIKE_PLOG_ERROR = 'LIKE_PLOG_ERROR';
+export const REPORT_PLOG = 'REPORT_PLOG';
+export const REPORT_PLOG_ERROR = 'REPORT_PLOG_ERROR';
 
 export const LOAD_HISTORY = 'LOAD_HISTORY';
 export const PLOGS_UPDATED = 'PLOGS_UPDATED';
