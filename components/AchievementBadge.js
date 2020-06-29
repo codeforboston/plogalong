@@ -35,9 +35,6 @@ export const AchievementBadgeComponent = ({achievement, completed = null, detail
 
   if (!textValue) textValue = achievement.badgeTheme;
 
-  if (!badgeImage)
-    throw `AchievementBadge must have a valid "achievement" or "badgeImage" prop`;
-
   const content = (
     <View style={[styles.achieveBadge, completed && styles.completedBadge, style]}>
       {badgeImage &&
