@@ -13,10 +13,10 @@ import PlogMiddleware from './plog-middleware';
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 
-export function initializeStore(prefs) {
+export function initializeStore(initialPrefs) {
     const store = createStore(
         rootReducer,
-        { preferences: prefs },
+        { preferences: initialPrefs },
         composeEnhancers(
             applyMiddleware(
                 thunk,
@@ -27,16 +27,16 @@ export function initializeStore(prefs) {
         )
     );
 
-    let firstStateChange = true;
+   let firstLogin = !initialPrefs.loginCount;
     let lastUID;
 
     onAuthStateChanged(
         (user) => {
-            if (!user && firstStateChange) {
+            if (!user && firstLogin) {
                 // log in anonymously
               store.dispatch(loginAnonymously(true));
             }
-            firstStateChange = false;
+            firstLogin = false;
 
             store.dispatch(
                 setCurrentUser(

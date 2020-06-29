@@ -69,15 +69,16 @@ export default connect(state => ({
   flashMessage(...args) { dispatch(flashMessage(...args)); }
 }))(class extends React.Component {
     componentDidMount() {
+      Linking.addEventListener('url', this.onURLChanged);
+
         const sawIntro = this.props.preferences.sawIntro;
         const {navigation} = this.props;
 
         if (!sawIntro) {
             navigation.navigate('Intro');
-            return;
+        } else if (!this.props.currentUser) {
+          navigation.replace('Login');
         }
-
-      Linking.addEventListener('url', this.onURLChanged);
     }
 
   componentWillUnmount() {
