@@ -92,8 +92,8 @@
   
   - To run Plogalong on an Android device: 
   <br>1. Install Expo on your Android device from the Google play store. 
-  <br>2. In Expo XDE in your browser, select Connection > Tunnel
-  <br>3. Open Expo on your Android device and select Scan QR Code.
+  <br>2. In Expo XDE in your browser, select Connection > Tunnel. Wait for a new link and QR code to generate below the connection options, and then click on the link to copy it to your clipboard.
+  <br>3. Open Expo on your Android device. If you are on an emulated Android device, then select Open from Clipboard. Otherwise, select Scan QR Code.
   <br>4. There should be a message saying 'Building JavaScript Bundle as the Application loads.
   <br>5. Boom! You're ready to Plog.
   
