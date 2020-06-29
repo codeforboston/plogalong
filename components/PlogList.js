@@ -25,7 +25,15 @@ import Options from '../constants/Options';
 import ProfilePlaceholder from './ProfilePlaceholder';
 
 function formatDate(dt) {
-    return moment(dt).format('MMMM Do');
+  
+  return moment(dt).calendar(null, {
+    sameDay: '[today]',
+    nextDay: '[tomorrow]',
+    nextWeek: 'dddd',
+    lastDay: '[yesterday]',
+    lastWeek: '[on] MMMM Do',
+    sameElse: '[on] MMMM Do'
+  });
 }
 
 class Plog extends React.PureComponent {
@@ -77,7 +85,7 @@ class Plog extends React.PureComponent {
                      <Text style={{ fontWeight: '500'}} onPress={this.showUser}>
                        {(userDisplayName||'').trim() || 'Anonymous'}
                      </Text>
-                    } plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : `on ${formatDate(new Date(when))}`}.
+                    } plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : formatDate(new Date(when))}.
                   </Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 8 }}>
                   <Text style={styles.subText}>
