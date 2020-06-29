@@ -50,7 +50,7 @@ service cloud.firestore {
                                    && changedFields().hasOnly([
                                       "homeBase", "displayName", "shareActivity",
                                       "emailUpdatesEnabled", "privateProfile",
-                                      "profilePicture"
+                                      "profilePicture", "allowMergeWith"
                                    ])
                                    && checkSize("displayName", 40)
                                    && checkSize("homeBase", 40)
