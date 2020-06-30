@@ -37,7 +37,5 @@ export function getStats(user, unit, now=new Date()) {
   return Object.assign(defaults, stats[unit]);
 }
 
-export const pluralize = (n, noun, plural=`${noun}s`) =>
-  `${n} ${n === 1 ? noun : plural}`;
-
 export { keep, indexBy, times } from './iter';
+export { parseURL, pluralize } from './string';
