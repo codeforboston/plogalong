@@ -1,9 +1,11 @@
 import { keep } from '../util/iter';
 
+import Options from '../constants/Options';
 import { auth, firebase, storage, Plogs, Plogs_ } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
+const { plogPhotoWidth: MaxWidth, plogPhotoHeight: MaxHeight } = Options;
 
 /**
  * @param {import('geofirestore').GeoDocumentSnapshot | firebase.firestore.QueryDocumentSnapshot} plog
@@ -93,7 +95,7 @@ export const savePlog = async (plog, options={}) => {
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
   let uploadPromise = Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => {
     return uploadImage(uri, `${dir}/${doc.id}/${i}.jpg`, {
-      resize: width <= 300 && height <= 300 ? { width: 300, height: 300 } : null,
+      resize: width <= MaxWidth && height <= MaxHeight ? { width: MaxWidth, height: MaxHeight } : null,
       progress: uploadProgress && (snap => uploadProgress(uri, snap))
     }).catch(reason => {
       if (uploadError)

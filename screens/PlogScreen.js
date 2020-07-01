@@ -434,7 +434,7 @@ class PlogScreen extends React.Component {
                            photo={plogPhoto}
                            key={idx}
                            manipulatorActions={[
-                             { resize: { width: 300, height: 300 } },
+                             { resize: { width: Options.plogPhotoWidth, height: Options.plogPhotoHeight } },
                            ]}
               />
             ))

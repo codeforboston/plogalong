@@ -1,4 +1,4 @@
-import { 
+import {
   YellowBox
  } from 'react-native';
 
@@ -9,6 +9,7 @@ import * as GoogleSignIn from 'expo-google-sign-in';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
 import config from '../config';
+import Options from '../constants/Options';
 const { firebase: firebaseConfig } = config;
 
 const InExpo = AppAuth.OAuthRedirect.indexOf('host.exp.exponent') !== -1;
@@ -245,7 +246,9 @@ export const setUserData = async (data) => {
 
 export const setUserPhoto = async ({uri}) => {
   await Users.doc(auth.currentUser.uid).update({
-    profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, { resize: { width: 300, height: 300 }})
+    profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, {
+      resize: { width: Options.profilePhotoWidth, height: Options.profilePhotoHeight }
+    })
   });
 };
 
