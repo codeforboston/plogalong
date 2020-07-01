@@ -104,7 +104,7 @@ class ProfileScreen extends React.Component {
             Plogging since {moment(created).format('MMMM D, YYYY')}
           </Banner>
 
-          {!currentUser.isAnonymous &&
+          {!currentUser.isAnonymous ?
            <>
              <View style={styles.personalInfoContainer}>
                <PhotoButton
@@ -170,7 +170,11 @@ class ProfileScreen extends React.Component {
                </Text>
                <Switch value={params.emailUpdatesEnabled} style={$S.switch} onValueChange={toggleParam('emailUpdatesEnabled')} />
              </View>}
-           </>}
+           </> :
+           <View style={styles.anonymousBodyContainer}>
+             <ProfilePlaceholder style={styles.anonymousBigIcon} />
+           </View>
+          }
 
           <View style={[
             styles.buttonContainer, 
@@ -208,28 +212,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileImageButton: {
-      width: 200,
-      height: 200,
-      marginTop: 3,
-      marginBottom: 10,
-      borderWidth: 0,
+    width: 200,
+    height: 200,
+    marginTop: 3,
+    marginBottom: 10,
+    borderWidth: 0,
   },
-    profileImage: {
-        resizeMode: 'contain',
-        width: 200,
-        height: 200,
-    },
-    personalInfo: {
-        flexDirection: 'column',
-        flexGrow: 1,
-    },
-    anonymousButtonContainer: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    buttonContainer: {
-        flexDirection: 'column',
-    },
+  profileImage: {
+    resizeMode: 'contain',
+    width: 200,
+    height: 200,
+  },
+  personalInfo: {
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  anonymousBodyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: '25%',
+  },
+  anonymousBigIcon: {
+    opacity: 0.1,
+    width: '100%',
+    height: '50%',
+  },
+  anonymousButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+  },
 });
 
 export default connect(
