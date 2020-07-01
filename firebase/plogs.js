@@ -71,7 +71,18 @@ export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=100) => {
     .where('Public', '==', true);
 };
 
-export const savePlog = async (plog, uploadComplete, uploadError) => {
+/**
+ * @typedef {object} SavePlogOptions
+ * @property {(urls: string[]) => any} [uploadComplete]
+ * @property {(error: any, uri?: string) => any} [uploadError]
+ * @property {(uri: string, task: firebase.storage.UploadTaskSnapshot) => void} [uploadProgress]
+ */
+
+/**
+ * @param  {SavePlogOptions} options
+ */
+export const savePlog = async (plog, options={}) => {
+  const {uploadComplete, uploadError, uploadProgress} = options;
   const doc = Plogs.doc();
   const data = plogStateToDoc(plog);
   await doc.set(data);
@@ -80,15 +91,25 @@ export const savePlog = async (plog, uploadComplete, uploadError) => {
     return doc.id;
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
-  let uploadPromise = Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
-    uploadImage(uri, `${dir}/${doc.id}/${i}.jpg`,
-                width <= 300 && height <= 300 ? { resize: { width: 300, height: 300 } } : {})
-  ))).then(urls => doc.update({ Photos: urls }));
+  let uploadPromise = Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => {
+    return uploadImage(uri, `${dir}/${doc.id}/${i}.jpg`, {
+      resize: width <= 300 && height <= 300 ? { width: 300, height: 300 } : null,
+      progress: uploadProgress && (snap => uploadProgress(uri, snap))
+    }).catch(reason => {
+      if (uploadError)
+        uploadError(reason, uri);
+      else
+        console.warn('error uploading', uri, reason);
+    });
+  })).then(urls => urls.filter(url => !!url));
+
+  const updatePromise = uploadPromise.then(urls => doc.update({ Photos: urls }),
+                                           uploadError || console.error);
 
   if (uploadComplete !== undefined || uploadError !== undefined)
-    uploadPromise = uploadPromise.then(uploadComplete, uploadError);
+    uploadPromise.then(uploadComplete, uploadError);
   else
-    await uploadPromise;
+    await updatePromise;
 
   return doc.id;
 };

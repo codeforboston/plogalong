@@ -4,6 +4,9 @@ export const PLOG_LOGGED = 'PLOG_LOGGED';
 export const DELETE_PLOG = 'DELETE_PLOG';
 export const PLOG_DELETED = 'PLOG_DELETED';
 
+export const UPLOAD_PROGRESS = 'UPLOAD_PROGRESS';
+export const UPLOAD_ERROR = 'UPLOAD_ERROR';
+
 export const LIKE_PLOG = 'LIKE_PLOG';
 export const LIKE_PLOG_ERROR = 'LIKE_PLOG_ERROR';
 export const REPORT_PLOG = 'REPORT_PLOG';

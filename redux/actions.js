@@ -43,15 +43,33 @@ export const signupError = (error) => ({
   payload: { error }
 });
 
+export const uploadProgress = (uri, progress) => ({
+  type: types.UPLOAD_PROGRESS,
+  payload: { progress, uri }
+});
+
+export const uploadError = (error, uri) => ({
+  type: types.UPLOAD_ERROR,
+  payload: { error, uri }
+});
+
 export const logPlog = (plogInfo) => (
   async dispatch => {
     dispatch({ type: types.LOG_PLOG, payload: { plog: plogInfo }});
     try {
-      const plogID = await savePlog(plogInfo, null, console.warn);
+      const plogID = await savePlog(plogInfo, {
+        uploadError(error, uri) {
+          dispatch(uploadError(error, uri));
+        },
+        uploadProgress(uri, { bytesTransferred, totalBytes }) {
+          dispatch(uploadProgress(uri, totalBytes ? bytesTransferred/totalBytes : 0));
+        }
+      });
+      plogInfo.id = plogID;
       dispatch({ type: types.PLOG_LOGGED,
                  payload: { plog: plogInfo, plogID } });
     } catch (error) {
-      dispatch({ type: types.LOG_PLOG_ERROR, error });
+      dispatch({ type: types.LOG_PLOG_ERROR, payload: { error } });
     }
   });
 

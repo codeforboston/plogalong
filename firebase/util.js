@@ -1,11 +1,21 @@
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { storage } from './init';
+import * as firebase from 'firebase';
 
+const { TaskEvent, TaskState } = firebase.storage;
+
+/**
+ * @typedef {object} UploadOptions
+ * @property {{ width: number, height: number}} [resize]
+ * @property {(snap: firebase.storage.UploadTaskSnapshot) => void} [progress]
+ */
 /**
  * @param {string} uri
  * @param {string} path
- * @param {{ resize: { width: number, height: number} }} [options]
+ * @param {UploadOptions} [options]
+ *
+ * @returns {Promise<string>}
  */
 export async function uploadImage(uri, path, options={}) {
   if (options.resize) {
@@ -16,6 +26,12 @@ export async function uploadImage(uri, path, options={}) {
   }
 
   const ref = storage.ref().child(path);
-  await ref.put(await fetch(uri).then(response => response.blob()));
+  const upload = ref.put(await fetch(uri).then(response => response.blob()));
+
+  if (options.progress)
+    upload.on(TaskEvent.STATE_CHANGED, options.progress);
+
+  await upload;
+
   return await ref.getDownloadURL();
 }
