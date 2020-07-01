@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 const app = require('./app');
 
 const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, localPlogDate} = require('./shared');
-const { updatePlogsWhere } = require('./util');
+const { regionInfo, updatePlogsWhere } = require('./util');
 const email = require('./email');
 
 /**
@@ -58,7 +58,7 @@ async function initAchievements(userID, types) {
 }
 
 // TODO Ignore duplicate events
-exports.calculateAchievements = functions.firestore.document('/plogs/{documentID}')
+exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
   .onCreate(async (snap, context) => {
     const plogData = snap.data();
     const {UserID} = plogData;
@@ -86,6 +86,29 @@ exports.calculateAchievements = functions.firestore.document('/plogs/{documentID
           achievements: await initAchievements(UserID, initUserAchievements)
         });
       });
+    }
+
+    if (plogData.Public && plogData.coordinates) {
+      const { id: regionId, county, state, country } = await regionInfo(plogData.coordinates);
+
+      const regionDoc = app.firestore().collection('regions').doc(regionId);
+      const regionSnap = await regionDoc.get();
+
+      if (regionSnap.exists) {
+        const regionData = regionSnap.data();
+        await regionDoc.update({
+          recentPlogs: [snap.ref].concat((regionData.recentPlogs||[]).slice(0, 20-1))
+        });
+      } else {
+        await regionDoc.set({
+          county,
+          state,
+          country,
+          leaderboard: null,
+          stats: null,
+          recentPlogs: [snap.ref],
+        });
+      }
     }
   });
 
@@ -130,3 +153,4 @@ exports.likePlog = functions.https.onCall(http.likePlog);
 exports.loadUserProfile = functions.https.onCall(http.loadUserProfile);
 exports.mergeWithAccount = functions.https.onCall(http.mergeWithAccount);
 exports.reportPlog = functions.https.onCall(http.reportPlog);
+exports.getRegionInfo = functions.https.onCall(http.getRegionInfo);
