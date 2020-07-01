@@ -86,9 +86,9 @@ export const savePlog = async (plog, uploadComplete, uploadError) => {
   ))).then(urls => doc.update({ Photos: urls }));
 
   if (uploadComplete !== undefined || uploadError !== undefined)
-    await uploadPromise;
-  else
     uploadPromise = uploadPromise.then(uploadComplete, uploadError);
+  else
+    await uploadPromise;
 
   return doc.id;
 };
