@@ -199,7 +199,7 @@ class ProfileScreen extends React.Component {
 const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
-//    minHeight: '100%',
+    minHeight: '100%',
   },
   personalInfoContainer: {
     flexDirection: 'column',
