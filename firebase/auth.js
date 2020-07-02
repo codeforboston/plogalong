@@ -1,5 +1,4 @@
 import { 
-  Linking,
   YellowBox
  } from 'react-native';
 

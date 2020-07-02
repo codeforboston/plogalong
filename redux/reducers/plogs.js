@@ -84,7 +84,7 @@ const log = (state = initialState, action) => {
     }
 
     case DELETE_PLOG: {
-      return updateInCopy(state, ['plogData', payload.plogID, '_deleting'], () => true);
+      return updateInCopy(state, ['plogData', payload.id, '_deleting'], () => true);
     }
 
     case PLOG_DELETED: {
@@ -93,20 +93,19 @@ const log = (state = initialState, action) => {
       return {
         plogData: {
           ...plogData,
-          [payload.plogID]: undefined
+          [payload.id]: undefined
         },
-        history: history.filter(id => id !== payload.plogID),
-        localPlogs: localPlogs.filter(id => id !== payload.plogID),
+        history: history.filter(id => id !== payload.id),
+        localPlogs: localPlogs.filter(id => id !== payload.id),
         ...rest
       };
     }
 
     case LIKE_PLOG:
-      return updateInCopy(state, ['plogData', payload.plogID, 'likeCount'], count => count+(payload.like ? 1 : -1), 0);
-      // return specUpdate(state, ['plogData', payload.plogID, 'likeCount'], 0, count => (payload.like ? count+1 : count-1));
+      return specUpdate(state, ['plogData', payload.plogID, 'likeCount'], count => count + (payload.like ? 1 : -1), 0);
 
     case LIKE_PLOG_ERROR:
-      // return revert(state, ['plogData', payload.plogID, 'likeCount']);
+      return revert(state, ['plogData', payload.plogID, 'likeCount']);
 
     default:
       return state;

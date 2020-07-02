@@ -4,6 +4,8 @@ const admin = require('firebase-admin');
 const db = app.firestore();
 const Plogs = db.collection('plogs');
 
+const Storage = app.storage();
+
 /**
  * @template {firebase.firestore.DocumentData} T
  * @param {admin.firestore.CollectionReference<T>} collection
@@ -25,7 +27,7 @@ async function withBatch(collection, where, fn, limit=100) {
     const batch = db.batch();
     const docs = await query.get();
 
-    for (doc of docs.docs) fn(batch, doc);
+    for (doc of docs.docs) await fn(batch, doc);
 
 
     await batch.commit();
@@ -72,7 +74,30 @@ async function updatePlogsWhere(where, changes, limit=100) {
                   limit);
 }
 
+function parseStorageURL(url) {
+  const [_, bucket, fullPath] = url.startsWith('gs://') ?
+        url.match(/gs:\/\/([A-Za-z0-9.\-_]+)(\/([^?#]*).*)?$/) :
+        url.match(/\/v\d+\/b\/([A-Za-z0-9.\-_]+)\/o(\/([^?#]*).*)?$/);
+  const idx = fullPath.indexOf('?');
+  const path = idx >= 0 ? decodeURIComponent(fullPath.slice(0, idx)) : fullPath;
+  const params = idx >= 0 ? fullPath.slice(idx) : null;
+
+  return {
+    bucket,
+    path,
+    params
+  };
+}
+
+function objectFromURL(url) {
+  const { bucket, path } = parseStorageURL(url);
+  return Storage.bucket(bucket).file(path);
+}
+
+
 module.exports = {
+  objectFromURL,
+  parseStorageURL,
   updatePlogsWhere,
   withBatch,
   withDocs,

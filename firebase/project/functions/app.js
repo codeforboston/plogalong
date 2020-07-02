@@ -1,5 +1,7 @@
 const admin = require('firebase-admin');
 const app = admin.initializeApp();
 
-module.exports = app;
+const db = app.firestore();
+db.settings({ ignoreUndefinedProperties: true });
 
+module.exports = app;

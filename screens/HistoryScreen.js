@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import {
+  StyleSheet,
   Text,
   View,
 } from 'react-native';
@@ -11,11 +12,29 @@ import { formatDuration, getStats } from '../util';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
+import AchievementBadge from '../components/AchievementBadge';
 import AchievementSwipe from '../components/AchievementSwipe';
 import Banner from '../components/Banner';
 import Loading from '../components/Loading';
+import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
 
+const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
+
+const renderEmpty = () => (
+  <View style={[$S.screenContainer, styles.empty]}>
+    <Text style={[$S.headline, styles.headline]}>
+      You haven't plogged anything yet!
+    </Text>
+    <AchievementBadge achievement="firstPlog"
+                      style={{ backgroundColor: '#eee' }}
+                      showDescription={true} />
+    <Text style={[$S.subheader, styles.subheader]}>
+      <L to="More" params={{ subscreen: 'About' }}>Check the About Screen</L> for some tips. Once you've plogged something,
+      record it on the <L to="Plog">Plogging Screen</L> to get your first achievement!
+    </Text>
+  </View>
+);
 
 export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
   const monthStats = getStats(currentUser, 'month');
@@ -25,6 +44,9 @@ export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
     if (currentUser)
       loadHistory(currentUser.uid);
   }, [currentUser]);
+
+  if (!loading && !history.length)
+    return renderEmpty();
 
   return (
     <View style={$S.screenContainer}>
@@ -68,6 +90,33 @@ export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  empty: {
+    flex: 1,
+    flexDirection: 'column',
+    padding: 15,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  headline: {
+    textAlign: 'center',
+    paddingTop: 30,
+    paddingBottom: 40,
+  },
+
+  subheader: {
+    flexGrow: 1,
+    marginTop: 30,
+  },
+
+  link: {
+    color: 'black',
+    textDecorationLine: 'underline',
+    textDecorationColor: Colors.selectionColor,
+  }
+});
 
 export default connect(({log, users}) => {
   const {plogData, history} = log;

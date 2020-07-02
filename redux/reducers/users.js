@@ -59,17 +59,15 @@ export default usersReducer = (state = initialState, {type, payload}) => {
     }
 
   case types.LIKE_PLOG:
-    // Fix speculative updates
-    return updateInCopy(state, ['current', 'data', 'likedPlogs', payload.plogID],
-                        payload.like);
-   // return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
-   //                   payload.like);
+    return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
+                      payload.like);
 
   case types.LIKE_PLOG_ERROR:
     return revert(state, ['current', 'data', 'likedPlogs', payload.plogID]);
 
   case types.PLOG_LOGGED: {
     const plogData = plogStateToDoc(payload.plog);
+    plogData.id = payload.plogID;
 
     return updateInCopy(
       state, ['current', 'data'],

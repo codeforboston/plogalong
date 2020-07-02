@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -23,7 +22,6 @@ import PasswordInput from '../components/PasswordInput';
 /** @typedef {import('firebase').User & { data?: UserData }} User */
 
 
-/** @type {React.FunctionComponent<{ currentUser: User }>} */
 const ChangePassword = ({flashMessage, navigation, route}) => {
   const { params } = route;
   const oobCode = params && params.oobCode;
@@ -104,7 +102,7 @@ const ChangePassword = ({flashMessage, navigation, route}) => {
                   </View>
                 }
                 <View style={$S.inputGroup}>
-                  <Text style={styles.errorText}>{errors.newPassword}</Text>
+                  {errors.newPassword && <Text style={styles.errorText}>{errors.newPassword}</Text>}
                   <Text style={$S.inputLabel}>New Password</Text>
                   <PasswordInput style={$S.textInput}
                                  value={values.newPassword}
@@ -113,7 +111,7 @@ const ChangePassword = ({flashMessage, navigation, route}) => {
                 </View>
                 <View style={$S.inputGroup}>
                   {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
-                  <Text style={$S.inputLabel}>Confirm New Password</Text>
+                  <Text style={$S.inputLabel}>Retype Password</Text>
                   <PasswordInput style={$S.textInput}
                                  value={values.confirmPassword}
                                  onChangeText={handleChange('confirmPassword')}
@@ -147,9 +145,7 @@ const styles = StyleSheet.create({
 
 
 export default connect(
-  ({users}) => ({
-    currentUser: users.current,
-  }),
+  null,
   dispatch => ({
     flashMessage(message) { dispatch(actions.flashMessage(message)); }
   })

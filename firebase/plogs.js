@@ -1,6 +1,6 @@
 import { keep } from '../util/iter';
 
-import { auth, firebase, Plogs, Plogs_ } from './init';
+import { auth, firebase, storage, Plogs, Plogs_ } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
@@ -56,7 +56,7 @@ export const plogStateToDoc = plog => ({
   PlogDuration: plog.timeSpent,
   Public: !!plog.public,
   UserProfilePicture: plog.userProfilePicture || null,
-  UserDisplayName: plog.userDisplayName,
+  UserDisplayName: plog.userDisplayName || null,
 });
 
 export function queryUserPlogs(userId) {
@@ -71,23 +71,35 @@ export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=100) => {
     .where('Public', '==', true);
 };
 
-export const savePlog = async (plog) => {
+export const savePlog = async (plog, uploadComplete, uploadError) => {
   const doc = Plogs.doc();
-  await doc.set(plogStateToDoc(plog));
+  const data = plogStateToDoc(plog);
+  await doc.set(data);
 
   if (!plog.plogPhotos || !plog.plogPhotos.length)
-    return Promise.resolve();
+    return doc.id;
 
   const dir = `${plog.public ? 'userpublic' : 'userdata'}/${auth.currentUser.uid}/plog`;
-  return Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
-    uploadImage(uri, `${dir}/${doc.id}-${i}.jpg`,
-      width <= 300 && height <= 300 ? { resize: { width: 300, height: 300 } } : {})
-  ))).then(urls => {
-    console.log(urls);
-    return doc.update({ Photos: urls });
-  });
+  let uploadPromise = Promise.all(plog.plogPhotos.map(({uri, width, height}, i) => (
+    uploadImage(uri, `${dir}/${doc.id}/${i}.jpg`,
+                width <= 300 && height <= 300 ? { resize: { width: 300, height: 300 } } : {})
+  ))).then(urls => doc.update({ Photos: urls }));
+
+  if (uploadComplete !== undefined || uploadError !== undefined)
+    await uploadPromise;
+  else
+    uploadPromise = uploadPromise.then(uploadComplete, uploadError);
+
+  return doc.id;
 };
 
-export const deletePlog = async (plogID) => {
-  await Plogs.doc(plogID).delete();
+/**
+ * @param {{ id: string, userID: string, public: boolean, plogPhotos: { uri: string }[] }} plog
+ */
+export const deletePlog = async plog=> {
+  await Plogs.doc(plog.id).delete();
+  for (const {uri} of plog.plogPhotos) {
+    const ref = storage.refFromURL(uri);
+    return ref.delete().catch(console.warn);
+  }
 };

@@ -178,7 +178,11 @@ class PlogScreen extends React.Component {
     const coords = this.state.markedLocation || this.props.location,
           locationInfo = this.state.markedLocationInfo || this.props.locationInfo;
     const plog = {
-      location: coords ? {lat: coords.latitude, lng: coords.longitude, name: locationInfo.street } : null,
+      location: coords ? {
+        lat: coords.latitude,
+        lng: coords.longitude,
+        name: formatAddress(locationInfo)
+      } : null,
       when: new Date(),
       pickedUp: this.mode === 'Log',
       trashTypes: Object.keys(this.state.trashTypes),

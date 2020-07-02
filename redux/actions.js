@@ -47,21 +47,45 @@ export const logPlog = (plogInfo) => (
   async dispatch => {
     dispatch({ type: types.LOG_PLOG, payload: { plog: plogInfo }});
     try {
-      await savePlog(plogInfo);
-      dispatch({ type: types.PLOG_LOGGED, payload: { plog: plogInfo } });
+      const plogID = await savePlog(plogInfo, null, console.warn);
+      dispatch({ type: types.PLOG_LOGGED,
+                 payload: { plog: plogInfo, plogID } });
     } catch (error) {
       dispatch({ type: types.LOG_PLOG_ERROR, error });
     }
   });
 
-export const deletePlog = (plogID) => (
+/**
+ * @param {{ id: string, userID: string, public: boolean}} plogInfo
+ */
+export const deletePlog = (plogInfo) => (
   async dispatch => {
-    dispatch({ type: types.DELETE_PLOG, payload: { plogID } });
+    dispatch({ type: types.DELETE_PLOG, payload: plogInfo });
     try {
-      await _deletePlog(plogID);
-      dispatch({ type: types.PLOG_DELETED, payload: { plogID } });
+      await _deletePlog(plogInfo);
+      dispatch({ type: types.PLOG_DELETED, payload: plogInfo });
     } catch (err) {
 
+    }
+  });
+
+export const reportPlog = plogID => (
+  async dispatch => {
+    dispatch({
+      type: types.REPORT_PLOG,
+      payload: { plogID }
+    });
+    try {
+      await functions.reportPlog(plogID);
+      dispatch(flashMessage(
+        'Thanks for reporting'
+      ));
+    } catch (error) {
+      console.log(error);
+      dispatch({
+        type: types.REPORT_PLOG_ERROR,
+        payload: { plogID, error }
+      });
     }
   });
 

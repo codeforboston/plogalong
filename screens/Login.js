@@ -10,11 +10,6 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 
-import {
-  loginWithFacebook,
-  loginWithApple,
-  logOut,
-} from '../firebase/auth';
 import * as actions from '../redux/actions';
 import * as AppleAuthentication from 'expo-apple-authentication';
 

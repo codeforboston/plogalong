@@ -1,4 +1,5 @@
 const $R = Symbol();
+export const $delete = Symbol();
 
 export function getIn(m, ks, notFound=undefined) {
   let v = m;
@@ -25,56 +26,69 @@ export function getInWith(m, ks, fn) {
 
 function _doUpdateInCopying(m, ks, fn, missingVal=undefined) {
   const [k, ...rest] = ks;
-  const v = m[k];
+  const { [k]: v, ...mrest } = m;
+  const last = !rest.length;
+  const updatedVal = last && fn(!(k in m) ? missingVal : v);
+
+  if (updatedVal === $delete) {
+    return mrest;
+  }
 
   return {
-    ...m,
-    [k]: rest.length ?
-      _doUpdateInCopying(v === undefined || v === null ? {} : v, rest, fn) :
-      fn(v === undefined ? missingVal : v)
+    ...mrest,
+    [k]: last ?
+      updatedVal :
+      _doUpdateInCopying(v === undefined || v === null ? {} : v, rest, fn, missingVal)
   };
 
 }
+
+const toFn = x =>
+      typeof x === 'function' ? x : (_ => x);
 
 /**
  * @param {any} m
  * @param {string[]} ks
  */
-export const updateInCopy = (m, ks, fn) => _doUpdateInCopying(m, [...ks],
-                                                              typeof fn === 'function' ? fn : v => v);
+export const updateInCopy = (m, ks, fn, missingVal=undefined) =>
+  _doUpdateInCopying(m, [...ks], toFn(fn), missingVal);
+
+export function deleteIn(state, ks) {
+  return updateInCopy(state, ks, _ => $delete);
+}
 
 
 /**
  * Make a speculative change to state
  *
- * @template K, V
- * @param {Immutable.Map<K, V>} state
- * @param {Iterable<K>} keypath
- * @returns Immutable.Map<K, V>
+ * @param {any} state
+ * @param {string[]} keypath
  */
-export function specUpdate(state, keypath, ...args) {
-  const optArgs = args.slice(0, -1);
-  let updater = args[args.length-1];
-  if (typeof updater !== 'function') {
-    const val = updater;
-    updater = (_ => val);
-  }
-  return state
-    .setIn([$R, ...keypath], state.getIn(keypath))
-    .updateIn(keypath, ...optArgs, updater);
+export function specUpdate(state, keypath, updater, missingValue=$delete) {
+  updater = toFn(updater);
+
+  let oldValue;
+  const updated = updateInCopy(state, keypath, v => {
+    oldValue = v;
+    return updater(v);
+  }, missingValue);
+  if (!updated[$R])
+    updated[$R] = {};
+
+  updated[$R][keypath.join('.')] = oldValue;
+  return updated;
 };
 
 /** @type {typeof specUpdate} */
 export function revert(state, keypath) {
-  const revertPath = [$R, ...keypath];
-  const revertValue = state.getIn(revertPath);
-
-  return (
-    revertValue === undefined ?
-      state.removeIn(keypath) :
-      state.setIn(keypath, revertValue)
-  ).removeIn(revertPath);
+  const oldValue = state[$R] && state[$R][keypath.join('.')];
+  const updated = updateInCopy(state, keypath, oldValue);
+  if (updated[$R]) delete state[$R][keypath.join('.')];
+  return updated;
 }
 
 /** @type {typeof specUpdate} */
-export const commit = (state, keypath) => state.removeIn([$R, ...keypath]);
+export const commit = (state, keypath) => {
+  if (state[$R]) delete state[$R][keypath.join('.')];
+  return state;
+};

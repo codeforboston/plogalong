@@ -1,10 +1,10 @@
 import * as React from 'react';
-// import { } from 'react-native';
 import { NavigationContainer, useLinking } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Linking } from 'expo';
 
 import Header from '../components/Header';
+import Loading from '../components/Loading';
 
 import InviteModalScreen  from '../screens/InviteModalScreen';
 import MainTabNavigator from './MainTabNavigator';
@@ -63,7 +63,7 @@ const ref = React.useRef();
   }, [getInitialState]);
 
   if (!isReady) {
-    return null;
+    return <Loading />;
   }
     return (
     <NavigationContainer initialState={initialState} ref={ref}>

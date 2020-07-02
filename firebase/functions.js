@@ -6,6 +6,7 @@ import { update } from '../util/iter';
 const _likePlog = functions.httpsCallable('likePlog');
 const _loadUserProfile = functions.httpsCallable('loadUserProfile');
 const _mergeWithAccount = functions.httpsCallable('mergeWithAccount');
+const _reportPlog = functions.httpsCallable('reportPlog');
 
 /**
  * @param {string} plogID
@@ -34,4 +35,8 @@ export async function loadUserProfile(userID) {
  */
 export async function mergeWithAccount(userID) {
   await _mergeWithAccount({ userID });
+}
+
+export async function reportPlog(plogID) {
+  return await _reportPlog({ plogID });
 }

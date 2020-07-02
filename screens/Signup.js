@@ -17,7 +17,7 @@ import {
   unlinkApple
 } from '../firebase/auth';
 import { getStats, indexBy } from '../util';
-import { useEffectWithPrevious, useParams } from '../util/react';
+import { useParams } from '../util/react';
 import { withPrompt } from '../Prompt';
 
 import $S from '../styles';
@@ -49,8 +49,8 @@ const SignupScreen = props => {
     try {
       setError(null);
       setAuthenticating(true);
-      if (await fn(...args))
-        navigation.pop();
+      await fn(...args);
+      navigation.navigate('Profile');
     } catch (e) {
       if (e.code === 'auth/credential-already-in-use') {
         const { credential } = e;
@@ -78,16 +78,15 @@ const SignupScreen = props => {
           });
 
           if (result === 'merge')
-            navigation.goBack();
+            navigation.navigate('Profile');
         } else {
           await mergeAnonymousAccount(credential, { email: e.email });
-          navigation.goBack();
+          navigation.navigate('Profile');
         }
       } else if (e.code !== 'auth/user-canceled') {
         console.log(e.code);
         setError(e);
       }
-    } finally {
       setAuthenticating(false);
     }
   }, [navigation]);
