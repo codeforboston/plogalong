@@ -2,6 +2,7 @@ export const LOG_PLOG = 'LOG_PLOG';
 export const LOG_PLOG_ERROR = 'LOG_PLOG_ERROR';
 export const PLOG_LOGGED = 'PLOG_LOGGED';
 export const DELETE_PLOG = 'DELETE_PLOG';
+export const DELETE_PLOG_ERROR = 'DELETE_PLOG_ERROR';
 export const PLOG_DELETED = 'PLOG_DELETED';
 
 export const UPLOAD_PROGRESS = 'UPLOAD_PROGRESS';

@@ -28,6 +28,7 @@ service cloud.firestore {
 
     match /plogs/{any} {
     	allow read: if request.auth.uid != null && (request.auth.uid == resource.data.d.UserID || resource.data.d.Public)
+      allow delete: if request.auth.uid != null && request.auth.uid == resource.data.d.UserID;
       allow create: if request.auth.uid == request.resource.data.d.UserID
                     && request.resource.data.keys().hasOnly([
                        "d", "g", "l"

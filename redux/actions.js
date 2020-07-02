@@ -82,8 +82,8 @@ export const deletePlog = (plogInfo) => (
     try {
       await _deletePlog(plogInfo);
       dispatch({ type: types.PLOG_DELETED, payload: plogInfo });
-    } catch (err) {
-
+    } catch (error) {
+      dispatch({ type: types.DELETE_PLOG_ERROR, payload: { error } });
     }
   });
 
@@ -99,7 +99,6 @@ export const reportPlog = plogID => (
         'Thanks for reporting'
       ));
     } catch (error) {
-      console.log(error);
       dispatch({
         type: types.REPORT_PLOG_ERROR,
         payload: { plogID, error }
