@@ -15,6 +15,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@expo/react-native-action-sheet": "^3.8.0",
     "@react-native-community/clipboard": "^1.2.2",
     "@react-native-community/masked-view": "0.1.5",
     "@react-navigation/bottom-tabs": "^5.0.5",
