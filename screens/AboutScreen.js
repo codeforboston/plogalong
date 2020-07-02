@@ -29,7 +29,7 @@ export default class AboutScreen extends React.Component {
             Plogalong helps you track your plogging history and see who else is plogging nearby. Stay motivated by earning badges and plogging minutes, or sharing your plogs on social media.
           </Text>
           <Text style={$S.body}>
-            Plogalong was designed by <A href="https://slipperstudios.com">Slipper Studios</A>, and was built as an open source civic project at <A href="https://www.codeforboston.org">Code for Boston</A>.
+            Plogalong was designed by <A href="http://slipperstudios.com">Slipper Studios</A>, and was built as an open source civic project at <A href="https://www.codeforboston.org">Code for Boston</A>.
           </Text>
 
         </View>

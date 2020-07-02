@@ -172,10 +172,24 @@ class ProfileScreen extends React.Component {
              </View>}
            </>}
 
-          <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer, $S.footerButtons]}>
-            {currentUser.isAnonymous && <Button large primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Account' : "Link Account" }/>}
-            <Button large primary onPress={logOut} title={currentUser.isAnonymous ? 'Log In' : 'Log Out'} />
-            {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
+          <View style={[
+            styles.buttonContainer, 
+            currentUser.isAnonymous && styles.anonymousButtonContainer, 
+            $S.footerButtons
+          ]}>
+            {currentUser.isAnonymous && 
+              <Button large primary onPress={this.goToSignup} 
+                title={ currentUser.isAnonymous ? 
+                        'Create Account' : 
+                        "Link Account"                      } /> }
+            <Button large primary onPress={logOut} 
+              title={ currentUser.isAnonymous ? 
+                      'Log In' : 
+                      'Log Out'                   } />
+            {hasPassword && 
+              <Button primary 
+                onPress={this.goToChangePassword} 
+                title="Change Password"           /> }
           </View>
         </ScrollView>
     );
@@ -185,7 +199,7 @@ class ProfileScreen extends React.Component {
 const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
-    minHeight: '100%',
+//    minHeight: '100%',
   },
   personalInfoContainer: {
     flexDirection: 'column',
