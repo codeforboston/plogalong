@@ -60,7 +60,7 @@ export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
                        `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
                        "You haven't plogged yet."}
                       {yearStats.milliseconds ?
-                       `You earned ${formatDuration(yearStats.milliseconds)} plogging minutes this year.` : ''}
+                       `You earned ${formatDuration(yearStats.milliseconds, true)} this year.` : ''}
                     </Banner>
                     <View style={{
                       marginTop: 5
