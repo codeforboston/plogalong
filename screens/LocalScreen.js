@@ -34,7 +34,6 @@ const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory}
                           `There are ${history.length} ploggers nearby.`
                       }
                     </Banner>
-                    <Text style={$S.h1}>Local Feed</Text>
                   </View>
                 }
                 footer={
