@@ -65,13 +65,11 @@ export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
                     <View style={{
                       marginTop: 5
                     }}>
-                      <Text style={$S.h1}>Achievements</Text>
                       <AchievementSwipe
                         achievements={currentUser.data.achievements}
-                        style={{marginLeft: 10}}
+                        style={{marginLeft: 20, marginBottom: 15, marginTop: 25}}
                       />
                     </View>
-                    <Text style={$S.h1}>Your Feed</Text>
                   </View>
                 }
                 footer={

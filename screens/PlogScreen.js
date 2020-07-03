@@ -362,8 +362,6 @@ class PlogScreen extends React.Component {
 
         <PlogScreenWeather />
 
-        <Text style={$S.h1}>Log a Plog</Text>
-
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, paddingTop: 10 }}>
           <Text style={{ fontWeight: '500', paddingLeft: 10 }}>
             {locationInfo ? `Plogging ${formatAddress(locationInfo) || 'off the grid'}` : ' '}
