@@ -85,7 +85,7 @@ class Plog extends React.PureComponent {
                      <Text style={{ fontWeight: '500'}} onPress={this.showUser}>
                        {(userDisplayName||'').trim() || 'Anonymous'}
                      </Text>
-                    } plogged {timeSpent ? `for ${formatDuration(timeSpent)}` : formatDate(new Date(when))}.
+                    } plogged {timeSpent ? `for ${formatDuration(timeSpent, false)}` : formatDate(new Date(when))}.
                   </Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 8 }}>
                   <Text style={styles.subText}>
