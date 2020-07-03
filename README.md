@@ -64,6 +64,8 @@
   
   - Install node modules: `npm install` or `yarn install`
 
+  - If you need to install an additional dependency, that dependency's documentation may give you instructions for using `npm` or `yarn`.  If you encounter problems with the npm installation, using the yarn installation might work better.  There are also instances when you may need to do `npm install` after pulling in new changes from the CfB master branch.
+
   - If you're planning on running this on an Android simulator, you'll have to install the Expo app via the simulated 
   device's Google Play Store. To do so, open Android Studio, open the AVD Manager (icon looks like a phone with a green
   Android alien in the top right toolbar), click the Play button under "Actions" to launch the simulator. You can then open
