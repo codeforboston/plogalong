@@ -188,9 +188,11 @@ const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalD
 // information on the plog and previous achievement data.
 
 // This approach is enough to cover these achievements:
+//
 //   First Plog, Team Effort, True Native, Bug Zapper, Danger Pay, Daredevil,
 //   100 Club, Dog Days, Spring Chicken, Fall Color, Polar Bear, Plog Away, 1000
-//   club, Streaker
+//   club, Streaker, Dog's Best Friend, Marathoner, Take A Hike, Water Sports,
+//   Babysitter, Twofer, No Butts
 
 // The general approach will also work for these, once we assign geo labels to
 // plogs:
@@ -207,12 +209,19 @@ const AchievementHandlers = {
   ['100Club']: _makeCountAchievement(100, 1000),
   ['1000Club']: _makeCountAchievement(1000, 10000),
   streaker: _makeStreakHandler(7, 250),
-  teamEffort: _makeOneShotAchievement(plog => plog.groupType === 'team', 20),
+  teamEffort: _makeOneShotAchievement(plog => plog.HelperType === 'team', 20),
+  dogsBestFriend: _makeOneShotAchievement(plog => plog.HelperType === 'dog', 20),
+  babysitter: _makeOneShotAchievement(plog => plog.HelperType === 'teacher', 20),
+  twofer: _makeOneShotAchievement(plog => plog.HelperType === 'friend', 20),
   bugZapper: _makeOneShotAchievement(
-    plog => (plog.trashTypes||[]).includes('standing_water'), 20),
+    plog => (plog.TrashTypes||[]).includes('standing_water'), 20),
   dangerPay: _makeOneShotAchievement(
-    plog => (plog.trashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20),
-  daredevil: _makeOneShotAchievement(plog => plog.activityType === 'biking', 20),
+    plog => (plog.TrashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20),
+  trueNative: _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('invasive_plants')),
+  noButts: _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('cigarette_butts')),
+  daredevil: _makeOneShotAchievement(plog => plog.ActivityType === 'biking', 20),
+  marathoner: _makeOneShotAchievement(plog => plog.ActivityType === 'running', 20),
+  takeAHike: _makeOneShotAchievement(plog => plog.ActivityType === 'hiking', 20),
 
   dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
   springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
