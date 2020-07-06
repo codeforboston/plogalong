@@ -23,14 +23,14 @@ import {
  * @property {Date} completed
  * @property {string} detailText
  * @property {number} points
- * @property {number} progressPercent
+ * @property {number} progress
  * @property {string} textValue
  * @property {string} description
  * @property {StyleProp<ViewStyle>} style
  */
 
 /** @type {React.FunctionComponent<AchievementBadgeProps & TouchableProps>} */
-export const AchievementBadgeComponent = ({achievement, completed = null, detailText, points, progressPercent, style, description, badgeImage, textValue, ...touchableProps}) => {
+export const AchievementBadgeComponent = ({achievement, completed = null, detailText, points, progress, style, description, badgeImage, textValue, ...touchableProps}) => {
   const detail = completed ? `+ ${points} minutes` : detailText;
 
   if (!textValue) textValue = achievement.badgeTheme;
@@ -39,7 +39,7 @@ export const AchievementBadgeComponent = ({achievement, completed = null, detail
     <View style={[styles.achieveBadge, completed && styles.completedBadge, style]}>
       {badgeImage &&
        <View style={styles.iconContainer}>
-         {React.createElement(badgeImage, { fill: completed ? Colors.selectionColor : '#666666' })}
+         {React.createElement(badgeImage, { fill: completed ? Colors.selectionColor : '#666666', width: '100%', height: '100%' })}
        </View>}
       <Text style={[styles.textLarger, completed ?
                     { color: Colors.selectionColor} : styles.inProgress]}
@@ -54,11 +54,11 @@ export const AchievementBadgeComponent = ({achievement, completed = null, detail
     </View>
   );
 
-  return !empty(touchableProps) ?
-    <TouchableOpacity {...touchableProps}>
+  return (
+    <TouchableOpacity {...touchableProps} disabled={empty(touchableProps)}>
       {content}
-    </TouchableOpacity> :
-    content;
+    </TouchableOpacity>
+  );
 };
 
 const AchievementBadge = ({ achievement, showDescription = false, ...props}) => {
