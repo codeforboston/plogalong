@@ -16,32 +16,49 @@ export const plogDocToState = (plog) => {
   /** @type {GeoPoint} */
   const location = data.coordinates;
   const plogPhotos = keep(
-    uri => (uri && uri.match(/^https:\/\//) && { uri }),
+    uri => (uri && uri.match(/^https:\/\//) && { uri: /** @type {string} */(uri) }),
     (data.Photos || []));
 
   return {
     id: plog.id,
+    /** @type {string[]} */
     trashTypes: data.TrashTypes,
+    /** @type {string} */
     activityType: data.ActivityType,
     location: {
       lat: location.latitude,
       lng: location.longitude,
+      /** @type {string} */
       name: data.GeoLabel,
     },
+    /** @type {string} */
     groupType: data.HelperType,
     pickedUp: data.PlogType === "Plog",
+    /** @type {Date} */
     when: data.DateTime.toDate(),
     plogPhotos,
+    /** @type {number} */
     timeSpent: data.PlogDuration,
+    /** @type {boolean} */
     saving: plog.metadata && plog.metadata.hasPendingWrites,
+    /** @type {string} */
     userID: data.UserID,
+    /** @type {boolean} */
     public: data.Public,
+    /** @type {number} */
     likeCount: data.likeCount || 0,
+    /** @type {string} */
     userProfilePicture: data.UserProfilePicture,
+    /** @type {string} */
     userDisplayName: data.UserDisplayName,
   };
 };
 
+/** @typedef {ReturnType<typeof plogDocToState>} Plog */
+
+/**
+ * @param {Plog} plog
+ */
 export const plogStateToDoc = plog => ({
   TrashTypes: plog.trashTypes,
   ActivityType: plog.activityType,
@@ -60,6 +77,8 @@ export const plogStateToDoc = plog => ({
   UserProfilePicture: plog.userProfilePicture || null,
   UserDisplayName: plog.userDisplayName || null,
 });
+
+/** @typedef {ReturnType<typeof plogStateToDoc>} PlogData */
 
 export function queryUserPlogs(userId) {
   return Plogs_.where('d.UserID', '==', userId).orderBy('d.DateTime', 'desc');
