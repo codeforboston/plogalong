@@ -43,8 +43,8 @@ async function initAchievements(userID, types) {
     return m;
   }, {});
 
-  for await (const plog of queryGen(Plogs.where('d.UserID', '==', userID))) {
-    const plogData = plog.data().d;
+  for await (const plog of queryGen(Plogs.where('UserID', '==', userID))) {
+    const plogData = plog.data();
     plogData.LocalDate = localPlogDate(plogData);
     plogData.id = plog.id;
     for (const type of types) {
@@ -60,7 +60,7 @@ async function initAchievements(userID, types) {
 // TODO Ignore duplicate events
 exports.calculateAchievements = functions.firestore.document('/plogs/{documentID}')
   .onCreate(async (snap, context) => {
-    const plogData = snap.data().d;
+    const plogData = snap.data();
     const {UserID} = plogData;
     let initUserAchievements;
     const userDocRef = Users.doc(UserID);
@@ -97,10 +97,10 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
 
         if (before.profilePicture !== after.profilePicture || before.displayName !== after.displayName) {
           await updatePlogsWhere(
-            ['d.UserID', '==', context.params.userId],
+            ['UserID', '==', context.params.userId],
             {
-              'd.UserProfilePicture': after.profilePicture,
-              'd.UserDisplayName': after.displayName,
+              'UserProfilePicture': after.profilePicture,
+              'UserDisplayName': after.displayName,
             });
         }
     });

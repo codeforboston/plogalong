@@ -1,47 +1,61 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "plogs",
-      "queryScope": "COLLECTION",
-      "fields": [
+    "indexes": [
         {
-          "fieldPath": "d.Public",
-          "order": "ASCENDING"
+            "collectionGroup": "plogs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "UserID",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "DateTime",
+                    "order": "DESCENDING"
+                }
+            ]
         },
         {
-          "fieldPath": "g",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-{
-      "collectionGroup": "plogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "d.UserID",
-          "order": "ASCENDING"
+            "collectionGroup": "plogs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "Public",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "g.geohash",
+                    "order": "ASCENDING"
+                }
+            ]
         },
         {
-          "fieldPath": "g",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-{
-      "collectionGroup": "plogs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "d.Public",
-          "order": "ASCENDING"
+            "collectionGroup": "plogs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "UserID",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "g",
+                    "order": "ASCENDING"
+                }
+            ]
         },
         {
-          "fieldPath": "d.DateTime",
-          "order": "DESCENDING"
+            "collectionGroup": "plogs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "Public",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "DateTime",
+                    "order": "DESCENDING"
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "fieldOverrides": []
+    ],
+    "fieldOverrides": []
 }

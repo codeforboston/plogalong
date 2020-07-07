@@ -48,7 +48,7 @@ async function likePlog(data, context) {
       throw new HttpsError('not-found', 'Invalid plog id');
 
     const likedPlogs = userSnap.data().likedPlogs || {};
-    let likeCount = plogSnap.data().d.likeCount || 0;
+    let likeCount = plogSnap.data().likeCount || 0;
 
     if (data.like && !likedPlogs[data.plog]) {
       likedPlogs[data.plog] = Date.now();
@@ -61,7 +61,7 @@ async function likePlog(data, context) {
       return { likeCount };
     }
 
-    trans.update(plogRef, { 'd.likeCount': Math.max(likeCount, 0) })
+    trans.update(plogRef, { 'likeCount': Math.max(likeCount, 0) })
       .update(userRef, { likedPlogs });
 
     return { likeCount };
@@ -186,7 +186,7 @@ async function reportPlog(data, context) {
   const { plogID } = data;
 
   const plog = await Plogs.doc(plogID).get();
-  const plogData = plog.exists && plog.data().d;
+  const plogData = plog.exists && plog.data();
 
   if (!plogData || !plogData.Public)
     throw new HttpsError('not-found', 'No such plog');
@@ -198,7 +198,7 @@ async function reportPlog(data, context) {
     return;
 
   flaggers.push(hashedUID);
-  await plog.ref.update({ 'd._Flaggers': flaggers });
+  await plog.ref.update({ '_Flaggers': flaggers });
   await email.send({
     recipients: admin_email,
     subject: `Plog flagged`,

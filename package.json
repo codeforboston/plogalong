@@ -2,6 +2,7 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "clean-start": "expo start -c",
     "tunnel": "expo start --tunnel",
     "offline": "expo start --offline --localhost",
     "android": "expo start --android",
@@ -31,7 +32,7 @@
     "expo-image-picker": "~8.1.0",
     "firebase": "^7.14.1",
     "formik": "^2.1.4",
-    "geofirestore": "^3.4.1",
+    "geofirestore": "^4.1.3",
     "mem": ">=4.0.0",
     "minimist": ">=1.2.3",
     "moment": "^2.0.0",

@@ -12,7 +12,6 @@ const { plogPhotoWidth: MaxWidth, plogPhotoHeight: MaxHeight } = Options;
  */
 export const plogDocToState = (plog) => {
   let data = plog.data();
-  if (data.d) data = data.d;
   /** @type {GeoPoint} */
   const location = data.coordinates;
   const plogPhotos = keep(
@@ -81,7 +80,7 @@ export const plogStateToDoc = plog => ({
 /** @typedef {ReturnType<typeof plogStateToDoc>} PlogData */
 
 export function queryUserPlogs(userId) {
-  return Plogs_.where('d.UserID', '==', userId).orderBy('d.DateTime', 'desc');
+  return Plogs_.where('UserID', '==', userId).orderBy('DateTime', 'desc');
 }
 
 export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=100) => {
