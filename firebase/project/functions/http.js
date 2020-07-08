@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const app = require('./app');
 const email = require('./email');
 const users = require('./users');
+const { regionInfo } = require('./util.js');
 
 const { HttpsError } = functions.https;
 
@@ -225,9 +226,24 @@ async function reportPlog(data, context) {
   });
 }
 
+/**
+ * @param {{ latitude: number, longitude: number }} data
+ * @param {functions.https.CallableContext} context
+ */
+async function getRegionInfo(data, context) {
+  if (!(context.auth || context.auth.uid))
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  if (typeof data.latitude !== "number" || typeof data.longitude !== "number")
+    throw new HttpsError('failed-precondition', 'Request body must have a valid latitude and longitude');
+
+  return await regionInfo(data);
+}
+
 module.exports = {
   likePlog,
   loadUserProfile,
   mergeWithAccount,
-  reportPlog
+  reportPlog,
+  getRegionInfo
 };

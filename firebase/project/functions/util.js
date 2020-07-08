@@ -1,5 +1,9 @@
 const app = require('./app');
+
 const admin = require('firebase-admin');
+const functions = require('firebase-functions');
+const fetch = require('node-fetch');
+const crypto = require('crypto');
 
 const db = app.firestore();
 const Plogs = db.collection('plogs');
@@ -94,10 +98,49 @@ function objectFromURL(url) {
   return Storage.bucket(bucket).file(path);
 }
 
+function md5(buff) {
+  const hash = crypto.createHash('md5');
+  hash.update(buff);
+  return hash.digest().toString('hex');
+}
+
+const GMAPS_API_KEY =
+      process.env.GMAPS_API_KEY ||
+      (functions.config().plogalong || {}).google_api_key;
+
+/**
+ * @param {{ longitude: number, latitude: number }} coords
+ */
+async function regionInfo(coords) {
+  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.latitude},${coords.longitude}&key=${encodeURIComponent(GMAPS_API_KEY)}`);
+  const data = await response.json();
+  let county, state, country;
+
+  for (const {types, short_name} of data.results[0].address_components) {
+    if (types.includes('administrative_area_level_2'))
+      county = short_name;
+    if (types.includes('administrative_area_level_1'))
+      state = short_name;
+    if (types.includes('country'))
+      country = short_name;
+  }
+
+  const rawKey = `${county}/${state}/${country}`;
+
+  return {
+    // Doesn't need to be cryptographically secure
+    id: md5(rawKey),
+    county,
+    state,
+    country
+  };
+}
+
 
 module.exports = {
   objectFromURL,
   parseStorageURL,
+  regionInfo,
   updatePlogsWhere,
   withBatch,
   withDocs,
