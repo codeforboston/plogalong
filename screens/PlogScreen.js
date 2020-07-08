@@ -78,7 +78,8 @@ class PlogScreen extends React.Component {
         markedLocationInfo: null,
       });
 
-      this.props.navigation.navigate('History');
+      if (this._focused)
+        this.props.navigation.navigate('History');
     }
 
     if (this.props.location && !prevProps.location) {
@@ -274,6 +275,9 @@ class PlogScreen extends React.Component {
     if (status === 'granted') {
       this.props.startWatchingLocation();
     }
+
+    this.props.navigation.addListener('focus', e => { this._focused = true; });
+    this.props.navigation.addListener('blur', e => { this._focused = false; });
   }
 
   componentWillUnmount() {
