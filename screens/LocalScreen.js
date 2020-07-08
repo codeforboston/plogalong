@@ -6,6 +6,7 @@ import {
 import {connect} from 'react-redux';
 
 import * as actions from '../redux/actions';
+import { keep } from '../util/iter';
 import $S from '../styles';
 
 import Banner from '../components/Banner';
@@ -52,7 +53,7 @@ export default connect(({log, users}) => {
   const {plogData, localPlogs} = log;
 
   return {
-    history: localPlogs.map(id => plogData[id]).sort((a, b) => (b.when - a.when)),
+    history: keep(id => plogData[id], localPlogs).sort((a, b) => (b.when - a.when)),
     currentUser: users.current,
     loading: log.localPlogsLoading,
   };

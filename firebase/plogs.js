@@ -1,7 +1,7 @@
 import { keep } from '../util/iter';
 
 import Options from '../constants/Options';
-import { auth, firebase, storage, Plogs, Plogs_ } from './init';
+import { auth, firebase, storage, Plogs, Plogs_, Regions, firestore } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
@@ -144,3 +144,7 @@ export const deletePlog = async plog=> {
     return ref.delete().catch(console.warn);
   }
 };
+
+export const getPlogsById = (plogIds) => Plogs_.where(firebase.firestore.FieldPath.documentId(), 'in', plogIds).where('Public', '==', true);
+
+export const getRegion = (regionId) => Regions.doc(regionId);

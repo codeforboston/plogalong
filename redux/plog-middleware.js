@@ -2,31 +2,56 @@ import { rateLimited } from '../util/async';
 
 import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER } from './actionTypes';
 import { localPlogsUpdated, plogsUpdated } from './actions';
-import { getLocalPlogs, plogDocToState, queryUserPlogs } from '../firebase/plogs';
+import { plogDocToState, queryUserPlogs, getRegion, getPlogsById } from '../firebase/plogs';
 
+import { getRegionInfo } from '../firebase/functions';
 
 const QUERY_LIMIT = 5;
+
 
 /** @type {import('redux').Middleware} */
 export default store => {
   let unsubscribe, firstPageLoaded, lastPageLoaded, lastDoc, historyLoading,
-      localUnsubscribe, firstLocalPageLoaded;
-  let shouldLoadLocalHistory = false;
+      localUnsubscribe;
+  let shouldLoadLocalHistory = false, runningLocalPlogQuery = false;
+
+  let plogListUnsubscribe;
+  const subscribeToPlogs = (plogIds) => {
+    if (plogListUnsubscribe) plogListUnsubscribe();
+
+    if (!plogIds.length) {
+      store.dispatch(localPlogsUpdated([], []));
+      return;
+    }
+
+    plogListUnsubscribe = getPlogsById(plogIds).onSnapshot(plogSnaps => {
+      store.dispatch(localPlogsUpdated(plogSnaps.docs.map(plogDocToState), plogIds));
+    }, console.warn);
+  };
 
   const runLocalPlogQuery = rateLimited(
-    (location) => {
+    async (location) => {
       if (localUnsubscribe)
         localUnsubscribe();
 
-      firstLocalPageLoaded = false;
-      localUnsubscribe = getLocalPlogs(location.latitude, location.longitude)
-        .limit(20)
-        .onSnapshot(snapshot => {
-          store.dispatch(localPlogsUpdated(snapshot.docs.map(plogDocToState),
-                                           { replace: !firstLocalPageLoaded,
-                                             prepend: firstLocalPageLoaded }));
-          firstLocalPageLoaded = true;
-        }, _ => {});
+      if (runningLocalPlogQuery)
+        return;
+
+      runningLocalPlogQuery = true;
+
+      try {
+        const { id } = await getRegionInfo(location.latitude, location.longitude);
+        localUnsubscribe = getRegion(id).onSnapshot(snapshot => {
+          const plogIds = snapshot.data().recentPlogs.map(plog => plog.id);
+
+          subscribeToPlogs(plogIds);
+        }, _ => {
+          subscribeToPlogs([]);
+          localUnsubscribe = null;
+        });
+      } finally {
+        runningLocalPlogQuery = false;
+      }
     }, 60000);
 
   return next => action => {
@@ -39,10 +64,20 @@ export default store => {
         firstPageLoaded = lastPageLoaded = false;
         historyLoading = true;
         lastDoc = null;
-        unsubscribe = query.onSnapshot(({docs}) => {
-          store.dispatch(plogsUpdated(docs.map(plogDocToState),
+        unsubscribe = query.onSnapshot(snap => {
+          const updated = [], removed = [];
+          const {docs} = snap;
+          snap.docChanges().forEach(change => {
+            if (change.type === 'removed')
+              removed.push(change.doc.id);
+            else
+              updated.push(plogDocToState(change.doc));
+          });
+
+          store.dispatch(plogsUpdated(updated,
+                                      docs.map(doc => doc.id),
                                       { prepend: firstPageLoaded,
-                                        replace: !firstPageLoaded }));
+                                        removed }));
           firstPageLoaded = true;
           lastPageLoaded = docs.length < QUERY_LIMIT;
           lastDoc = docs.length ? docs[docs.length-1] : null;
@@ -50,7 +85,7 @@ export default store => {
         }, err => {
           if (!firstPageLoaded) {
             console.warn(err);
-            store.dispatch(plogsUpdated([], { replace: true }));
+            store.dispatch(plogsUpdated([], []));
             firstPageLoaded = true;
             historyLoading = false;
           }
@@ -58,7 +93,7 @@ export default store => {
       } else if (!lastPageLoaded) {
         historyLoading = true;
         query.startAfter(lastDoc).get().then(({docs}) => {
-          store.dispatch(plogsUpdated(docs.map(plogDocToState)));
+          store.dispatch(plogsUpdated(docs.map(plogDocToState), docs.map(doc => doc.id), { append: true }));
           lastPageLoaded = docs.length < QUERY_LIMIT;
           lastDoc = docs.length ? docs[docs.length-1] : null;
           historyLoading = false;

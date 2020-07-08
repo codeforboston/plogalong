@@ -8,7 +8,7 @@ import {
 import {connect} from 'react-redux';
 
 import * as actions from '../redux/actions';
-import { formatDuration, getStats } from '../util';
+import { formatDuration, getStats, keep } from '../util';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -121,7 +121,7 @@ export default connect(({log, users}) => {
 
   return {
     loading: log.historyLoading,
-    history: history.map(id => plogData[id]).sort((a, b) => (b.when - a.when)),
+    history: keep(id => plogData[id], history).sort((a, b) => (b.when - a.when)),
     currentUser: users.current,
   };
 }, dispatch => ({
