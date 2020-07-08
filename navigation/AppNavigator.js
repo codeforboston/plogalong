@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { YellowBox } from 'react-native';
 import { connect } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -9,7 +8,7 @@ import { auth } from '../firebase/init';
 import { parseURL } from '../util';
 import { processAchievement } from '../util/users';
 import { useEffectWithPrevious } from '../util/react';
-import actions from '../redux/actions';
+import * as actions from '../redux/actions';
 
 import Header from '../components/Header';
 
@@ -26,7 +25,6 @@ import AchievementModal from '../screens/AchievementModal';
 
 import icons from '../icons';
 
-YellowBox.ignoreWarnings(['We found non-serializable values in the navigation state']);
 const AppStack = createStackNavigator();
 
 const AppNavigator = ({ currentUser, preferences, flashMessage }) => {
@@ -80,9 +78,7 @@ const AppNavigator = ({ currentUser, preferences, flashMessage }) => {
           for (const k of Object.keys(data.achievements)) {
             if ((!prevAchievements[k] || !prevAchievements[k].completed) &&
                 data.achievements[k].completed) {
-              navigation.navigate('AchievementModal', {
-                achievement: processAchievement(data.achievements, k)
-              });
+              navigation.navigate('AchievementModal', { achievementType: k });
               return;
             }
           }
