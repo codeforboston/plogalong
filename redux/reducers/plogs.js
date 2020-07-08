@@ -2,7 +2,6 @@ import {
   LOG_PLOG,
   SET_CURRENT_USER,
   PLOGS_UPDATED,
-  LOCAL_PLOGS_UPDATED,
   PLOG_LOGGED,
   LOG_PLOG_ERROR,
   LIKE_PLOG,
@@ -15,11 +14,15 @@ import {
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
 
+/** @typedef {import('../../firebase/plogs').Plog} Plog */
 
 const initialState = {
   // Look up a plog by ID
+  /** @type {Object<string,Plog>} */
   plogData: {},
+  /** @type {string[]} */
   history: [],
+  /** @type {string[]} */
   localPlogs: [],
   historyLoading: false,
   localPlogsLoading: false,
@@ -53,33 +56,39 @@ const log = (state = initialState, action) => {
       return { ...state, localPlogsLoading: true };
     }
 
-    case PLOGS_UPDATED:
-    case LOCAL_PLOGS_UPDATED: {
-      const {plogs = [], prepend, replace} = payload;
-      const k = type === PLOGS_UPDATED ? 'history' : 'localPlogs';
-      const plogIds = plogs.map(p => p.id);
-      const current = state[k];
-      let updated = current;
+    case PLOGS_UPDATED: {
+      const {plogs = [], idList: plogIds, disposition, removed} = payload;
+      const k = /** @type {'history'|'localPlogs'} */(payload.listType);
+      let { [k]: updated, plogData } = state;
 
-      if (prepend) {
-        const idx = plogIds.indexOf(current[0]);
-        if (idx > 0)
-          updated = plogIds.slice(0, idx).concat(current);
-      } else if (plogIds.length) {
-        if (replace)
+      if (plogs.length) {
+        plogData = {
+          ...plogData,
+          ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})
+        };
+      }
+
+      if (disposition === 'replace') {
+        if (updated.length || plogIds.length)
           updated = plogIds;
-        else
-          updated = current.concat(plogIds);
+      } else if (plogIds.length) {
+        if (disposition === 'prepend') {
+          updated = Array.from(new Set(plogIds.concat(updated)));
+        } else {
+          updated = Array.from(new Set(updated.concat(plogIds)));
+        }
+      }
+
+      if (removed.length) {
+        for (const plogID of removed)
+          delete plogData[plogID];
       }
 
       return {
         ...state,
         [k]: updated,
         [`${k}Loading`]: false,
-        plogData: {
-          ...state.plogData,
-          ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})
-        }
+        plogData
       };
     }
 
@@ -93,10 +102,10 @@ const log = (state = initialState, action) => {
       return {
         plogData: {
           ...plogData,
-          [payload.id]: undefined
+          [payload.plogID]: undefined
         },
-        history: history.filter(id => id !== payload.id),
-        localPlogs: localPlogs.filter(id => id !== payload.id),
+        history: history.filter(id => id !== payload.plogID),
+        localPlogs: localPlogs.filter(id => id !== payload.plogID),
         ...rest
       };
     }

@@ -53,6 +53,11 @@ export const uploadError = (error, uri) => ({
   payload: { error, uri }
 });
 
+export const plogDeleted = (plogID) => ({
+  type: types.PLOG_DELETED,
+  payload: { plogID }
+});
+
 export const logPlog = (plogInfo) => (
   async dispatch => {
     dispatch({ type: types.LOG_PLOG, payload: { plog: plogInfo }});
@@ -76,12 +81,12 @@ export const logPlog = (plogInfo) => (
 /**
  * @param {{ id: string, userID: string, public: boolean}} plogInfo
  */
-export const deletePlog = (plogInfo) => (
+export const deletePlog = plogInfo => (
   async dispatch => {
     dispatch({ type: types.DELETE_PLOG, payload: plogInfo });
     try {
       await _deletePlog(plogInfo);
-      dispatch({ type: types.PLOG_DELETED, payload: plogInfo });
+      dispatch(plogDeleted(plogInfo.id));
     } catch (error) {
       dispatch({ type: types.DELETE_PLOG_ERROR, payload: { error } });
     }
@@ -116,19 +121,25 @@ export const loadLocalHistory = (replace=true) => ({
   payload: { replace }
 });
 
-export const plogsUpdated = (plogs, {prepend=false, replace=false}={}) => ({
+export const loadPlogs = plogIDs => ({
+  type: types.LOAD_PLOGS,
+  payload: { plogIDs }
+});
+
+export const _plogsUpdated = (listType, plogs, idList, {prepend=false, append=false, removed}={}) => ({
   type: types.PLOGS_UPDATED,
   payload: {
+    listType,
     plogs,
-    prepend,
-    replace
+    idList,
+    disposition: prepend ? 'prepend' : append ? 'append' : 'replace',
+    removed: removed || []
   },
 });
 
-export const plogUpdated = plog => ({
-    type: types.PLOG_UPDATED,
-    payload: plog
-});
+export const plogsUpdated = (...args) => _plogsUpdated('history', ...args);
+
+export const localPlogsUpdated = (...args) => _plogsUpdated('localPlogs', ...args);
 
 export const likePlog = (plogID, like) => (
   async dispatch => {
@@ -146,15 +157,6 @@ export const likePlog = (plogID, like) => (
     }
   }
 );
-
-export const localPlogsUpdated = (plogs, {prepend=false, replace=false}={}) => ({
-  type: types.LOCAL_PLOGS_UPDATED,
-  payload: {
-    plogs,
-    prepend,
-    replace
-  }
-});
 
 export const setCurrentUser = (user) => ({
     type: SET_CURRENT_USER,
