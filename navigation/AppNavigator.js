@@ -57,31 +57,38 @@ const AppNavigator = ({ currentUser, preferences, flashMessage }) => {
     }
 
     if (prevUser === undefined) {
+      // Runs when the navigator is first mounted
       if (!preferences.sawIntro) {
         navigation.navigate('Intro');
-      } else if (!currentUser) {
-        navigation.navigate('Login');
       }
-    } else if (prevUser !== currentUser) {
+      // Login is asynchronous, so currentUser will essentially always be null
+      // when the navigator first mounts. To avoid flashing the login screen,
+      // don't navigate to the Login page until onAuthStateChanged has had a
+      // chance to run once.
+    } else {
       if (!currentUser) {
         navigation.navigate('Login');
-      } else if (prevUser && currentUser && prevUser.uid === currentUser.uid) {
-        const {data} = currentUser;
-        const {data: prevData} = prevUser;
+      } else if (prevUser !== currentUser) {
+        if (prevUser && currentUser && prevUser.uid === currentUser.uid) {
+          const {data} = currentUser;
+          const {data: prevData} = prevUser;
 
-        if (prevData && data.achievements && !prevData.notLoaded) {
-          const prevAchievements = prevData.achievements || {};
-          // This code is structured as if we wanted to find ALL the newly
-          // completed achievements. At least for now, though, we're just
-          // showing one modal.
+          if (prevData && data.achievements && !prevData.notLoaded) {
+            const prevAchievements = prevData.achievements || {};
+            // This code is structured as if we wanted to find ALL the newly
+            // completed achievements. At least for now, though, we're just
+            // showing one modal.
 
-          for (const k of Object.keys(data.achievements)) {
-            if ((!prevAchievements[k] || !prevAchievements[k].completed) &&
-                data.achievements[k].completed) {
-              navigation.navigate('AchievementModal', { achievementType: k });
-              return;
+            for (const k of Object.keys(data.achievements)) {
+              if ((!prevAchievements[k] || !prevAchievements[k].completed) &&
+                  data.achievements[k].completed) {
+                navigation.navigate('AchievementModal', { achievementType: k });
+                return;
+              }
             }
           }
+        } else {
+          navigation.navigate('Main');
         }
       }
     }
