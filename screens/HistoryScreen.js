@@ -43,7 +43,7 @@ export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
   useEffect(() => {
     if (currentUser)
       loadHistory(currentUser.uid);
-  }, [currentUser]);
+  }, [currentUser && currentUser.uid]);
 
   if (!loading && !history.length)
     return renderEmpty();
