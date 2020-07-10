@@ -1,4 +1,4 @@
-import { Queue, wait } from '../../util/async';
+import { Queue, wait, rateLimited } from '../async';
 
 describe('Queue', () => {
   it('', async () => {
