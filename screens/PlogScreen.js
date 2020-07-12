@@ -9,7 +9,6 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import MapView, { Camera } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,7 +29,7 @@ import * as actions from '../redux/actions';
 import {
   setUserData
 } from '../firebase/auth';
-import { formatAddress, prepareAddress } from '../util/location';
+import { formatAddress, prepareAddress, reverseGeocode } from '../util/location';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
@@ -144,10 +143,7 @@ class PlogScreen extends React.Component {
         markedLocation: coordinates,
       });
 
-      Location.reverseGeocodeAsync(coordinates).then(locationInfo => {
-        const [address] = locationInfo.sort((a1, a2) => (addressScore(a1) - addressScore(a2)));
-        const {markedLocationInfo} = this.state;
-
+      reverseGeocode(coordinates).then(locationInfo => {
         this.setState({ markedLocationInfo: locationInfo[0] });
       }, console.warn);
 
@@ -276,6 +272,7 @@ class PlogScreen extends React.Component {
       this.props.startWatchingLocation();
     }
 
+    this._focused = this.props.navigation.isFocused();
     this.props.navigation.addListener('focus', e => { this._focused = true; });
     this.props.navigation.addListener('blur', e => { this._focused = false; });
   }

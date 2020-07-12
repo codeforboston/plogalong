@@ -1,4 +1,8 @@
-import {Address} from 'expo-location';
+import * as Location from 'expo-location';
+import { Address } from 'expo-location';
+
+import { rateLimited } from './async';
+
 
 /** @type {(keyof Address)[]} */
 const precedence = ['city', 'region', 'country'];
@@ -31,3 +35,5 @@ export function formatAddress(address) {
 
   return prepared && `${prepared.preposition} ${prepared.name}`;
 }
+
+export const reverseGeocode = rateLimited(Location.reverseGeocodeAsync, 5000);
