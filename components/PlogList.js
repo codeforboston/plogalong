@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import moment from 'moment';
 
 import * as actions from '../redux/actions';
-import { formatDuration } from '../util';
+import { formatDate, formatDuration } from '../util';
 import { usePrompt } from '../Prompt';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
@@ -27,16 +27,6 @@ import Options from '../constants/Options';
 import ProfilePlaceholder from './ProfilePlaceholder';
 
 
-function formatDate(dt) {
-  return moment(dt).calendar(null, {
-    sameDay: '[today]',
-    nextDay: '[tomorrow]',
-    nextWeek: 'dddd',
-    lastDay: '[yesterday]',
-    lastWeek: '[on] MMMM Do',
-    sameElse: '[on] MMMM Do'
-  });
-}
 
 const Plog = props => {
   const {plogInfo, currentUserID, liked, likePlog, navigation, deletePlog, reportPlog} = props;

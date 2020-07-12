@@ -1,3 +1,6 @@
+import moment from 'moment';
+
+
 /**
  * @param {string} str
  * @param {string|RegExp} patt
@@ -41,4 +44,34 @@ export function parseURL(url) {
   }, {});
 
   return { protocol, host, port, path, search, params };
+}
+
+export function formatDate(dt) {
+  return moment(dt).calendar(null, {
+    sameDay: '[today]',
+    nextDay: '[tomorrow]',
+    nextWeek: 'dddd',
+    lastDay: '[yesterday]',
+    lastWeek: '[on] MMMM Do',
+    sameElse: '[on] MMMM Do'
+  });
+}
+
+export function formatDuration(ms, plogFormat) {
+  const s = Math.round(ms / 1000);
+  if (s < 60) {
+    return plogFormat ? `1 plogging minute` : `1 minute`;
+  }
+
+  let m = Math.floor(s / 60);
+  if (m < 60) {
+    return plogFormat
+      ? `${m} plogging minute${m === 1 ? '' : 's'}`
+      : `${m} minute${m === 1 ? '' : 's'}`;
+  }
+
+  let h = Math.floor(m / 60);
+  return plogFormat
+    ? `${h} plogging hour${h === 1 ? '' : 's'}`
+    : `${h} hour${h === 1 ? '' : 's'}`;
 }
