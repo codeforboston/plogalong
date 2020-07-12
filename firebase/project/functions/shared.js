@@ -12,6 +12,7 @@
 /**
  * @typedef {any} Plog
  */
+/** @typedef {any} Region */
 
 /**
   * @typedef {{ completed: Timestamp, updated: Timestamp, refID: string } & { [k in PropertyKey ]: any}} AchievementData
@@ -19,7 +20,7 @@
 /**
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
- * @property {(previous: AchievementData, plog: Plog) => AchievementData} update
+ * @property {(previous: AchievementData, plog: Plog, region: Region) => AchievementData} update
  * @property {(left: AchievementData, right: AchievementData) => Partial<AchievementData>} [merge]
  * @property {number} points
  */
@@ -179,6 +180,19 @@ const _makeOneShotAchievement = (pred, points=50) => ({
   update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime, refID: plog.id } : previous
 });
 
+/** @type {AchievementHandler} */
+const BreakTheSealAchievement = {
+  initial: { completed: null, refID: null },
+  points: 100,
+  update: (previous, plog, region) => {
+    if (region && region.recentPlogs.length === 1) {
+      return { completed: plog.DateTime, refID: plog.id };
+    }
+
+    return previous;
+  }
+};
+
 const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate()));
 
 // Full list of achievements:
@@ -227,6 +241,8 @@ const AchievementHandlers = {
   springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
   fallColor: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 8 && d === 21) || m === 9 || m === 10 || (m === 11 && d < 21))),
   polarBear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11 && d === 21) || m === 0 || m === 1 || (m === 2 && d < 21))),
+
+  breakTheSeal: BreakTheSealAchievement,
 };
 
 /** @typedef {keyof typeof AchievementHandlers} AchievementType */
@@ -239,10 +255,11 @@ const AchievementHandlers = {
  *
  * @param {UserAchievements} achievements
  * @param {Plog|Plog[]} newPlogs
+ * @param [region]
  *
  * @returns {{ achievements: UserAchievements, needInit: AchievementType[], completed: AchievementType[] }}
  */
-function updateAchievements(achievements, newPlogs) {
+function updateAchievements(achievements, newPlogs, region) {
   /** @type {AchievementType[]} */
   const names = Object.keys(AchievementHandlers);
   const needInit = [];
@@ -270,7 +287,7 @@ function updateAchievements(achievements, newPlogs) {
 
     try {
       for (const plog of plogs) {
-        current = handler.update(current, plog);
+        current = handler.update(current, plog, region);
 
         if (current.completed) {
           completed.push(name);

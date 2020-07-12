@@ -169,6 +169,12 @@ const AchievementTypes = {
     description: 'Plogged while hiking',
     incompleteDescription: 'Plog while hiking',
   },
+  breakTheSeal: {
+    badgeTheme: 'Break the Seal',
+    icon: SingleCheckmark,
+    description: 'Be the first plogger in the neighborhood',
+    incompleteDescription: 'First plogger in the neighborhood',
+  },
 };
 
 
