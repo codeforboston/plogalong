@@ -1,4 +1,4 @@
-import { Queue, wait, rateLimited } from '../async';
+import { Queue, wait, rateLimited, coalesceCalls } from '../async';
 
 describe('Queue', () => {
   it('', async () => {
@@ -52,5 +52,34 @@ describe('Rate limit', () => {
     });
 
     expect(results).toHaveLength(5);
+  });
+});
+
+describe('Merge calls', () => {
+  it('should combine multiple function calls into a single call', async () => {
+    const myFn = jest.fn(args => args);
+    const mergedFn = coalesceCalls(myFn, 50);
+
+    {
+      const results = await Promise.all([
+        mergedFn(1),
+        mergedFn(2),
+        mergedFn(3),
+      ]);
+
+      expect(results).toStrictEqual([1, 2, 3]);
+    }
+
+    {
+      const results = await Promise.all([
+        mergedFn(4),
+        mergedFn(5),
+        mergedFn(6),
+      ]);
+
+      expect(results).toStrictEqual([4, 5, 6]);
+    }
+
+    expect(myFn).toHaveBeenCalledTimes(2);
   });
 });
