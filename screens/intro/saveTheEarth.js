@@ -1,18 +1,18 @@
-import CameraSrc from '../../assets/images/camera.png';
-import PlaceholderBadgeSrc from '../../assets/images/placeholderBadge.png';
+// import CameraSrc from '../../assets/images/camera.png';
+// import PlaceholderBadgeSrc from '../../assets/images/placeholderBadge.png';
+import singleImage from '../../assets/images/samplePlog.png';
 
-const headingText = "Save the Earth";
-const images=[CameraSrc, CameraSrc, CameraSrc];
-const placeholderBadge = PlaceholderBadgeSrc;
-const instructionText = "Lead by example.\nEvery little bit helps.\nA clean earth begins with you.";
+const headingText = "Stay Engaged";
+// const images=[CameraSrc, CameraSrc, CameraSrc];
+// const placeholderBadge = PlaceholderBadgeSrc;
+const instructionText = "See who else is plogging in your neighborhood.";
 const buttonText = "I'm ready!";
 const linkText = "Skip intro";
 
 export default {
     heading: headingText,
-    images,
-    placeholderBadge,
     instructionText,
     buttonText,
     linkText,
+    singleImage,
 };

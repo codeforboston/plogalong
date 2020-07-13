@@ -1,9 +1,10 @@
-import LogInstructionsMapSrc from '../../assets/images/logInstructionsMap.jpg';
+// import LogInstructionsMapSrc from '../../assets/images/logInstructionsMap.jpg';
+import singleImage from '../../assets/images/5MinutePlog.png';
 
-const headingText = "Log";
-const singleImage = LogInstructionsMapSrc;
-const instructionText = "Share with fellow ploggers.\nSee where others are plogging.\nGet local discounts.";
-const buttonText = "I'm psyched!";
+const headingText = "Fight Dirty";
+// const singleImage = LogInstructionsMapSrc;
+const instructionText = "Lead by example.";
+const buttonText = "Let's go!";
 const linkText = "Skip intro";
 
 

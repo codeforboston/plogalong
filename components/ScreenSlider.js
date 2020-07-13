@@ -89,8 +89,11 @@ class ScreenSlider extends React.Component {
     }
 
     render() {
+        // const pages = [
+        //     intro, log, plog, saveTheEarth
+        // ];
         const pages = [
-            intro, log, plog, saveTheEarth
+            intro, plog, saveTheEarth, log
         ];
 
         return (

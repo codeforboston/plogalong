@@ -8,8 +8,8 @@ import {
 import Button from './Button';
 import Colors from '../constants/Colors';
 
-const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList, instructionText, paragraphs, buttonText, linkText, onButtonPress }) => {
-    let imagesThree, icons;
+const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList, iconList2, instructionText, paragraphs, buttonText, linkText, onButtonPress }) => {
+    let imagesThree, icons, moreIcons;
 
     if (images) {
         imagesThree = images.map((image, index) => {
@@ -18,6 +18,11 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
     } 
     if (iconList) {
         icons = iconList.map((icon, index) => {
+            return <Button key={index} style={styles.activity} icon={icon} />
+        });
+    }
+    if (iconList2) {
+        moreIcons = iconList2.map((icon, index) => {
             return <Button key={index} style={styles.activity} icon={icon} />
         });
     }
@@ -32,6 +37,9 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
                 <Image source={singleImage} style={styles.singleImage}></Image>
                 <View style={styles.photoStrip}>
                     {icons}
+                </View>
+                <View style={styles.photoStrip}>
+                    {moreIcons}
                 </View>
                 <Image source={placeholderBadge} style={styles.placeholderBadge}></Image>
                 <Text style={styles.instructionText}>
@@ -104,7 +112,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         color: Colors.textGray,
         width: 150,
-        height: 45,
+        height: 55,
         marginTop: 30,
         paddingTop: 11,
         alignSelf: 'center',
