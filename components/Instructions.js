@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 55,
         marginTop: 30,
-        paddingTop: 11,
+        paddingTop: 13,
         alignSelf: 'center',
         fontFamily: 'Lato',
         fontSize: 18,
