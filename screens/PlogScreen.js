@@ -30,7 +30,7 @@ import * as actions from '../redux/actions';
 import {
   setUserData
 } from '../firebase/auth';
-import { formatAddress } from '../util/location';
+import { formatAddress, prepareAddress } from '../util/location';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
@@ -345,7 +345,8 @@ class PlogScreen extends React.Component {
           typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
           {params} = this.state,
           {user, error, preferences: { showDetailedOptions }} = this.props,
-          locationInfo = state.markedLocationInfo || this.props.locationInfo;
+          locationInfo = state.markedLocationInfo || this.props.locationInfo,
+          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' })
     const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
     const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
@@ -363,9 +364,19 @@ class PlogScreen extends React.Component {
         <PlogScreenWeather />
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, paddingTop: 10 }}>
-          <Text style={{ fontWeight: '500', paddingLeft: 10 }}>
-            {locationInfo ? `Plogging ${formatAddress(locationInfo) || 'off the grid'}` : ' '}
-          </Text>
+          {
+            where &&
+            <>
+              <View style={styles.locationText}>
+                <Text style={{ }}>
+                  Plogging {where.preposition}{' '}
+                  </Text>
+                <Text style={styles.locationName}>
+                  {where.name}
+                </Text>
+              </View>
+          </>
+          }
           <Text style={styles.timer}>
             {/* <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text> */}
             <Text> </Text>
@@ -527,6 +538,18 @@ const styles = StyleSheet.create({
     timer: {
         textAlign: 'right',
         paddingRight: 5
+    },
+
+    locationText: {
+      paddingLeft: 10,
+      flexShrink: 1,
+      flexDirection: 'row'
+    },
+
+    locationName: {
+      fontWeight: '500',
+      flexShrink: 1,
+      maxHeight: 100,
     },
 
   myLocationButtonContainer: {
