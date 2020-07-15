@@ -291,7 +291,6 @@ function updateAchievements(achievements, newPlogs, region) {
 
         if (current.completed) {
           completed.push(name);
-          break;
         }
       }
 
