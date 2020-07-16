@@ -20,6 +20,7 @@ import moment from 'moment';
 
 import * as actions from '../redux/actions';
 import { formatDate, formatDuration } from '../util';
+import { usePlogs } from '../redux/hooks';
 import { usePrompt } from '../Prompt';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
@@ -27,15 +28,87 @@ import Options from '../constants/Options';
 import ProfilePlaceholder from './ProfilePlaceholder';
 
 
+const formatTrashTypes = (trashTypes=[]) =>
+      (!trashTypes || !trashTypes.length ? 'trash' :
+       trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', '));
 
-const Plog = props => {
-  const {plogInfo, currentUserID, liked, likePlog, navigation, deletePlog, reportPlog} = props;
+const MiniPlog = ({plogID}) => {
+  const plog = usePlogs(plogID);
+
+  if (plog.status) {
+    return <Text>{plog.status}</Text>;
+  }
+
+  const {
+    timeSpent, userID, userDisplayName, userProfilePicture, when, groupType
+  } = plog;
+  const ratio = PixelRatio.getFontScale();
+  const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
+
+  return (
+    <View>
+      <View style={styles.plogStyle}>
+        {
+          userProfilePicture ?
+            <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
+          <ProfilePlaceholder style={styles.profileImage} />
+        }
+        <View style={styles.plogInfo}>
+          <Text style={styles.actionText} adjustsFontSizeToFit>
+            <Text style={{ fontWeight: '500'}}>
+              {((userDisplayName||'').trim() || 'Anonymous') + ' '}
+            </Text>
+            plogged {timeSpent ? `for ${formatDuration(timeSpent, false)}` : formatDate(new Date(when))}.
+          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 8 }}>
+            <Text style={styles.subText}>
+              {moment(when).fromNow()}
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View style={[styles.plogStyle, styles.detailsStyle]}>
+        <GroupIcon fill={ Colors.textGray }
+                   width={20*ratio}
+                   height={20*ratio}
+                   style={[styles.whoPlogged, { marginRight: 5*ratio }]}
+                   accessibilityLabel={`Plogged `}
+        />
+        <Text style={styles.subText}>
+          Cleaned up {formatTrashTypes(plog.trashTypes)}.
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog, onLongPress}) => {
+  const { status, error } = plogInfo;
+  if (status) {
+    return (
+      <View style={styles.plogStyle}>
+        {error &&
+         <Ionicons name="ios-alert"
+                   size={20}
+                   color="maroon"
+         style={{ margin: 10 }}
+         />}
+        <Text style={[styles.plogInfo, styles.plogStatusText]}>{
+          status === 'error' || error ? `Error while loading plog: ${error}`:
+          status === 'deleted' ? 'Deleted plog' :
+            'Loading'
+        }</Text>
+      </View>
+    );
+  }
+
   const {
     id, location: { lat, lng }, likeCount, plogPhotos = [], timeSpent,
     trashTypes = [], userID, userDisplayName, userProfilePicture, when,
     saving, groupType
   } = plogInfo;
 
+  // Callbacks
   const onHeartPress = useCallback(() => {
     likePlog(id, !liked);
   }, [id, liked]);
@@ -107,32 +180,7 @@ const Plog = props => {
           rotateEnabled={false}
           zoomEnabled={false}
           liteMode={true}
-          onLongPress={() => {
-
-            if (me) {
-              Alert.alert('Delete plog?', 'This plog will be gone forever', [
-                {
-                  text: 'Cancel',
-                  style: 'cancel',
-                },
-                {
-                  text: 'Delete',
-                  onPress() { deletePlog(plogInfo); }
-                }
-              ]);
-            } else {
-              Alert.alert('Report plog?', 'Do you really want to report this plog?', [
-                {
-                  text: 'Nevermind',
-                  style: 'cancel'
-                },
-                {
-                  text: 'Report',
-                  onPress() { reportPlog(id); }
-                }
-              ]);
-            }
-          }}
+          onLongPress={onLongPress}
         >
           <Marker coordinate={latLng}
                   tracksViewChanges={false}
@@ -165,8 +213,7 @@ const Plog = props => {
                    accessibilityLabel={`Plogged `}
         />
         <Text style={styles.subText}>
-          Cleaned up {!trashTypes || !trashTypes.length ? 'trash' :
-                      trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', ')}.
+          Cleaned up {formatTrashTypes(trashTypes)}.
         </Text>
       </View>
     </View>
@@ -188,21 +235,60 @@ const likedPlogIds = user => (
 const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deletePlog, reportPlog, loadNextPage}) => {
   const navigation = useNavigation();
 
+  const { prompt } = usePrompt();
+  const onReportPlog = useCallback(async plogInfo => {
+    const me = currentUser && plogInfo.userID === currentUser.uid;
+
+    if (me) {
+      Alert.alert('Delete plog?', 'This plog will be gone forever', [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress() { deletePlog(plogInfo); }
+        }
+      ]);
+    } else {
+      const result = await prompt({
+        title: 'Report plog?',
+        message: 'Do you really want to report this plog?',
+        body: <MiniPlog plogID={plogInfo.id} />,
+        value: '',
+        options: [
+          {
+            title: 'Report',
+            value: 'report',
+            run: () => {
+              reportPlog(plogInfo.id);
+            }
+          },
+          {
+            title: 'Nevermind',
+            run: () => {}
+          }
+        ]
+      });
+    }
+  }, [currentUser]);
+
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
-              renderItem={({item}) => (<Plog plogInfo={item}
-                                                 currentUserID={currentUser && currentUser.uid}
-                                                 liked={doesUserLikePlog(currentUser, item.id)}
-                                                 likePlog={likePlog}
-                                                 deletePlog={deletePlog}
-                                                 reportPlog={reportPlog}
-                                                 navigation={navigation}
-            />)}
+              renderItem={({item}) => (
+                <Plog plogInfo={item}
+                      currentUserID={currentUser && currentUser.uid}
+                      liked={doesUserLikePlog(currentUser, item.id)}
+                      likePlog={likePlog}
+                      deletePlog={deletePlog}
+                      reportPlog={reportPlog}
+                      navigation={navigation}
+                      onLongPress={() => onReportPlog(item)}
+                />)}
               initialNumToRender={3}
-              onEndReachedThreshold={1}
+              onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
               keyExtractor={(item) => item.id}
-              extraData={likedPlogIds(currentUser)}
               ItemSeparatorComponent={Divider}
               ListHeaderComponent={header}
               ListFooterComponent={footer} />
@@ -279,6 +365,16 @@ const styles = StyleSheet.create({
     overflow: 'scroll',
     margin: 5,
     flex: 1
+  },
+  plogStatusText: {
+    fontSize: 18,
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    color: Colors.inactiveGray,
+    paddingBottom: 6
+  },
+  loadError: {
+    color: Colors.errorBackground
   }
 });
 
