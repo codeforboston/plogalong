@@ -57,6 +57,16 @@ export function formatDate(dt) {
   });
 }
 
+export function formatDateOrRelative(dt) {
+  const now = new Date();
+
+  if (now.getTime() - dt.getTime() <= 6*60000*60) {
+    return moment(dt).fromNow();
+  }
+
+  return formatDate(dt);
+}
+
 export function formatDuration(ms, plogFormat) {
   const s = Math.round(ms / 1000);
   if (s < 60) {

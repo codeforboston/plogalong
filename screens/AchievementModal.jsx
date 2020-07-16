@@ -7,6 +7,7 @@ import {
     View,
 } from 'react-native';
 
+import { formatDateOrRelative } from '../util/string';
 import { processAchievement } from '../util/users';
 
 import $S from '../styles';
@@ -32,6 +33,10 @@ const AchievementModal = ({navigation, route}) => {
           showDescription
           style={styles.badgeStyle}
         />
+        {achievement.completed &&
+         <Text style={$S.body}>
+           Completed {formatDateOrRelative(achievement.completed.toDate())}
+         </Text>}
         <View style={styles.shareOptions} >
           <Text>Share on Facebook</Text>
           <Switch value={false} />
