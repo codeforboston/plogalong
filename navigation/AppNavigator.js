@@ -6,7 +6,6 @@ import { Linking } from 'expo';
 
 import { auth } from '../firebase/init';
 import { parseURL } from '../util';
-import { processAchievement } from '../util/users';
 import { useEffectWithPrevious } from '../util/react';
 import * as actions from '../redux/actions';
 
