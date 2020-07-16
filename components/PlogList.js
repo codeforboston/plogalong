@@ -121,6 +121,11 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
     navigation.navigate('User', { userID: userID });
   }, [userID]);
 
+  const longPress = useCallback(() => {
+    if (onLongPress)
+      onLongPress(plogInfo);
+  }, [onLongPress, plogInfo]);
+
   const ActivityIcon = Options.activities.get(
     plogInfo.activityType
   ).icon;
@@ -180,7 +185,8 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
           rotateEnabled={false}
           zoomEnabled={false}
           liteMode={true}
-          onLongPress={onLongPress}
+          cacheEnabled={true}
+          onLongPress={longPress}
         >
           <Marker coordinate={latLng}
                   tracksViewChanges={false}
@@ -225,7 +231,7 @@ const Divider = () => (
 );
 
 const doesUserLikePlog = (user, plogID) => {
-  return (user && user.data && user.data.likedPlogs && user.data.likedPlogs[plogID]);
+  return !!(user && user.data && user.data.likedPlogs && user.data.likedPlogs[plogID]);
 };
 
 const likedPlogIds = user => (
@@ -271,7 +277,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
         ]
       });
     }
-  }, [currentUser]);
+  }, [currentUser.uid]);
 
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
@@ -283,12 +289,13 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
                       deletePlog={deletePlog}
                       reportPlog={reportPlog}
                       navigation={navigation}
-                      onLongPress={() => onReportPlog(item)}
+                      onLongPress={onReportPlog}
                 />)}
               initialNumToRender={3}
               onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
               keyExtractor={(item) => item.id}
+              extraData={likedPlogIds(currentUser)}
               ItemSeparatorComponent={Divider}
               ListHeaderComponent={header}
               ListFooterComponent={footer} />
