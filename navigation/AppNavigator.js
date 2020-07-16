@@ -81,7 +81,13 @@ const AppNavigator = ({ currentUser, preferences, flashMessage }) => {
             for (const k of Object.keys(data.achievements)) {
               if ((!prevAchievements[k] || !prevAchievements[k].completed) &&
                   data.achievements[k].completed) {
-                navigation.navigate('AchievementModal', { achievementType: k });
+
+                if (Date.now() - data.achievements[k].completed.toMillis() > 5*60000)
+                  continue;
+
+                setTimeout(() => {
+                  navigation.navigate('AchievementModal', { achievementType: k });
+                }, 0);
                 return;
               }
             }
