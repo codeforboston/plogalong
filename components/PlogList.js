@@ -28,6 +28,40 @@ import Options from '../constants/Options';
 import ProfilePlaceholder from './ProfilePlaceholder';
 
 
+function range(values) {
+  let min = Infinity, max = -Infinity;
+  for (const value of values) {
+    min = Math.min(value, min);
+    max = Math.max(value, max);
+  }
+  return [min, max];
+}
+
+function IndexRange(min, max) {
+  return {
+    has: isFinite(min) ? (n => (min <= n && n <= max)) : (_ => false)
+  };
+}
+
+function useVisible() {
+  const [visible, setVisible] = React.useState(new Set());
+
+  const viewability = React.useMemo(() => {
+    return [{
+      viewabilityConfig: {
+        minimumViewTime: 0,
+        itemVisiblePercentThreshold: 10
+      },
+      onViewableItemsChanged: ({viewableItems}) => {
+        let [min, max] = range(viewableItems.map(({index}) => index));
+        setVisible(IndexRange(min-2, max+2));
+      }
+    }];
+  }, [setVisible]);
+
+  return [viewability, visible];
+}
+
 const formatTrashTypes = (trashTypes=[]) =>
       (!trashTypes || !trashTypes.length ? 'trash' :
        trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', '));
@@ -82,7 +116,7 @@ const MiniPlog = ({plogID}) => {
   );
 };
 
-const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog, onLongPress}) => {
+const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog, onLongPress, focused, index}) => {
   const { status, error } = plogInfo;
   if (status) {
     return (
@@ -172,32 +206,35 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
         </View>
       </View>
       <View style={styles.plogStyle}>
-        <MapView
-          style={styles.map}
-          region={{
-            ...latLng,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.04,
-          }}
-          showsMyLocationButton={false}
-          scrollEnabled={false}
-          pitchEnabled={false}
-          rotateEnabled={false}
-          zoomEnabled={false}
-          liteMode={true}
-          cacheEnabled={true}
-          onLongPress={longPress}
-        >
-          <Marker coordinate={latLng}
-                  tracksViewChanges={false}
-          >
-            <ActivityIcon
-              width={40}
-              height={40}
-              fill={Colors.activeColor}
-            />
-          </Marker>
-        </MapView>
+        {
+          focused ?
+            <MapView
+              style={styles.map}
+              region={{
+                ...latLng,
+                latitudeDelta: 0.05,
+                longitudeDelta: 0.04,
+              }}
+              showsMyLocationButton={false}
+              scrollEnabled={false}
+              pitchEnabled={false}
+              rotateEnabled={false}
+              zoomEnabled={false}
+              liteMode={true}
+              onLongPress={longPress}
+            >
+              <Marker coordinate={latLng}
+                      tracksViewChanges={false}
+              >
+                <ActivityIcon
+                  width={40}
+                  height={40}
+                  fill={Colors.activeColor}
+                />
+              </Marker>
+            </MapView> :
+          <View style={[styles.map, styles.mapPlaceholder]}/>
+        }
         {
           plogPhotos && plogPhotos.length ?
             <ScrollView contentContainerStyle={styles.photos}>
@@ -279,9 +316,11 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
     }
   }, [currentUser.uid]);
 
+  const [viewabilityConfig, visible] = useVisible();
+
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
-              renderItem={({item}) => (
+              renderItem={({item, index}) => (
                 <Plog plogInfo={item}
                       currentUserID={currentUser && currentUser.uid}
                       liked={doesUserLikePlog(currentUser, item.id)}
@@ -290,12 +329,15 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
                       reportPlog={reportPlog}
                       navigation={navigation}
                       onLongPress={onReportPlog}
+                      focused={visible.has(index)}
+                      index={index}
                 />)}
               initialNumToRender={3}
               onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
+              viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
-              extraData={likedPlogIds(currentUser)}
+              extraData={{ liked: likedPlogIds(currentUser), visible }}
               ItemSeparatorComponent={Divider}
               ListHeaderComponent={header}
               ListFooterComponent={footer} />
@@ -363,6 +405,9 @@ const styles = StyleSheet.create({
     height: 300,
     margin: 5,
     marginTop: 0,
+  },
+  mapPlaceholder: {
+    backgroundColor: Colors.inactiveGray
   },
   photos: {
     flexDirection: 'column',
