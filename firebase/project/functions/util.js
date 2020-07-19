@@ -4,9 +4,11 @@ const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const fetch = require('node-fetch');
 const crypto = require('crypto');
+const geokit = require('geokit');
 
 const db = app.firestore();
 const Plogs = db.collection('plogs');
+const Regions = db.collection('regions');
 
 const Storage = app.storage();
 
@@ -104,14 +106,28 @@ function md5(buff) {
   return hash.digest().toString('hex');
 }
 
+const regionForGeohash = geohash =>
+      Regions.where('geohashes', 'array-contains', geohash).get();
+
+/// When choosing the precision, we have to strike a balance between the number
+/// of Geocoder API calls and the potential for errors around the region
+/// borders. A higher precision means that fewer geoh
+const GeohashRegionPrecision = 7;
+
+const geohash = coords => geokit.hash(coords, GeohashRegionPrecision);
+
+const regionForCoords = ({ latitude, longitude }) =>
+      regionForGeohash(
+        geokit.hash({ lat: latitude, lng: longitude }, GeohashRegionPrecision)
+      );
+
+
 const GMAPS_API_KEY =
       process.env.GMAPS_API_KEY ||
       (functions.config().plogalong || {}).google_api_key;
 
-/**
- * @param {{ longitude: number, latitude: number }} coords
- */
-async function regionInfo(coords) {
+
+async function locationInfoForRegion(coords) {
   const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${coords.latitude},${coords.longitude}&key=${encodeURIComponent(GMAPS_API_KEY)}`);
   const data = await response.json();
   let county, state, country;
@@ -136,12 +152,85 @@ async function regionInfo(coords) {
   };
 }
 
+/**
+ * @param {{ longitude: number, latitude: number }} coords
+ */
+async function regionInfo(coords, cache=true) {
+  const geohash = geokit.hash({ lat: coords.latitude, lng: coords.longitude },
+                              GeohashRegionPrecision);
+  const regions = await regionForGeohash(geohash);
+  if (regions.size) {
+    const doc = regions.docs[0];
+    const { county, state, country } = doc.data();
+
+    return {
+      id: doc.id,
+      county,
+      state,
+      country
+    };
+  }
+
+  const info = await locationInfoForRegion(coords);
+
+  if (cache) {
+    Regions.doc(info.id).update({
+      geohashes: admin.firestore.FieldValue.arrayUnion(geohash)
+    }).catch(err => {
+      console.warn(err);
+    });
+  }
+
+  return info;
+}
+
+
+async function deletePlogFromRegions(plogID) {
+  await withBatch(Regions, [`recentPlogs.ids`, 'array-contains', plogID],
+                  (batch, region) => {
+                    batch.update(region, {
+                      [`recentPlogs.data.${plogID}.status`]: 'deleted'
+                    });
+                  });
+}
+
+/** @typedef {import('../../plogs.js').PlogData} PlogData */
+/** @typedef {{ ids: string[], data: any }} RecentPlogs */
+/**
+ * @param {RecentPlogs} recentPlogs
+ * @param {admin.firestore.DocumentSnapshot<PlogData>} plog
+ */
+function addPlogToRecents(recentPlogs, plog, maxLength=20) {
+  const plogData = plog.data();
+  if (!recentPlogs)
+    recentPlogs = { ids: [], data: {} };
+  if (recentPlogs.ids.push(plog.id) > maxLength) {
+    for (const plogID of recentPlogs.ids.slice(maxLength-1))
+      delete recentPlogs.data[plogID];
+
+    recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
+  }
+  recentPlogs.data[plog.id] = {
+    id: plog.id,
+    when: plogData.DateTime,
+    userID: plogData.UserID
+  };
+  return recentPlogs;
+}
+
 
 module.exports = {
+  geohash,
+  locationInfoForRegion,
   objectFromURL,
   parseStorageURL,
+  regionForCoords,
+  regionForGeohash,
   regionInfo,
   updatePlogsWhere,
   withBatch,
   withDocs,
+
+  addPlogToRecents,
+  deletePlogFromRegions,
 };

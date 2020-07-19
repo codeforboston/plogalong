@@ -2,7 +2,7 @@ import { rateLimited } from '../util/async';
 
 import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER } from './actionTypes';
 import { localPlogsUpdated, plogsUpdated } from './actions';
-import { plogDocToState, queryUserPlogs, getRegion, getPlogsById } from '../firebase/plogs';
+import { getRegion } from '../firebase/regions';
 
 import { getRegionInfo } from '../firebase/functions';
 

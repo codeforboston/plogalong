@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 const app = require('./app');
 
 const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, localPlogDate} = require('./shared');
-const { regionInfo, updatePlogsWhere } = require('./util');
+const $u = require('./util');
 const email = require('./email');
 
 /**
@@ -66,11 +66,65 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
     const userDocRef = Users.doc(UserID);
 
     await app.firestore().runTransaction(async t => {
-      const user = await t.get(userDocRef);
+      const userPromise = t.get(userDocRef);
+
+      let regionData;
+      if (plogData.Public && plogData.coordinates) {
+        const { geohash } = plogData.g;
+        /** @type {admin.firestore.DocumentReference} */
+        let regionDoc;
+        /** @type {admin.firestore.QueryDocumentSnapshot|admin.firestore.DocumentSnapshot} */
+        let regionSnap;
+        let regionLocationData;
+        let addGeohash = true;
+
+        {
+          const regions = await $u.regionForGeohash(geohash);
+          if (regions.size) {
+            regionSnap = regions.docs[0];
+            regionDoc = regionSnap.ref;
+            addGeohash = false;
+          }
+        }
+
+        if (!regionDoc) {
+          regionLocationData = await $u.locationInfoForRegion(plogData.coordinates);
+
+          regionDoc = app.firestore().collection('regions').doc(regionLocationData.id);
+          regionSnap = await regionDoc.get(regionDoc);
+        }
+
+        if (regionSnap.exists) {
+          regionData = regionSnap.data();
+          const updatedRecentPlogs = $u.addPlogToRecents(regionData.recentPlogs, snap);
+          const changes = { recentPlogs: updatedRecentPlogs };
+
+          if (addGeohash) {
+            changes['geohashes'] = [geohash].concat((regionData.geohashes||[]).slice(0, 50-1));
+          }
+
+          t.update(regionDoc, changes);
+          regionData.recentPlogs = updatedRecentPlogs;
+        } else {
+          const { county, state, country } = regionLocationData;
+          regionData = {
+            county,
+            state,
+            country,
+            leaderboard: null,
+            stats: null,
+            recentPlogs: $u.addPlogToRecents(null, snap),
+            geohashes: [geohash]
+          };
+          t.set(regionDoc, regionData);
+        }
+      }
+
+      const user = await userPromise;
       const userData = user.data();
 
       plogData.id = snap.id;
-      const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData);
+      const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData, regionData);
 
       t.update(userDocRef, {
         achievements,
@@ -87,31 +141,12 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
         });
       });
     }
-
-    if (plogData.Public && plogData.coordinates) {
-      const { id: regionId, county, state, country } = await regionInfo(plogData.coordinates);
-
-      const regionDoc = app.firestore().collection('regions').doc(regionId);
-      const regionSnap = await regionDoc.get();
-
-      if (regionSnap.exists) {
-        const regionData = regionSnap.data();
-        await regionDoc.update({
-          recentPlogs: [snap.ref].concat((regionData.recentPlogs||[]).slice(0, 20-1))
-        });
-      } else {
-        await regionDoc.set({
-          county,
-          state,
-          country,
-          leaderboard: null,
-          stats: null,
-          recentPlogs: [snap.ref],
-        });
-      }
-    }
   });
 
+exports.plogDeleted = functions.firestore.document('/plogs/{plogID}')
+  .onDelete(async (snap, context) => {
+    await $u.deletePlogFromRegions(snap.id);
+  });
 
 exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
     .onUpdate(async (snap, context) => {
@@ -119,7 +154,7 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         const after = snap.after.data();
 
         if (before.profilePicture !== after.profilePicture || before.displayName !== after.displayName) {
-          await updatePlogsWhere(
+          await $u.updatePlogsWhere(
             ['UserID', '==', context.params.userId],
             {
               'UserProfilePicture': after.profilePicture,
