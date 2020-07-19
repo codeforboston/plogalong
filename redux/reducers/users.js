@@ -72,7 +72,8 @@ export default usersReducer = (state = initialState, {type, payload}) => {
     return updateInCopy(
       state, ['current', 'data'],
       data => {
-        const { achievements, completed } = updateAchievements(data.achievements, plogData);
+        const { achievements, completed } = updateAchievements(Object.assign({}, data.achievements),
+                                                               plogData);
 
         return {
           ...(data || {}),

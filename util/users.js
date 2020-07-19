@@ -12,6 +12,7 @@ import AchievedTypes from '../constants/AchievedMockup';
  */
 export const processAchievement = (achievements, achType) => {
   const a = achievements[achType];
+  if (!a) return null;
   const {hide, icon, progress, detailText, ...rest} = AchievedTypes[achType];
 
   const progressPercent = a.completed ? 100 : progress && a ? progress(a) : 0;
@@ -57,6 +58,8 @@ const achievementSorter = ({updated: a, completed: ac, key: ak},
 /**
  * @param {UserAchievements} achievements
  * @param {ProcessAchievementsOptions} [show]
+ *
+ * @returns {ReturnType<typeof processAchievement>[]}
  */
 export const processAchievements = (achievements, show = {}) => {
   const {partial=true, unstarted=false, hidden=false,
@@ -69,6 +72,8 @@ export const processAchievements = (achievements, show = {}) => {
       return null;
 
     const achievement = processAchievement(achievements, achType);
-    return (unstarted || achievement.progress) && (hidden || !achievement.hide) ? achievement : null;
+    return (achievement &&
+            (unstarted || achievement.progress) &&
+            (hidden || !achievement.hide)) ? achievement : null;
   }, Object.keys(achievements)).sort(sorter);
   };
