@@ -303,7 +303,7 @@ class PlogScreen extends React.Component {
                         style={styles.selectableItem}
                         selected={value === activity}
                 />
-              )
+              );
             }
           )}
           </View>
@@ -323,9 +323,8 @@ class PlogScreen extends React.Component {
                         style={styles.selectableItem}
                         selected={value === group}
                 />
-              )
-            }
-                                           )}
+              );
+            })}
           </View>
           <Answer answer={groupName} style={$S.h2}/>
         </>
@@ -387,7 +386,7 @@ class PlogScreen extends React.Component {
             ref={mapView => this.mapView = mapView}
             style={[styles.map]}
             initialCamera={this.makeCamera()}
-            showsMyLocationButton={true}
+            showsMyLocationButton={false}
             showsTraffic={false}
             showsUserLocation={true}
             followsUserLocation={this.state.shouldFollow}
