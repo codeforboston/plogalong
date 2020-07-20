@@ -8,8 +8,8 @@ import {
 import Button from './Button';
 import Colors from '../constants/Colors';
 
-const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList, iconList2, instructionText, paragraphs, buttonText, linkText, onButtonPress }) => {
-    let imagesThree, icons, moreIcons;
+const Instructions = ({ heading, images, singleImage, logo, placeholderBadge, iconList, instructionText, paragraphs, buttonText, linkText, onButtonPress }) => {
+    let imagesThree, icons;
 
     if (images) {
         imagesThree = images.map((image, index) => {
@@ -21,11 +21,6 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
             return <Button key={index} style={styles.activity} icon={icon} />
         });
     }
-    if (iconList2) {
-        moreIcons = iconList2.map((icon, index) => {
-            return <Button key={index} style={styles.activity} icon={icon} />
-        });
-    }
 
     return (
         <View style={styles.container}>
@@ -34,20 +29,19 @@ const Instructions = ({ heading, images, singleImage, placeholderBadge, iconList
                 <View style={styles.photoStrip}>
                     {imagesThree}
                 </View>
+                <Image source={logo} style={styles.logo}></Image>
+                {singleImage &&
                 <Image source={singleImage} style={styles.singleImage}></Image>
+                }
                 <View style={styles.photoStrip}>
                     {icons}
                 </View>
-                <View style={styles.photoStrip}>
-                    {moreIcons}
-                </View>
-                <Image source={placeholderBadge} style={styles.placeholderBadge}></Image>
+                <Image source={placeholderBadge} style={styles.placeholderBadge} resizeMode="contain"></Image>
                 <Text style={styles.instructionText}>
                     {instructionText}
                 </Text>
                 <Text style={styles.paragraphs}>{paragraphs}</Text>
             </View>
-
             <Button style={styles.buttonStyle} title={buttonText} onPress={onButtonPress}/>
         </View>
     )};
@@ -64,7 +58,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#fff',
       marginTop: 50,
       padding: 20,
-      paddingBottom: 50,
+      paddingBottom: 40,
       marginLeft: 20,
       marginRight: 20,
         minHeight: 400,
@@ -103,6 +97,10 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         marginRight: 5,
     },
+    logo: {
+        alignSelf: 'center',
+        marginBottom: 0,
+    },
     photoStrip: {
         flexDirection: 'row',
         marginTop: 15,
@@ -114,7 +112,8 @@ const styles = StyleSheet.create({
         width: 150,
         height: 55,
         marginTop: 30,
-        paddingTop: 13,
+        lineHeight: 38,
+        textAlignVertical: 'center',
         alignSelf: 'center',
         fontFamily: 'Lato',
         fontSize: 18,
@@ -137,6 +136,11 @@ const styles = StyleSheet.create({
     singleImage: {
         alignSelf: 'center',
         marginBottom: 0,
+        height: 226,
+        width: 307,
+        borderRadius: 5,
+        borderColor: Colors.textGray,
+        borderWidth: 3,
     }
   
 });

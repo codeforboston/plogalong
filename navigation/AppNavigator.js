@@ -62,8 +62,7 @@ const AppNavigator = ({ currentUser, preferences, flashMessage }) => {
       if (!preferences.sawIntro) {
         navigation.navigate('Intro');
       } else if (!currentUser) {
-        // navigation.navigate('Login');
-        navigation.navigate('Intro');
+        navigation.navigate('Login');
       }
     } else if (prevUser !== currentUser) {
       if (!currentUser) {
