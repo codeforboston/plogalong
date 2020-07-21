@@ -14,9 +14,9 @@ import Loading from '../components/Loading';
 import PlogList from '../components/PlogList';
 
 
-const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory}) => {
+const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory, preferences}) => {
   React.useEffect(() => {
-    loadLocalHistory();
+    loadLocalHistory(undefined, undefined, preferences.lastRegionInfo);
   }, []);
 
   return (
@@ -24,6 +24,10 @@ const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory}
       <PlogList plogs={history}
                 currentUser={currentUser}
                 likePlog={likePlog}
+                loadNextPage={() => {
+                  if (!loading)
+                    loadLocalHistory(false);
+                }}
                 header={
                   <View style={{ paddingTop: 20 }}>
                     <Banner>
@@ -49,11 +53,12 @@ const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory}
     </View>
 )};
 
-export default connect(({log, users}) => {
+export default connect(({log, users, preferences}) => {
   const {plogData, localPlogs} = log;
 
   return {
     history: keep(id => plogData[id], localPlogs).sort((a, b) => (b.when - a.when)),
+    preferences,
     currentUser: users.current,
     loading: log.localPlogsLoading,
   };

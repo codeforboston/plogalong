@@ -16,6 +16,9 @@ export const REPORT_PLOG_ERROR = 'REPORT_PLOG_ERROR';
 export const LOAD_HISTORY = 'LOAD_HISTORY';
 export const PLOGS_UPDATED = 'PLOGS_UPDATED';
 export const LOAD_LOCAL_HISTORY = 'LOAD_LOCAL_HISTORY';
+export const PLOG_DATA = 'PLOG_DATA';
+
+export const LOAD_PLOGS = 'LOAD_PLOGS';
 
 export const SET_CURRENT_USER = 'SET_CURRENT_USER';
 export const USER_DATA = 'USER_DATA';

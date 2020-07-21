@@ -10,6 +10,7 @@ import {
   LOAD_LOCAL_HISTORY,
   DELETE_PLOG,
   PLOG_DELETED,
+  PLOG_DATA,
 } from "../actionTypes";
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
@@ -56,17 +57,44 @@ const log = (state = initialState, action) => {
       return { ...state, localPlogsLoading: true };
     }
 
+    case PLOG_DATA: {
+      const { plogs = [] } = payload;
+
+      return {
+        ...state,
+        plogData: {
+          ...state.plogData,
+          ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})
+        }
+      };
+    }
+
     case PLOGS_UPDATED: {
       const {plogs = [], idList: plogIds, disposition, removed} = payload;
       const k = /** @type {'history'|'localPlogs'} */(payload.listType);
       let { [k]: updated, plogData } = state;
+      let plogDataCopied = false;
 
       if (plogs.length) {
         plogData = {
           ...plogData,
           ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})
         };
+        plogDataCopied = true;
       }
+
+      for (const id of plogIds) {
+        if (plogData[id])
+          continue;
+
+        if (!plogDataCopied) {
+          plogData = { ...plogData };
+          plogDataCopied = true;
+        }
+
+        plogData[id] = { id, status: 'loading' };
+      }
+
 
       if (disposition === 'replace') {
         if (updated.length || plogIds.length)

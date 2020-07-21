@@ -1,7 +1,7 @@
 import { keep } from '../util/iter';
 
 import Options from '../constants/Options';
-import { auth, firebase, storage, Plogs, Plogs_, Regions, firestore } from './init';
+import { auth, firebase, storage, Plogs, Plogs_ } from './init';
 import { uploadImage } from './util';
 const { GeoPoint } = firebase.firestore;
 
@@ -67,9 +67,11 @@ export const plogStateToDoc = plog => ({
   PlogType: plog.pickedUp ?
     "Plog" :
     "Flag",
+  /** @type {firebase.firestore.Timestamp} */
   DateTime: new firebase.firestore.Timestamp.fromDate(plog.when),
   TZ: plog.when.getTimezoneOffset(),
   UserID: auth.currentUser.uid,
+  /** @type {string[]} */
   Photos: [],
   PlogDuration: plog.timeSpent,
   Public: !!plog.public,
@@ -78,6 +80,12 @@ export const plogStateToDoc = plog => ({
 });
 
 /** @typedef {ReturnType<typeof plogStateToDoc>} PlogData */
+
+/** @type {firebase.firestore.FirestoreDataConverter<Plog>} */
+export const plogConverter = {
+  fromFirestore: plogDocToState,
+  toFirestore: plogStateToDoc
+};
 
 export function queryUserPlogs(userId) {
   return Plogs_.where('UserID', '==', userId).orderBy('DateTime', 'desc');
@@ -147,4 +155,4 @@ export const deletePlog = async plog=> {
 
 export const getPlogsById = (plogIds) => Plogs_.where(firebase.firestore.FieldPath.documentId(), 'in', plogIds).where('Public', '==', true);
 
-export const getRegion = (regionId) => Regions.doc(regionId);
+export const getPlog = plogId => Plogs.get(plogId);
