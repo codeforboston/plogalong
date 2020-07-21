@@ -4,6 +4,7 @@ const app = require('./app');
 
 const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, localPlogDate} = require('./shared');
 const $u = require('./util');
+const regions = require('./regions');
 const email = require('./email');
 
 /**
@@ -70,54 +71,7 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
 
       let regionData;
       if (plogData.Public && plogData.coordinates) {
-        const { geohash } = plogData.g;
-        /** @type {admin.firestore.DocumentReference} */
-        let regionDoc;
-        /** @type {admin.firestore.QueryDocumentSnapshot|admin.firestore.DocumentSnapshot} */
-        let regionSnap;
-        let regionLocationData;
-        let addGeohash = true;
-
-        {
-          const regions = await $u.regionForGeohash(geohash);
-          if (regions.size) {
-            regionSnap = regions.docs[0];
-            regionDoc = regionSnap.ref;
-            addGeohash = false;
-          }
-        }
-
-        if (!regionDoc) {
-          regionLocationData = await $u.locationInfoForRegion(plogData.coordinates);
-
-          regionDoc = app.firestore().collection('regions').doc(regionLocationData.id);
-          regionSnap = await regionDoc.get(regionDoc);
-        }
-
-        if (regionSnap.exists) {
-          regionData = regionSnap.data();
-          const updatedRecentPlogs = $u.addPlogToRecents(regionData.recentPlogs, snap);
-          const changes = { recentPlogs: updatedRecentPlogs };
-
-          if (addGeohash) {
-            changes['geohashes'] = [geohash].concat((regionData.geohashes||[]).slice(0, 50-1));
-          }
-
-          t.update(regionDoc, changes);
-          regionData.recentPlogs = updatedRecentPlogs;
-        } else {
-          const { county, state, country } = regionLocationData;
-          regionData = {
-            county,
-            state,
-            country,
-            leaderboard: null,
-            stats: null,
-            recentPlogs: $u.addPlogToRecents(null, snap),
-            geohashes: [geohash]
-          };
-          t.set(regionDoc, regionData);
-        }
+        await regions.plogCreated(snap, t);
       }
 
       const user = await userPromise;

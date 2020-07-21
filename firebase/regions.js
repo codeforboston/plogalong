@@ -1,5 +1,7 @@
 import { firebase, Regions } from './init';
 
+/** @typedef {import('./project/functions/shared').RegionStats} RegionStats */
+
 
 /**
  * @typedef {object} Region
@@ -8,7 +10,7 @@ import { firebase, Regions } from './init';
  * @property {string} country
  * @property {string[]} geohashes
  * @property {{ id: string, userID: string, when: Date }[]} recentPlogs
- * @property stats
+ * @property {RegionStats} stats
  * @property leaderboard
  */
 

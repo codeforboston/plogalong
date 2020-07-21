@@ -380,6 +380,7 @@ function mergeAchievements(achievementsA, achievementsB) {
  * @property {PlogStats} [year]
  * @property {PlogStats} [total]
  */
+/** @typedef {UserStats} RegionStats */
 
 /** @typedef {KeysWithValueType<UserStats, PlogStats>} TimeUnit */
 /** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */

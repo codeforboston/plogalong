@@ -185,40 +185,6 @@ async function regionInfo(coords, cache=true) {
 }
 
 
-async function deletePlogFromRegions(plogID) {
-  await withBatch(Regions, [`recentPlogs.ids`, 'array-contains', plogID],
-                  (batch, region) => {
-                    batch.update(region, {
-                      [`recentPlogs.data.${plogID}.status`]: 'deleted'
-                    });
-                  });
-}
-
-/** @typedef {import('../../plogs.js').PlogData} PlogData */
-/** @typedef {{ ids: string[], data: any }} RecentPlogs */
-/**
- * @param {RecentPlogs} recentPlogs
- * @param {admin.firestore.DocumentSnapshot<PlogData>} plog
- */
-function addPlogToRecents(recentPlogs, plog, maxLength=20) {
-  const plogData = plog.data();
-  if (!recentPlogs)
-    recentPlogs = { ids: [], data: {} };
-  if (recentPlogs.ids.push(plog.id) > maxLength) {
-    for (const plogID of recentPlogs.ids.slice(maxLength-1))
-      delete recentPlogs.data[plogID];
-
-    recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
-  }
-  recentPlogs.data[plog.id] = {
-    id: plog.id,
-    when: plogData.DateTime,
-    userID: plogData.UserID
-  };
-  return recentPlogs;
-}
-
-
 module.exports = {
   geohash,
   locationInfoForRegion,
@@ -230,7 +196,4 @@ module.exports = {
   updatePlogsWhere,
   withBatch,
   withDocs,
-
-  addPlogToRecents,
-  deletePlogFromRegions,
 };
