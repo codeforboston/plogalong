@@ -14,9 +14,9 @@ import Loading from '../components/Loading';
 import PlogList from '../components/PlogList';
 
 
-const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory, preferences}) => {
+const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory, region}) => {
   React.useEffect(() => {
-    loadLocalHistory(undefined, undefined, preferences.lastRegionInfo);
+    loadLocalHistory();
   }, []);
 
   return (
@@ -39,6 +39,12 @@ const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory,
                           `There are ${history.length} ploggers nearby.`
                       }
                     </Banner>
+                    {
+                      region &&
+                        <Text style={$S.h1}>
+                          {region.county}, {region.state}
+                        </Text>
+                    }
                   </View>
                 }
                 footer={
@@ -51,16 +57,17 @@ const LocalScreen = ({history, currentUser, likePlog, loading, loadLocalHistory,
                 }
       />
     </View>
-)};
+  );
+};
 
-export default connect(({log, users, preferences}) => {
+export default connect(({log, users}) => {
   const {plogData, localPlogs} = log;
 
   return {
     history: keep(id => plogData[id], localPlogs).sort((a, b) => (b.when - a.when)),
-    preferences,
     currentUser: users.current,
     loading: log.localPlogsLoading,
+    region: log.region,
   };
 }, dispatch => ({
   likePlog: (...args) => dispatch(actions.likePlog(...args)),

@@ -11,6 +11,7 @@ import {
   DELETE_PLOG,
   PLOG_DELETED,
   PLOG_DATA,
+  SET_REGION,
 } from "../actionTypes";
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
@@ -25,6 +26,8 @@ const initialState = {
   history: [],
   /** @type {string[]} */
   localPlogs: [],
+  /** @type {import('../../firebase/regions').Region} */
+  region: null,
   historyLoading: false,
   localPlogsLoading: false,
 };
@@ -143,6 +146,12 @@ const log = (state = initialState, action) => {
 
     case LIKE_PLOG_ERROR:
       return revert(state, ['plogData', payload.plogID, 'likeCount']);
+
+    case SET_REGION:
+      return {
+        ...state,
+        region: payload.region
+      };
 
     default:
       return state;
