@@ -20,6 +20,8 @@ export const PLOG_DATA = 'PLOG_DATA';
 
 export const LOAD_PLOGS = 'LOAD_PLOGS';
 
+export const SET_REGION = 'SET_REGION';
+
 export const SET_CURRENT_USER = 'SET_CURRENT_USER';
 export const USER_DATA = 'USER_DATA';
 

@@ -2,9 +2,11 @@ import * as geokit from 'geokit';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import { coalesceCalls, rateLimited } from '../util/async';
+import { updateLocalStorage } from '../util/native';
 
 import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS } from './actionTypes';
 import { gotPlogData, localPlogsUpdated, plogsUpdated } from './actions';
+import * as actions from './actions';
 import { plogDocToState, queryUserPlogs } from '../firebase/plogs';
 import { getRegion } from '../firebase/regions';
 import { Plogs } from '../firebase/init';
@@ -12,6 +14,7 @@ import { Plogs } from '../firebase/init';
 import { getRegionInfo } from '../firebase/functions';
 
 const QUERY_LIMIT = 5;
+const REGION_CACHE_KEY = 'com.plogalong.regionInfoCache';
 
 
 /** @type {import('redux').Middleware} */
@@ -78,82 +81,93 @@ export default store => {
   // plog ids -> unsubscribe functions
   let plogSubscriptions = new Map();
   let localRegionId;
+  let localGeohash;
   let loadMoreLocalPlogs;
   let loadingLocalPlogs = false;
-  const runLocalPlogQuery = rateLimited(
-    async (location) => {
-      if (runningLocalPlogQuery)
-        return;
+  const runLocalPlogQuery = rateLimited(async (location) => {
+    if (runningLocalPlogQuery)
+      return;
+
+    const geohash = geokit.hash({ lat: location.latitude, lng: location.longitude }, 7);
+
+    if (geohash === localGeohash)
+      return;
+
+    try {
+      localGeohash = geohash;
+      let regionInfo;
+      try {
+        regionInfo = await AsyncStorage.getItem(REGION_CACHE_KEY);
+        if (regionInfo) {
+          regionInfo = JSON.parse(regionInfo);
+
+          if (!regionInfo.geohashes || !regionInfo.geohashes.includes(localGeohash))
+            regionInfo = null;
+        }
+      } catch (err) {}
 
       runningLocalPlogQuery = true;
 
-      try {
-        const geohash = geokit.hash({ lat: location.latitude, lng: location.longitude }, 7);
-        let regionInfo;
-        try {
-          regionInfo = await AsyncStorage.getItem('com.plogalong.regionInfoCache');
-          if (regionInfo) {
-            regionInfo = JSON.parse(regionInfo);
-
-            if (regionInfo.geohash !== geohash)
-              regionInfo = null;
-          }
-        } catch (err) {}
-
-        if (!regionInfo) {
-          regionInfo = await getRegionInfo(location.latitude, location.longitude);
-          AsyncStorage.setItem('com.plogalong.regionInfoCache', JSON.stringify({
-            ...regionInfo,
-            geohash
-          }));
-        }
-
-        let { id } = regionInfo;
-        if (localRegionId === id)
-          return;
-
-        for (const unsubscribe of plogSubscriptions.values()) {
-          unsubscribe();
-        }
-
-        getRegion(id).onSnapshot(snapshot => {
-          const regionData = snapshot.data() || {};
-          const plogIds = (regionData.recentPlogs || []).map(plog => plog.id);
-
-          ///
-          let localPlogsLoaded = 0;
-          loadingLocalPlogs = false;
-          loadMoreLocalPlogs = (n=QUERY_LIMIT) => {
-            if (loadingLocalPlogs)
-              return false;
-
-            loadingLocalPlogs = true;
-            store.dispatch(localPlogsUpdated([], plogIds));
-
-            if (localPlogsLoaded < plogIds.length) {
-              const newPlogIds = plogIds.slice(localPlogsLoaded, localPlogsLoaded+n);
-              subscribeToPlogs(newPlogIds, plogSubscriptions, !localPlogsLoaded)
-                .finally(() => {
-                  store.dispatch(localPlogsUpdated([], plogIds));
-                  loadingLocalPlogs = false;
-                });
-              localPlogsLoaded = Math.min(plogIds.length, localPlogsLoaded+n);
-
-              return true;
-            }
-
-            return false;
-          };
-          ////
-
-          loadMoreLocalPlogs();
-        }, _ => {
-          subscribeToPlogs([], plogSubscriptions);
-        });
-      } finally {
-        runningLocalPlogQuery = false;
+      if (!regionInfo) {
+        regionInfo = await getRegionInfo(location.latitude, location.longitude);
+        AsyncStorage.setItem(REGION_CACHE_KEY, JSON.stringify({
+          ...regionInfo,
+          geohashes: [localGeohash]
+        }));
       }
-    }, 60000);
+
+      let { id } = regionInfo;
+      if (localRegionId === id)
+        return;
+
+      store.dispatch(actions.setRegion(regionInfo));
+
+      for (const unsubscribe of plogSubscriptions.values()) {
+        unsubscribe();
+      }
+
+      getRegion(id).onSnapshot(snapshot => {
+        const regionData = snapshot.data() || {};
+        const plogIds = (regionData.recentPlogs || []).map(plog => plog.id);
+
+        updateLocalStorage(REGION_CACHE_KEY, cached => {
+          cached.geohashes = regionData.geohashes;
+          return cached;
+        });
+        ///
+        let localPlogsLoaded = 0;
+        loadingLocalPlogs = false;
+        loadMoreLocalPlogs = (n=QUERY_LIMIT) => {
+          if (loadingLocalPlogs)
+            return false;
+
+          loadingLocalPlogs = true;
+          store.dispatch(localPlogsUpdated([], plogIds));
+
+          if (localPlogsLoaded < plogIds.length) {
+            const newPlogIds = plogIds.slice(localPlogsLoaded, localPlogsLoaded+n);
+            subscribeToPlogs(newPlogIds, plogSubscriptions, !localPlogsLoaded)
+              .finally(() => {
+                store.dispatch(localPlogsUpdated([], plogIds));
+                loadingLocalPlogs = false;
+              });
+            localPlogsLoaded = Math.min(plogIds.length, localPlogsLoaded+n);
+
+            return true;
+          }
+
+          return false;
+        };
+        ////
+
+        loadMoreLocalPlogs();
+      }, _ => {
+        subscribeToPlogs([], plogSubscriptions);
+      });
+    } finally {
+      runningLocalPlogQuery = false;
+    }
+  }, 5000);
 
   return next => action => {
     const {type, payload} = action;
@@ -211,9 +225,11 @@ export default store => {
       if (type === SET_CURRENT_USER)
         result = next(action);
 
-      const {current, location} = store.getState().users;
+      let {current, location} = store.getState().users;
 
-      if (type === LOAD_LOCAL_HISTORY)
+      if (type === LOCATION_CHANGED)
+        location = payload.location;
+      else if (type === LOAD_LOCAL_HISTORY)
         shouldLoadLocalHistory = true;
 
       if (location && current && shouldLoadLocalHistory) {
