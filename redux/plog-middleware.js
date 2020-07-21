@@ -1,7 +1,5 @@
-import {
-  AsyncStorage
-} from 'react-native';
 import * as geokit from 'geokit';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import { coalesceCalls, rateLimited } from '../util/async';
 

@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import { setPreferences } from './actions';
 import { SET_PREFERENCES, SET_CURRENT_USER } from './actionTypes';

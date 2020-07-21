@@ -1,12 +1,11 @@
 import React from 'react';
 import {
-  AsyncStorage,
   Platform,
   StatusBar,
   StyleSheet,
-  Text,
   View
 } from 'react-native';
+import { AsyncStorage } from 'react-native';
 import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
 
