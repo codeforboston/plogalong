@@ -87,7 +87,7 @@ export default StyleSheet.create({
       borderRadius: 5,
       borderColor: Colors.secondaryColor,
       borderWidth: 2,
-      overflow: 'hidden',
+     overflow: 'hidden',
       backgroundColor: Colors.secondaryColor,
       marginTop: 20,
       marginBottom: 5,
@@ -126,7 +126,7 @@ export default StyleSheet.create({
 
   headline: {
     color: Colors.textGray,
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: '600',
   },
 
@@ -208,5 +208,19 @@ export default StyleSheet.create({
     fontWeight: "bold",
     color: Colors.warningText,
     backgroundColor: Colors.warningBackground,
+  },
+
+  mapContainer: {
+    borderColor: Colors.borderColor,
+    borderWidth: 1,
+    flex: 1,
+    height: 300,
+    margin: 5,
+    position: 'relative'
+  },
+
+  map: {
+    width: '100%',
+    height: '100%'
   },
 });
