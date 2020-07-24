@@ -10,9 +10,10 @@ const writeFile = promisify(fs.writeFile);
 
 const ROOT = process.env.WEB_ROOT ||
       path.normalize(path.join(__dirname, '..', 'public'));
-const CONFIG_FILE = process.env.LOCAL_WEB_CONFIG_FILE ?
-      path.normalize(path.join(process.env.PWD,
-                               process.env.LOCAL_WEB_CONFIG_FILE)) :
+const { GCLOUD_PROJECT: PROJECT_ID, LOCAL_WEB_CONFIG_FILE, PWD, INIT_CWD } = process.env;
+const PROJECT_CONFIG_FILE = `../${PROJECT_ID}.config`;
+const CONFIG_FILE = LOCAL_WEB_CONFIG_FILE ?
+      path.normalize(path.join(INIT_CWD || PWD, LOCAL_WEB_CONFIG_FILE)) :
       '../config';
 const TEMPLATE_PATTERN = /\.template(?=\.|$)/i;
 
@@ -50,6 +51,9 @@ function processTemplates(options = {}) {
   }, options);
 
   const context = require(CONFIG_FILE);
+  try {
+    Object.assign(context, require(PROJECT_CONFIG_FILE));
+  } catch (_) {}
 
   return new Promise(resolve => {
     getTemplates(async (filepath, outpath) => {
