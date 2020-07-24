@@ -89,12 +89,14 @@ class ProfileScreen extends React.Component {
           ]
         );
 
-        if (result === 'cancel') {
-          logout();
+        if (result === 'logout') {
+          logOut();
         } else if (result === 'create') {
           this.goToSignup();
         }
       }
+    } else {
+      logOut();
     }
   }
 
