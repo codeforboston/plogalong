@@ -37,10 +37,10 @@ const AchievementModal = ({navigation, route}) => {
          <Text style={$S.body}>
            Completed {formatDateOrRelative(achievement.completed.toDate())}
          </Text>}
-        <View style={styles.shareOptions} >
+      {/*  <View style={styles.shareOptions} >
           <Text>Share on Facebook</Text>
           <Switch value={false} />
-        </View>
+        </View> */}
       </View>
       <View style={$S.modalButtonsContainer}>
         <Button
