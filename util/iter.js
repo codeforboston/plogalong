@@ -81,3 +81,24 @@ export const empty = obj => {
 
   return true;
 };
+
+export const getter = f => (
+  typeof f === 'string' ? (x => x[f]) : f
+);
+
+export function normList(list, { idsKey = 'ids', dataKey = 'data', getID = 'id' } = {}) {
+  getID = getter(getID);
+  return (list || []).reduce((m, x) => {
+    const id = getID(x);
+    m.ids.push(id);
+    m.data[id] = x;
+  }, { [idsKey]: [], [dataKey]: {} });
+}
+
+export function denormList(input, { idsKey = 'ids', dataKey = 'data', idKey = 'id' } = {}) {
+  return input ?
+    input[idsKey].map(idKey ?
+                      id => Object.assign({ [idKey]: id }, input[dataKey][id]) :
+                      id => input[dataKey][id]) :
+    [];
+}
