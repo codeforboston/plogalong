@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "firebase-admin": "^8.12.1",
-    "firebase-functions": "^3.6.1",
+    "firebase-functions": "^3.8.0",
     "geokit": "^1.1.0"
   },
   "devDependencies": {

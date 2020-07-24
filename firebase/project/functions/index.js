@@ -2,10 +2,15 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const app = require('./app');
 
-const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, localPlogDate} = require('./shared');
+const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, addBonusMinutes, localPlogDate} = require('./shared');
 const $u = require('./util');
 const regions = require('./regions');
 const email = require('./email');
+
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
 
 /**
  * Async generator that handles pagination and yields documents satisfying the
@@ -67,22 +72,35 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
     const userDocRef = Users.doc(UserID);
 
     await app.firestore().runTransaction(async t => {
-      const userPromise = t.get(userDocRef);
+      const userData = await t.get(userDocRef).then(u => u.data());
+      /** @type {Unwrapped<ReturnType<typeof regions.getRegionForPlog>>} */
+      let regionInfo;
 
-      let regionData;
       if (plogData.Public && plogData.coordinates) {
-        await regions.plogCreated(snap, t);
+        regionInfo = await regions.getRegionForPlog(snap, t);
       }
 
-      const user = await userPromise;
-      const userData = user.data();
-
+      // Update the user stats first. If a region ID is supplied, the user's
+      // stats for that region will also be updated
       plogData.id = snap.id;
+      let userStats = updateStats(userData.stats, plogData, 0, regionInfo && regionInfo.locationInfo.id);
+
+      // regions.plogCreated uses userStats to potentially update the region
+      // leaderboard
+      const regionData = regionInfo &&
+            await regions.plogCreated(plogData, regionInfo.doc, regionInfo.snap, regionInfo.locationInfo, userStats, t);
+
+      // achievements may depend on locally aggregated data (stats, leaderboard)
       const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData, regionData);
+
+      if (completed.length) {
+        // add bonus minutes from achievements
+        userStats = addBonusMinutes(userStats, localPlogDate(plogData), calculateBonusMinutes(completed));
+      }
 
       t.update(userDocRef, {
         achievements,
-        stats: updateStats(userData.stats, plogData, calculateBonusMinutes(completed))
+        stats: userStats
       });
 
       initUserAchievements = needInit;
