@@ -16,12 +16,35 @@ const CONFIG_FILE = LOCAL_WEB_CONFIG_FILE ?
       path.normalize(path.join(INIT_CWD || PWD, LOCAL_WEB_CONFIG_FILE)) :
       '../config';
 const TEMPLATE_PATTERN = /\.template(?=\.|$)/i;
+const PARTIALS_DIR = path.normalize(path.join(__dirname, '..', 'partials'));
 
 /** @type {(file: walk.WalkStats) => string|null} */
 const DefaultMatcher = ({name}) => {
   const m = name.match(TEMPLATE_PATTERN);
   return m && name.slice(0, m.index) + name.slice(m.index + m[0].length);
 };
+
+/**
+ * @param {typeof handlebars} Handlebars
+ */
+function registerPartials(Handlebars, partialsDir=PARTIALS_DIR) {
+  return new Promise(resolve => {
+    const walker = walk.walk(partialsDir);
+    walker.on('file', async (dir, file, next) => {
+      const fullPath = path.join(dir, file.name);
+      const templateName = path.join(path.relative(partialsDir, dir),
+                                     file.name.split(/\.([^.]+)$/)[0]);
+      const source = await readFile(fullPath);
+
+      Handlebars.registerPartial(templateName, source.toString());
+
+      next();
+    });
+    walker.on('end', () => {
+      resolve();
+    });
+  });
+}
 
 /**
  * @param {(path?: string, outPath?: string, file?: walk.WalkStats) => any} callback
@@ -56,6 +79,7 @@ function processTemplates(options = {}) {
   } catch (_) {}
 
   return new Promise(resolve => {
+  await registerPartials(handlebars);
     getTemplates(async (filepath, outpath) => {
       if (!filepath) {
         resolve();
