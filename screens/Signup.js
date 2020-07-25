@@ -149,19 +149,14 @@ const SignupScreen = props => {
             </>
           }
           {
-            providers['facebook.com'] ?
-              (
-                <Button primary
-                        onPress={null}
-                        title="Disconnect Facebook" />
-              ) :
-              (
-                <Button
-                  primary
-                  onPress={_ => link(linkToFacebook)}
-                  title="Facebook Login"
-                />
-              )
+            error
+            ?
+            <Button title="Login with Plogalong"
+                    primary
+                    onPress={() => navigation.navigate('Login')}
+            />
+            :
+            null
           }
           {
             providers['google.com'] ?
