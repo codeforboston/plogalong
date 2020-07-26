@@ -162,6 +162,8 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
             changes.streakLost = updated;
           }
         }
+      } else {
+        changes.streak = 1;
       }
 
       return Object.assign(previous, changes);
@@ -185,17 +187,17 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
  * @returns {AchievementHandler}
  */
 const _makeOneShotAchievement = (pred, points=50) => ({
-  initial: { completed: null, refID: null },
+  initial: null,
   points,
   update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime, refID: plog.id } : previous
 });
 
 /** @type {AchievementHandler} */
 const BreakTheSealAchievement = {
-  initial: { completed: null, refID: null },
+  initial: null,
   points: 100,
   update: (previous, plog, region) => {
-    if (region && region.recentPlogs.ids.length === 1) {
+    if (region && region.recentPlogs.ids.length === 1 && region.recentPlogs.ids[0] === plog.id) {
       return { completed: plog.DateTime, refID: plog.id };
     }
 
@@ -286,8 +288,10 @@ function updateAchievements(achievements, newPlogs, region) {
 
     if (!current) {
       // ...or initializing the achievement progress if necessary
-      needInit.push(name);
-      current = { ...handler.initial };
+      if (!(name in updated) && handler.initial) {
+        needInit.push(name);
+      }
+      current = handler.initial ? { ...handler.initial } : null;
     } else if (current.completed)
       // skip over completed achievements
       return updated;
@@ -296,8 +300,9 @@ function updateAchievements(achievements, newPlogs, region) {
       for (const plog of plogs) {
         current = handler.update(current, plog, region);
 
-        if (current.completed) {
+        if (current && current.completed) {
           completed.push(name);
+          break;
         }
       }
 

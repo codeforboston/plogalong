@@ -68,7 +68,7 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
   .onCreate(async (snap, context) => {
     const plogData = snap.data();
     const {UserID} = plogData;
-    let initUserAchievements;
+    let initUserAchievements = [];
     const userDocRef = Users.doc(UserID);
 
     await app.firestore().runTransaction(async t => {
@@ -103,9 +103,16 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
         stats: userStats
       });
 
-      initUserAchievements = needInit;
+      if (userStats.total.count > 1) {
+        // We don't need to initialize user achievements if this is the user's
+        // first plog.
+        initUserAchievements = needInit;
+      }
     });
 
+    // This code shouldn't need to run too often. The intent is to allow us to
+    // add achievements that take will take into account a user's full history
+    // of plogs, including those logged before the achievement existed.
     if (initUserAchievements.length) {
       await app.firestore().runTransaction(async t => {
         t.update(userDocRef, {
