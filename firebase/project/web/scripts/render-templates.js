@@ -7,6 +7,9 @@ const walk = require('walk');
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
+const unlink = promisify(fs.unlink);
+const exists = promisify(fs.exists);
+
 
 const ROOT = process.env.WEB_ROOT ||
       path.normalize(path.join(__dirname, '..', 'public'));
@@ -67,29 +70,57 @@ function getTemplates(callback, root=ROOT, match=DefaultMatcher) {
   });
 }
 
-function processTemplates(options = {}) {
-  options = Object.assign({
-    root: ROOT,
-    match: DefaultMatcher
-  }, options);
-
+function loadContext() {
   const context = require(CONFIG_FILE);
   try {
     Object.assign(context, require(PROJECT_CONFIG_FILE));
   } catch (_) {}
+  return context;
+}
 
-  return new Promise(resolve => {
-  await registerPartials(handlebars);
+async function cleanup() {
+  await new Promise(resolve => {
     getTemplates(async (filepath, outpath) => {
       if (!filepath) {
         resolve();
         return;
       }
 
+      try {
+        await unlink(outpath);
+      } catch (err) {
+        if (err.code !== 'ENOENT')
+          console.warn('error deleting', outpath, err);
+      }
+    });
+  });
+}
+
+async function processTemplates() {
+  const context = loadContext();
+  await registerPartials(handlebars);
+
+  await new Promise(resolve => {
+    getTemplates(async (filepath, outpath) => {
+      if (!filepath) {
+        resolve();
+        return;
+      }
+
+      if (await exists(outpath)) {
+        const webDirRelative = path.relative(INIT_CWD || PWD, path.join(__dirname, '..'));
+        console.error(
+          `There is already a file at "${outpath}". Please delete it or run ` +
+          `"npm${webDirRelative && (' --prefix ' + webDirRelative)} run cleanup-templates".\n` +
+          `If you'd like to change the file, edit the template ` +
+          `instead (${filepath}).`
+        );
+        return;
+      }
+
       const source = await readFile(filepath);
       const fn = handlebars.compile(source.toString());
       try {
-        console.log(filepath, '->', outpath);
         await writeFile(outpath, fn(context));
       } catch (err) {
         console.error(`Processing failed on template`,
@@ -100,4 +131,18 @@ function processTemplates(options = {}) {
   });
 }
 
-processTemplates();
+async function run(args) {
+  const [command] = args;
+
+  if (!command || command === 'render')
+    processTemplates();
+  else if (command === 'cleanup')
+    cleanup();
+}
+
+if (require.main === module) {
+  run(process.argv.slice(2))
+    .catch(err => {
+      process.exit(1);
+    });
+}
