@@ -82,9 +82,6 @@ async function plogCreated(plogData, regionDoc, regionSnap, regionLocationData, 
       county,
       state,
       country,
-      leaderboard: null,
-      stats: null,
-      recentPlogs: { ids: [], data: {} },
       geohashes: [geohash]
     };
   }

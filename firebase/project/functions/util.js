@@ -163,6 +163,14 @@ async function regionInfo(coords, cache=true) {
     const doc = regions.docs[0];
     const { county, state, country } = doc.data();
 
+    if (cache) {
+      Regions.doc(doc.id).update({
+        geohashes: admin.firestore.FieldValue.arrayUnion(geohash)
+      }).catch(err => {
+        console.warn('Error updating region', err);
+      });
+    }
+
     return {
       id: doc.id,
       county,
@@ -174,10 +182,12 @@ async function regionInfo(coords, cache=true) {
   const info = await locationInfoForRegion(coords);
 
   if (cache) {
-    Regions.doc(info.id).update({
-      geohashes: admin.firestore.FieldValue.arrayUnion(geohash)
-    }).catch(err => {
-      console.warn(err);
+    const { id, ...region } = info;
+    Regions.doc(info.id).set(Object.assign(
+      region,
+      { geohashes: [geohash] }
+    )).catch(err => {
+      console.warn('Error saving region', err);
     });
   }
 
