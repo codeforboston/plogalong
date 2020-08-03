@@ -14,9 +14,9 @@ import Instructions from '../components/Instructions';
 import { NavLink } from '../components/Link';
 
 import intro from '../screens/intro/intro';
-import log from '../screens/intro/log';
+import fightDirty from '../screens/intro/fightDirty';
 import plog from '../screens/intro/plog';
-import saveTheEarth from '../screens/intro/saveTheEarth';
+import stayEngaged from '../screens/intro/stayEngaged';
 
 import * as actions from '../redux/actions';
 
@@ -90,7 +90,7 @@ class ScreenSlider extends React.Component {
 
     render() {
         const pages = [
-            intro, plog, saveTheEarth, log
+            intro, plog, stayEngaged, fightDirty
         ];
 
         return (
