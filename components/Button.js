@@ -36,7 +36,7 @@ const makeToggle = (init) => {
 /** @typedef {ExtraButtonProps & React.ComponentProps<typeof TouchableWithoutFeedback>} ButtonProps */
 
 export default /** @type {React.FunctionComponent<ButtonProps>} */ (props => {
-  const {accessibilityLabel, icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, onLayout, ...otherProps} = props,
+  const {accessibilityLabel, icon, activeIcon, disabled, large, primary, title, selected, selectedIcon, style, onLayout, onPress, ...otherProps} = props,
         {active, turnOn: onPressIn, turnOff: onPressOut} = makeToggle(),
         sharedStyles = [$S.button, primary && $S.primaryButton,
                         disabled ? styles.disabled : (active && $S.activeButton),
@@ -64,15 +64,13 @@ export default /** @type {React.FunctionComponent<ButtonProps>} */ (props => {
     );
   }
 
-  if (disabled)
-    return content;
-
   return (
     <TouchableWithoutFeedback accessibilityLabel={accessibilityLabel || title}
                               accessibilityRole="button"
-                              accessibilityState={{selected: !!selected}}
-                              onPressIn={onPressIn}
-                              onPressOut={onPressOut}
+                              accessibilityState={{selected: !!selected, disabled }}
+                              onPressIn={!disabled ? onPressIn : null}
+                              onPressOut={!disabled ? onPressOut : null}
+                              onPress={!disabled ? onPress : null}
                               {...otherProps}>
       {content}
     </TouchableWithoutFeedback>
