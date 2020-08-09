@@ -9,6 +9,8 @@ const { regionInfo } = require('./util.js');
 const { HttpsError } = functions.https;
 
 
+/** @typedef {import('./shared').UserData} UserData */
+/** @type {firebase.firestore.CollectionReference<UserData>} */
 const Users = app.firestore().collection('users');
 const Plogs = app.firestore().collection('plogs');
 
@@ -93,7 +95,14 @@ async function loadUserProfile(data, context) {
   if (!userData.exists)
     throw new HttpsError('not-found', 'Invalid user id');
 
-  const {privateProfile, displayName, profilePicture, achievements = {}, stats = {}} = userData.data();
+  const {privateProfile, displayName, profilePicture, achievements, stats} = userData.data();
+
+  if (achievements) {
+    for (const k of Object.keys(achievements)) {
+      if (!achievements[k] || !achievements[k].completed)
+        delete achievements[k];
+    }
+  }
 
   if (privateProfile)
     throw new HttpsError('permission-denied', 'That profile is private');
@@ -103,7 +112,7 @@ async function loadUserProfile(data, context) {
     created: user.metadata.creationTime,
     plogCount: stats && stats.total && stats.total.count || 0,
     displayName,
-    achievements,
+    achievements: achievements || null,
     profilePicture,
   };
 }
