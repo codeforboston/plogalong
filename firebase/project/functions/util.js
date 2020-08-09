@@ -7,8 +7,7 @@ const crypto = require('crypto');
 const geokit = require('geokit');
 
 const db = app.firestore();
-const Plogs = db.collection('plogs');
-const Regions = db.collection('regions');
+const { Plogs, Regions } = require('./collections');
 
 const Storage = app.storage();
 

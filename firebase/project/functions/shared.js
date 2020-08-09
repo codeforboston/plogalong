@@ -20,9 +20,7 @@
 /** @typedef {PlogData & { id: string }} PlogDataWithId */
 /** @typedef {PlogData & { id: string, LocalDate: Date }} ExtendedPlogData */
 
-/** @typedef {import('../../regions.js').Region} Region */
-/** @typedef {{ ids: string[], data: any }} RecentPlogs */
-/** @typedef {Omit<Region, 'recentPlogs'> & { recentPlogs: RecentPlogs }} RegionData */
+/** @typedef {import('../../regions.js').RegionData} RegionData */
 
 /**
   * @typedef {{ completed: Timestamp, updated: Timestamp, refID: string } & { [k in PropertyKey ]: any}} AchievementData
@@ -573,7 +571,7 @@ function findPosition(sorted, score, scoreFn, n=20) {
 }
 
 /**
- * @param {Region["leaderboard"]} leaders
+ * @param {RegionData["leaderboard"]} leaders
  * @param {string} userID
  * @param {PlogStats} stats
  */

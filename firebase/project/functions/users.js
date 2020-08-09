@@ -3,8 +3,7 @@ const admin = require('firebase-admin');
 
 const { updatePlogsWhere, withBatch, withDocs } = require('./util');
 
-const Plogs = app.firestore().collection('plogs');
-const Users = app.firestore().collection('users');
+const { Plogs, Users } = require('./collections');
 
 async function mergeUsers(fromUserID, toUserID) {
   const userDoc = await Users.doc(toUserID).get();

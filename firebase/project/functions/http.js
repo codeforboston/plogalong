@@ -8,11 +8,7 @@ const { regionInfo } = require('./util.js');
 
 const { HttpsError } = functions.https;
 
-
-/** @typedef {import('./shared').UserData} UserData */
-/** @type {firebase.firestore.CollectionReference<UserData>} */
-const Users = app.firestore().collection('users');
-const Plogs = app.firestore().collection('plogs');
+const { Users, Plogs, Regions } = require('./collections');
 
 function sha256(input, enc='utf8') {
   const hash = crypto.createHash('sha256');
