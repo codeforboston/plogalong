@@ -22,12 +22,10 @@ const ContactScreen = ({flashMessage}) => {
   };
 
   return (
-    <ScrollView style={$S.screenContainer}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <ScrollView style={$S.screenContainer}>      
         <View style={styles.screenContainerStyles}>
           <ContactForm onSave={onSave} />
-        </View>
-      </TouchableWithoutFeedback>
+        </View>    
     </ScrollView>
   );
 };

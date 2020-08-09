@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Keyboard,
   Platform,
   StatusBar,
   StyleSheet,
@@ -33,6 +34,12 @@ export default class App extends React.Component {
     this.setState({ preferences: prefs ? JSON.parse(prefs) : {}});
   }
 
+  // https://stackoverflow.com/a/49825223/1463649
+  handleUnhandledTouches(){
+    Keyboard.dismiss;
+    return false;
+  }
+
   render() {
     const {preferences} = this.state;
 
@@ -47,7 +54,7 @@ export default class App extends React.Component {
     } else {
       return (
         <Provider store={makeStore(preferences)}>
-          <View style={styles.container}>
+          <View style={styles.container} onStartShouldSetResponder={this.handleUnhandledTouches}>
             {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
             <PromptRenderer>
               <AppNavigator />

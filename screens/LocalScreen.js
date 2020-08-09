@@ -26,9 +26,10 @@ const LocalScreen = ({history, currentUser, likePlog, loading, location, loadLoc
   const goToPlogScreen = React.useCallback(() => {
     navigation.navigate('Plog');
   }, [navigation]);
+  const goToInviteScreen = React.useCallback(() => {
+    navigation.navigate('Invite');
+  }, [navigation]);
   const ActivityIcon = Options.activities.get('walking').icon;
-
-  // location = {latitude: 42.489637, longitude: -71.89254};
 
   const noPloggers = history.length === 0 && !loading;
 
@@ -88,7 +89,7 @@ const LocalScreen = ({history, currentUser, likePlog, loading, location, loadLoc
                           />
                           <Button title="Invite"
                             large
-                            onPress={null}
+                            onPress={goToInviteScreen}
                           />
                         </View>
                       </View>
@@ -128,5 +129,3 @@ export default connect(({log, users}) => {
   likePlog: (...args) => dispatch(actions.likePlog(...args)),
   loadLocalHistory: (...args) => dispatch(actions.loadLocalHistory(...args)),
 }))(LocalScreen);
-
-  

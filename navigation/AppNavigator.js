@@ -54,7 +54,7 @@ const AppNavigator = ({ currentUser, preferences, flashMessage }) => {
         }
       }
     }
-
+    
     if (prevUser === undefined) {
       // Runs when the navigator is first mounted
       if (!preferences.sawIntro) {

@@ -1,10 +1,19 @@
 const app = require('./app');
 const admin = require('firebase-admin');
 const $u = require('./util');
-const { updateStats } = require('./shared');
+const { addPlogToRegion } = require('./shared');
 
 const db = app.firestore();
 const Regions = db.collection('regions');
+
+/** @typedef {import('./shared').PlogData} PlogData */
+/** @typedef {import('./shared').RegionData} RegionData */
+/** @typedef {import('./shared').UserStats} UserStats */
+
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
 
 async function deletePlogFromRegions(plogID) {
   await $u.withBatch(Regions, [`recentPlogs.ids`, 'array-contains', plogID],
@@ -15,64 +24,28 @@ async function deletePlogFromRegions(plogID) {
                      });
 }
 
-/** @typedef {import('../../plogs.js').PlogData} PlogData */
-/** @typedef {import('../../regions.js').Region} Region */
-/** @typedef {{ ids: string[], data: any }} RecentPlogs */
-/** @typedef {Omit<Region, 'recentPlogs'> & { recentPlogs: RecentPlogs }} RegionData */
+
 /**
- * @param {RecentPlogs} recentPlogs
  * @param {admin.firestore.DocumentSnapshot<PlogData>} plog
+ * @param {admin.firestore.Transaction} [t]
  */
-function addPlogToRecents(recentPlogs, plog, maxLength=20) {
+async function getRegionForPlog(plog, t) {
   const plogData = plog.data();
-  if (!recentPlogs)
-    recentPlogs = { ids: [], data: {} };
-  if (recentPlogs.ids.push(plog.id) > maxLength) {
-    for (const plogID of recentPlogs.ids.slice(maxLength-1))
-      delete recentPlogs.data[plogID];
-
-    recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
-  }
-  recentPlogs.data[plog.id] = {
-    id: plog.id,
-    when: plogData.DateTime,
-    userID: plogData.UserID
-  };
-  return recentPlogs;
-}
-
-/**
- * @param {RegionData} regionData
- * @param {admin.firestore.DocumentSnapshot<PlogData>} plog
- * @returns {Pick<RegionData>}
- */
-function addPlog(regionData, plog) {
-  return {
-    recentPlogs: addPlogToRecents(regionData.recentPlogs, plog),
-    stats: updateStats(regionData.stats, plog.data())
-  };
-}
-
-/**
- * @param {admin.firestore.DocumentSnapshot<PlogData>} plog
- */
-async function plogCreated(plog, t) {
-  const plogData = plog.data();
-  const { geohash } = plogData.g;
+  const geohash = plogData.g.geohash.slice(0, 7);
   /** @type {admin.firestore.DocumentReference} */
   let regionDoc;
   /** @type {admin.firestore.QueryDocumentSnapshot|admin.firestore.DocumentSnapshot} */
   let regionSnap;
+  /** @type {Unwrapped<ReturnType<typeof $u.locationInfoForRegion>>} */
   let regionLocationData;
-  let addGeohash = true;
-  let regionData;
 
   {
     const regions = await $u.regionForGeohash(geohash);
     if (regions.size) {
       regionSnap = regions.docs[0];
       regionDoc = regionSnap.ref;
-      addGeohash = false;
+      regionLocationData = regionSnap.data();
+      regionLocationData.id = regionSnap.id;
     }
   }
 
@@ -80,15 +53,46 @@ async function plogCreated(plog, t) {
     regionLocationData = await $u.locationInfoForRegion(plogData.coordinates);
 
     regionDoc = Regions.doc(regionLocationData.id);
-    regionSnap = await regionDoc.get(regionDoc);
+    regionSnap = await (t ? t.get(regionDoc) : regionDoc.get(regionDoc));
   }
 
+  return {
+    doc: regionDoc, snap: regionSnap, locationInfo: regionLocationData
+  };
+}
+
+/**
+ * @param {PlogDataWithId} plogData
+ * @param {admin.firestore.DocumentReference<RegionData>} regionDoc
+ * @param {admin.firestore.DocumentSnapshot<RegionData>} regionSnap
+ * @param {UserStats} userStats
+ * @param {admin.firestore.Transaction} [t]
+ */
+async function plogCreated(plogData, regionDoc, regionSnap, regionLocationData, userStats, t) {
+  const geohash = plogData.g.geohash.slice(0, 7);
+  /** @type {RegionData} */
+  let regionData;
+
+  // Update the region leaderboard:
   if (regionSnap.exists) {
     regionData = regionSnap.data();
-    const changes = addPlog(regionData, plog);
+  } else {
+    const { county, state, country } = regionLocationData;
+    regionData = {
+      county,
+      state,
+      country,
+      geohashes: [geohash]
+    };
+  }
+  const changes = addPlogToRegion(regionData, plogData, userStats.total.region[regionDoc.id]);
 
-    if (addGeohash) {
-      changes['geohashes'] = [geohash].concat((regionData.geohashes||[]).slice(0, 50-1));
+  if (regionSnap.exists) {
+    {
+      const geohashes = regionData.geohashes || [];
+      if (!geohashes.includes(geohash)) {
+        changes['geohashes'] = [geohash].concat(geohashes.slice(0, 50-1));
+      }
     }
 
     if (t)
@@ -96,19 +100,9 @@ async function plogCreated(plog, t) {
     else
       await regionDoc.update(changes);
 
-    regionData.recentPlogs = updatedRecentPlogs;
+    regionData.recentPlogs = changes.recentPlogs;
   } else {
-    const { county, state, country } = regionLocationData;
-    regionData = {
-      county,
-      state,
-      country,
-      leaderboard: null,
-      stats: null,
-      recentPlogs: { ids: [], data: {} },
-      geohashes: [geohash]
-    };
-    Object.assign(regionData, addPlog(regionData, plog));
+    Object.assign(regionData, changes);
     if (t)
       t.set(regionDoc, regionData);
     else
@@ -119,8 +113,7 @@ async function plogCreated(plog, t) {
 }
 
 module.exports = {
-  addPlog,
   deletePlogFromRegions,
-  addPlogToRecents,
-  plogCreated
+  getRegionForPlog,
+  plogCreated,
 };

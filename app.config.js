@@ -87,7 +87,24 @@ export default ({config}) => {
       },
       "android": {
         "package": bundleIdentifier,
-        "googleServicesFile": googleServicesJson
+        "googleServicesFile": googleServicesJson,
+        "intentFilters": [
+          {
+            "action": "VIEW",
+            "autoVerify": true,
+            "data": [
+              {
+                "scheme": "https",
+                "host": appDomain,
+                "pathPrefix": "/"
+              }
+            ],
+            "category": [
+              "BROWSABLE",
+              "DEFAULT"
+            ]
+          }
+        ]
       },
       "packagerOpts": {
         "config": "metro.config.js",
