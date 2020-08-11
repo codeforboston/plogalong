@@ -192,11 +192,11 @@ const SignupScreen = props => {
   ;
 
   return (
-    <SafeAreaView style={$S.safeContainer}>
-      <View style={[$S.container, $S.form, authenticating && { justifyContent: 'center' }]}>
-        {content}
-      </View>
-    </SafeAreaView>
+      <SafeAreaView style={$S.safeContainer}>
+        <View style={[$S.container, $S.form, authenticating && { justifyContent: 'center' }]}>
+          {content}
+        </View>
+      </SafeAreaView>
   );
 };
 

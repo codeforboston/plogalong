@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -27,6 +26,7 @@ import Colors from '../constants/Colors';
 import $S from '../styles';
 import ProfilePlaceholder from '../components/ProfilePlaceholder';
 
+import {KeyboardAwareScrollView as ScrollView} from 'react-native-keyboard-aware-scrollview';
 
 const stateFromProps =
       ({currentUser: { data: { homeBase = '',
@@ -89,12 +89,14 @@ class ProfileScreen extends React.Component {
           ]
         );
 
-        if (result === 'cancel') {
-          logout();
+        if (result === 'logout') {
+          logOut();
         } else if (result === 'create') {
           this.goToSignup();
         }
       }
+    } else {
+      logOut();
     }
   }
 

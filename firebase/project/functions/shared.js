@@ -1,3 +1,9 @@
+/**
+ *  The code in this file is shared between the client and server. They should
+ *  therefore no rely on any environment-specific 'machinery' (e.g., access to
+ *  the database) being available.
+ */
+
 /** @template T, S
  * @typedef {{ [K in keyof T]: T[K] extends S ? K : never }} WithValueType
  */
@@ -9,10 +15,14 @@
  */
 /** @typedef {import('firebase').firestore.Timestamp} Timestamp */
 
-/**
- * @typedef {any} Plog
- */
-/** @typedef {any} Region */
+/** @typedef {import('geofirestore-core').GeoFirestoreTypes.GeoDocumentData} GeoDocumentData */
+/** @typedef {import('../../plogs.js').PlogData & GeoDocumentData} PlogData */
+/** @typedef {PlogData & { id: string }} PlogDataWithId */
+/** @typedef {PlogData & { id: string, LocalDate: Date }} ExtendedPlogData */
+
+/** @typedef {import('../../regions.js').Region} Region */
+/** @typedef {{ ids: string[], data: any }} RecentPlogs */
+/** @typedef {Omit<Region, 'recentPlogs'> & { recentPlogs: RecentPlogs }} RegionData */
 
 /**
   * @typedef {{ completed: Timestamp, updated: Timestamp, refID: string } & { [k in PropertyKey ]: any}} AchievementData
@@ -20,7 +30,7 @@
 /**
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
- * @property {(previous: AchievementData, plog: Plog, region: Region) => AchievementData} update
+ * @property {(previous: AchievementData, plog: ExtendedPlogData, region: RegionData) => AchievementData} update
  * @property {(left: AchievementData, right: AchievementData) => Partial<AchievementData>} [merge]
  * @property {number} points
  */
@@ -152,6 +162,8 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
             changes.streakLost = updated;
           }
         }
+      } else {
+        changes.streak = 1;
       }
 
       return Object.assign(previous, changes);
@@ -170,22 +182,22 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
  * Creates a handler for an achievement that is completed the first time a plog
  * satisfies the predicate function `pred`;
  *
- * @param {(plog) => any}
+ * @param {(plog: ExtendedPlogData) => any} pred
  * @param {number} [points=50]
  * @returns {AchievementHandler}
  */
 const _makeOneShotAchievement = (pred, points=50) => ({
-  initial: { completed: null, refID: null },
+  initial: null,
   points,
   update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime, refID: plog.id } : previous
 });
 
 /** @type {AchievementHandler} */
 const BreakTheSealAchievement = {
-  initial: { completed: null, refID: null },
+  initial: null,
   points: 100,
   update: (previous, plog, region) => {
-    if (region && region.recentPlogs.length === 1) {
+    if (region && region.recentPlogs.ids.length === 1 && region.recentPlogs.ids[0] === plog.id) {
       return { completed: plog.DateTime, refID: plog.id };
     }
 
@@ -198,15 +210,15 @@ const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalD
 // Full list of achievements:
 // https://airtable.com/shrHq1EmZzFO7hiQe/tblbArS3zXcLPwdbm/viw9Jk1OkBKdN5Iwc?blocks=bip681nyUrUqlzD8e
 
-// These handlers are only for the achievements that can be calculated using
-// information on the plog and previous achievement data.
-
-// This approach is enough to cover these achievements:
-//
+// Many achievements can be calculated using information on the plog and
+// previous achievement data:
 //   First Plog, Team Effort, True Native, Bug Zapper, Danger Pay, Daredevil,
 //   100 Club, Dog Days, Spring Chicken, Fall Color, Polar Bear, Plog Away, 1000
 //   club, Streaker, Dog's Best Friend, Marathoner, Take A Hike, Water Sports,
 //   Babysitter, Twofer, No Butts
+
+// Some achievements also use local aggregates calculated on regions:
+//   Break the Seal, Busy Bee (not enabled yet)
 
 // The general approach will also work for these, once we assign geo labels to
 // plogs:
@@ -215,9 +227,6 @@ const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalD
 // This has to be triggered by an invite:
 //   Pay it Forward
 
-// These achievements have to be run on local aggregates, which is something we
-// don't calculate yet:
-//   Busy Bee, Break the Seal
 const AchievementHandlers = {
   ['firstPlog']: _makeCountAchievement(1, 50),
   ['100Club']: _makeCountAchievement(100, 1000),
@@ -254,8 +263,8 @@ const AchievementHandlers = {
  * of achievement types that have not yet been initialized.
  *
  * @param {UserAchievements} achievements
- * @param {Plog|Plog[]} newPlogs
- * @param [region]
+ * @param {PlogData|PlogData[]} newPlogs
+ * @param {RegionData} [region]
  *
  * @returns {{ achievements: UserAchievements, needInit: AchievementType[], completed: AchievementType[] }}
  */
@@ -279,8 +288,10 @@ function updateAchievements(achievements, newPlogs, region) {
 
     if (!current) {
       // ...or initializing the achievement progress if necessary
-      needInit.push(name);
-      current = { ...handler.initial };
+      if (!(name in updated) && handler.initial) {
+        needInit.push(name);
+      }
+      current = handler.initial ? { ...handler.initial } : null;
     } else if (current.completed)
       // skip over completed achievements
       return updated;
@@ -289,8 +300,9 @@ function updateAchievements(achievements, newPlogs, region) {
       for (const plog of plogs) {
         current = handler.update(current, plog, region);
 
-        if (current.completed) {
+        if (current && current.completed) {
           completed.push(name);
+          break;
         }
       }
 
@@ -310,11 +322,6 @@ function updateAchievements(achievements, newPlogs, region) {
     needInit
   };
 }
-
-/**
- * @param {Parameters<typeof updateAchievements>} args
- */
-const updateAchievementsLocal = (...args) => (updateAchievements(...args).achievements);
 
 /**
  * @param {UserAchievements} achievementsA
@@ -371,18 +378,20 @@ function mergeAchievements(achievementsA, achievementsB) {
  * @property {number} count
  */
 
+/** @typedef {Omit<PlogStats, 'whenID'>} UserPlogStatsForRegion */
+/** @typedef {{ [k in string]: UserPlogStatsForRegion }} PlogStatsByRegion */
+/** @typedef {PlogStats & { region: PlogStatsByRegion, bonusMinutes?: number }} UserPlogStats */
+/** @typedef {'month' | 'year' | 'total'} TimeUnit */
+
 /**
  * Caches general stats about usage, including aggregates for the month and year
- * when the user most recently plogged.
+ * of the most recent plog.
  *
- * @typedef {object} UserStats
- * @property {PlogStats} [month]
- * @property {PlogStats} [year]
- * @property {PlogStats} [total]
+ * @typedef {{ [k in TimeUnit]: PlogStats }} CollectedPlogStats
  */
-/** @typedef {UserStats} RegionStats */
+/** @typedef {CollectedPlogStats} RegionStats */
+/** @typedef {{ [k in TimeUnit]: UserPlogStats }} UserStats */
 
-/** @typedef {KeysWithValueType<UserStats, PlogStats>} TimeUnit */
 /** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */
 
 const _zpad = n => `${n < 10 ? '0': ''}${n}`;
@@ -406,14 +415,13 @@ const timeUnits = [
  */
 
 /**
- * @param {UserData['stats']} stats
- * @param {PlogData} plog
- * @param {number} [bonusMinutes]
+ * @param {UserStats|RegionStats} stats
+ * @param {Date} date
+ * @param {(stats: UserPlogStats|PlogStats) => void} fn
  */
-function updateStats(stats, plog, bonusMinutes=0) {
+function withStats(stats, date, fn) {
   if (!stats) stats = {};
 
-  const date = localPlogDate(plog);
   for (let {unit, when} of timeUnits) {
     const whenValue = when(date);
     let unitStats = stats[unit];
@@ -421,12 +429,44 @@ function updateStats(stats, plog, bonusMinutes=0) {
       stats[unit] = unitStats = { milliseconds: 0, count: 0, whenID: whenValue };
     }
 
-    unitStats.milliseconds += plog.PlogDuration || 0;
-    unitStats.count += 1;
-    unitStats.bonusMinutes = bonusMinutes;
+    fn(unitStats);
   }
 
   return stats;
+}
+
+/**
+ * @param {UserStats|RegionStats} stats
+ * @param {PlogData} plog
+ * @param {number} [bonusMinutes]
+ * @param {string} [regionID]
+ */
+function updateStats(stats, plog, bonusMinutes=0, regionID=null) {
+  return withStats(stats, localPlogDate(plog), unitStats => {
+    unitStats.milliseconds += plog.PlogDuration || 0;
+    unitStats.count += 1;
+    unitStats.bonusMinutes = bonusMinutes;
+
+    if (regionID) {
+      if (!unitStats.region)
+        unitStats.region = {};
+      if (!unitStats.region[regionID])
+        unitStats.region[regionID] = { milliseconds: 0, count: 0 };
+      unitStats.region[regionID].milliseconds += plog.PlogDuration || 0;
+      unitStats.region[regionID].count += 1;
+    }
+  });
+}
+
+/**
+ * @param {UserStats|RegionStats} stats
+ * @param {Date} date
+ * @param {number} bonusMinutes
+ */
+function addBonusMinutes(stats, date, bonusMinutes) {
+  return withStats(stats, date, unitStats => {
+    unitStats.bonusMinutes += bonusMinutes;
+  });
 }
 
 /**
@@ -449,7 +489,17 @@ function mergeStats(statsA, statsB) {
       merged[unit] = {
         whenID: fromUnitStats.whenID,
         milliseconds: fromUnitStats.milliseconds + toUnitStats.milliseconds,
-        count: fromUnitStats.count + toUnitStats.count
+        count: fromUnitStats.count + toUnitStats.count,
+        region: Object.keys(toUnitStats.region || {}).reduce(
+          (rs, regionId) => {
+            if (rs[regionId]) {
+              rs[regionId].count += toUnitStats.region[regionId].count;
+              rs[regionId].milliseconds += toUnitStats.region[regionId].milliseconds;
+            } else {
+              rs[regionId] = toUnitStats.region[regionId];
+            }
+            return rs;
+          }, fromUnitStats.region || {})
       };
       continue;
     }
@@ -470,6 +520,97 @@ function calculateBonusMinutes(achievements) {
   return achievements.reduce((total, type) => AchievementHandlers[type].points+total, 0);
 }
 
+/// REGIONS ///
+
+/**
+ * @param {RecentPlogs} recentPlogs
+ * @param {PlogDataWithId} plogData
+ */
+function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
+  if (!recentPlogs)
+    recentPlogs = { ids: [], data: {} };
+  if (recentPlogs.ids.push(plogData.id) > maxLength) {
+    for (const plogID of recentPlogs.ids.slice(maxLength-1))
+      delete recentPlogs.data[plogID];
+
+    recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
+  }
+  recentPlogs.data[plogData.id] = {
+    id: plogData.id,
+    when: plogData.DateTime,
+    userID: plogData.UserID
+  };
+  return recentPlogs;
+}
+
+/**
+ * @param {RegionData} regionData
+ * @param {PlogDataWithId} plogData
+ * @param {UserPlogStatsForRegion} plogStats
+ *
+ * @returns {Partial<RegionData>}
+ */
+function addPlogToRegion(regionData, plogData, plogStats) {
+  return {
+    recentPlogs: addPlogToRecents(regionData.recentPlogs, plogData),
+    stats: updateStats(regionData.stats, plogData),
+    leaderboard: updateLeaderboard(regionData.leaderboard, plogData.UserID, plogStats)
+  };
+}
+
+/**
+ * @template T, S
+ * @param {T[]} sorted
+ * @param {S} score
+ * @param {(item: T) => S} scoreFn
+ */
+function findPosition(sorted, score, scoreFn, n=20) {
+  let i = sorted.length;
+  while (i > 0 && score > scoreFn(sorted[i-1]))
+    i--;
+
+  return i < n ? i : null;
+}
+
+/**
+ * @param {Region["leaderboard"]} leaders
+ * @param {string} userID
+ * @param {PlogStats} stats
+ */
+function updateLeaderboard(leaders, userID, stats, n=20) {
+  leaders = Object.assign({ ids: [], data: {} }, leaders);
+
+  const position = findPosition(leaders.ids, stats.count,
+                                (uid => leaders.data[uid].count), n);
+  if (position === null)
+    return {};
+
+  // Update the user data
+  leaders.data[userID] = Object.assign({}, leaders.data[userID], stats);
+
+  let previous = leaders.data[userID] && leaders.ids.indexOf(userID);
+  if (previous === position)
+    return leaders;
+
+  /// Update the ranking
+  // Insert the user ID at its new position
+  leaders.ids.splice(position, 0, userID);
+
+  if (previous >= 0) {
+    // And remove it from its previous position
+    // It may be safe to assume that the position will only decrease, but to be
+    // safe, let's handle either case.
+    leaders.ids.splice(previous + (previous > position), 1);
+  } else {
+    while (leaders.ids.length > n) {
+      const deleteID = leaders.ids.pop();
+      delete leaders.data[deleteID];
+    }
+  }
+
+  return leaders;
+}
+
 module.exports = {
   AchievementHandlers,
   timeUnits,
@@ -478,6 +619,9 @@ module.exports = {
   mergeAchievements,
   mergeStats,
   updateAchievements,
-  updateAchievementsLocal,
   updateStats,
+  addBonusMinutes,
+
+  addPlogToRegion,
+  updateLeaderboard,
 };
