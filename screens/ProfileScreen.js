@@ -75,6 +75,10 @@ class ProfileScreen extends React.Component {
     this.props.setUserData({ profilePicture: photo });
   }
 
+  login = () => {
+    this.props.navigation.navigate('Login')
+  }
+
   logOut = async () => {
     if (this.props.currentUser.isAnonymous) {
       const stats = getStats(this.props.currentUser, 'total');
@@ -210,10 +214,16 @@ class ProfileScreen extends React.Component {
                 title={ currentUser.isAnonymous ?
                         'Create Account' :
                         "Link Account"                      } /> }
-            <Button large primary onPress={this.logOut}
+            <Button 
+              large 
+              primary 
+              onPress={ currentUser.isAnonymous ?
+                        this.login :
+                        this.logOut }
               title={ currentUser.isAnonymous ?
                       'Log In' :
-                      'Log Out'                   } />
+                      'Log Out' } 
+            />
             {hasPassword &&
               <Button primary
                 onPress={this.goToChangePassword}
