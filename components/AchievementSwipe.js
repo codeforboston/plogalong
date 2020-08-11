@@ -13,11 +13,10 @@ const AchievementSwipe = ({achievements, showAll=false, style, horizontal=true, 
   if (!achievements) achievements = {};
   const data = $u.processAchievements(achievements, {
     unstarted: showAll,
-    hidden: showAll
+    hidden: showAll,
   });
-
   const navigation = useNavigation();
-
+  
   return (
     <FlatList
       data={data}

@@ -22,9 +22,8 @@ export const AchievementScreen = ({currentUser}) => {
     const bonus = getStats(currentUser, 'total').bonusMinutes
     let badgeCount = 0;
     for (const badge in currentUser.data.achievements) {
-            if (currentUser.data.achievements[badge].completed != null) {badgeCount += 1}
+            if (currentUser.data.achievements[badge] != null && currentUser.data.achievements[badge].completed != null) {badgeCount += 1}
         }
-
     return (
         <View style={{margin: 15, padding: 0,}}>
         <Banner >
@@ -46,7 +45,7 @@ export const AchievementScreen = ({currentUser}) => {
         <ScrollView>
             <AchievementSwipe
                 achievements={currentUser.data.achievements}
-                showAll={'true'}
+                showAll={true}
                 style={{ marginBottom: 120, marginTop: 25,}}
                 numColumns={3}
                 horizontal={false}

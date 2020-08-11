@@ -11,12 +11,14 @@ import AchievedTypes from '../constants/AchievedMockup';
  * @param {keyof UserAchievements} achType
  */
 export const processAchievement = (achievements, achType) => {
-  const a = achievements[achType];
-  if (!a) return null;
+  let a = achievements[achType];
+
+  // if (!a) return null;
+  if (!a) {a = achType}
+
   const {hide, icon, progress, detailText, ...rest} = AchievedTypes[achType];
-
+ 
   const progressPercent = a.completed ? 100 : progress && a ? progress(a) : 0;
-
   return {
     progress: progressPercent,
     hide: hide ? hide(achievements) : false,
@@ -64,13 +66,10 @@ const achievementSorter = ({updated: a, completed: ac, key: ak},
 export const processAchievements = (achievements, show = {}) => {
   const {partial=true, unstarted=false, hidden=false,
          sorter = achievementSorter} = show;
-
   return keep(achType => {
     const a = achievements[achType];
-
     if (!partial && !a.completed)
       return null;
-
     const achievement = processAchievement(achievements, achType);
     return (achievement &&
             (unstarted || achievement.progress) &&
