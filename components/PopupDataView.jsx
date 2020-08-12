@@ -13,6 +13,10 @@ import $S from '../styles';
 import DismissButton from '../components/DismissButton';
 import Loading from '../components/Loading';
 
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
 
 export const PopupHeader = ({title, image, details}) => (
   <View style={styles.popupHeader}>
@@ -29,6 +33,20 @@ export const PopupHeader = ({title, image, details}) => (
   </View>
 );
 
+/** @typedef {React.ComponentProps<typeof View>} ViewProps */
+/**
+ * @template {(params: any) => any} LoaderFn
+ * @typedef {object} PopupDataViewProps
+ * @property {LoaderFn} loader
+ * @property {(object: ReturnType<typeof loader>) => React.ReactNode} children
+ * @property {(e: Error) => string} errorTitle
+ * @property {(e: Error) => string} errorDetails
+ */
+
+/**
+ * @template {(params: any) => any} T
+ * @type {((props: PopupDataViewProps<T>) => JSX.Element)}
+ */
 const PopupDataView = ({loader, children, errorTitle, errorDetails}) => {
   const render = children;
   console.assert(typeof render === 'function', 'Child must be a function');
@@ -53,9 +71,9 @@ const PopupDataView = ({loader, children, errorTitle, errorDetails}) => {
   if (error) {
     return (
       <PopupHeader
-        title={errorTitle(e)}
+        title={errorTitle(error)}
         image={<Ionicons name={'ios-alert'} size={60} color="maroon" style={{ textAlign: 'center' }} />}
-        details={errorDetails(e)}
+        details={errorDetails(error)}
       />
     );
   }
