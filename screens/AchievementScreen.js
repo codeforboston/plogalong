@@ -42,15 +42,14 @@ export const AchievementScreen = ({currentUser}) => {
         </TouchableWithoutFeedback>
         </View>
         {isBadges ? (
-        <ScrollView>
             <AchievementSwipe
                 achievements={currentUser.data.achievements}
                 showAll={true}
-                style={{ marginBottom: 120, marginTop: 25,}}
+                style={{marginTop: 25,}}
                 numColumns={3}
                 horizontal={false}
+                inset={{paddingBottom: 120,}}
             />
-        </ScrollView>
         ) :
         (<Text style={{textAlign: 'center', fontSize: 18, marginTop: 20,}}>
             The Leaderboard is still under construction. Come back soon!
