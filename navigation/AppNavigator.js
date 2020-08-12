@@ -80,7 +80,7 @@ const AppNavigator = ({ currentUser, preferences, flashMessage }) => {
 
             for (const k of Object.keys(data.achievements)) {
               if ((!prevAchievements[k] || !prevAchievements[k].completed) &&
-                  data.achievements[k].completed) {
+                  data.achievements[k] && data.achievements[k].completed) {
 
                 if (Date.now() - data.achievements[k].completed.toMillis() > 5*60000)
                   continue;
