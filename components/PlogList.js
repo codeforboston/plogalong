@@ -25,6 +25,7 @@ import { usePrompt } from '../Prompt';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
+import { Divider } from './Elements';
 import ProfilePlaceholder from './ProfilePlaceholder';
 
 
@@ -170,7 +171,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
   const ratio = PixelRatio.getFontScale();
 
   return (
-    <View>
+    <View style={{ paddingBottom: 10 }}>
       <View style={[styles.plogStyle, saving || plogInfo._deleting && styles.savingStyle]}>
         <TouchableOpacity onPress={showUser}>
           {
@@ -262,10 +263,6 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
     </View>
   );
 };
-
-const Divider = () => (
-  <View style={styles.divider}></View>
-);
 
 const doesUserLikePlog = (user, plogID) => {
   return !!(user && user.data && user.data.likedPlogs && user.data.likedPlogs[plogID]);
@@ -378,11 +375,6 @@ const styles = StyleSheet.create({
   },
   savingStyle: {
     opacity: 0.8,
-  },
-  divider: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#DCDCDC',
-    marginTop: 10
   },
   profileImage: {
     margin: 10,
