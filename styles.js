@@ -150,8 +150,7 @@ export default StyleSheet.create({
   modalContent: {
     backgroundColor: '#fff',
     marginTop: 50,
-    padding: 20,
-    paddingBottom: 50,
+    padding: 20,    
     marginLeft: 20,
     marginRight: 20,
     minHeight: 400,
@@ -160,16 +159,17 @@ export default StyleSheet.create({
 
   modalButtonsContainer: {
     margin: 35,
-    marginTop: 25,
+    marginTop: 15,
   },
 
   modalButton: {
     color: Colors.activeGray,
     backgroundColor: 'white',
     borderWidth: 0,
+    fontWeight: '600',
+    fontSize: 18,
+    textAlign: 'center',
   },
-
-  detail: {},
 
   bodyContainer: {
     marginHorizontal: 10,
@@ -180,6 +180,7 @@ export default StyleSheet.create({
   },
 
   body: {
+    paddingTop: 5,
     fontSize: 18,
     marginBottom: 15,
   },
