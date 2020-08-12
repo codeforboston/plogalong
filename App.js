@@ -36,7 +36,7 @@ export default class App extends React.Component {
 
   // https://stackoverflow.com/a/49825223/1463649
   handleUnhandledTouches(){
-    Keyboard.dismiss;
+    Keyboard.dismiss();
     return false;
   }
 
