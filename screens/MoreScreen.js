@@ -18,6 +18,12 @@ import ContactScreen from './ContactScreen';
 import PrivacyScreen from './PrivacyScreen';
 import PloggingSuppliesScreen from './PloggingSuppliesScreen';
 
+
+
+import AchievementScreen from './AchievementScreen';
+
+
+
 import arrow from '../assets/svg/headerBackImage/arrow.svg';
 import $S from '../styles';
 
@@ -45,6 +51,7 @@ export class MoreScreen extends React.Component {
 
   pages = [
     {label: 'About Plogalong', route: 'About'},
+    {label: 'Achievements', route: 'Achievements'},
     {label: 'Contact Us', route: 'Contact Us'},
     {label: 'Plogging Supplies', route: 'Plogging Supplies'},
     {label: 'Privacy', route: 'Privacy'},
@@ -99,6 +106,7 @@ export default ({navigation, route}) => {
         }}>
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
+          <Stack.Screen name="Achievements" component={ AchievementScreen }/>
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
           <Stack.Screen name="Privacy" component={ PrivacyScreen }/>
           <Stack.Screen name="Terms" component={ TermsScreen }/>
