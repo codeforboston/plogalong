@@ -312,7 +312,7 @@ function updateAchievements(achievements, newPlogs, region) {
       console.error(`error updating '${name}' achievement`, err);
       return updated;
     }
-  }, achievements);
+  }, achievements || {});
 
   return {
     achievements: updatedAchievements,
