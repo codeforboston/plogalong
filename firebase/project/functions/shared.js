@@ -388,7 +388,7 @@ function mergeAchievements(achievementsA, achievementsB) {
  * @typedef {{ [k in TimeUnit]: PlogStats }} CollectedPlogStats
  */
 /** @typedef {CollectedPlogStats} RegionStats */
-/** @typedef {{ [k in TimeUnit]: UserPlogStats }} UserStats */
+/** @typedef {{ [k in TimeUnit]: UserPlogStats } & { latest: { id: string, dateTime: Timestamp } }} UserStats */
 
 /** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */
 
@@ -454,6 +454,23 @@ function updateStats(stats, plog, bonusMinutes=0, regionID=null) {
       unitStats.region[regionID].count += 1;
     }
   });
+}
+
+/**
+ * @param {UserStats} stats
+ * @param {PlogDataWithId} plog
+ * @param {number} [bonusMinutes]
+ * @param {string} [regionID]
+ *
+ * @returns {UserStats}
+ */
+function updateUserStats(stats, plog, bonusMinutes, regionID) {
+  return Object.assign(
+    updateStats(stats, plog, bonusMinutes, regionID),
+    {
+      latest: { id: plog.id, dateTime: plog.DateTime }
+    }
+  );
 }
 
 /**
@@ -618,6 +635,7 @@ module.exports = {
   mergeStats,
   updateAchievements,
   updateStats,
+  updateUserStats,
   addBonusMinutes,
 
   addPlogToRegion,
