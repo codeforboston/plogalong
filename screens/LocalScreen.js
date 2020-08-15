@@ -4,7 +4,8 @@ import {
   ScrollView,
   Text
 } from 'react-native';
-import { connect } from 'react-redux';
+import { shallowEqual } from 'react-redux';
+import { useDispatch, useSelector } from '../redux/hooks';
 import MapView, { Marker } from 'react-native-maps';
 
 import * as actions from '../redux/actions';
@@ -19,10 +20,26 @@ import Colors from '../constants/Colors';
 import PlogList from '../components/PlogList';
 
 
-const LocalScreen = ({ history, currentUser, likePlog, loading, location, loadLocalHistory, navigation, region }) => {
-  React.useEffect(() => {
-    loadLocalHistory();
+const LocalScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const likePlog = React.useCallback((...args) => {
+    dispatch(actions.likePlog(...args));
   }, []);
+  React.useEffect(() => {
+    dispatch(actions.loadLocalHistory());
+  }, []);
+
+  const { history, currentUser, loading, location, region } = useSelector(({ log, users }) => {
+    const { plogData, localPlogs } = log;
+
+    return {
+      history: keep(id => plogData[id], localPlogs).sort((a, b) => (b.when - a.when)),
+      currentUser: users.current,
+      loading: log.localPlogsLoading,
+      location: users.location,
+      region: log.region,
+    };
+  }, shallowEqual);
 
   const goToPlogScreen = React.useCallback(() => {
     navigation.navigate('Plog');
@@ -30,6 +47,11 @@ const LocalScreen = ({ history, currentUser, likePlog, loading, location, loadLo
   const goToInviteScreen = React.useCallback(() => {
     navigation.navigate('Invite');
   }, [navigation]);
+  const loadNextPage = React.useCallback(() => {
+    if (!loading)
+      dispatch(actions.loadLocalHistory(false));
+  });
+
   const ActivityIcon = Options.activities.get('walking').icon;
   const noPloggers = history.length === 0 && !loading;
   // const recentCount = history.filter(plog => plog.userID !== currentUser.uid).length;
@@ -111,10 +133,7 @@ const LocalScreen = ({ history, currentUser, likePlog, loading, location, loadLo
         <PlogList plogs={history}
           currentUser={currentUser}
           likePlog={likePlog}
-          loadNextPage={() => {
-            if (!loading)
-              loadLocalHistory(false);
-          }}
+          loadNextPage={loadNextPage}
           header={
             <View style={{ paddingTop: 20 }}>
               {header}
@@ -134,17 +153,4 @@ const LocalScreen = ({ history, currentUser, likePlog, loading, location, loadLo
   }
 };
 
-export default connect(({ log, users }) => {
-  const { plogData, localPlogs } = log;
-
-  return {
-    history: keep(id => plogData[id], localPlogs).sort((a, b) => (b.when - a.when)),
-    currentUser: users.current,
-    loading: log.localPlogsLoading,
-    location: users.location,
-    region: log.region,
-  };
-}, dispatch => ({
-  likePlog: (...args) => dispatch(actions.likePlog(...args)),
-  loadLocalHistory: (...args) => dispatch(actions.loadLocalHistory(...args)),
-}))(LocalScreen);
+export default LocalScreen;

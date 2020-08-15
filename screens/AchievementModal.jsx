@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector } from '../redux/hooks';
 import {
     StyleSheet,
     // Switch,

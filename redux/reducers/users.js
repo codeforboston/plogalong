@@ -17,7 +17,9 @@ const initialState = {
   current: null,
   /** @type {{ [k in UserID]: User }} */
   users: {},
+  /** @type {import('expo-location').LocationData["coords"]} */
   location: null,
+  /** @type {import('expo-location').Address} */
   locationInfo: null,
   /** @type {{ type: 'email' | 'google' | 'facebook' | 'anonymous', params: any }} */
   authenticating: null,
