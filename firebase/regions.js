@@ -4,6 +4,24 @@ import * as $u from '../util/iter';
 /** @typedef {import('./project/functions/shared').RegionStats} RegionStats */
 
 /**
+ * @template T
+ * @typedef {object} NormalizedList
+ * @property {string[]} ids
+ * @property {{ [k in string]: T }} data
+ */
+
+/**
+ * @template {NormalizedList<any>} L
+ * @typedef {L extends NormalizedList<infer T> ? T[] : never} DenormalizedList
+ */
+
+/**
+ * @template T
+ * @template {keyof T} K
+ * @typedef {Omit<T, K> & { [k in K]: DenormalizedList<T[k]> }} Denormalized
+ */
+
+/**
  * @typedef {object} RegionLeaderData
  * @property {number} count
  * @property {number} milliseconds
@@ -15,15 +33,17 @@ import * as $u from '../util/iter';
  */
 
 /**
- * @typedef {object} Region
+ * @typedef {object} RegionData
  * @property {string} county
  * @property {string} state
  * @property {string} country
  * @property {string[]} geohashes
- * @property {{ id: string, userID: string, when: Date }[]} recentPlogs
  * @property {RegionStats} stats
- * @property {Leaderboard} leaderboard
+ * @property {NormalizedList<{ id: string, userID: string, when: Date }>} recentPlogs
+ * @property {NormalizedList<RegionLeaderData>} leaderboard
  */
+
+/** @typedef {Denormalized<RegionData, 'recentPlogs' | 'leaderboard'>} Region */
 
 /** @type {firebase.firestore.FirestoreDataConverter<Region>} */
 const regionConverter = {
@@ -36,9 +56,10 @@ const regionConverter = {
   },
 
   toFirestore(region) {
-    const {recentPlogs, ...data} = region;
+    const {leaderboard, recentPlogs, ...data} = region;
     return Object.assign(data, {
-      recentPlogs: $u.normList(recentPlogs)
+      recentPlogs: $u.normList(recentPlogs),
+      leaderboard: $u.normList(leaderboard)
     });
   }
 };

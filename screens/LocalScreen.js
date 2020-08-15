@@ -15,6 +15,7 @@ import $S from '../styles';
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Loading from '../components/Loading';
+import { NavLink } from '../components/Link';
 import Options from '../constants/Options';
 import Colors from '../constants/Colors';
 import PlogList from '../components/PlogList';
@@ -61,6 +62,8 @@ const LocalScreen = ({ navigation }) => {
     <>
       <Banner>
         {
+          loading ?
+            'The best time to plog is yesterday. The second best time is today!' :
           noPloggers
             ?
             "There are no other ploggers nearby.\nStart a trend!"
@@ -78,6 +81,9 @@ const LocalScreen = ({ navigation }) => {
             <Text style={$S.h1}>
               {region.county}, {region.state}
             </Text>
+            <NavLink route="Leaderboard" params={{ regionID: region.id }} style={$S.subheadLink}>
+              Leaderboard
+            </NavLink>
           </>
       }
     </>

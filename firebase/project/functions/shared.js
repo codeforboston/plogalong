@@ -14,9 +14,28 @@
  * @typedef {keyof Pick<T, WithValueType<T, S>[keyof T]>} KeysWithValueType
  */
 /** @typedef {import('firebase').firestore.Timestamp} Timestamp */
+/** @typedef {import('firebase').firestore.GeoPoint} GeoPoint */
 
 /** @typedef {import('geofirestore-core').GeoFirestoreTypes.GeoDocumentData} GeoDocumentData */
-/** @typedef {import('../../plogs.js').PlogData & GeoDocumentData} PlogData */
+/**
+ * @typedef {Object} PlogDataFields
+ * @property {string[]} TrashTypes
+ * @property {string} ActivityType
+ * @property {GeoPoint} coordinates
+ * @property {string} GeoLabel
+ * @property {string} HelperType
+ * @property {'Plog'|'Flag'} PlogType
+ * @property {Timestamp} DateTime
+ * @property {number} TZ
+ * @property {string} UserID
+ * @property {string} Photos
+ * @property {number} PlogDuration
+ * @property {boolean} Public
+ * @property {string} UserProfilePicture
+ * @property {string} UserDisplayName
+ * @property {string[]} [_Flaggers]
+ */
+/** @typedef {PlogDataFields & GeoDocumentData} PlogData */
 /** @typedef {PlogData & { id: string }} PlogDataWithId */
 /** @typedef {PlogData & { id: string, LocalDate: Date }} ExtendedPlogData */
 

@@ -168,3 +168,4 @@ exports.loadUserProfile = functions.https.onCall(http.loadUserProfile);
 exports.mergeWithAccount = functions.https.onCall(http.mergeWithAccount);
 exports.reportPlog = functions.https.onCall(http.reportPlog);
 exports.getRegionInfo = functions.https.onCall(http.getRegionInfo);
+exports.getRegionLeaders = functions.https.onCall(http.getRegionLeaders);

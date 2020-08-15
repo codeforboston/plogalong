@@ -174,7 +174,7 @@ export default StyleSheet.create({
   bodyContainer: {
     marginHorizontal: 10,
     marginTop: 10,
-    
+
     alignContent: "center",
     alignItems: "flex-start",
   },
@@ -184,6 +184,7 @@ export default StyleSheet.create({
     fontSize: 18,
     marginBottom: 15,
   },
+
   h1: {
     fontSize: 25,
     marginTop: 10,
@@ -196,6 +197,12 @@ export default StyleSheet.create({
     marginRight: 20,
     padding: 5,
     textAlign: 'center',
+  },
+
+  subheadLink: {
+    paddingRight: 10,
+    textAlign: 'right',
+    position: 'relative',
   },
 
   footerButtons: {

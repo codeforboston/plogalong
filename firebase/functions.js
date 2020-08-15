@@ -8,6 +8,7 @@ const _loadUserProfile = functions.httpsCallable('loadUserProfile');
 const _mergeWithAccount = functions.httpsCallable('mergeWithAccount');
 const _reportPlog = functions.httpsCallable('reportPlog');
 const _getRegionInfo = functions.httpsCallable('getRegionInfo');
+const _getRegionLeaders = functions.httpsCallable('getRegionLeaders');
 
 /**
  * @param {string} plogID
@@ -20,6 +21,7 @@ export async function likePlog(plogID, like=true) {
 const convertStamp = val => (val && new firebase.firestore.Timestamp(val._seconds, val._nanoseconds));
 /**
  * @param {string} userID
+ * @returns {Promise<import('./project/functions/http').UserProfile>}
  */
 export async function loadUserProfile(userID) {
   const {data} = (await _loadUserProfile({userID}));
@@ -42,7 +44,17 @@ export async function reportPlog(plogID) {
   return await _reportPlog({ plogID });
 }
 
+/**
+ * @returns {Promise<import('./project/functions/http').RegionInfo>}
+ */
 export async function getRegionInfo(latitude, longitude) {
   const { data } = await _getRegionInfo({ latitude, longitude });
   return data;
+}
+
+/**
+ * @returns {Promise<import('./project/functions/http').RegionLeaderboard>}
+ */
+export async function getRegionLeaders(regionID) {
+  return (await _getRegionLeaders({ regionID })).data;
 }

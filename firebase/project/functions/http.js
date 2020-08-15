@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const app = require('./app');
 const email = require('./email');
 const users = require('./users');
-const { regionInfo } = require('./util.js');
+const $u = require('./util.js');
 
 const { HttpsError } = functions.https;
 
@@ -16,6 +16,10 @@ function sha256(input, enc='utf8') {
   return hash.digest(enc);
 }
 
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
 /**
  * @typedef {object} LikeRequest
  * @property {string} plog
@@ -242,13 +246,60 @@ async function getRegionInfo(data, context) {
   if (typeof data.latitude !== "number" || typeof data.longitude !== "number")
     throw new HttpsError('failed-precondition', 'Request body must have a valid latitude and longitude');
 
-  return await regionInfo(data);
+  return await $u.regionInfo(data);
 }
+
+/**
+ * @param {{ regionID: string }} data
+ * @param {functions.https.CallableContext} context
+ */
+async function getRegionLeaders(data, context) {
+  if (!context.auth || !context.auth.uid)
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  if (!data.regionID)
+    throw new HttpsError('failed-precondition', 'Missing required parameter: regionID');
+
+  const region = await Regions.doc(data.regionID).get();
+
+  if (!region.exists)
+    throw new HttpsError('not-found', 'Invalid region id');
+
+  /** @type {import('./shared').RegionData} */
+  const { leaderboard: { ids = [], data: leaderData = {} } = { }, county } = region.data();
+
+  if (!county)
+    throw new HttpsError('not-found', 'Invalid region id');
+
+  const users = await $u.whereIn(Users, ids);
+
+  const leaders = users.map(user => {
+    const { displayName, profilePicture } = user.data();
+
+    return {
+      id: user.id,
+      regionCount: leaderData[user.id].count,
+      regionMilliseconds: leaderData[user.id].milliseconds,
+      profilePicture,
+      displayName,
+    };
+  });
+
+  return {
+    region: $u.regionInfoForDoc(region),
+    leaders
+  };
+}
+
+/** @typedef {Unwrapped<ReturnType<typeof getRegionInfo>>} RegionInfo */
+/** @typedef {Unwrapped<ReturnType<typeof getRegionLeaders>>} RegionLeaderboard */
+/** @typedef {Unwrapped<ReturnType<typeof loadUserProfile>>} UserProfile */
 
 module.exports = {
   likePlog,
   loadUserProfile,
   mergeWithAccount,
   reportPlog,
-  getRegionInfo
+  getRegionInfo,
+  getRegionLeaders,
 };
