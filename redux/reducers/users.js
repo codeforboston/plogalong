@@ -14,7 +14,7 @@ import { plogStateToDoc } from '../../firebase/plogs';
 
 const initialState = {
   /** @type {User} */
-  current: null,
+  current: undefined,
   /** @type {{ [k in UserID]: User }} */
   users: {},
   /** @type {import('expo-location').LocationData["coords"]} */
