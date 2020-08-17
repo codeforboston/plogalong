@@ -12,7 +12,7 @@ import Dot from '../assets/images/dot.png';
 const Image = Animated.Image;
 
 
-const LoadingIndicator = ({dots = 3, dotImage=Dot, dotStyle, style, ...props}) => {
+const LoadingIndicator = ({dots = 3, dotImage=Dot, dotStyle=null, style=null, ...props}) => {
   const scale = useRef(times(dots, () => new Animated.Value(1))).current;
 
   useEffect(() => {

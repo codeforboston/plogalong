@@ -13,10 +13,6 @@ import $S from '../styles';
 import DismissButton from '../components/DismissButton';
 import Loading from '../components/Loading';
 
-/**
- * @template P
- * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
- */
 
 export const PopupHeader = ({title, image, details}) => (
   <View style={styles.popupHeader}>
