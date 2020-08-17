@@ -29,9 +29,11 @@ export default class App extends React.Component {
   async loadPreferences() {
     // Reset preferences (for testing)
     // await AsyncStorage.setItem('com.plogalong.preferences', '{}');
-    const prefs = await AsyncStorage.getItem('com.plogalong.preferences');
+    const preferences = await AsyncStorage.getItem('com.plogalong.preferences')
+          .then(JSON.parse)
+          .catch(() => ({}));
 
-    this.setState({ preferences: prefs ? JSON.parse(prefs) : {}});
+    this.setState({ preferences });
   }
 
   // https://stackoverflow.com/a/49825223/1463649
