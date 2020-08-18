@@ -141,17 +141,17 @@ class LoginScreen extends React.Component {
          />}
 
         <Link onPress={this.forgotPassword}
-              style={styles.linkStyle} >
+              style={$S.linkStyle} >
           Forgot Your Password?
         </Link>
 
         <Link onPress={this.loginAnonymously}
-              style={styles.linkStyle}>
+              style={$S.linkStyle}>
           Skip Registration
         </Link>
 
         <Link onPress={this.intro}
-              style={[$S.helpLink, styles.linkStyle]}>
+              style={[$S.helpLink, $S.linkStyle]}>
           What is Plogging?
         </Link>
       </>
@@ -173,10 +173,6 @@ class LoginScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  linkStyle: {
-    marginTop: 30,
-    textAlign: 'center'
-  },
   loggingIn: {
     alignItems: 'center',
     justifyContent: 'space-between',

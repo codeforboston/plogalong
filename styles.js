@@ -119,6 +119,13 @@ export default StyleSheet.create({
         textDecorationLine: 'underline',
     },
 
+  linkStyle: {
+    color: Colors.secondaryColor,
+    textDecorationLine: 'underline',
+    marginTop: 30,
+    textAlign: 'center'
+  },
+
     helpLink: {
         textDecorationStyle: 'dotted',
         textDecorationColor: 'black',
