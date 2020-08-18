@@ -1,3 +1,9 @@
+/**
+ *  The code in this file is shared between the client and server. They should
+ *  therefore no rely on any environment-specific 'machinery' (e.g., access to
+ *  the database) being available.
+ */
+
 /** @template T, S
  * @typedef {{ [K in keyof T]: T[K] extends S ? K : never }} WithValueType
  */
@@ -9,15 +15,23 @@
  */
 /** @typedef {import('firebase').firestore.Timestamp} Timestamp */
 
-/**
- * @typedef {any} Plog
- */
+/** @typedef {import('geofirestore-core').GeoFirestoreTypes.GeoDocumentData} GeoDocumentData */
+/** @typedef {import('../../plogs.js').PlogData & GeoDocumentData} PlogData */
+/** @typedef {PlogData & { id: string }} PlogDataWithId */
+/** @typedef {PlogData & { id: string, LocalDate: Date }} ExtendedPlogData */
 
-/** @typedef {{ completed: Timestamp, updated: Timestamp } & { [k in PropertyKey ]: any}} AchievementData */
+/** @typedef {import('../../regions.js').Region} Region */
+/** @typedef {{ ids: string[], data: any }} RecentPlogs */
+/** @typedef {Omit<Region, 'recentPlogs'> & { recentPlogs: RecentPlogs }} RegionData */
+
+/**
+  * @typedef {{ completed: Timestamp, updated: Timestamp, refID: string } & { [k in PropertyKey ]: any}} AchievementData
+  */
 /**
  * @typedef {Object} AchievementHandler
  * @property {AchievementData} initial
- * @property {(previous: AchievementData, plog: Plog) => AchievementData} update
+ * @property {(previous: AchievementData, plog: ExtendedPlogData, region: RegionData) => AchievementData} update
+ * @property {(left: AchievementData, right: AchievementData) => Partial<AchievementData>} [merge]
  * @property {number} points
  */
 
@@ -40,6 +54,27 @@ const incMonth = (dt, n=1) => new Date(new Date(dt).setMonth(dt.getMonth()+n));
 
 const localTZOffset = new Date().getTimezoneOffset();
 const localPlogDate = ({DateTime, TZ}) => new Date(DateTime.toMillis() - (TZ-localTZOffset)*60000);
+
+/**
+ * Add a predicate to an existing achievement handler. Plogs that do not satisfy
+ * `pred()` will be skipped.
+ *
+ * @param {(plog: any) => any} pred only consider plogs that satisfy a predicate
+ * @param {AchievementHandler} handler
+ * @returns {AchievementHandler}
+ */
+const _addPred = (pred, handler) => {
+  const {update} = handler;
+  handler.update = (previous, plog) => pred(plog) ? update(previous, plog) : previous;
+  return handler;
+};
+
+const min = (a, b) => a <= b ? a : b;
+const max = (a, b) => a >= b ? a : b;
+
+const newest = (a, b) => a ? (b ? max(a, b) : a) : b;
+const oldest = (a, b) => a ? (b ? min(a, b) : a) : b;
+
 /**
  * Creates a handler for an achievement that is completed when a user has
  * plogged a `target` number of plogs.
@@ -54,14 +89,23 @@ function _makeCountAchievement(target, points=50) {
     initial: {
       completed: null,
       updated: null,
-      count: 0
+      count: 0,
+      refID: null
     },
     update(previous, plog) {
       const {count = 0} = previous;
+      const completed = count + 1 >= target ? plog.DateTime : null;
+
       return {
-        completed: count + 1 >= target ? plog.DateTime : null,
+        completed,
         updated: plog.DateTime,
         count: count + 1,
+        refID: completed ? plog.id : null
+      };
+    },
+    merge(left, right) {
+      return {
+        count: (left.count || 0) + (right.count || 0)
       };
     },
     points
@@ -69,7 +113,7 @@ function _makeCountAchievement(target, points=50) {
 }
 
 /**
- * Creates a handler for an achievement 
+ * Creates a handler for an achievement
  *
  * @param {number} target
  * @param {number} points
@@ -83,6 +127,7 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
     completed: null,
     updated: null,
     streak: 0,
+    refID: null,
     // Set when the streak is lost
     longestStreak: null,
     // Date when the longest streak was lost
@@ -107,6 +152,7 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
           changes.streak = streak + 1;
           if (changes.streak >= target) {
             changes.completed = DateTime;
+            changes.refID = plog.id;
           }
         } else {
           changes.streak = 1;
@@ -116,9 +162,18 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
             changes.streakLost = updated;
           }
         }
+      } else {
+        changes.streak = 1;
       }
 
       return Object.assign(previous, changes);
+    },
+    merge(left, right) {
+      return {
+        streak: max(left.streak, right.streak),
+        longestStreak: max(left.longestStreak, right.longestStreak),
+        streakLost: newest(left.streakLost, right.streakLost)
+      };
     }
   };
 }
@@ -127,28 +182,43 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
  * Creates a handler for an achievement that is completed the first time a plog
  * satisfies the predicate function `pred`;
  *
- * @param {(plog) => any}
+ * @param {(plog: ExtendedPlogData) => any} pred
  * @param {number} [points=50]
  * @returns {AchievementHandler}
  */
 const _makeOneShotAchievement = (pred, points=50) => ({
-  initial: { completed: null },
+  initial: null,
   points,
-  update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime } : previous
+  update: (previous, plog) =>  pred(plog) ? { completed: plog.DateTime, refID: plog.id } : previous
 });
+
+/** @type {AchievementHandler} */
+const BreakTheSealAchievement = {
+  initial: null,
+  points: 100,
+  update: (previous, plog, region) => {
+    if (region && region.recentPlogs.ids.length === 1 && region.recentPlogs.ids[0] === plog.id) {
+      return { completed: plog.DateTime, refID: plog.id };
+    }
+
+    return previous;
+  }
+};
 
 const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate()));
 
 // Full list of achievements:
 // https://airtable.com/shrHq1EmZzFO7hiQe/tblbArS3zXcLPwdbm/viw9Jk1OkBKdN5Iwc?blocks=bip681nyUrUqlzD8e
 
-// These handlers are only for the achievements that can be calculated using
-// information on the plog and previous achievement data.
-
-// This approach is enough to cover these achievements:
+// Many achievements can be calculated using information on the plog and
+// previous achievement data:
 //   First Plog, Team Effort, True Native, Bug Zapper, Danger Pay, Daredevil,
 //   100 Club, Dog Days, Spring Chicken, Fall Color, Polar Bear, Plog Away, 1000
-//   club, Streaker
+//   club, Streaker, Dog's Best Friend, Marathoner, Take A Hike, Water Sports,
+//   Babysitter, Twofer, No Butts
+
+// Some achievements also use local aggregates calculated on regions:
+//   Break the Seal, Busy Bee (not enabled yet)
 
 // The general approach will also work for these, once we assign geo labels to
 // plogs:
@@ -157,25 +227,31 @@ const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalD
 // This has to be triggered by an invite:
 //   Pay it Forward
 
-// These achievements have to be run on local aggregates, which is something we
-// don't calculate yet:
-//   Busy Bee, Break the Seal
 const AchievementHandlers = {
   ['firstPlog']: _makeCountAchievement(1, 50),
   ['100Club']: _makeCountAchievement(100, 1000),
   ['1000Club']: _makeCountAchievement(1000, 10000),
   streaker: _makeStreakHandler(7, 250),
-  teamEffort: _makeOneShotAchievement(plog => plog.groupType === 'team', 20),
+  teamEffort: _makeOneShotAchievement(plog => plog.HelperType === 'team', 20),
+  dogsBestFriend: _makeOneShotAchievement(plog => plog.HelperType === 'dog', 20),
+  babysitter: _makeOneShotAchievement(plog => plog.HelperType === 'teacher', 20),
+  twofer: _makeOneShotAchievement(plog => plog.HelperType === 'friend', 20),
   bugZapper: _makeOneShotAchievement(
-    plog => (plog.trashTypes||[]).includes('standing_water'), 20),
+    plog => (plog.TrashTypes||[]).includes('standing_water'), 20),
   dangerPay: _makeOneShotAchievement(
-    plog => (plog.trashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20),
-  daredevil: _makeOneShotAchievement(plog => plog.activityType === 'biking', 20),
+    plog => (plog.TrashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20),
+  trueNative: _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('invasive_plants')),
+  noButts: _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('cigarette_butts')),
+  daredevil: _makeOneShotAchievement(plog => plog.ActivityType === 'biking', 20),
+  marathoner: _makeOneShotAchievement(plog => plog.ActivityType === 'running', 20),
+  takeAHike: _makeOneShotAchievement(plog => plog.ActivityType === 'hiking', 20),
 
   dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
   springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
   fallColor: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 8 && d === 21) || m === 9 || m === 10 || (m === 11 && d < 21))),
   polarBear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11 && d === 21) || m === 0 || m === 1 || (m === 2 && d < 21))),
+
+  breakTheSeal: BreakTheSealAchievement,
 };
 
 /** @typedef {keyof typeof AchievementHandlers} AchievementType */
@@ -187,14 +263,16 @@ const AchievementHandlers = {
  * of achievement types that have not yet been initialized.
  *
  * @param {UserAchievements} achievements
- * @param {Plog|Plog[]} newPlogs
+ * @param {PlogData|PlogData[]} newPlogs
+ * @param {RegionData} [region]
  *
- * @returns {{ achievements: UserAchievements, needInit: AchievementType[] }}
+ * @returns {{ achievements: UserAchievements, needInit: AchievementType[], completed: AchievementType[] }}
  */
-function updateAchievements(achievements, newPlogs) {
+function updateAchievements(achievements, newPlogs, region) {
   /** @type {AchievementType[]} */
   const names = Object.keys(AchievementHandlers);
   const needInit = [];
+  const completed = [];
 
   const plogs = Array.isArray(newPlogs) ? newPlogs : [newPlogs];
   for (const plog of plogs) {
@@ -202,19 +280,35 @@ function updateAchievements(achievements, newPlogs) {
     plog.LocalDate = new Date(DateTime.toMillis() - TZ*60000);
   }
 
+  // Loop through all achievement types...
   const updatedAchievements = names.reduce((updated, name) => {
-    const current = updated && updated[name];
+    // ...checking the user's current progress toward that achievement...
+    let current = updated && updated[name];
     const handler = AchievementHandlers[name];
 
-    if (!current)
-      needInit.push(name);
-    else if (current.completed)
+    if (!current) {
+      // ...or initializing the achievement progress if necessary
+      if (!(name in updated) && handler.initial) {
+        needInit.push(name);
+      }
+      current = handler.initial ? { ...handler.initial } : null;
+    } else if (current.completed)
+      // skip over completed achievements
       return updated;
 
     try {
+      for (const plog of plogs) {
+        current = handler.update(current, plog, region);
+
+        if (current && current.completed) {
+          completed.push(name);
+          break;
+        }
+      }
+
       return Object.assign(
         updated || {},
-        { [name]: plogs.reduce(handler.update, current || { ...handler.initial }) }
+        { [name]: current }
       );
     } catch (err) {
       console.error(`error updating '${name}' achievement`, err);
@@ -224,14 +318,53 @@ function updateAchievements(achievements, newPlogs) {
 
   return {
     achievements: updatedAchievements,
+    completed,
     needInit
   };
 }
 
 /**
- * @param {Parameters<typeof updateAchievements>} args
+ * @param {UserAchievements} achievementsA
+ * @param {UserAchievements} achievementsB
+ *
+ * @returns {UserAchievements}
  */
-const updateAchievementsLocal = (...args) => (updateAchievements(...args).achievements);
+function mergeAchievements(achievementsA, achievementsB) {
+  if (!achievementsB) return achievementsA;
+  if (!achievementsA) return achievementsB;
+
+  const merged = {};
+  const names = /** @type {AchievementType[]} */(Object.keys(AchievementHandlers));
+
+  for (const name of names) {
+    const a = achievementsA[name];
+    const b = achievementsB[name];
+
+    if (!(a && b)) {
+      merged[name] = a || b;
+      continue;
+    }
+
+    // Choose the one that has completed the achievement. If that's both, choose
+    // the one that was completed first.
+    if (a.completed) {
+      merged[name] = b.completed ? (a.completed <= b.completed ? a : b) : a;
+    } else if (b.completed) {
+      merged[name] = b;
+    } else {
+      // Only call the 'merge' function if neither a nor b has completed the
+      // achievement
+      const fn = AchievementHandlers[name].merge;
+      const shared = {
+        updated: newest(a.updated, b.updated),
+        completed: null
+      };
+      merged[name] = Object.assign(shared, fn ? fn(a, b) : a);
+    }
+  }
+
+  return merged;
+}
 
 /**
  * Records aggregated stats for a particular time unit
@@ -240,27 +373,35 @@ const updateAchievementsLocal = (...args) => (updateAchievements(...args).achiev
  * @property {string} whenID - used as an identifier for the unit on which the
  *   stats are aggregated. E.g., if the user's most recent plog is on 4/3/21,
  *   the year PlogStats would have a `whenID` value of `2021` and the `month`
- *   PlogStats would have a `whenD` value of `2021-4`
+ *   PlogStats would have a `whenID` value of `2021-04`.
  * @property {number} milliseconds - total time plogged during this time period
  * @property {number} count
  */
 
+/** @typedef {Omit<PlogStats, 'whenID'>} UserPlogStatsForRegion */
+/** @typedef {{ [k in string]: UserPlogStatsForRegion }} PlogStatsByRegion */
+/** @typedef {PlogStats & { region: PlogStatsByRegion, bonusMinutes?: number }} UserPlogStats */
+/** @typedef {'month' | 'year' | 'total'} TimeUnit */
+
 /**
  * Caches general stats about usage, including aggregates for the month and year
- * when the user most recently plogged.
+ * of the most recent plog.
  *
- * @typedef {object} UserStats
- * @property {PlogStats} [month]
- * @property {PlogStats} [year]
- * @property {PlogStats} [total]
+ * @typedef {{ [k in TimeUnit]: PlogStats }} CollectedPlogStats
  */
+/** @typedef {CollectedPlogStats} RegionStats */
+/** @typedef {{ [k in TimeUnit]: UserPlogStats }} UserStats */
 
-/** @typedef {KeysWithValueType<UserStats, PlogStats>} TimeUnit */
 /** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */
+
+const _zpad = n => `${n < 10 ? '0': ''}${n}`;
+
+/// Within a given time unit, the typographic ordering of whenIDs should
+/// preserve the natural order
 
 /** @type {TimeUnitConfig[]} */
 const timeUnits = [
-  { unit: 'month', when: dt => `${dt.getFullYear()}-${dt.getMonth()+1}` },
+  { unit: 'month', when: dt => `${dt.getFullYear()}-${_zpad(dt.getMonth()+1)}` },
   { unit: 'year', when: dt => ''+dt.getFullYear() },
   { unit: 'total', when: _ => 'total' },
 ];
@@ -269,16 +410,18 @@ const timeUnits = [
  * @typedef {object} UserData
  * @property {UserStats} stats
  * @property {UserAchievements} achievements
+ * @property {string} [profilePicture]
+ * @property {string} displayName
  */
 
 /**
- * @param {UserData['stats']} stats
- * @param {PlogData} plog
+ * @param {UserStats|RegionStats} stats
+ * @param {Date} date
+ * @param {(stats: UserPlogStats|PlogStats) => void} fn
  */
-function updateStats(stats, plog) {
+function withStats(stats, date, fn) {
   if (!stats) stats = {};
 
-  const date = localPlogDate(plog);
   for (let {unit, when} of timeUnits) {
     const whenValue = when(date);
     let unitStats = stats[unit];
@@ -286,17 +429,199 @@ function updateStats(stats, plog) {
       stats[unit] = unitStats = { milliseconds: 0, count: 0, whenID: whenValue };
     }
 
-    unitStats.milliseconds += plog.PlogDuration || 0;
-    unitStats.count += 1;
+    fn(unitStats);
   }
 
   return stats;
 }
 
+/**
+ * @param {UserStats|RegionStats} stats
+ * @param {PlogData} plog
+ * @param {number} [bonusMinutes]
+ * @param {string} [regionID]
+ */
+function updateStats(stats, plog, bonusMinutes=0, regionID=null) {
+  return withStats(stats, localPlogDate(plog), unitStats => {
+    unitStats.milliseconds += plog.PlogDuration || 0;
+    unitStats.count += 1;
+    unitStats.bonusMinutes = bonusMinutes;
+
+    if (regionID) {
+      if (!unitStats.region)
+        unitStats.region = {};
+      if (!unitStats.region[regionID])
+        unitStats.region[regionID] = { milliseconds: 0, count: 0 };
+      unitStats.region[regionID].milliseconds += plog.PlogDuration || 0;
+      unitStats.region[regionID].count += 1;
+    }
+  });
+}
+
+/**
+ * @param {UserStats|RegionStats} stats
+ * @param {Date} date
+ * @param {number} bonusMinutes
+ */
+function addBonusMinutes(stats, date, bonusMinutes) {
+  return withStats(stats, date, unitStats => {
+    unitStats.bonusMinutes += bonusMinutes;
+  });
+}
+
+/**
+ * @param {UserStats} statsA
+ * @param {UserStats} statsB
+ */
+function mergeStats(statsA, statsB) {
+  /** @type {UserStats} */
+  const merged = {};
+  for (let {unit} of timeUnits) {
+    const fromUnitStats = statsA[unit];
+    const toUnitStats = statsB[unit];
+
+    if (!toUnitStats)
+      merged[unit] = fromUnitStats;
+    if (!fromUnitStats)
+      merged[unit] = toUnitStats;
+
+    if (fromUnitStats.whenID === toUnitStats.whenID) {
+      merged[unit] = {
+        whenID: fromUnitStats.whenID,
+        milliseconds: fromUnitStats.milliseconds + toUnitStats.milliseconds,
+        count: fromUnitStats.count + toUnitStats.count,
+        region: Object.keys(toUnitStats.region || {}).reduce(
+          (rs, regionId) => {
+            if (rs[regionId]) {
+              rs[regionId].count += toUnitStats.region[regionId].count;
+              rs[regionId].milliseconds += toUnitStats.region[regionId].milliseconds;
+            } else {
+              rs[regionId] = toUnitStats.region[regionId];
+            }
+            return rs;
+          }, fromUnitStats.region || {})
+      };
+      continue;
+    }
+
+    /// Relies on the typographic ordering of whenID preserving the
+    /// chronological ordering of the underlying date
+    merged[unit] = fromUnitStats.whenID > toUnitStats.whenID ? fromUnitStats : toUnitStats;
+  }
+
+  return merged;
+}
+
+/**
+ * @param {AchievementType[]} achievements
+ * @returns {number}
+ */
+function calculateBonusMinutes(achievements) {
+  return achievements.reduce((total, type) => AchievementHandlers[type].points+total, 0);
+}
+
+/// REGIONS ///
+
+/**
+ * @param {RecentPlogs} recentPlogs
+ * @param {PlogDataWithId} plogData
+ */
+function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
+  if (!recentPlogs)
+    recentPlogs = { ids: [], data: {} };
+  if (recentPlogs.ids.push(plogData.id) > maxLength) {
+    for (const plogID of recentPlogs.ids.slice(maxLength-1))
+      delete recentPlogs.data[plogID];
+
+    recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
+  }
+  recentPlogs.data[plogData.id] = {
+    id: plogData.id,
+    when: plogData.DateTime,
+    userID: plogData.UserID
+  };
+  return recentPlogs;
+}
+
+/**
+ * @param {RegionData} regionData
+ * @param {PlogDataWithId} plogData
+ * @param {UserPlogStatsForRegion} plogStats
+ *
+ * @returns {Partial<RegionData>}
+ */
+function addPlogToRegion(regionData, plogData, plogStats) {
+  return {
+    recentPlogs: addPlogToRecents(regionData.recentPlogs, plogData),
+    stats: updateStats(regionData.stats, plogData),
+    leaderboard: updateLeaderboard(regionData.leaderboard, plogData.UserID, plogStats)
+  };
+}
+
+/**
+ * @template T, S
+ * @param {T[]} sorted
+ * @param {S} score
+ * @param {(item: T) => S} scoreFn
+ */
+function findPosition(sorted, score, scoreFn, n=20) {
+  let i = sorted.length;
+  while (i > 0 && score > scoreFn(sorted[i-1]))
+    i--;
+
+  return i < n ? i : null;
+}
+
+/**
+ * @param {Region["leaderboard"]} leaders
+ * @param {string} userID
+ * @param {PlogStats} stats
+ */
+function updateLeaderboard(leaders, userID, stats, n=20) {
+  leaders = Object.assign({ ids: [], data: {} }, leaders);
+
+  const position = findPosition(leaders.ids, stats.count,
+                                (uid => leaders.data[uid].count), n);
+  if (position === null)
+    return {};
+
+  // Update the user data
+  leaders.data[userID] = Object.assign({}, leaders.data[userID], stats);
+
+  let previous = leaders.data[userID] && leaders.ids.indexOf(userID);
+  if (previous === position)
+    return leaders;
+
+  /// Update the ranking
+  // Insert the user ID at its new position
+  leaders.ids.splice(position, 0, userID);
+
+  if (previous >= 0) {
+    // And remove it from its previous position
+    // It may be safe to assume that the position will only decrease, but to be
+    // safe, let's handle either case.
+    leaders.ids.splice(previous + (previous > position), 1);
+  } else {
+    while (leaders.ids.length > n) {
+      const deleteID = leaders.ids.pop();
+      delete leaders.data[deleteID];
+    }
+  }
+
+  return leaders;
+}
+
 module.exports = {
   AchievementHandlers,
   timeUnits,
+  localPlogDate,
+  calculateBonusMinutes,
+  mergeAchievements,
+  mergeStats,
   updateAchievements,
-  updateAchievementsLocal,
   updateStats,
+  addBonusMinutes,
+
+  addPlogToRegion,
+  updateLeaderboard,
 };

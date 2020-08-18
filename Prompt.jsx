@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   Modal,
   SafeAreaView,
@@ -21,7 +21,7 @@ const Context = createContext(null);
 export const PromptProvider = Context.Provider;
 export const PromptConsumer = Context.Consumer;
 
-export const PromptComponent = ({title, message, options, onCancel, dismiss}) => {
+export const PromptComponent = ({title, body, message, options, onCancel, dismiss}) => {
   const [isBusy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [busyMessage, setMessage] = useState(null);
@@ -41,8 +41,8 @@ export const PromptComponent = ({title, message, options, onCancel, dismiss}) =>
               {message}
             </Text>
           </View>
-
-          <View style={{ flex: 1 }}>
+          {body && <View style={{ flex: 1 }}>{body}</View>}
+          <View style={$S.footerButtons}>
             {options.map((option, i) => (
               <Button title={option.title}
                       style={option.style}
@@ -101,25 +101,24 @@ export const PromptComponent = ({title, message, options, onCancel, dismiss}) =>
 
 export const usePrompt = () => {
   const { setPrompt } = useContext(Context);
+  const prompt = useCallback(promptOptions => {
+    const {onCancel, ...options} = promptOptions;
 
-  return {
-    prompt(promptOptions) {
-      const {onCancel, ...options} = promptOptions;
-
-      return new Promise((resolve) => {
-        setPrompt({
-          ...options,
-          onCancel: onCancel ? () => {
-            onCancel();
-            resolve(null);
-          } : () => resolve(null),
-          dismiss: resolve
-        });
-      }).finally(_ => {
-        setPrompt(null);
+    return new Promise((resolve) => {
+      setPrompt({
+        ...options,
+        onCancel: onCancel ? () => {
+          onCancel();
+          resolve(null);
+        } : () => resolve(null),
+        dismiss: resolve
       });
-    }
-  };
+    }).finally(_ => {
+      setPrompt(null);
+    });
+  }, [setPrompt]);
+
+  return { prompt };
 };
 
 export const Prompt = ({shown, ...props}) => {

@@ -1,0 +1,15 @@
+{
+  "name": "plogalong-web",
+  "version": "1.0.0",
+  "description": "Scripts for deploying the website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "render-templates": "node ./scripts/render-templates.js",
+    "cleanup-templates": "node ./scripts/render-templates.js cleanup"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.6",
+    "walk": "^2.3.14"
+  }
+}

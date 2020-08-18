@@ -2,57 +2,73 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
+    "clean-start": "expo start -c",
     "tunnel": "expo start --tunnel",
     "offline": "expo start --offline --localhost",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "eject": "expo eject",
-    "test": "node ./node_modules/jest/bin/jest.js --watchAll",
+    "test": "node_modules/.bin/jest --watchAll",
     "postinstall": "node ./scripts/postinstall.js",
     "testDebug": "jest -o --watch --coverage=false"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFiles": [
+      "./jest/setup.js"
+    ],
+    "setupFilesAfterEnv": [
+      "./jest/setup-extensions.js"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(jest-)?react-native|react-clone-referenced-element|@react-native-community|expo(nent)?|@expo(nent)?/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|@sentry/.*)"
+    ]
   },
   "dependencies": {
-    "@react-native-community/masked-view": "0.1.5",
+    "@react-native-community/async-storage": "^1.11.0",
+    "@react-native-community/masked-view": "0.1.6",
     "@react-navigation/bottom-tabs": "^5.0.5",
     "@react-navigation/native": "^5.0.5",
     "@react-navigation/stack": "^5.0.5",
     "base-64": "^0.1.0",
-    "expo": "^36.0.0",
-    "expo-camera": "~8.0.0",
-    "expo-facebook": "~8.0.0",
+    "expo": "^37.0.0",
+    "expo-apple-authentication": "^2.1.1",
+    "expo-camera": "~8.2.0",
+    "expo-constants": "^9.0.0",
+    "expo-facebook": "~8.1.0",
     "expo-google-app-auth": "^8.0.1",
-    "expo-image-manipulator": "~8.0.0",
-    "expo-image-picker": "~8.0.1",
+    "expo-google-sign-in": "^8.1.0",
+    "expo-image-manipulator": "~8.1.0",
+    "expo-image-picker": "~8.1.0",
     "firebase": "^7.14.1",
     "formik": "^2.1.4",
-    "geofirestore": "^3.4.1",
+    "geofirestore": "^4.1.3",
     "mem": ">=4.0.0",
     "minimist": ">=1.2.3",
     "moment": "^2.0.0",
     "react": "16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.1.tar.gz",
     "react-native-fbsdk": "^1.0.1",
-    "react-native-gesture-handler": "~1.5.0",
+    "react-native-gesture-handler": "~1.6.0",
+    "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-maps": "0.26.1",
     "react-native-picker-select": "^6.6.0",
-    "react-native-reanimated": "~1.4.0",
-    "react-native-safe-area-context": "0.6.0",
-    "react-native-screens": "2.0.0-alpha.12",
+    "react-native-reanimated": "~1.7.0",
+    "react-native-safe-area-context": "0.7.3",
+    "react-native-screens": "~2.2.0",
     "react-native-segmented-control-tab": "^3.4.0",
-    "react-native-svg": "9.13.3",
-    "react-redux": "^6.0.1",
+    "react-native-svg": "11.0.1",
+    "react-native-webview": "8.1.1",
+    "react-redux": "^7.2.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "yup": "^0.28.3"
   },
   "devDependencies": {
     "babel-preset-expo": "^8.0.0",
-    "jest-expo": "^36.0.0",
+    "jest-expo": "^37.0.0",
     "react-native-svg-transformer": "^0.14.3",
-    "react-test-renderer": "^16.13.1"
+    "react-test-renderer": "^16.9.0"
   },
   "private": true
 }

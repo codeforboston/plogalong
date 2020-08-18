@@ -1,12 +1,10 @@
 import * as Location from 'expo-location';
 
-import { rateLimited } from '../util/async';
+import { reverseGeocode } from '../util/location';
 
 import { START_LOCATION_WATCH, LOCATION_CHANGED, STOP_LOCATION_WATCH, SET_CURRENT_USER } from './actionTypes';
 import { locationChanged, gotLocationInfo, locationError } from './actions';
 
-
-const reverseGeocode = rateLimited(Location.reverseGeocodeAsync, 10000);
 
 /** @type {import('redux').Middleware} */
 export default store => {

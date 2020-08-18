@@ -1,7 +1,7 @@
 import * as types from "../actionTypes";
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
-import { updateAchievements, updateStats } from '../../firebase/project/functions/shared';
+import { calculateBonusMinutes, updateAchievements, updateStats } from '../../firebase/project/functions/shared';
 import { plogStateToDoc } from '../../firebase/plogs';
 
 
@@ -38,7 +38,7 @@ export default usersReducer = (state = initialState, {type, payload}) => {
         ...state,
         current: user ? {
           ...user,
-          data: state.users[user.uid] || {}
+          data: state.users[user.uid] || { notLoaded: true }
         } : null,
         authenticating: null
       };
@@ -59,24 +59,28 @@ export default usersReducer = (state = initialState, {type, payload}) => {
     }
 
   case types.LIKE_PLOG:
-    // Fix speculative updates
-    return updateInCopy(state, ['current', 'data', 'likedPlogs', payload.plogID],
-                                  payload.like);
-   // return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
-   //                   payload.like);
+    return specUpdate(state, ['current', 'data', 'likedPlogs', payload.plogID],
+                      payload.like);
 
   case types.LIKE_PLOG_ERROR:
     return revert(state, ['current', 'data', 'likedPlogs', payload.plogID]);
 
   case types.PLOG_LOGGED: {
     const plogData = plogStateToDoc(payload.plog);
+    plogData.id = payload.plogID;
+
     return updateInCopy(
       state, ['current', 'data'],
-      data => ({
-        ...(data || {}),
-        stats: updateStats(data.stats, plogData),
-        achievements: updateAchievements(data.achievements, plogData).achievements
-      })
+      data => {
+        const { achievements, completed } = updateAchievements(Object.assign({}, data.achievements),
+                                                               plogData);
+
+        return {
+          ...(data || {}),
+          stats: updateStats(data.stats, plogData, calculateBonusMinutes(completed)),
+          achievements
+        };
+      }
     );
   }
 
@@ -97,6 +101,9 @@ export default usersReducer = (state = initialState, {type, payload}) => {
 
   case types.SIGNUP:
     return { ...state, authenticating: payload, signupError: null };
+
+  case types.AUTH_CANCELED:
+    return { ...state, authenticating: null, signupError: null };
 
   case types.SIGNUP_ERROR:
     return { ...state, authenticating: null, signupError: payload.error };

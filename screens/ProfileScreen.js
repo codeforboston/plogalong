@@ -1,11 +1,10 @@
 import * as React from 'react';
 import {
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    View,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import { connect } from 'react-redux';
 import moment from 'moment';
@@ -20,12 +19,14 @@ import PhotoButton from '../components/PhotoButton';
 import TextInputWithoutIcon from '../components/TextInputWithoutIcon';
 import TextInputWithIcon from '../components/TextInputWithIcon';
 import { setPreferences, logout} from '../redux/actions';
-import { pluralize } from '../util';
+import { getStats, pluralize } from '../util';
+import { asyncAlert } from '../util/native';
 
 import Colors from '../constants/Colors';
 import $S from '../styles';
 import ProfilePlaceholder from '../components/ProfilePlaceholder';
 
+import {KeyboardAwareScrollView as ScrollView} from 'react-native-keyboard-aware-scrollview';
 
 const stateFromProps =
       ({currentUser: { data: { homeBase = '',
@@ -58,25 +59,46 @@ class ProfileScreen extends React.Component {
       this.props.updatePreferences({ shareActivity });
   }
 
-    goToSignup = () => {
-        this.props.navigation.navigate('Signup');
-    }
-
-    goToLogin = () => {
-      this.props.navigation.navigate('Login');
-    }
+  goToSignup = () => {
+    this.props.navigation.navigate('Signup');
+  }
 
   goToChangePassword = () => {
     this.props.navigation.navigate('ChangePassword');
   }
 
-    save = event => {
-        this.props.setUserData({...this.state.params});
-    }
+  save = event => {
+    this.props.setUserData({...this.state.params});
+  }
 
-    setProfilePhoto = photo => {
-        this.props.setUserData({ profilePicture: photo });
+  setProfilePhoto = photo => {
+    this.props.setUserData({ profilePicture: photo });
+  }
+
+  logOut = async () => {
+    if (this.props.currentUser.isAnonymous) {
+      const stats = getStats(this.props.currentUser, 'total');
+      if (stats.count) {
+        const result = await asyncAlert(
+          'Your plogs will be lost',
+          'You have not linked this account to an email address, Google, or other login provider. If you log in to another account now, your plogs will be lost!',
+          [
+            { text: 'Logout Anyway', style: 'destructive', value: 'logout' },
+            { text: 'Create Account', style: 'default', value: 'create' },
+            { text: 'Cancel', style: 'cancel', value: 'cancel' },
+          ]
+        );
+
+        if (result === 'logout') {
+          logOut();
+        } else if (result === 'create') {
+          this.goToSignup();
+        }
+      }
+    } else {
+      logOut();
     }
+  }
 
   setHomeBaseFromLocationInfo = () => {
     const { locationInfo } = this.props;
@@ -100,15 +122,13 @@ class ProfileScreen extends React.Component {
 
     const hasPassword = !!currentUser.providerData.find(pd => pd.providerId === 'password');
 
-    const completedAchievements = Object.values(achievements).filter(ach => ach.completed).length;
-
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={[$S.scrollContentContainer, styles.contentContainer]}>
           <Banner>
             Plogging since {moment(created).format('MMMM D, YYYY')}
           </Banner>
 
-          {!currentUser.isAnonymous &&
+          {!currentUser.isAnonymous ?
            <>
              <View style={styles.personalInfoContainer}>
                <PhotoButton
@@ -120,11 +140,17 @@ class ProfileScreen extends React.Component {
                  onCleared={() => { this.setProfilePhoto(null); }}
                />
                  <Text style={{ fontWeight: '500' }}>
-                   Personal Account
+                   { currentUser ? 
+                     displayName : 
+                     'Mysterious Plogger' }
                  </Text>
                  <Text style={{ fontWeight: '500' }}>
-                   { currentUser.email }
+                   { currentUser ? currentUser.email : '' }
                  </Text>
+                 {!currentUser.emailVerified &&
+                 <Text style={$S.alertText}>
+                   Not verified
+                 </Text> }
              </View>
 
              <View style={$S.inputGroup}>
@@ -162,18 +188,36 @@ class ProfileScreen extends React.Component {
                </Text>
                <Switch value={!params.privateProfile} style={$S.switch} onValueChange={toggleParam('privateProfile')} />
              </View>
-             <View style={$S.switchInputGroup}>
+             {currentUser.emailVerified && <View style={$S.switchInputGroup}>
                <Text style={$S.inputLabel}>
                  Get email updates ({'< 1/month'})
                </Text>
                <Switch value={params.emailUpdatesEnabled} style={$S.switch} onValueChange={toggleParam('emailUpdatesEnabled')} />
-             </View>
-           </>}
+             </View>}
+           </> :
+           <View style={styles.anonymousBodyContainer}>
+             <ProfilePlaceholder style={styles.anonymousBigIcon} />
+           </View>
+          }
 
-          <View style={[styles.buttonContainer, currentUser.isAnonymous && styles.anonymousButtonContainer]}>
-            <Button primary onPress={this.goToSignup} title={currentUser.isAnonymous ? 'Create Plogalong Account' : "Link Account" }/>
-            <Button primary onPress={logOut} title={currentUser.isAnonymous ? 'Log in as Existing User' : 'Log Out'} />
-            {hasPassword && <Button primary onPress={this.goToChangePassword} title="Change Password" />}
+          <View style={[
+            styles.buttonContainer,
+            currentUser.isAnonymous && styles.anonymousButtonContainer,
+            $S.footerButtons
+          ]}>
+            {currentUser.isAnonymous &&
+              <Button large primary onPress={this.goToSignup}
+                title={ currentUser.isAnonymous ?
+                        'Create Account' :
+                        "Link Account"                      } /> }
+            <Button large primary onPress={this.logOut}
+              title={ currentUser.isAnonymous ?
+                      'Log In' :
+                      'Log Out'                   } />
+            {hasPassword &&
+              <Button primary
+                onPress={this.goToChangePassword}
+                title="Change Password"           /> }
           </View>
         </ScrollView>
     );
@@ -182,48 +226,62 @@ class ProfileScreen extends React.Component {
 
 const styles = StyleSheet.create({
   contentContainer: {
-      padding: 20,
+    padding: 20,
+    minHeight: '100%',
   },
   personalInfoContainer: {
     flexDirection: 'column',
-    marginTop: 10,
+    marginTop: 0,
     marginBottom: 20,
     alignItems: 'center',
   },
   profileImageButton: {
-      width: 200,
-      height: 200,
-      marginTop: 3, 
-      marginBottom: 10,     
-      borderWidth: 0,
+    width: 200,
+    height: 200,
+    marginTop: 3,
+    marginBottom: 10,
+    borderWidth: 0,
   },
-    profileImage: {        
-        resizeMode: 'contain',
-        width: 200,
-        height: 200,
-    },
-    personalInfo: {
-        flexDirection: 'column',
-        flexGrow: 1,
-    },
-    anonymousButtonContainer: {
-        flex: 1,
-        justifyContent: 'center',
-    },
-    buttonContainer: {
-        flexDirection: 'column',
-    },
+  profileImage: {
+    resizeMode: 'contain',
+    width: 200,
+    height: 200,
+  },
+  personalInfo: {
+    flexDirection: 'column',
+    flexGrow: 1,
+  },
+  anonymousBodyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: '25%',
+  },
+  anonymousBigIcon: {
+    opacity: 0.1,
+    width: '100%',
+    height: '50%',
+  },
+  anonymousButtonContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+  },
 });
 
 export default connect(
   ({users, preferences}) => ({
     currentUser: users.current,
     locationInfo: users.locationInfo,
-    preferences,
   }),
   (dispatch) => ({
     updatePreferences(preferences) {
-      dispatch(setPreferences(preferences))
+      dispatch(setPreferences(preferences));
     },
     setUserData,
   })

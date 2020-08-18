@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  AsyncStorage,
+  Keyboard,
   Platform,
   StatusBar,
   StyleSheet,
-  Text,
   View
 } from 'react-native';
+import { AsyncStorage } from 'react-native';
 import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
 
@@ -34,6 +34,12 @@ export default class App extends React.Component {
     this.setState({ preferences: prefs ? JSON.parse(prefs) : {}});
   }
 
+  // https://stackoverflow.com/a/49825223/1463649
+  handleUnhandledTouches(){
+    Keyboard.dismiss;
+    return false;
+  }
+
   render() {
     const {preferences} = this.state;
 
@@ -48,7 +54,7 @@ export default class App extends React.Component {
     } else {
       return (
         <Provider store={makeStore(preferences)}>
-          <View style={styles.container}>
+          <View style={styles.container} onStartShouldSetResponder={this.handleUnhandledTouches}>
             {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
             <PromptRenderer>
               <AppNavigator />

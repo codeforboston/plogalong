@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Plogalong</title>
+
+    <script defer src="/__/firebase/7.14.2/firebase-app.js"></script>
+    <script defer src="/__/firebase/7.14.2/firebase-auth.js"></script>
+    <script defer src="/__/firebase/init.js"></script>
+    {{> style_includes }}
+  </head>
+  <body>
+    <div id="message">
+        Loading
+    </div>
+
+    <script>
+     function showMessage(text, classes=[]) {
+         const m = document.getElementById('message');
+         m.innerText = text;
+         m.className = classes.join(' ');
+     }
+
+      document.addEventListener('DOMContentLoaded', function() {
+          const params = new URLSearchParams(location.search);
+          const mode = params.get('mode');
+
+          if (mode === 'verifyEmail') {
+              showMessage('Verifying your email address...');
+              const code = params.get('oobCode');
+              firebase.auth().applyActionCode(code).then(
+                  _ => {
+                      showMessage('Your email address is now verified');
+                  },
+                  err => {
+                      showMessage(err.message);
+                  }
+              );
+          } else if (mode === 'resetPassword') {
+              /// Attempt to redirect to the app...
+          } else {
+              showMessage('Hello there. What brought you here?');
+          }
+          });
+    </script>
+  </body>
+</html>

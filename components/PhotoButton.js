@@ -45,30 +45,8 @@ class PhotoButton extends React.Component {
             this.props.onCleared();
     }
 
-    takeAndSelectPhoto = async () => {
-        const {onPictureSelected} = this.props;
-        const result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true
-        });
-
-        if (!result.cancelled) {
-            onPictureSelected && onPictureSelected(result);
-        }
-    }
-
-    pickImage = async () => {
+    processResult = async result => {
       const {onPictureSelected, manipulatorActions} = this.props;
-        const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-
-        if (status !== 'granted') {
-            Alert.alert('Permission Required', 'We need access to your camera roll for that option.');
-            return;
-        }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true
-        });
 
         if (!result.cancelled) {
             onPictureSelected && onPictureSelected(result);
@@ -80,12 +58,37 @@ class PhotoButton extends React.Component {
         }
     }
 
+    takeAndSelectPhoto = async () => {
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1]
+        });
+
+        this.processResult(result);
+    }
+
+    pickImage = async () => {
+        const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+
+        if (status !== 'granted') {
+            Alert.alert('Permission Required', 'We need access to your camera roll for that option.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1]
+        });
+
+        this.processResult(result);
+    }
+
     render() {
         const {photo, style, imageStyle, defaultIcon: DefaultIcon=icons.Camera, ...props} = this.props,
               icon = photo ?
               <Image source={photo} style={[{flex: 1}, imageStyle]}/> :
-              <DefaultIcon fill="#666666" width={imageStyle && imageStyle.width || 100} 
-                                          height={imageStyle && imageStyle.height || 100}/>;
+              <DefaultIcon fill="#666666" width="100%" height="100%"/>;
 
         return <Button title="Add Image"
                        icon={icon}

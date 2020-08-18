@@ -2,8 +2,15 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const app = require('./app');
 
-const { updateAchievements, updateStats, AchievementHandlers } = require('./shared');
-const { updatePlogsWhere } = require('./util');
+const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, addBonusMinutes, localPlogDate} = require('./shared');
+const $u = require('./util');
+const regions = require('./regions');
+const email = require('./email');
+
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
 
 /**
  * Async generator that handles pagination and yields documents satisfying the
@@ -42,8 +49,10 @@ async function initAchievements(userID, types) {
     return m;
   }, {});
 
-  for await (const plog of queryGen(Plogs.where('d.UserID', '==', userID))) {
-    const plogData = plog.data().d;
+  for await (const plog of queryGen(Plogs.where('UserID', '==', userID))) {
+    const plogData = plog.data();
+    plogData.LocalDate = localPlogDate(plogData);
+    plogData.id = plog.id;
     for (const type of types) {
       if (!achievements[type].complete)
         achievements[type] = AchievementHandlers[type].update(
@@ -55,27 +64,55 @@ async function initAchievements(userID, types) {
 }
 
 // TODO Ignore duplicate events
-exports.calculateAchievements = functions.firestore.document('/plogs/{documentId}')
+exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
   .onCreate(async (snap, context) => {
-    const plogData = snap.data().d;
+    const plogData = snap.data();
     const {UserID} = plogData;
-    let initUserAchievements;
+    let initUserAchievements = [];
     const userDocRef = Users.doc(UserID);
 
     await app.firestore().runTransaction(async t => {
-      const user = await t.get(userDocRef);
-      const userData = user.data();
+      const userData = await t.get(userDocRef).then(u => u.data());
+      /** @type {Unwrapped<ReturnType<typeof regions.getRegionForPlog>>} */
+      let regionInfo;
 
-      const {achievements, needInit} = updateAchievements(userData.achievements, plogData);
+      if (plogData.Public && plogData.coordinates) {
+        regionInfo = await regions.getRegionForPlog(snap, t);
+      }
+
+      // Update the user stats first. If a region ID is supplied, the user's
+      // stats for that region will also be updated
+      plogData.id = snap.id;
+      let userStats = updateStats(userData.stats, plogData, 0, regionInfo && regionInfo.locationInfo.id);
+
+      // regions.plogCreated uses userStats to potentially update the region
+      // leaderboard
+      const regionData = regionInfo &&
+            await regions.plogCreated(plogData, regionInfo.doc, regionInfo.snap, regionInfo.locationInfo, userStats, t);
+
+      // achievements may depend on locally aggregated data (stats, leaderboard)
+      const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData, regionData);
+
+      if (completed.length) {
+        // add bonus minutes from achievements
+        userStats = addBonusMinutes(userStats, localPlogDate(plogData), calculateBonusMinutes(completed));
+      }
 
       t.update(userDocRef, {
         achievements,
-        stats: updateStats(userData.stats, plogData, snap.createTime.toDate())
+        stats: userStats
       });
 
-      initUserAchievements = needInit;
+      if (userStats.total.count > 1) {
+        // We don't need to initialize user achievements if this is the user's
+        // first plog.
+        initUserAchievements = needInit;
+      }
     });
 
+    // This code shouldn't need to run too often. The intent is to allow us to
+    // add achievements that take will take into account a user's full history
+    // of plogs, including those logged before the achievement existed.
     if (initUserAchievements.length) {
       await app.firestore().runTransaction(async t => {
         t.update(userDocRef, {
@@ -85,6 +122,10 @@ exports.calculateAchievements = functions.firestore.document('/plogs/{documentId
     }
   });
 
+exports.plogDeleted = functions.firestore.document('/plogs/{plogID}')
+  .onDelete(async (snap, context) => {
+    await $u.deletePlogFromRegions(snap.id);
+  });
 
 exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
     .onUpdate(async (snap, context) => {
@@ -92,16 +133,38 @@ exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
         const after = snap.after.data();
 
         if (before.profilePicture !== after.profilePicture || before.displayName !== after.displayName) {
-          await updatePlogsWhere(
-            ['d.UserID', '==', context.params.userId],
+          await $u.updatePlogsWhere(
+            ['UserID', '==', context.params.userId],
             {
-              'd.UserProfilePicture': after.profilePicture,
-              'd.UserDisplayName': after.displayName,
+              'UserProfilePicture': after.profilePicture,
+              'UserDisplayName': after.displayName,
             });
         }
     });
 
-const { likePlog, loadUserProfile, mergeWithAccount } = require('./http');
-exports.likePlog = functions.https.onCall(likePlog);
-exports.loadUserProfile = functions.https.onCall(loadUserProfile);
-exports.mergeWithAccount = functions.https.onCall(mergeWithAccount);
+exports.onCommentCreate = functions.firestore.document('/comments/{commentId}')
+  .onCreate(async (snap, context) => {
+    const { admin_email: ADMIN_EMAIL } = functions.config().plogalong || {};
+    if (!ADMIN_EMAIL)
+      return;
+
+    const comment = snap.data();
+
+    await email.send({
+      recipients: ADMIN_EMAIL,
+      subject: `Comment from ${comment.name}`,
+      textContent: comment.comment
+    });
+  });
+
+const users = require('./users');
+exports.onUserDeleted = functions.auth.user().onDelete(async user => {
+  await users.deleteUserData(user.uid);
+});
+
+const http = require('./http');
+exports.likePlog = functions.https.onCall(http.likePlog);
+exports.loadUserProfile = functions.https.onCall(http.loadUserProfile);
+exports.mergeWithAccount = functions.https.onCall(http.mergeWithAccount);
+exports.reportPlog = functions.https.onCall(http.reportPlog);
+exports.getRegionInfo = functions.https.onCall(http.getRegionInfo);

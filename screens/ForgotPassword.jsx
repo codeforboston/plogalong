@@ -27,8 +27,7 @@ const schema = yup.object({
   email: yup.string().required().email().label('Email')
 });
 
-/** @type {React.FunctionComponent<{ currentUser: User }>} */
-const ForgotPassword = ({currentUser, flashMessage}) => {
+const ForgotPassword = ({flashMessage}) => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
@@ -82,9 +81,7 @@ const ForgotPassword = ({currentUser, flashMessage}) => {
 };
 
 export default connect(
-  ({users}) => ({
-    currentUser: users.current,
-  }),
+  null,
   dispatch => ({
     flashMessage(message) { dispatch(actions.flashMessage(message)); }
   })

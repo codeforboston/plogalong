@@ -15,8 +15,17 @@ import NavMenu from '../components/NavMenu';
 import AboutScreen from './AboutScreen';
 import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
-import InviteModalScreen from './InviteModalScreen';
 import PrivacyScreen from './PrivacyScreen';
+import PloggingSuppliesScreen from './PloggingSuppliesScreen';
+
+
+
+import AchievementScreen from './AchievementScreen';
+
+
+
+import arrow from '../assets/svg/headerBackImage/arrow.svg';
+import $S from '../styles';
 
 
 const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
@@ -33,7 +42,7 @@ export class MoreScreen extends React.Component {
   };
 
   toggleIsInviteModalVisible = () => {
-    this.setState(prevState => ({isInviteModalVisible: !prevState.isInviteModalVisible}));
+    this.props.navigation.navigate('Invite');
   }
 
   goToPlogScreen = () => {
@@ -42,7 +51,9 @@ export class MoreScreen extends React.Component {
 
   pages = [
     {label: 'About Plogalong', route: 'About'},
+    {label: 'Achievements', route: 'Achievements'},
     {label: 'Contact Us', route: 'Contact Us'},
+    {label: 'Plogging Supplies', route: 'Plogging Supplies'},
     {label: 'Privacy', route: 'Privacy'},
     {label: 'Terms', route: 'Terms'},
   ];
@@ -54,7 +65,7 @@ export class MoreScreen extends React.Component {
           Life is hard. Plogging is easy.
         </Banner>
         <NavMenu routes={this.pages}/>
-        <View style={styles.buttons}>
+        <View style={$S.footerButtons}>
           <Button title="Invite"
                   large
                   onPress={this.toggleIsInviteModalVisible}
@@ -64,8 +75,6 @@ export class MoreScreen extends React.Component {
                   onPress={this.goToPlogScreen}
           />
         </View>
-        <InviteModalScreen toggleIsInviteModalVisible={this.toggleIsInviteModalVisible}
-                           isInviteModalVisible={this.state.isInviteModalVisible} />
       </View>
     );
   }
@@ -82,7 +91,8 @@ export default ({navigation, route}) => {
 
     return (
         <Stack.Navigator screenOptions={{
-            headerBackTitle: 'More',
+            headerBackTitle: ' ',
+            headerBackImage: arrow,
             title: decamel(routeName(route)),
             headerTitle: (props) => (
                 <Header text={props.children} />
@@ -96,10 +106,11 @@ export default ({navigation, route}) => {
         }}>
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
+          <Stack.Screen name="Achievements" component={ AchievementScreen }/>
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
           <Stack.Screen name="Privacy" component={ PrivacyScreen }/>
           <Stack.Screen name="Terms" component={ TermsScreen }/>
-          
+          <Stack.Screen name="Plogging Supplies" component={ PloggingSuppliesScreen }/>
         </Stack.Navigator>
     );
 };
@@ -110,15 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: 20,
   },
-  divider: {
-      borderBottomWidth: 1,
-      borderBottomColor: 'gray'
-  },
   banner: {
     marginBottom: 20,
   },
-  buttons: {
-    margin: 30,
-    marginBottom: 50,
-  }
 });

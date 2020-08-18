@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import {
     StyleSheet,
     Switch,
@@ -6,40 +7,49 @@ import {
     View,
 } from 'react-native';
 
-import AchievementBadge from "../components/AchievementBadge";
-import AchievementTypes from '../constants/AchievedMockup';
-import Colors from '../constants/Colors';
+import { formatDateOrRelative } from '../util/string';
+import { processAchievement } from '../util/users';
+
 import $S from '../styles';
+
+import AchievementBadge from "../components/AchievementBadge";
 import Button from '../components/Button';
 
 
 const AchievementModal = ({navigation, route}) => {
-    const { params: { achievement } } = route;
+  const { params: { achievementType } } = route;
+  const currentUser = useSelector(state => state.users.current);
+  const { data: { achievements = {} } = {} } = currentUser || {};
+  const achievement = processAchievement(achievements, achievementType);
 
-    return (
-        <View style={$S.modalContainer}>
-            <View style={[$S.modalContent, styles.modalContent]}>
-                <Text style={$S.headline}>
-                    {achievement.completed ? 'Achievement Unlocked!' : 'Keep on Plogging'}
-                </Text>
-                <AchievementBadge 
-                    achievement={achievement} 
-                    showDescription
-                    style={styles.badgeStyle}
-                     />
-                <View style={styles.shareOptions} >
-                    <Text>Share on Facebook</Text>
-                    <Switch value={false} />
-                </View>
-            </View>
-            <View style={$S.modalButtonsContainer}>
-                <Button
-                    title="OK" onPress={navigation.goBack.bind(navigation)} 
-                    large
-                    style={$S.modalButton} />
-            </View>
-        </View>
-    );
+  return (
+    <View style={$S.modalContainer}>
+      <View style={[$S.modalContent, styles.modalContent]}>
+        <Text style={$S.headline}>
+          {achievement.completed ? 'Achievement Unlocked!' : 'Keep on Plogging'}
+        </Text>
+        <AchievementBadge
+          achievement={achievement}
+          showDescription
+          style={styles.badgeStyle}
+        />
+        {achievement.completed &&
+         <Text style={$S.body}>
+           Completed {formatDateOrRelative(achievement.completed.toDate())}
+         </Text>}
+      {/*  <View style={styles.shareOptions} >
+          <Text>Share on Facebook</Text>
+          <Switch value={false} />
+        </View> */}
+      </View>
+      <View style={$S.modalButtonsContainer}>
+        <Button
+          title="OK" onPress={_ => { navigation.navigate('History'); /* XXX Cheat */}} 
+          large
+          style={$S.modalButton} />
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

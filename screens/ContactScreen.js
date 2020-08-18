@@ -1,13 +1,14 @@
 import * as React from 'react';
 import {
-    ScrollView,
-    StyleSheet,
-    View,
-    TouchableOpacity,
-    TouchableWithoutFeedback, Keyboard
+  Keyboard,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import {KeyboardAwareScrollView as ScrollView} from 'react-native-keyboard-aware-scrollview';
 
 import { flashMessage } from '../redux/actions';
 import ContactForm from '../components/ContactForm';
@@ -21,15 +22,13 @@ const ContactScreen = ({flashMessage}) => {
   };
 
   return (
-    <ScrollView style={[$S.screenContainer, ]}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <ScrollView style={$S.screenContainer}>      
         <View style={styles.screenContainerStyles}>
           <ContactForm onSave={onSave} />
-        </View>
-      </TouchableWithoutFeedback>
+        </View>    
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
     screenContainerStyles: {

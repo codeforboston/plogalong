@@ -95,7 +95,7 @@ class PlogScreenWeather extends Component {
       } else if (tempMin <= -6) {
         plogMessage.message = "Don't go plogging, it's too cold!";
       };
-      console.log(plogMessage.message);
+
       return (
         
         <View 
@@ -107,6 +107,7 @@ class PlogScreenWeather extends Component {
             marginRight: 20,
             marginBottom: 10,
             paddingVertical: 15,
+            paddingHorizontal: 5,
             flexDirection: 'column',
             alignItems: 'center',
             }}

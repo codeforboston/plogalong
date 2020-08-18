@@ -83,6 +83,29 @@ export default StyleSheet.create({
       paddingBottom: 10,
     },
 
+    linkButton: {
+      borderRadius: 5,
+      borderColor: Colors.secondaryColor,
+      borderWidth: 2,
+     overflow: 'hidden',
+      backgroundColor: Colors.secondaryColor,
+      marginTop: 20,
+      marginBottom: 5,
+      marginLeft: 40,
+      marginRight: 40,
+      paddingTop: 10,
+      paddingBottom: 10,
+      paddingLeft: 5,
+      paddingRight: 5,
+    },
+
+    linkButtonText: {
+      color: 'white',
+      textAlign: 'center',
+      fontSize: 18,
+      textDecorationLine: 'none',
+    },
+
     textButton: {
         textAlign: 'center'
     },
@@ -109,8 +132,8 @@ export default StyleSheet.create({
     },
 
   headline: {
-    color: Colors.secondaryColor,
-    fontSize: 30,
+    color: Colors.textGray,
+    fontSize: 28,
     fontWeight: '600',
   },
 
@@ -179,5 +202,32 @@ export default StyleSheet.create({
     marginRight: 20,
     padding: 5,
     textAlign: 'center',
+  },
+
+  footerButtons: {
+    justifyContent: 'flex-end',
+    marginHorizontal: 30,
+    marginBottom: 50,
+  },
+
+  alertText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: Colors.warningText,
+    backgroundColor: Colors.warningBackground,
+  },
+
+  mapContainer: {
+    borderColor: Colors.borderColor,
+    borderWidth: 1,
+    flex: 1,
+    height: 300,
+    margin: 5,
+    position: 'relative'
+  },
+
+  map: {
+    width: '100%',
+    height: '100%'
   },
 });

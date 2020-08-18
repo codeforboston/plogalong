@@ -1,10 +1,21 @@
+import {
+  YellowBox
+ } from 'react-native';
+
+import * as AppAuth from 'expo-app-auth';
 import * as Facebook from 'expo-facebook';
 import * as Google from 'expo-google-app-auth';
-// import * as AppleAuthentication from 'expo-apple-authentication';
+import * as GoogleSignIn from 'expo-google-sign-in';
+import * as AppleAuthentication from 'expo-apple-authentication';
+
+import config from '../config';
+import Options from '../constants/Options';
+const { firebase: firebaseConfig } = config;
+
+const InExpo = AppAuth.OAuthRedirect.indexOf('host.exp.exponent') !== -1;
 
 import { auth, firebase, Users } from './init';
 import { uploadImage } from './util';
-import firebaseConfig from './config';
 import * as functions from './functions';
 
 
@@ -20,31 +31,49 @@ const initialUserData = (user, locationInfo) => ({
 });
 
 
+let onAuthStateChangedCallback = _ => {};
+let unsubscribeAuthStateChange;
+export function onAuthStateChanged(callback) {
+  if (unsubscribeAuthStateChange)
+    unsubscribeAuthStateChange();
+
+  unsubscribeAuthStateChange = auth.onAuthStateChanged(callback);
+  onAuthStateChangedCallback = callback;
+  return unsubscribeAuthStateChange;
+}
+
+/**
+ * @param {firebase.User|firebase.auth.UserCredential} user
+ */
+function _refreshUser(user) {
+  if (user.user)
+    user = user.user;
+
+  onAuthStateChangedCallback(user);
+  return user;
+}
+
 /**
  * @template P
  * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
  */
 
-/**
- * @template LoginFn
- * @param {LoginFn} loginFn
- * @template {(credentials: Unwrapped<ReturnType<LoginFn>>) => any} CredFn
- * @param {CredFn} credFn
- *
- * @returns {<T>(fn: (result: ReturnType<CredFn>) => Promise<T>, canceledFn: () => any) => T?}
- */
 const withCredentialFn = (loginFn, credFn) => (
   (fn, canceledFn=null) => (
     async () => {
-      const result = await loginFn();
+      try {
+        const result = await loginFn();
 
-      if (result.type === 'success') {
-        return await fn(credFn(result));
+        if (result.type === 'success')
+          return await fn(credFn(result));
+
+        return canceledFn ? canceledFn() : null;
+      } catch (err) {
+        if (err.code == -3) // cancelled
+          return null;
+
+        throw err;
       }
-
-      if (canceledFn) canceledFn();
-
-      return null;
     }
   )
 );
@@ -59,60 +88,112 @@ const withFBCredential = withCredentialFn(
 );
 
 
-const withGoogleCredential = withCredentialFn(
-  () => Google.logInAsync(firebaseConfig.auth.google),
-  c => firebase.auth.GoogleAuthProvider.credential(c.idToken, c.accessToken)
-);
+let GoogleInitialized = null;
+const _googleInit = () =>  {
+  if (!GoogleInitialized)
+    GoogleInitialized = GoogleSignIn.initAsync().then(_ => true,
+                                                      err => {
+                                                        console.warn('GoogleSignIn.initAsync error', err);
 
-const withAppleCredential = (fn) => (
+                                                        GoogleInitialized = null;
+                                                      });
+
+  return GoogleInitialized;
+};
+
+/**
+ * @template T
+ * @param {(cred: firebase.auth.OAuthProvider) => Promise<T>} fn
+ */
+const withGoogleCredential =
+      InExpo ?
+      withCredentialFn(
+        () => Google.logInAsync(firebaseConfig.auth.google),
+        c => firebase.auth.GoogleAuthProvider.credential(c.idToken, c.accessToken)
+      )
+      :
+      fn => (async () => {
+        await _googleInit();
+        await GoogleSignIn.askForPlayServicesAsync();
+        const { type, user } = await GoogleSignIn.signInAsync();
+
+        if (type === 'cancel')
+          return null;
+
+        const cred = firebase.auth.GoogleAuthProvider.credential(user.auth.idToken, user.auth.accessToken);
+        return await fn(cred);
+      });
+
+if (InExpo)
+  YellowBox.ignoreWarnings(['Deprecated: You will need to use expo-google-sign-in']);
+
+/**
+ * @template T
+ * @param {(cred: firebase.auth.OAuthProvider) => Promise<T>} fn
+ */
+const withAppleCredential = fn => (
   async () => {
-    const credential = await AppleAuthentication.signInAsync({
-      requestedScopes: [
-        AppleAuthentication.AppleAuthenticationScope.EMAIL
-      ]
-    });
+    try {
+      const result = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.EMAIL
+        ]
+      });
+
+      const credential = new firebase.auth.OAuthProvider('apple.com')
+            .credential({
+              idToken: result.identityToken,
+            });
+      return await fn(credential);
+    } catch (err) {
+      if (err.code === 'ERR_CANCELED')
+        return null;
+
+      throw err;
+    }
   }
 );
 
+/** @type {typeof auth.signInWithCredential} */
 const signInWithCredential = auth.signInWithCredential.bind(auth);
 
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const loginWithFacebook = withFBCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
-export const linkToFacebook = withFBCredential(cred => auth.currentUser.linkWithCredential(cred));
+export const linkToFacebook = withFBCredential(
+  cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
 
-export const unlinkFacebook = () => {
-  auth.currentUser.unlink('facebook.com');
-};
+export const unlinkFacebook = () =>
+  auth.currentUser.unlink('facebook.com').then(_refreshUser);
 
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const loginWithGoogle = withGoogleCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
-export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred));
+export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
+
+export const unlinkGoogle = () => auth.currentUser.unlink('google.com').then(_refreshUser);
+
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const loginWithApple = withAppleCredential(signInWithCredential);
+/** @type {() => Promise<firebase.auth.UserCredential>} */
+export const linkToApple = withAppleCredential(cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
+export const unlinkApple = () => auth.currentUser.unlink('apple.com').then(_refreshUser);
+
 
 export const loginWithEmail = auth.signInWithEmailAndPassword.bind(auth);
 
-export const linkToEmail = (email, password) => {
+export const linkToEmail = async (email, password) => {
   const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-  return auth.currentUser.linkWithCredential(credential);
+  const userCred = await auth.currentUser.linkWithCredential(credential);
+  
+  _refreshUser(userCred);
+
+  userCred.user.sendEmailVerification().catch(console.warn);
+
+  return userCred.user;
 };
 
-export const unlinkGoogle = () => {
-  auth.currentUser.unlink('google.com');
-};
-
-export const logOut = async () => {
-  return auth.signOut();
-}
-
-let unsubscribeAuthStateChange;;
-export function onAuthStateChanged(callback) {
-  if (unsubscribeAuthStateChange)
-    unsubscribeAuthStateChange();
-
-  unsubscribeAuthStateChange = auth.onAuthStateChanged(callback);
-  return unsubscribeAuthStateChange;
-}
+export const logOut = () => auth.signOut();
 
 /**
  * @param {firebase.firestore.DocumentReference} ref
@@ -132,7 +213,6 @@ async function initializeUserData(ref, user, store) {
 }
 
 /**
-
  * @param {firebase.User} user
  */
 export const getUserData = async (user, store) => {
@@ -152,18 +232,23 @@ export const setUserData = async (data) => {
     delete data['profilePicture'];
   }
 
-  Users.doc(auth.currentUser.uid).update(data).catch(x => {
-    console.warn('error updating user', auth.currentUser, data, x);
-  });
+  const tasks = [
+    Users.doc(auth.currentUser.uid).update(data).catch(x => {
+      console.warn('error updating user', auth.currentUser, data, x);
+    })
+  ];
+  
+  if (profilePicture && profilePicture.uri)
+    tasks.push(setUserPhoto(profilePicture));
 
-  if (profilePicture && profilePicture.uri) {
-    setUserPhoto(profilePicture);
-  }
+  await Promise.all(tasks);
 };
 
 export const setUserPhoto = async ({uri}) => {
-  Users.doc(auth.currentUser.uid).update({
-    profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, { resize: { width: 300, height: 300 }})
+  await Users.doc(auth.currentUser.uid).update({
+    profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, {
+      resize: { width: Options.profilePhotoWidth, height: Options.profilePhotoHeight }
+    })
   });
 };
 

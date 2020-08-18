@@ -2,19 +2,6 @@ import * as shared from '../firebase/project/functions/shared';
 
 const timeUnits = new Map(shared.timeUnits.map(tu => ([tu.unit, tu.when])));
 
-export function formatDuration(ms) {
-  const s = Math.round(ms/1000);
-  if (s < 60)
-    return `${s} seconds`;
-
-  let m = Math.floor(s/60);
-  if (m < 60)
-    return `${m} minute${m === 1 ? '' : 's'}`;
-
-  let h = Math.floor(m/60);
-  return `${h} hour${h === 1 ? '' : 's'}`;
-}
-
 /**
  * @param {shared.TimeUnit} unit
  *
@@ -37,7 +24,5 @@ export function getStats(user, unit, now=new Date()) {
   return Object.assign(defaults, stats[unit]);
 }
 
-export const pluralize = (n, noun, plural=`${noun}s`) =>
-  `${n} ${n === 1 ? noun : plural}`;
-
 export { keep, indexBy, times } from './iter';
+export { formatDate, formatDuration, parseURL, pluralize } from './string';

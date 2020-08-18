@@ -1,5 +1,13 @@
 import React, { useCallback } from "react";
-import { StyleSheet, Text, View, Button, Linking } from "react-native";
+import {
+  Button,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
 import $S from '../styles';
 
 const websiteURL = "https://www.plogalong.com/";
@@ -19,27 +27,27 @@ const OpenURLButton = ({ url, children }) => {
     }
   }, [url]);
 
-  return <Button title={children} onPress={handlePress} />;
+  return (
+    <View style={$S.linkButton}>
+      <Text style={$S.linkButtonText} onPress={handlePress}>
+        Visit plogalong.com
+      </Text>
+    </View>
+  );
 };
 
 export default class TermsScreen extends React.Component {
-  static navigationOptions = {
-    title: "Terms",
-  };
-
   render() {
     return (
-      <View style={$S.container}>
+      <ScrollView style={$S.container}>
         <View style={$S.bodyContainer}>
           <Text style={$S.body}>{mainMessage}</Text>
           <Text style={$S.body}>{createdBy}</Text>
         </View>
-        {/* Lines 33-35 can be changed into a custom component*/}
-        
-        <OpenURLButton url={websiteURL}>Visit our Website</OpenURLButton>
-      </View>
+
+        <OpenURLButton url={websiteURL}>Visit plogalong.com</OpenURLButton>
+      </ScrollView>
     );
   }
 }
 
-// Using 'OpenURLButton' from https://reactnative.dev/docs/linking

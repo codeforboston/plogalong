@@ -1,14 +1,22 @@
-const firebase = require('firebase');
 const functions = require('firebase-functions');
+const crypto = require('crypto');
 
 const app = require('./app');
+const email = require('./email');
 const users = require('./users');
+const { regionInfo } = require('./util.js');
 
 const { HttpsError } = functions.https;
 
 
 const Users = app.firestore().collection('users');
 const Plogs = app.firestore().collection('plogs');
+
+function sha256(input, enc='utf8') {
+  const hash = crypto.createHash('sha256');
+  hash.update(input);
+  return hash.digest(enc);
+}
 
 /**
  * @typedef {object} LikeRequest
@@ -41,7 +49,7 @@ async function likePlog(data, context) {
       throw new HttpsError('not-found', 'Invalid plog id');
 
     const likedPlogs = userSnap.data().likedPlogs || {};
-    let likeCount = plogSnap.data().d.likeCount || 0;
+    let likeCount = plogSnap.data().likeCount || 0;
 
     if (data.like && !likedPlogs[data.plog]) {
       likedPlogs[data.plog] = Date.now();
@@ -54,7 +62,7 @@ async function likePlog(data, context) {
       return { likeCount };
     }
 
-    trans.update(plogRef, { 'd.likeCount': Math.max(likeCount, 0) })
+    trans.update(plogRef, { 'likeCount': Math.max(likeCount, 0) })
       .update(userRef, { likedPlogs });
 
     return { likeCount };
@@ -104,6 +112,7 @@ async function loadUserProfile(data, context) {
  * @typedef {object} MergeAccountRequest
  * @property {string} userID uid of the anonymous user to merge into this account
  * @property {string} merge
+ * @property {boolean} [skipPlogMerge]
  */
 
 const matchKeys = (a, match) => {
@@ -133,15 +142,20 @@ async function mergeWithAccount(data, context) {
     Users.doc(data.userID).get()
   ]);
 
+  let { skipPlogMerge } = data;
   {
-    const { allowMergeWith } = otherUserData && otherUserData.data() || {};
+    const { allowMergeWith, stats } = otherUserData && otherUserData.data() || {};
     const { providerId, ...match } = allowMergeWith;
     const provider = user.providerData.find(p => p.providerId === providerId);
     if (!provider || !matchKeys(provider, match))
       throw new HttpsError('permission-denied', 'Permission denied');
+
+    if (!stats || !stats.total || !stats.total.count)
+      skipPlogMerge = true;
   }
 
-  await users.mergeUsers(data.userID, context.auth.uid);
+  if (!skipPlogMerge)
+    await users.mergeUsers(data.userID, context.auth.uid);
 
   await app.auth().deleteUser(data.userID);
   await Users.doc(data.userID).delete();
@@ -149,8 +163,87 @@ async function mergeWithAccount(data, context) {
   return {};
 }
 
+/**
+ * @typedef {Object} ReportPlogRequest
+ * @property {string} plogID
+ */
+
+/**
+ * Called by an authorized user to merge in the plogs from another user. If the
+ * merge succeeds, the other user is then deleted.
+ *
+ * @param {ReportPlogRequest} data
+ * @param {functions.https.CallableContext} context
+ */
+async function reportPlog(data, context) {
+  const user = context.auth && context.auth.uid && await app.auth().getUser(context.auth.uid);
+
+  if (!user)
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+  if (!user.emailVerified)
+    throw new HttpsError('permission-denied', 'You must have a verified account before reporting plogs');
+
+  const { admin_email } = functions.config().plogalong || {};
+  const { plogID } = data;
+
+  const plog = await Plogs.doc(plogID).get();
+  const plogData = plog.exists && plog.data();
+
+  if (!plogData || !plogData.Public)
+    throw new HttpsError('not-found', 'No such plog');
+
+  const flaggers = plogData._Flaggers || [];
+  const hashedUID = sha256(user.uid);
+
+  if (flaggers && flaggers.includes(hashedUID))
+    return;
+
+  flaggers.push(hashedUID);
+  await plog.ref.update({ '_Flaggers': flaggers });
+  await email.send({
+    recipients: admin_email,
+    subject: `Plog flagged`,
+    textContent: `${user.displayName} flagged a plog:`,
+    htmlContent: `
+<p>
+  <strong>Flagged By:</strong> ${user.displayName} (ID: ${user.uid})
+</p>
+<p>
+  <strong>Plog ID:</strong> ${plogID}
+</p>
+<p>
+  <strong>Plogger:</strong> ${plogData.UserDisplayName}
+</p>
+<p>
+  <strong>Flagged by:</strong> ${user.displayName}${flaggers.length > 1 ? ` and ${flaggers.length-1} other(s)` : ''}
+</p>
+<p>
+  <strong>Photos:</strong> ${plogData.Photos.join(', ')}
+</p>
+`
+  }).catch(err => {
+    console.error('Error while sending mail:', err);
+  });
+}
+
+/**
+ * @param {{ latitude: number, longitude: number }} data
+ * @param {functions.https.CallableContext} context
+ */
+async function getRegionInfo(data, context) {
+  if (!(context.auth || context.auth.uid))
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  if (typeof data.latitude !== "number" || typeof data.longitude !== "number")
+    throw new HttpsError('failed-precondition', 'Request body must have a valid latitude and longitude');
+
+  return await regionInfo(data);
+}
+
 module.exports = {
   likePlog,
   loadUserProfile,
   mergeWithAccount,
+  reportPlog,
+  getRegionInfo
 };

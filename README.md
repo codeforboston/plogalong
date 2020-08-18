@@ -64,6 +64,8 @@
   
   - Install node modules: `npm install` or `yarn install`
 
+  - If you need to install an additional dependency, that dependency's documentation may give you instructions for using `npm` or `yarn`.  If you encounter problems with the npm installation, using the yarn installation might work better.  There are also instances when you may need to do `npm install` after pulling in new changes from the CfB master branch.
+
   - If you're planning on running this on an Android simulator, you'll have to install the Expo app via the simulated 
   device's Google Play Store. To do so, open Android Studio, open the AVD Manager (icon looks like a phone with a green
   Android alien in the top right toolbar), click the Play button under "Actions" to launch the simulator. You can then open
@@ -92,8 +94,8 @@
   
   - To run Plogalong on an Android device: 
   <br>1. Install Expo on your Android device from the Google play store. 
-  <br>2. In Expo XDE in your browser, select Connection > Tunnel
-  <br>3. Open Expo on your Android device and select Scan QR Code.
+  <br>2. In Expo XDE in your browser, select Connection > Tunnel. Wait for a new link and QR code to generate below the connection options, and then click on the link to copy it to your clipboard.
+  <br>3. Open Expo on your Android device. If you are on an emulated Android device, then select Open from Clipboard. Otherwise, select Scan QR Code.
   <br>4. There should be a message saying 'Building JavaScript Bundle as the Application loads.
   <br>5. Boom! You're ready to Plog.
   
@@ -118,7 +120,52 @@ Check on our Slack channel for the shared configuration file. Save it to
 4. In `firebase/project/functions` run `npm install`.
 5. Deploy with `firebase deploy`. (See `firebase deploy --help` for additional
    options.)
+   
+**Additional setup:** see the section on SendGrid below.
 
+#### Local Configuration
+
+Some Firebase features require additional configuration in the shared app config
+(`app.config.js`). When building, you can optionally specify a
+`LOCAL_CONFIG_FILE` environment variable. If given, it should be set to the path
+(relative to the working directory) of a JS module that exports a config object.
+See `app.config.js` for the keys you can override.
+
+### SendGrid
+
+**What it's for**: this API is used to send certain transactional emails: for
+example, user feedback.
+
+#### Get API Key
+
+1. [Create an account](https://sendgrid.com)
+2. In the SendGrid dashboard, open [API keys](https://app.sendgrid.com/settings/api_keys)
+3. Create a new API key. If you choose to customize the access levels, set "Mail
+   Send" to Full Access.
+4. Copy the API key
+   
+##### Sender Authentication
+
+1. Open the [Sender
+Authentication](https://app.sendgrid.com/settings/sender_auth) page under
+Settings
+2. Choose "Authenticate Your Domain" and follow the instructions
+
+
+#### Configure Firebase
+1. In this repo, cd to `firebase/project`
+2. Set the email configuration options: 
+  ```bash firebase functions:config:set
+  plogalong.sendgrid_api_key=SG.xxxxxxx plogalong.admin_email=xxxxxx 
+  ``` 
+
+  Replace `SG.xxxxxxx` with the API key you got earlier. The
+  `plogalong.admin_email` option determines the email address that will receive
+  admin alerts (comment submissions, for instance). It will also be the sender
+  email unless you provide a separate `plogalong.sender_email` option. In either
+  case, you must complete "Sender Authentication" (above) for the sender domain
+  or address.
+  
 ### OpenWeatherMap (optional)
 
 **What it's for**: this API is used to populate the Current Weather box on the

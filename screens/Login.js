@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   Image,
+  Keyboard,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -9,11 +10,8 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 
-import {
-    loginWithFacebook,
-    logOut,
-} from '../firebase/auth';
 import * as actions from '../redux/actions';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 import $S from '../styles';
 
@@ -28,35 +26,48 @@ import Logo from '../assets/images/plogalong.png';
 
 
 class LoginScreen extends React.Component {
-    static navigationOptions = {
-        title: 'Log In'
+  static navigationOptions = {
+    title: 'Log In'
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      params: {}
     };
+  }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            params: {}
-        };
+  componentDidMount() {
+    this.props.navigation.addListener('blur', () => {
+      Keyboard.dismiss();
+    });
+
+    this.props.navigation.addListener('focus', () => {
+      this._focusTimeout = setTimeout(() => {
+        this._focusInput && this._focusInput.focus();
+      }, 1000);
+    });
+  }
+
+  componentDidUpdate() {
+    if (this.props.currentUser) {
+      clearTimeout(this._focusTimeout);
+      this.props.navigation.navigate("Main");
     }
+  }
 
-    componentDidUpdate() {
-        if (this.props.currentUser) {
-            this.props.navigation.navigate("Main");
-        }
-    }
+  onSubmit = () => {
+    if (this.disabled())
+      return;
 
-    onSubmit = () => {
-        if (this.disabled())
-            return;
+    const {email, password} = this.state.params;
+    this.props.loginWithEmail(email, password);
+  }
 
-        const {email, password} = this.state.params;
-        this.props.loginWithEmail(email, password);
-    }
-
-    disabled = () => {
-        const {params} = this.state;
-        return !params || !params.email || !params.password;
-    }
+  disabled = () => {
+    const {params} = this.state;
+    return !params || !params.email || !params.password;
+  }
 
   renderLoggingIn() {
     return (
@@ -68,10 +79,26 @@ class LoginScreen extends React.Component {
     );
   }
 
+  loginAnonymously = () => { this.props.loginAnonymously() }
+
+  intro = () => { this.props.navigation.navigate('Intro'); }
+  
+  forgotPassword = () => { this.props.navigation.navigate('ForgotPassword'); }
+
+  loginWithGoogle = () => { this.props.loginWithGoogle() }
+
+  _setters = {}
+  setParam = (param) => {
+    if (!this._setters[param]) {
+      this._setters[param] = (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
+    }
+
+    return this._setters[param];
+  }
+
   renderForm = () => {
     const {params} = this.state;
-    const {error, navigation} = this.props;
-    const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
+    const {error} = this.props;
 
     return (
       <>
@@ -83,16 +110,16 @@ class LoginScreen extends React.Component {
           <TextInput style={$S.textInput}
                      autoCapitalize="none"
                      autoCompleteType="email"
-                     autoFocus={true}
+                     ref={input => { this._focusInput = input; }}
                      keyboardType="email-address"
                      value={params.email}
-                     onChangeText={setParam('email')}
+                     onChangeText={this.setParam('email')}
           />
         </View>
         <View style={$S.inputGroup}>
           <Text style={$S.inputLabel}>Password</Text>
           <PasswordInput style={$S.textInput}
-                         onChangeText={setParam('password')}
+                         onChangeText={this.setParam('password')}
                          value={params.password}
           />
         </View>
@@ -104,9 +131,15 @@ class LoginScreen extends React.Component {
 
         <Button title="Login with Google"
                 primary
-                onPress={this.props.loginWithGoogle}
+                onPress={this.loginWithGoogle}
                 style={[{ marginTop: 20 }]} />
-
+                  
+        {AppleAuthentication.isAvailableAsync() &&
+         <Button primary
+           onPress={this.props.loginWithApple}
+           title="Login with Apple"
+         />}
+           
         <Link onPress={() => { navigation.navigate('ForgotPassword'); }}
               style={$S.linkStyle} >
           Forgot Your Password?
@@ -116,22 +149,36 @@ class LoginScreen extends React.Component {
               style={$S.linkStyle}>
           Skip Registration
         </Link>
+        <Link onPress={this.forgotPassword}
+              style={styles.linkStyle} >
+          Forgot Your Password?
+        </Link>
+
+        <Link onPress={this.loginAnonymously}
+              style={styles.linkStyle}>
+          Skip Registration
+        </Link>
+
+        <Link onPress={this.intro}
+              style={[$S.helpLink, $S.linkStyle]}>
+          What is Plogging?
+        </Link>
       </>
     );
   }
 
-    render() {
-        return (
-          <SafeAreaView style={$S.safeContainer}>
-            <View style={[$S.container, $S.form,
-                          this.props.loggingIn && styles.loggingIn]}>
-              {this.props.loggingIn ?
-               this.renderLoggingIn() :
-               this.renderForm()}
-            </View>
-          </SafeAreaView>
-        );
-    }
+  render() {
+    return (
+        <SafeAreaView style={$S.safeContainer}>
+          <View style={[$S.container, $S.form,
+          this.props.loggingIn && styles.loggingIn]}>
+            {this.props.loggingIn ?
+              this.renderLoggingIn() :
+              this.renderForm()}
+          </View>
+        </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -156,5 +203,6 @@ export default connect(
     loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
     loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
     loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),
+    loginWithApple: (...args) => dispatch(actions.loginWithApple(...args)),
   })
 )(LoginScreen);

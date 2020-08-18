@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import {
   FlatList,
   Image,
@@ -8,7 +9,7 @@ import {
 } from 'react-native';
 import moment from 'moment';
 import { Ionicons } from '@expo/vector-icons';
-
+import { useRoute } from '@react-navigation/native';
 import { loadUserProfile } from '../firebase/functions';
 
 import $S from '../styles';
@@ -79,47 +80,24 @@ const UserProfile = ({user}) => (
   </View>
 );
 
-class UserScreen extends React.Component {
-  state = {
-    error: null,
-    userID: null,
-    loading: true,
-    user: null
-  }
+const UserScreen = () => {
+  const { params: { userID } } = useRoute();
 
-  loadUserProfile = async () => {
-    try {
-      const { userID } = this.props.route.params;
-      this.setState({
-        loading: true,
-        userID
-      });
-      const user = await loadUserProfile(userID);
-      this.setState({ user });
-    } catch (err) {
-      this.setState({
-        error: err
-      });
-    } finally {
-      this.setState({
-        loading: false,
-      });
-    }
-  }
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  componentDidMount() {
-    this.loadUserProfile();
-  }
+  React.useEffect(() => {
+    setLoading(true);
+    loadUserProfile(userID)
+      .then(setUser, setError)
+      .finally(_ => setLoading(false));
+  }, [userID]);
 
-  componentDidUpdate(prevProps) {
-    // this.loadUserProfile();
-  }
-
-  renderLoading() {
+  if (loading)
     return <Loading style={{ marginTop: 150 }}/>;
-  }
 
-  renderError(error) {
+  if (error) {
     const e = ProfileErrors[error.code];
     return (
       <PopupHeader
@@ -130,19 +108,15 @@ class UserScreen extends React.Component {
     );
   }
 
-  render() {
-    const {error, loading, user} = this.state;
-
-    return (
-      <View style={[styles.container, $S.form]}>
-        <DismissButton color="black"/>
-        {loading ? this.renderLoading() :
-         error ? this.renderError(error) :
-         <UserProfile user={user} />}
-      </View>
-    );
-  }
-}
+  return (
+    <View style={[styles.container, $S.form]}>
+      <DismissButton color="black"/>
+      {loading ? this.renderLoading() :
+       error ? this.renderError(error) :
+       <UserProfile user={user} />}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

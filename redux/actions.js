@@ -1,15 +1,13 @@
-import { AsyncStorage } from 'react-native';
-
-import { SET_CURRENT_USER, SET_PREFERENCES} from './actionTypes';
+import { SET_CURRENT_USER, SET_PREFERENCES } from './actionTypes';
 import * as types from './actionTypes';
 import { auth, firebase } from '../firebase/init';
-import { savePlog } from '../firebase/plogs';
+import { deletePlog as _deletePlog, savePlog } from '../firebase/plogs';
 import * as L from '../firebase/auth';
 import * as functions from '../firebase/functions';
 
 /** @typedef {import('redux').Action} Action */
 
-const _action = (fn, {pre, err, post}={}) => (
+const _action = (fn, {pre, err, post, cancel}={}) => (
   (...args) => (
     async dispatch => {
       if (pre)
@@ -17,7 +15,11 @@ const _action = (fn, {pre, err, post}={}) => (
 
       try {
         const result = await fn(...args);
-        if (post) dispatch(typeof post === 'function' ? post(result) : post);
+
+        if (!result && cancel) {
+          dispatch(typeof cancel === 'function' ? cancel(...args) : cancel);
+        } else if (post)
+          dispatch(typeof post === 'function' ? post(result) : post);
       } catch (e) {
         if (err) dispatch(err(e));
       }
@@ -25,24 +27,85 @@ const _action = (fn, {pre, err, post}={}) => (
   )
 );
 
+export const authCancelled = _ => ({
+  type: types.AUTH_CANCELED
+});
+
 export const loginError = error => ({
-    type: types.LOGIN_ERROR,
-    payload: { error }
+  type: types.LOGIN_ERROR,
+  payload: { error: error.code === 'auth/user-canceled' ? null : error }
 });
 
 export const signupError = (error) => ({
-    type: types.SIGNUP_ERROR,
-    payload: { error }
+  type: types.SIGNUP_ERROR,
+  payload: { error }
+});
+
+export const uploadProgress = (uri, progress) => ({
+  type: types.UPLOAD_PROGRESS,
+  payload: { progress, uri }
+});
+
+export const uploadError = (error, uri) => ({
+  type: types.UPLOAD_ERROR,
+  payload: { error, uri }
+});
+
+export const plogDeleted = (plogID) => ({
+  type: types.PLOG_DELETED,
+  payload: { plogID }
 });
 
 export const logPlog = (plogInfo) => (
   async dispatch => {
     dispatch({ type: types.LOG_PLOG, payload: { plog: plogInfo }});
     try {
-      await savePlog(plogInfo);
-      dispatch({ type: types.PLOG_LOGGED, payload: { plog: plogInfo } });
+      const plogID = await savePlog(plogInfo, {
+        uploadError(error, uri) {
+          dispatch(uploadError(error, uri));
+        },
+        uploadProgress(uri, { bytesTransferred, totalBytes }) {
+          dispatch(uploadProgress(uri, totalBytes ? bytesTransferred/totalBytes : 0));
+        }
+      });
+      plogInfo.id = plogID;
+      dispatch({ type: types.PLOG_LOGGED,
+                 payload: { plog: plogInfo, plogID } });
     } catch (error) {
-      dispatch({ type: types.LOG_PLOG_ERROR, error });
+      dispatch({ type: types.LOG_PLOG_ERROR, payload: { error } });
+    }
+  });
+
+/**
+ * @param {{ id: string, userID: string, public: boolean}} plogInfo
+ */
+export const deletePlog = plogInfo => (
+  async dispatch => {
+    dispatch({ type: types.DELETE_PLOG, payload: plogInfo });
+    try {
+      await _deletePlog(plogInfo);
+      dispatch(plogDeleted(plogInfo.id));
+    } catch (error) {
+      dispatch({ type: types.DELETE_PLOG_ERROR, payload: { error } });
+    }
+  });
+
+export const reportPlog = plogID => (
+  async dispatch => {
+    dispatch({
+      type: types.REPORT_PLOG,
+      payload: { plogID }
+    });
+    try {
+      await functions.reportPlog(plogID);
+      dispatch(flashMessage(
+        'Thanks for reporting'
+      ));
+    } catch (error) {
+      dispatch({
+        type: types.REPORT_PLOG_ERROR,
+        payload: { plogID, error }
+      });
     }
   });
 
@@ -51,19 +114,35 @@ export const loadHistory = (userID, replace=true) => ({
   payload: { userID, replace }
 });
 
-export const plogsUpdated = (plogs, {prepend=false, replace=false}={}) => ({
+export const loadLocalHistory = (replace=true, n=5) => ({
+  type: types.LOAD_LOCAL_HISTORY,
+  payload: { replace, number: n }
+});
+
+export const loadPlogs = plogIDs => ({
+  type: types.LOAD_PLOGS,
+  payload: { plogIDs }
+});
+
+export const gotPlogData = plogs => ({
+  type: types.PLOG_DATA,
+  payload: { plogs }
+});
+
+export const _plogsUpdated = (listType, plogs, idList, {prepend=false, append=false, removed}={}) => ({
   type: types.PLOGS_UPDATED,
   payload: {
+    listType,
     plogs,
-    prepend,
-    replace
+    idList,
+    disposition: prepend ? 'prepend' : append ? 'append' : 'replace',
+    removed: removed || []
   },
 });
 
-export const plogUpdated = plog => ({
-    type: types.PLOG_UPDATED,
-    payload: plog
-});
+export const plogsUpdated = (...args) => _plogsUpdated('history', ...args);
+
+export const localPlogsUpdated = (...args) => _plogsUpdated('localPlogs', ...args);
 
 export const likePlog = (plogID, like) => (
   async dispatch => {
@@ -82,13 +161,9 @@ export const likePlog = (plogID, like) => (
   }
 );
 
-export const localPlogsUpdated = (plogs, {prepend=false, replace=false}={}) => ({
-  type: types.LOCAL_PLOGS_UPDATED,
-  payload: {
-    plogs,
-    prepend,
-    replace
-  }
+export const setRegion = region => ({
+  type: types.SET_REGION,
+  payload: { region}
 });
 
 export const setCurrentUser = (user) => ({
@@ -97,14 +172,6 @@ export const setCurrentUser = (user) => ({
         user,
     },
 });
-
-export function loadPreferences() {
-    return async dispatch => {
-        const prefs = await AsyncStorage.getItem('com.plogalong.preferences');
-
-        dispatch(setPreferences(prefs ? JSON.parse(prefs) : {}));
-    };
-}
 
 export const setPreferences = (preferences) => ({
     type: SET_PREFERENCES,
@@ -148,11 +215,13 @@ export const loginWithEmail = _action(auth.signInWithEmailAndPassword.bind(auth)
 
 export const loginWithGoogle = _action(L.loginWithGoogle, {
   pre: signup('google', {}),
+  cancel: authCancelled,
   err: loginError
 });
 
 export const linkToGoogle = _action(L.linkToGoogle, {
   pre: signup('google', {}),
+  cancel: authCancelled,
   err: signupError
 });
 
@@ -170,6 +239,11 @@ export const linkToFacebook = _action(L.linkToFacebook, {
 
 export const unlinkFacebook = _action(L.unlinkFacebook, { err: signupError });
 
+export const loginWithApple = _action(L.loginWithApple, {
+  pre: signup('apple', {}),
+  cancel: authCancelled,
+  err: signupError
+});
 
 export const loginAnonymously = _action(() => auth.signInAnonymously(), {
   pre: (autoLogin=false) => signup('anonymous', { autoLogin }),

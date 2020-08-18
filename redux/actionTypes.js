@@ -1,15 +1,26 @@
 export const LOG_PLOG = 'LOG_PLOG';
 export const LOG_PLOG_ERROR = 'LOG_PLOG_ERROR';
 export const PLOG_LOGGED = 'PLOG_LOGGED';
+export const DELETE_PLOG = 'DELETE_PLOG';
+export const DELETE_PLOG_ERROR = 'DELETE_PLOG_ERROR';
+export const PLOG_DELETED = 'PLOG_DELETED';
+
+export const UPLOAD_PROGRESS = 'UPLOAD_PROGRESS';
+export const UPLOAD_ERROR = 'UPLOAD_ERROR';
 
 export const LIKE_PLOG = 'LIKE_PLOG';
 export const LIKE_PLOG_ERROR = 'LIKE_PLOG_ERROR';
+export const REPORT_PLOG = 'REPORT_PLOG';
+export const REPORT_PLOG_ERROR = 'REPORT_PLOG_ERROR';
 
 export const LOAD_HISTORY = 'LOAD_HISTORY';
 export const PLOGS_UPDATED = 'PLOGS_UPDATED';
-export const PLOG_UPDATED = 'PLOG_UPDATED';
 export const LOAD_LOCAL_HISTORY = 'LOAD_LOCAL_HISTORY';
-export const LOCAL_PLOGS_UPDATED = 'LOCAL_PLOGS_UPDATED';
+export const PLOG_DATA = 'PLOG_DATA';
+
+export const LOAD_PLOGS = 'LOAD_PLOGS';
+
+export const SET_REGION = 'SET_REGION';
 
 export const SET_CURRENT_USER = 'SET_CURRENT_USER';
 export const USER_DATA = 'USER_DATA';
@@ -21,6 +32,7 @@ export const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
 export const SIGNUP_ERROR = 'SIGNUP_ERROR';
 
 export const LOGIN_ERROR = 'LOGIN_ERROR';
+export const AUTH_CANCELED = 'AUTH_CANCELED';
 
 export const SET_USER_FIELD = 'SET_USER_FIELD';
 
