@@ -40,46 +40,57 @@ const renderEmpty = () => (
 
 export const HistoryScreen = _ => {
   const dispatch = useDispatch();
-  const { currentUser, history, loading } = useSelector(({log, users}) => {
-    let {plogData, history} = log;
-    const currentUser = users.current;
+  const { currentUser, history, loading, plogData } = useSelector(({log, users}) => {
+    return {
+      loading: log.historyLoading,
+      history: log.history,
+      currentUser: users.current,
+      plogData: log.plogData,
+    };
+  }, shallowEqual);
 
-    // const achievementsByRefID = { [plogID]: ['achieveName'] };
-    /** @type {{ [k in string]: string[] }} */
+  /** @type {{ [k in string]: (ReturnType<typeof processAchievement>)[] }} */
+  const achievementsByRefID = React.useMemo(() => {
     const achievementsByRefID = {};
-    Object.keys(currentUser.data.achievements || {}).forEach(k => {
-      const achievement = currentUser.data.achievements[k];
-      const refID = achievement && achievement.refID;
+    const { achievements } = currentUser.data;
 
-      if (refID) {
-        if (refID in achievementsByRefID)
-          achievementsByRefID[refID].push(k);
-        else
-          achievementsByRefID[refID] = [k];
+    if (achievements) {
+      for (const k in achievements) {
+        const refID = achievements[k] && achievements[k].refID;
+
+        if (refID) {
+          const achievement = {
+            type: 'achievement',
+            id: k,
+            achievement: processAchievement(achievements, k)
+          };
+          if (refID in achievementsByRefID)
+            achievementsByRefID[refID].push(achievement);
+          else
+            achievementsByRefID[refID] = [achievement];
+        }
       }
-    });
+    }
 
+    return achievementsByRefID;
+  }, [currentUser.data.achievements]);
+
+  const combinedHistory = React.useMemo(() => {
     const combinedHistory = [];
 
     history.forEach(id => {
       if (achievementsByRefID[id]) {
-        for (const k of achievementsByRefID[id]) {
-          combinedHistory.push({ 
-            type: 'achievement',
-            achievement: processAchievement(currentUser.data.achievements, k)
-          });
+        for (const achievement of achievementsByRefID[id]) {
+          combinedHistory.push(achievement);
         }
       };
 
       combinedHistory.push(plogData[id]);
     });
 
-    return {
-      loading: log.historyLoading,
-      history: combinedHistory,
-      currentUser,
-    };
-  }, shallowEqual);
+    return combinedHistory;
+  }, [history, plogData, achievementsByRefID]);
+
   const loadNextPage = React.useCallback(() => {
     if (currentUser && !loading)
       dispatch(actions.loadHistory(currentUser.uid, false));
@@ -99,7 +110,7 @@ export const HistoryScreen = _ => {
   return (
     <View style={$S.screenContainer}>
 
-      <PlogList plogs={history}
+      <PlogList plogs={combinedHistory}
                 currentUser={currentUser}
                 header={
                   <View style={{ paddingTop: 20 }}>
