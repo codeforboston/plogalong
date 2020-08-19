@@ -3,24 +3,23 @@ const admin = require('firebase-admin');
 
 const { updatePlogsWhere, withBatch, withDocs } = require('./util');
 
-const Plogs = app.firestore().collection('plogs');
-const Users = app.firestore().collection('users');
+const { Plogs, Users } = require('./collections');
 
 async function mergeUsers(fromUserID, toUserID) {
   const userDoc = await Users.doc(toUserID).get();
   const { displayName, profilePicture } = userDoc.data();
-  const updates = { 'd.UserID': toUserID, };
+  const updates = { 'UserID': toUserID, };
 
   if (displayName)
-    updates['d.UserDisplayName'] = displayName;
+    updates['UserDisplayName'] = displayName;
   if (profilePicture)
-    updates['d.UserProfilePicture'] = profilePicture;
+    updates['UserProfilePicture'] = profilePicture;
 
-  await updatePlogsWhere(['d.UserID', '==', fromUserID], updates);
+  await updatePlogsWhere(['UserID', '==', fromUserID], updates);
 }
 
 async function deleteUserPlogs(userID) {
-  await withBatch(Plogs, ['d.UserID', '==', userID], (batch, doc) => {
+  await withBatch(Plogs, ['UserID', '==', userID], (batch, doc) => {
     batch.delete(doc.ref);
   });
 }

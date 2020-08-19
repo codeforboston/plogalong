@@ -1,12 +1,17 @@
 {
-  "applinks": {
-    "apps": [],
-    "details": [{
-      "appID": "{{ ios.appID }}",
-      "paths": ["/*"]
-    }]
-  },
-  "webcredentials": {
-    "apps": [ "{{ ios.appID }}" ]
-  }
+    "applinks": {
+        "details": [
+            {
+                "appIDs": ["{{ ios.appID }}"],
+                "components": [
+                    {
+                        "/": "/*"
+                    }
+                ]
+            }
+        ]
+    },
+    "webcredentials": {
+        "apps": [ "{{ ios.appID }}" ]
+    }
 }

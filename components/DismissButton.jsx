@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 
-const DismissButton = ({color = 'black', title, style, onDismiss, onPress, ...props}) => {
+const DismissButton = ({color = 'black', title=null, style=null, onDismiss=null, onPress=null, ...props}) => {
   let navigation;
 
   try {

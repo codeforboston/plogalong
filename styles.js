@@ -87,7 +87,7 @@ export default StyleSheet.create({
       borderRadius: 5,
       borderColor: Colors.secondaryColor,
       borderWidth: 2,
-      overflow: 'hidden',
+     overflow: 'hidden',
       backgroundColor: Colors.secondaryColor,
       marginTop: 20,
       marginBottom: 5,
@@ -119,6 +119,13 @@ export default StyleSheet.create({
         textDecorationLine: 'underline',
     },
 
+  linkStyle: {
+    color: Colors.secondaryColor,
+    textDecorationLine: 'underline',
+    marginTop: 30,
+    textAlign: 'center'
+  },
+
     helpLink: {
         textDecorationStyle: 'dotted',
         textDecorationColor: 'black',
@@ -126,7 +133,7 @@ export default StyleSheet.create({
 
   headline: {
     color: Colors.textGray,
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: '600',
   },
 
@@ -150,8 +157,7 @@ export default StyleSheet.create({
   modalContent: {
     backgroundColor: '#fff',
     marginTop: 50,
-    padding: 20,
-    paddingBottom: 50,
+    padding: 20,    
     marginLeft: 20,
     marginRight: 20,
     minHeight: 400,
@@ -160,29 +166,32 @@ export default StyleSheet.create({
 
   modalButtonsContainer: {
     margin: 35,
-    marginTop: 25,
+    marginTop: 15,
   },
 
   modalButton: {
     color: Colors.activeGray,
     backgroundColor: 'white',
     borderWidth: 0,
+    fontWeight: '600',
+    fontSize: 18,
+    textAlign: 'center',
   },
-
-  detail: {},
 
   bodyContainer: {
     marginHorizontal: 10,
     marginTop: 10,
-    
+
     alignContent: "center",
     alignItems: "flex-start",
   },
 
   body: {
+    paddingTop: 5,
     fontSize: 18,
     marginBottom: 15,
   },
+
   h1: {
     fontSize: 25,
     marginTop: 10,
@@ -197,6 +206,12 @@ export default StyleSheet.create({
     textAlign: 'center',
   },
 
+  subheadLink: {
+    paddingRight: 10,
+    textAlign: 'right',
+    position: 'relative',
+  },
+
   footerButtons: {
     justifyContent: 'flex-end',
     marginHorizontal: 30,
@@ -208,5 +223,19 @@ export default StyleSheet.create({
     fontWeight: "bold",
     color: Colors.warningText,
     backgroundColor: Colors.warningBackground,
+  },
+
+  mapContainer: {
+    borderColor: Colors.borderColor,
+    borderWidth: 1,
+    flex: 1,
+    height: 300,
+    margin: 5,
+    position: 'relative'
+  },
+
+  map: {
+    width: '100%',
+    height: '100%'
   },
 });

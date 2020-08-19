@@ -73,7 +73,7 @@ const MainTabNavigator = ({ currentUser, navigation, route, ...props }) => {
   });
 
   if (!currentUser)
-    return <Loading />;
+    return <Loading style={{ marginTop: 150 }} />;
 
   const pr = PixelRatio.getFontScale();
 

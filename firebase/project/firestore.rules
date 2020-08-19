@@ -27,20 +27,24 @@ service cloud.firestore {
     }
 
     match /plogs/{any} {
-    	allow read: if request.auth.uid != null && (request.auth.uid == resource.data.d.UserID || resource.data.d.Public)
-      allow delete: if request.auth.uid != null && request.auth.uid == resource.data.d.UserID;
-      allow create: if request.auth.uid == request.resource.data.d.UserID
+    	allow read: if request.auth.uid != null && (!resource.data || request.auth.uid == resource.data.UserID || resource.data.Public)
+      allow delete: if request.auth.uid != null && request.auth.uid == resource.data.UserID;
+      allow create: if request.auth.uid == request.resource.data.UserID
                     && request.resource.data.keys().hasOnly([
                        "d", "g", "l"
                     ])
-                    && request.resource.data.d.keys().hasOnly([
+                    && request.resource.data.g.size() == 2
+                    && request.resource.data.g.geohash is string
+                    && request.resource.data.g.geopoint is latlng
+                    && request.resource.data.coordinates is latlng
+                    && request.resource.data.keys().hasOnly([
                       "TrashTypes", "ActivityType", "coordinates", "GeoLabel", "HelperType", "PlogType", "DateTime", "TZ", "UserID", "Photos", "PlogDuration", "Public", "UserProfilePicture", "UserDisplayName"
                     ])
-                    && timestampCurrent(request.resource.data.d.DateTime, 60)
+                    && timestampCurrent(request.resource.data.DateTime, 60)
                     && checkUserFields()
       allow write: if request.method == "create" ||
-      							(request.auth.uid == resource.data.d.UserID
-                   	&& request.resource.data.d.diff(resource.data.d).affectedKeys().hasOnly([
+      							(request.auth.uid == resource.data.UserID
+                   	&& request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                       "Photos", "Public"
                    	]))
     }
@@ -62,6 +66,10 @@ service cloud.firestore {
                     && request.resource.data.keys().hasOnly([
                        "comment", "email", "label", "name", "topic"
                     ])
+    }
+
+    match /regions/{any} {
+      allow read: if request.auth != null;
     }
   }
 }

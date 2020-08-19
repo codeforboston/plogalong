@@ -4,12 +4,11 @@ const crypto = require('crypto');
 const app = require('./app');
 const email = require('./email');
 const users = require('./users');
+const $u = require('./util.js');
 
 const { HttpsError } = functions.https;
 
-
-const Users = app.firestore().collection('users');
-const Plogs = app.firestore().collection('plogs');
+const { Users, Plogs, Regions } = require('./collections');
 
 function sha256(input, enc='utf8') {
   const hash = crypto.createHash('sha256');
@@ -17,6 +16,10 @@ function sha256(input, enc='utf8') {
   return hash.digest(enc);
 }
 
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
 /**
  * @typedef {object} LikeRequest
  * @property {string} plog
@@ -48,7 +51,7 @@ async function likePlog(data, context) {
       throw new HttpsError('not-found', 'Invalid plog id');
 
     const likedPlogs = userSnap.data().likedPlogs || {};
-    let likeCount = plogSnap.data().d.likeCount || 0;
+    let likeCount = plogSnap.data().likeCount || 0;
 
     if (data.like && !likedPlogs[data.plog]) {
       likedPlogs[data.plog] = Date.now();
@@ -61,7 +64,7 @@ async function likePlog(data, context) {
       return { likeCount };
     }
 
-    trans.update(plogRef, { 'd.likeCount': Math.max(likeCount, 0) })
+    trans.update(plogRef, { 'likeCount': Math.max(likeCount, 0) })
       .update(userRef, { likedPlogs });
 
     return { likeCount };
@@ -92,7 +95,14 @@ async function loadUserProfile(data, context) {
   if (!userData.exists)
     throw new HttpsError('not-found', 'Invalid user id');
 
-  const {privateProfile, displayName, profilePicture, achievements = {}, stats = {}} = userData.data();
+  const {privateProfile, displayName, profilePicture, achievements, stats} = userData.data();
+
+  if (achievements) {
+    for (const k of Object.keys(achievements)) {
+      if (!achievements[k] || !achievements[k].completed)
+        delete achievements[k];
+    }
+  }
 
   if (privateProfile)
     throw new HttpsError('permission-denied', 'That profile is private');
@@ -102,7 +112,7 @@ async function loadUserProfile(data, context) {
     created: user.metadata.creationTime,
     plogCount: stats && stats.total && stats.total.count || 0,
     displayName,
-    achievements,
+    achievements: achievements || null,
     profilePicture,
   };
 }
@@ -186,7 +196,7 @@ async function reportPlog(data, context) {
   const { plogID } = data;
 
   const plog = await Plogs.doc(plogID).get();
-  const plogData = plog.exists && plog.data().d;
+  const plogData = plog.exists && plog.data();
 
   if (!plogData || !plogData.Public)
     throw new HttpsError('not-found', 'No such plog');
@@ -198,7 +208,7 @@ async function reportPlog(data, context) {
     return;
 
   flaggers.push(hashedUID);
-  await plog.ref.update({ 'd._Flaggers': flaggers });
+  await plog.ref.update({ '_Flaggers': flaggers });
   await email.send({
     recipients: admin_email,
     subject: `Plog flagged`,
@@ -225,9 +235,71 @@ async function reportPlog(data, context) {
   });
 }
 
+/**
+ * @param {{ latitude: number, longitude: number }} data
+ * @param {functions.https.CallableContext} context
+ */
+async function getRegionInfo(data, context) {
+  if (!(context.auth || context.auth.uid))
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  if (typeof data.latitude !== "number" || typeof data.longitude !== "number")
+    throw new HttpsError('failed-precondition', 'Request body must have a valid latitude and longitude');
+
+  return await $u.regionInfo(data);
+}
+
+/**
+ * @param {{ regionID: string }} data
+ * @param {functions.https.CallableContext} context
+ */
+async function getRegionLeaders(data, context) {
+  if (!context.auth || !context.auth.uid)
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  if (!data.regionID)
+    throw new HttpsError('failed-precondition', 'Missing required parameter: regionID');
+
+  const region = await Regions.doc(data.regionID).get();
+
+  if (!region.exists)
+    throw new HttpsError('not-found', 'Invalid region id');
+
+  /** @type {import('./shared').RegionData} */
+  const { leaderboard: { ids = [], data: leaderData = {} } = { }, county } = region.data();
+
+  if (!county)
+    throw new HttpsError('not-found', 'Invalid region id');
+
+  const users = await $u.whereIn(Users, ids);
+
+  const leaders = users.map(user => {
+    const { displayName, profilePicture } = user.data();
+
+    return {
+      id: user.id,
+      regionCount: leaderData[user.id].count,
+      regionMilliseconds: leaderData[user.id].milliseconds,
+      profilePicture,
+      displayName,
+    };
+  });
+
+  return {
+    region: $u.regionInfoForDoc(region),
+    leaders
+  };
+}
+
+/** @typedef {Unwrapped<ReturnType<typeof getRegionInfo>>} RegionInfo */
+/** @typedef {Unwrapped<ReturnType<typeof getRegionLeaders>>} RegionLeaderboard */
+/** @typedef {Unwrapped<ReturnType<typeof loadUserProfile>>} UserProfile */
+
 module.exports = {
   likePlog,
   loadUserProfile,
   mergeWithAccount,
-  reportPlog
+  reportPlog,
+  getRegionInfo,
+  getRegionLeaders,
 };

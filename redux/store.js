@@ -27,17 +27,10 @@ export function initializeStore(initialPrefs) {
         )
     );
 
-   let firstLogin = !initialPrefs.loginCount;
     let lastUID;
 
     onAuthStateChanged(
         (user) => {
-            if (!user && firstLogin) {
-                // log in anonymously
-              store.dispatch(loginAnonymously(true));
-            }
-            firstLogin = false;
-
             store.dispatch(
                 setCurrentUser(
                     user === null ?

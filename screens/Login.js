@@ -79,10 +79,26 @@ class LoginScreen extends React.Component {
     );
   }
 
+  loginAnonymously = () => { this.props.loginAnonymously() }
+
+  intro = () => { this.props.navigation.navigate('Intro'); }
+  
+  forgotPassword = () => { this.props.navigation.navigate('ForgotPassword'); }
+
+  loginWithGoogle = () => { this.props.loginWithGoogle() }
+
+  _setters = {}
+  setParam = (param) => {
+    if (!this._setters[param]) {
+      this._setters[param] = (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
+    }
+
+    return this._setters[param];
+  }
+
   renderForm = () => {
     const {params} = this.state;
-    const {error, navigation} = this.props;
-    const setParam = param => (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
+    const {error} = this.props;
 
     return (
       <>
@@ -97,13 +113,13 @@ class LoginScreen extends React.Component {
                      ref={input => { this._focusInput = input; }}
                      keyboardType="email-address"
                      value={params.email}
-                     onChangeText={setParam('email')}
+                     onChangeText={this.setParam('email')}
           />
         </View>
         <View style={$S.inputGroup}>
           <Text style={$S.inputLabel}>Password</Text>
           <PasswordInput style={$S.textInput}
-                         onChangeText={setParam('password')}
+                         onChangeText={this.setParam('password')}
                          value={params.password}
           />
         </View>
@@ -115,7 +131,7 @@ class LoginScreen extends React.Component {
 
         <Button title="Login with Google"
                 primary
-                onPress={this.props.loginWithGoogle}
+                onPress={this.loginWithGoogle}
                 style={[{ marginTop: 20 }]} />
 
         {AppleAuthentication.isAvailableAsync() &&
@@ -124,18 +140,18 @@ class LoginScreen extends React.Component {
            title="Login with Apple"
          />}
 
-        <Link onPress={() => { navigation.navigate('ForgotPassword'); }}
-              style={styles.linkStyle} >
+        <Link onPress={this.forgotPassword}
+              style={$S.linkStyle} >
           Forgot Your Password?
         </Link>
 
-        <Link onPress={() => { this.props.loginAnonymously(); }}
-              style={styles.linkStyle}>
+        <Link onPress={this.loginAnonymously}
+              style={$S.linkStyle}>
           Skip Registration
         </Link>
 
-        <Link onPress={() => { navigation.navigate('Intro'); }}
-              style={[$S.helpLink, styles.linkStyle]}>
+        <Link onPress={this.intro}
+              style={[$S.helpLink, $S.linkStyle]}>
           What is Plogging?
         </Link>
       </>
@@ -144,23 +160,19 @@ class LoginScreen extends React.Component {
 
   render() {
     return (
-      <SafeAreaView style={$S.safeContainer}>
-        <View style={[$S.container, $S.form,
-                      this.props.loggingIn && styles.loggingIn]}>
-          {this.props.loggingIn ?
-           this.renderLoggingIn() :
-           this.renderForm()}
-        </View>
-      </SafeAreaView>
+        <SafeAreaView style={$S.safeContainer}>
+          <View style={[$S.container, $S.form,
+          this.props.loggingIn && styles.loggingIn]}>
+            {this.props.loggingIn ?
+              this.renderLoggingIn() :
+              this.renderForm()}
+          </View>
+        </SafeAreaView>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  linkStyle: {
-    marginTop: 30,
-    textAlign: 'center'
-  },
   loggingIn: {
     alignItems: 'center',
     justifyContent: 'space-between',

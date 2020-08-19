@@ -5,10 +5,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import {connect} from 'react-redux';
+import { shallowEqual } from 'react-redux';
+import { useDispatch, useSelector } from '../redux/hooks';
 
 import * as actions from '../redux/actions';
-import { formatDuration, getStats } from '../util';
+import { formatDuration, getStats, keep } from '../util';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -36,14 +37,29 @@ const renderEmpty = () => (
   </View>
 );
 
-export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
+export const HistoryScreen = _ => {
+  const dispatch = useDispatch();
+  const { currentUser, history, loading } = useSelector(({log, users}) => {
+    const {plogData, history} = log;
+
+    return {
+      loading: log.historyLoading,
+      history: keep(id => plogData[id], history).sort((a, b) => (b.when - a.when)),
+      currentUser: users.current,
+    };
+  }, shallowEqual);
+  const loadNextPage = React.useCallback(() => {
+    if (currentUser && !loading)
+      dispatch(actions.loadHistory(currentUser.uid, false));
+  }, [currentUser, loading]);
+
   const monthStats = getStats(currentUser, 'month');
   const yearStats = getStats(currentUser, 'year');
 
   useEffect(() => {
     if (currentUser)
-      loadHistory(currentUser.uid);
-  }, [currentUser]);
+      dispatch(actions.loadHistory(currentUser.uid));
+  }, [currentUser && currentUser.uid]);
 
   if (!loading && !history.length)
     return renderEmpty();
@@ -80,10 +96,7 @@ export const HistoryScreen = ({currentUser, history, loadHistory, loading}) => {
                   :
                   <View style={{ height: 25 }} />
 }
-                loadNextPage={() => {
-                  if (currentUser && !loading)
-                    loadHistory(currentUser.uid, false);
-                }}
+                loadNextPage={loadNextPage}
       />
     </View>
   );
@@ -116,14 +129,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default connect(({log, users}) => {
-  const {plogData, history} = log;
-
-  return {
-    loading: log.historyLoading,
-    history: history.map(id => plogData[id]).sort((a, b) => (b.when - a.when)),
-    currentUser: users.current,
-  };
-}, dispatch => ({
-  loadHistory: (...args) => dispatch(actions.loadHistory(...args)),
-}))(HistoryScreen);
+export default HistoryScreen;

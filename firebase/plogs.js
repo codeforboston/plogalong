@@ -12,36 +12,52 @@ const { plogPhotoWidth: MaxWidth, plogPhotoHeight: MaxHeight } = Options;
  */
 export const plogDocToState = (plog) => {
   let data = plog.data();
-  if (data.d) data = data.d;
   /** @type {GeoPoint} */
   const location = data.coordinates;
   const plogPhotos = keep(
-    uri => (uri && uri.match(/^https:\/\//) && { uri }),
+    uri => (uri && uri.match(/^https:\/\//) && { uri: /** @type {string} */(uri) }),
     (data.Photos || []));
 
   return {
     id: plog.id,
+    /** @type {string[]} */
     trashTypes: data.TrashTypes,
+    /** @type {string} */
     activityType: data.ActivityType,
     location: {
       lat: location.latitude,
       lng: location.longitude,
+      /** @type {string} */
       name: data.GeoLabel,
     },
+    /** @type {string} */
     groupType: data.HelperType,
     pickedUp: data.PlogType === "Plog",
+    /** @type {Date} */
     when: data.DateTime.toDate(),
     plogPhotos,
+    /** @type {number} */
     timeSpent: data.PlogDuration,
+    /** @type {boolean} */
     saving: plog.metadata && plog.metadata.hasPendingWrites,
+    /** @type {string} */
     userID: data.UserID,
+    /** @type {boolean} */
     public: data.Public,
+    /** @type {number} */
     likeCount: data.likeCount || 0,
+    /** @type {string} */
     userProfilePicture: data.UserProfilePicture,
+    /** @type {string} */
     userDisplayName: data.UserDisplayName,
   };
 };
 
+/** @typedef {ReturnType<typeof plogDocToState>} Plog */
+
+/**
+ * @param {Plog} plog
+ */
 export const plogStateToDoc = plog => ({
   TrashTypes: plog.trashTypes,
   ActivityType: plog.activityType,
@@ -51,9 +67,11 @@ export const plogStateToDoc = plog => ({
   PlogType: plog.pickedUp ?
     "Plog" :
     "Flag",
+  /** @type {firebase.firestore.Timestamp} */
   DateTime: new firebase.firestore.Timestamp.fromDate(plog.when),
   TZ: plog.when.getTimezoneOffset(),
   UserID: auth.currentUser.uid,
+  /** @type {string[]} */
   Photos: [],
   PlogDuration: plog.timeSpent,
   Public: !!plog.public,
@@ -61,8 +79,16 @@ export const plogStateToDoc = plog => ({
   UserDisplayName: plog.userDisplayName || null,
 });
 
+/** @typedef {ReturnType<typeof plogStateToDoc>} PlogData */
+
+/** @type {firebase.firestore.FirestoreDataConverter<Plog>} */
+export const plogConverter = {
+  fromFirestore: plogDocToState,
+  toFirestore: plogStateToDoc
+};
+
 export function queryUserPlogs(userId) {
-  return Plogs_.where('d.UserID', '==', userId).orderBy('d.DateTime', 'desc');
+  return Plogs_.where('UserID', '==', userId).orderBy('DateTime', 'desc');
 }
 
 export const getLocalPlogs = (lat=42.123, long=-71.1234, radius=100) => {
@@ -126,3 +152,7 @@ export const deletePlog = async plog=> {
     return ref.delete().catch(console.warn);
   }
 };
+
+export const getPlogsById = (plogIds) => Plogs_.where(firebase.firestore.FieldPath.documentId(), 'in', plogIds).where('Public', '==', true);
+
+export const getPlog = plogId => Plogs.get(plogId);

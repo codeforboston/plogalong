@@ -1,8 +1,7 @@
 import * as React from 'react';
 import {
-    StyleSheet,
-    View,
-    Text,
+  AppState,
+  Linking
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import config from '../config';
@@ -11,24 +10,26 @@ import $S from '../styles';
 
 
 const PloggingSuppliesScreen = () => {
+  const webView = React.useRef(/** @type {WebView} */ (null));
+
   return (
-    <View style={styles.container}>
-      <Text style={$S.h1}>
-        Plogging Supplies
-      </Text>
-      <WebView
-        originWhitelist={['*']}
-        source={{ html: config.amazonAffiliateSource, baseUrl: 'https://app.plogalong.com' }}
-        style={{ marginTop: 20 }}
-      />
-    </View>
+    <WebView
+      ref={r => { webView.current = r; }}
+      originWhitelist={['*']}
+      onNavigationStateChange={({url, navigationType}) => {
+        if (navigationType !== 'click' ||
+            AppState.currentState !== 'active' ||
+            !(url && url.match(/amazon\.com/)))
+          return;
+
+        Linking.openURL(url);
+        webView.current.stopLoading();
+      }}
+      source={{ html: config.amazonAffiliateSource,
+                baseUrl: `https://${config.appDomain}` }}
+      style={[$S.container, { paddingTop: 20 }]}
+    />
   );
 };
-
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-  });
 
 export default PloggingSuppliesScreen;

@@ -9,7 +9,6 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import MapView, { Camera } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,7 +29,7 @@ import * as actions from '../redux/actions';
 import {
   setUserData
 } from '../firebase/auth';
-import { formatAddress } from '../util/location';
+import { formatAddress, prepareAddress, reverseGeocode } from '../util/location';
 
 import PlogScreenWeather from './PlogScreenWeather';
 
@@ -78,7 +77,9 @@ class PlogScreen extends React.Component {
         markedLocationInfo: null,
       });
 
-      this.props.navigation.navigate('History');
+      if (this.props.navigation.isFocused()) {
+        this.props.navigation.navigate('History');
+      }
     }
 
     if (this.props.location && !prevProps.location) {
@@ -143,10 +144,7 @@ class PlogScreen extends React.Component {
         markedLocation: coordinates,
       });
 
-      Location.reverseGeocodeAsync(coordinates).then(locationInfo => {
-        const [address] = locationInfo.sort((a1, a2) => (addressScore(a1) - addressScore(a2)));
-        const {markedLocationInfo} = this.state;
-
+      reverseGeocode(coordinates).then(locationInfo => {
         this.setState({ markedLocationInfo: locationInfo[0] });
       }, console.warn);
 
@@ -305,7 +303,7 @@ class PlogScreen extends React.Component {
                         style={styles.selectableItem}
                         selected={value === activity}
                 />
-              )
+              );
             }
           )}
           </View>
@@ -325,9 +323,8 @@ class PlogScreen extends React.Component {
                         style={styles.selectableItem}
                         selected={value === group}
                 />
-              )
-            }
-                                           )}
+              );
+            })}
           </View>
           <Answer answer={groupName} style={$S.h2}/>
         </>
@@ -345,7 +342,8 @@ class PlogScreen extends React.Component {
           typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
           {params} = this.state,
           {user, error, preferences: { showDetailedOptions }} = this.props,
-          locationInfo = state.markedLocationInfo || this.props.locationInfo;
+          locationInfo = state.markedLocationInfo || this.props.locationInfo,
+          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' })
     const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
     const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
@@ -363,9 +361,19 @@ class PlogScreen extends React.Component {
         <PlogScreenWeather />
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, paddingTop: 10 }}>
-          <Text style={{ fontWeight: '500', paddingLeft: 10 }}>
-            {locationInfo ? `Plogging ${formatAddress(locationInfo) || 'off the grid'}` : ' '}
-          </Text>
+          {
+            where &&
+            <>
+              <View style={styles.locationText}>
+                <Text style={{ }}>
+                  Plogging {where.preposition}{' '}
+                  </Text>
+                <Text style={styles.locationName}>
+                  {where.name}
+                </Text>
+              </View>
+          </>
+          }
           <Text style={styles.timer}>
             {/* <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text> */}
             <Text> </Text>
@@ -378,7 +386,7 @@ class PlogScreen extends React.Component {
             ref={mapView => this.mapView = mapView}
             style={[styles.map]}
             initialCamera={this.makeCamera()}
-            showsMyLocationButton={true}
+            showsMyLocationButton={false}
             showsTraffic={false}
             showsUserLocation={true}
             followsUserLocation={this.state.shouldFollow}
@@ -527,6 +535,18 @@ const styles = StyleSheet.create({
     timer: {
         textAlign: 'right',
         paddingRight: 5
+    },
+
+    locationText: {
+      paddingLeft: 10,
+      flexShrink: 1,
+      flexDirection: 'row'
+    },
+
+    locationName: {
+      fontWeight: '500',
+      flexShrink: 1,
+      maxHeight: 100,
     },
 
   myLocationButtonContainer: {

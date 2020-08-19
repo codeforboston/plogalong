@@ -46,7 +46,7 @@ async function send(options) {
 
   if (options.htmlContent)
     content.push({
-      type: 'text/plain',
+      type: 'text/html',
       value: options.htmlContent
     });
 

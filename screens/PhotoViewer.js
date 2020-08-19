@@ -5,26 +5,11 @@ import {
     Image,
     SafeAreaView,
     StyleSheet,
-    Text,
     View,
 } from 'react-native';
 
-import * as Permissions from 'expo-permissions';
-
-import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 
-
-const useSize = () => {
-    const [size, setSize] = useState({ width: 400, height: 800 });
-
-    const onLayout = useCallback(e => {
-        setSize({ width: e.nativeEvent.layout.width,
-                  height: e.nativeEvent.layout.height });
-    }, []);
-
-    return { size, onLayout };
-};
 
 export default class PhotoViewer extends React.Component {
     state = { size: { width: 400, height: 800 }}
@@ -64,14 +49,6 @@ export default class PhotoViewer extends React.Component {
 
 
 const styles = StyleSheet.create({
-    camera: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        padding: 20
-    },
-    cameraButton: {
-        backgroundColor: 'white'
-    },
     backdrop: {
         backgroundColor: 'black',
         flex: 1,
