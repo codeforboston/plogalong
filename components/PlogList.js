@@ -318,8 +318,8 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
     }
   }, [currentUser.uid]);
 
-  const [viewabilityConfig, visible] = useVisible();
-  // const visible = { has(_) { return true; }};
+  // const [viewabilityConfig, visible] = useVisible();
+  const visible = { has(_) { return true; }};
 
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
