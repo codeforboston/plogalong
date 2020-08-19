@@ -31,7 +31,7 @@ export default class App extends React.Component {
     // await AsyncStorage.setItem('com.plogalong.preferences', '{}');
     const preferences = await AsyncStorage.getItem('com.plogalong.preferences')
           .then(JSON.parse)
-          .catch(() => ({}));
+          .then(prefs => (prefs || {}), () => ({}));
 
     this.setState({ preferences });
   }
