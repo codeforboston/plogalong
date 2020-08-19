@@ -318,10 +318,15 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
   }, [currentUser.uid]);
 
   const [viewabilityConfig, visible] = useVisible();
+  // const visible = { has(_) { return true; }};
 
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
               renderItem={({item, index}) => (
+                item.type === 'achievement' ?
+                <>
+                   <Text>{JSON.stringify(item.achievement)}</Text>
+                </> :
                 <Plog plogInfo={item}
                       currentUserID={currentUser && currentUser.uid}
                       liked={doesUserLikePlog(currentUser, item.id)}
@@ -336,7 +341,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
               initialNumToRender={3}
               onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
-              viewabilityConfigCallbackPairs={viewabilityConfig}
+              // viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
               extraData={{ liked: likedPlogIds(currentUser), visible }}
               ItemSeparatorComponent={Divider}

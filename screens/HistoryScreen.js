@@ -19,6 +19,7 @@ import Banner from '../components/Banner';
 import Loading from '../components/Loading';
 import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
+import { processAchievement } from '../util/users';
 
 const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
 
@@ -40,12 +41,43 @@ const renderEmpty = () => (
 export const HistoryScreen = _ => {
   const dispatch = useDispatch();
   const { currentUser, history, loading } = useSelector(({log, users}) => {
-    const {plogData, history} = log;
+    let {plogData, history} = log;
+    const currentUser = users.current;
+
+    // const achievementsByRefID = { [plogID]: ['achieveName'] };
+    /** @type {{ [k in string]: string[] }} */
+    const achievementsByRefID = {};
+    Object.keys(currentUser.data.achievements || {}).forEach(k => {
+      const achievement = currentUser.data.achievements[k];
+      const refID = achievement && achievement.refID;
+
+      if (refID) {
+        if (refID in achievementsByRefID)
+          achievementsByRefID[refID].push(k);
+        else
+          achievementsByRefID[refID] = [k];
+      }
+    });
+
+    const combinedHistory = [];
+
+    history.forEach(id => {
+      if (achievementsByRefID[id]) {
+        for (const k of achievementsByRefID[id]) {
+          combinedHistory.push({ 
+            type: 'achievement',
+            achievement: processAchievement(currentUser.data.achievements, k)
+          });
+        }
+      };
+
+      combinedHistory.push(plogData[id]);
+    });
 
     return {
       loading: log.historyLoading,
-      history: keep(id => plogData[id], history).sort((a, b) => (b.when - a.when)),
-      currentUser: users.current,
+      history: combinedHistory,
+      currentUser,
     };
   }, shallowEqual);
   const loadNextPage = React.useCallback(() => {
