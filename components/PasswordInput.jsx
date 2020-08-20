@@ -1,17 +1,9 @@
 import * as React from 'react';
-import { useState } from 'react';
+
+import { useToggle } from '../util/react';
 
 import TextInputWithIcon from './TextInputWithIcon';
 
-
-const makeToggle = (init=false) => {
-  const [status, setStatus] = useState(init);
-  return [
-    status,
-    () => setStatus(isOn => !isOn),
-    setStatus
-  ];
-};
 
 /**
  * @typedef {Omit<React.ComponentProps<typeof TextInputWithIcon>, 'icon' | 'iconName' | 'secureTextEntry' | 'onPress'> & { defaultVisible?: boolean }} PasswordInputProps
@@ -19,7 +11,7 @@ const makeToggle = (init=false) => {
 
 /** @type {React.FunctionComponent<PasswordInputProps>} */
 const PasswordInput = ({defaultVisible=false, ...props}) => {
-  const [showPassword, toggleShow] = makeToggle(defaultVisible);
+  const [showPassword, toggleShow] = useToggle(defaultVisible);
 
   return (
     <TextInputWithIcon autoCompleteType="password"
