@@ -209,26 +209,20 @@ async function regionInfo(coords, cache=true) {
                               GeohashRegionPrecision);
   const regions = await regionForGeohash(geohash);
   if (regions.size) {
-    const doc = regions.docs[0];
-
-    if (cache) {
-      Regions.doc(doc.id).update({
-        geohashes: admin.firestore.FieldValue.arrayUnion(geohash)
-      }).catch(err => {
-        console.warn('Error updating region', err);
-      });
-    }
-
-    return regionInfoForDoc(doc);
+    return regionInfoForDoc(regions.docs[0]);
   }
 
   const info = await locationInfoForRegion(coords);
 
   if (cache) {
     const { id, ...region } = info;
-    Regions.doc(info.id).set(Object.assign(
-      region,
-      { geohashes: [geohash] }
+    Regions.doc(id).update({
+      geohashes: admin.firestore.FieldValue.arrayUnion(geohash)
+    }).catch(_ => (
+      Regions.doc(info.id).set(Object.assign(
+        region,
+        { geohashes: [geohash] }
+      ))
     )).catch(err => {
       console.warn('Error saving region', err);
     });
