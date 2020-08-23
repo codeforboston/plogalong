@@ -5,7 +5,6 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
@@ -21,6 +20,7 @@ import Error from '../components/Error';
 import Link from '../components/Link';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
+import TextInput from '../components/TextInput';
 
 import Logo from '../assets/images/plogalong.png';
 

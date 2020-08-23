@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { useToggle } from '../util/react';
 
-import TextInputWithIcon from './TextInputWithIcon';
+import TextInputWithIcon from './TextInput';
 
 
 /**
