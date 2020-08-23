@@ -33,13 +33,18 @@ class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      params: {}
+      params: {},
+      appleAuthAvailable: false,
     };
   }
 
   componentDidMount() {
     this.props.navigation.addListener('blur', () => {
       Keyboard.dismiss();
+    });
+
+    AppleAuthentication.isAvailableAsync().then(appleAuthAvailable => {
+      this.setState({ appleAuthAvailable });
     });
 
     this.props.navigation.addListener('focus', () => {
@@ -134,7 +139,7 @@ class LoginScreen extends React.Component {
                 onPress={this.loginWithGoogle}
                 style={[{ marginTop: 20 }]} />
 
-        {AppleAuthentication.isAvailableAsync() &&
+        {this.state.appleAuthAvailable &&
          <Button primary
            onPress={this.props.loginWithApple}
            title="Login with Apple"
