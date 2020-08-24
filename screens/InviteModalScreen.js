@@ -12,6 +12,7 @@ import {
 import Button from '../components/Button';
 import Colors from '../constants/Colors';
 import DismissButton from '../components/DismissButton';
+import OpenURLButton from '../components/OpenURLButton';
 import { ShareDialog } from 'react-native-fbsdk';
 import $S from '../styles';
 
@@ -70,6 +71,7 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
           <Button title="Copy Link" onPress={writeToClipboard} style={styles.copyButton} />
         </View>
         <View style={styles.inviteModalContainers}>
+          {/* 
           <Button title="Share on Facebook" onPress={shareLinkWithShareDialog} style={styles.shareButtons} />
         </View>
         <View style={styles.inviteModalContainers}>
@@ -77,6 +79,19 @@ export default InviteModalScreen = ({isInviteModalVisible, toggleIsInviteModalVi
         </View>
         <View style={styles.inviteModalContainers}>
           <Button title="Share on Instagram" onPress={shareTo} style={styles.shareButtons} />
+          */}
+          <Text style={{ textAlign: 'center', fontSize: 18 }}>
+            Share on your favorite app
+          </Text>
+          <OpenURLButton url="https://www.facebook.com/">
+            Connect to Facebook
+          </OpenURLButton>
+          <OpenURLButton url="https://twitter.com/">
+            Connect to Twitter
+          </OpenURLButton>
+          <OpenURLButton url="https://www.instagram.com/">
+            Connect to Instagram
+          </OpenURLButton>
         </View>
         <View style={{ flex: 1 }}/>
       </SafeAreaView>
