@@ -66,7 +66,7 @@ const LocalScreen = ({ navigation }) => {
             'The best time to plog is yesterday. The second best time is today!' :
           noPloggers
             ?
-            "There are no other ploggers nearby.\nStart a trend!"
+            "There are no other ploggers nearby.\nPlog to earn your first badge."
             :
             recentCount === 1
               ?
