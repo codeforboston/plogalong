@@ -343,7 +343,7 @@ class PlogScreen extends React.Component {
           {params} = this.state,
           {user, error, preferences: { showDetailedOptions }} = this.props,
           locationInfo = state.markedLocationInfo || this.props.locationInfo,
-          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' })
+          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' });
     const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
     const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);

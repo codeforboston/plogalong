@@ -11,7 +11,7 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 
 import {
   linkToEmail, linkToFacebook, linkToGoogle,
-  unlinkFacebook, unlinkGoogle,
+  unlinkGoogle,
   linkToApple,
   mergeAnonymousAccount,
   unlinkApple

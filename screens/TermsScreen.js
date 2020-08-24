@@ -1,9 +1,7 @@
 import React, { useCallback } from "react";
 import {
-  Button,
   Linking,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";

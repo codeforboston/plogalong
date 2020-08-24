@@ -18,6 +18,7 @@ import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
 import Link from '../components/Link';
+import { NavLink } from '../components/Link';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 import TextInput from '../components/TextInput';
@@ -84,13 +85,9 @@ class LoginScreen extends React.Component {
     );
   }
 
-  loginAnonymously = () => { this.props.loginAnonymously() }
+  loginAnonymously = () => this.props.loginAnonymously()
 
-  intro = () => { this.props.navigation.navigate('Intro'); }
-  
-  forgotPassword = () => { this.props.navigation.navigate('ForgotPassword'); }
-
-  loginWithGoogle = () => { this.props.loginWithGoogle() }
+  loginWithGoogle = () => this.props.loginWithGoogle()
 
   _setters = {}
   setParam = (param) => {
@@ -145,20 +142,18 @@ class LoginScreen extends React.Component {
            title="Login with Apple"
          />}
 
-        <Link onPress={this.forgotPassword}
-              style={$S.linkStyle} >
+        <NavLink route="ForgotPassword" style={styles.centered}>
           Forgot Your Password?
-        </Link>
+        </NavLink>
 
         <Link onPress={this.loginAnonymously}
-              style={$S.linkStyle}>
+              style={styles.centered}>
           Skip Registration
         </Link>
 
-        <Link onPress={this.intro}
-              style={[$S.helpLink, $S.linkStyle]}>
+        <NavLink route="Intro" style={[$S.helpLink, styles.centered]}>
           What is Plogging?
-        </Link>
+        </NavLink>
       </>
     );
   }
@@ -167,10 +162,10 @@ class LoginScreen extends React.Component {
     return (
         <SafeAreaView style={$S.safeContainer}>
           <View style={[$S.container, $S.form,
-          this.props.loggingIn && styles.loggingIn]}>
+                        this.props.loggingIn && styles.loggingIn]}>
             {this.props.loggingIn ?
-              this.renderLoggingIn() :
-              this.renderForm()}
+             this.renderLoggingIn() :
+             this.renderForm()}
           </View>
         </SafeAreaView>
     );
@@ -186,6 +181,10 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 30
   },
+  centered: {
+    marginTop: 30,
+    textAlign: 'center'
+  }
 });
 
 export default connect(

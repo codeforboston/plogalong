@@ -1,10 +1,7 @@
 import * as React from 'react';
 import {
-  Keyboard,
   StyleSheet,
   View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
@@ -22,10 +19,10 @@ const ContactScreen = ({flashMessage}) => {
   };
 
   return (
-    <ScrollView style={$S.screenContainer}>      
+    <ScrollView style={$S.screenContainer}>
         <View style={styles.screenContainerStyles}>
           <ContactForm onSave={onSave} />
-        </View>    
+        </View>
     </ScrollView>
   );
 };

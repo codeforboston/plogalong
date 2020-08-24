@@ -1,7 +1,6 @@
 import React from "react";
 import { useState } from 'react';
 import {
-  ScrollView,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
@@ -19,7 +18,7 @@ export const AchievementScreen = ({currentUser}) => {
 
     const [isBadges, setIsBadges] = useState(true);
 
-    const bonus = getStats(currentUser, 'total').bonusMinutes
+    const bonus = getStats(currentUser, 'total').bonusMinutes;
     let badgeCount = 0;
     for (const badge in currentUser.data.achievements) {
             if (currentUser.data.achievements[badge] != null && currentUser.data.achievements[badge].completed != null) {badgeCount += 1}
@@ -85,9 +84,7 @@ const styles = StyleSheet.create({
 });
 
 
-export default connect(({log, users}) => {
-    const {plogData, history} = log;
-  
+export default connect(({users}) => {
     return {
       currentUser: users.current,
     };
