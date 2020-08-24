@@ -6,7 +6,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { connect } from 'react-redux';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
 import {
@@ -18,7 +17,7 @@ import {
 } from '../firebase/auth';
 import { getStats, indexBy } from '../util';
 import { useParams } from '../util/react';
-import { withPrompt } from '../Prompt';
+import { usePrompt } from '../Prompt';
 
 import $S from '../styles';
 
@@ -27,12 +26,15 @@ import ModalHeader from '../components/ModalHeader';
 import Error from '../components/Error';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
+import { useSelector } from '../redux/hooks';
 
 /** @typedef {import('../firebase/project/functions/shared').UserData} UserData */
 /** @typedef {import('firebase').User & { data?: UserData }} User */
 
 const SignupScreen = props => {
-  const {currentUser, navigation, prompt} = props;
+  const {navigation} = props;
+  const currentUser = useSelector(state => state.users.current);
+  const { prompt } = usePrompt();
 
   const {params, setter} = useParams({
     email: '',
@@ -201,11 +203,4 @@ const SignupScreen = props => {
 };
 
 
-export default connect(
-  state => ({
-    error: state.users.signupError,
-    currentUser: state.users.current,
-    authenticating: state.users.authenticating,
-  }),
-  dispatch => ({})
-)(withPrompt(SignupScreen));
+export default SignupScreen;
