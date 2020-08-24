@@ -3,8 +3,7 @@ const admin = require('firebase-admin');
 const $u = require('./util');
 const { addPlogToRegion } = require('./shared');
 
-const db = app.firestore();
-const Regions = db.collection('regions');
+const { Regions } = require('./collections');
 
 /** @typedef {import('./shared').PlogData} PlogData */
 /** @typedef {import('./shared').RegionData} RegionData */
@@ -32,9 +31,9 @@ async function deletePlogFromRegions(plogID) {
 async function getRegionForPlog(plog, t) {
   const plogData = plog.data();
   const geohash = plogData.g.geohash.slice(0, 7);
-  /** @type {admin.firestore.DocumentReference} */
+  /** @type {ReturnType<typeof Regions.doc>} */
   let regionDoc;
-  /** @type {admin.firestore.QueryDocumentSnapshot|admin.firestore.DocumentSnapshot} */
+  /** @type {Unwrapped<ReturnType<typeof Regions.get>>} */
   let regionSnap;
   /** @type {Unwrapped<ReturnType<typeof $u.locationInfoForRegion>>} */
   let regionLocationData;

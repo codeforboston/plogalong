@@ -7,5 +7,5 @@ const instructionText = [
 export default {
     heading: "Safe Plogging!",
     instructionText,
-    buttonText: 'Sigunup'
+    buttonText: 'Signup'
 };

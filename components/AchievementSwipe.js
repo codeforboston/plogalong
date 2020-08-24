@@ -9,15 +9,14 @@ import * as $u from '../util/users';
 import AchievementBadge, { BadgeWidth } from './AchievementBadge';
 
 
-const AchievementSwipe = ({achievements, showAll=false, style}) => {
+const AchievementSwipe = ({achievements, inset, showAll=false, style, horizontal=true, numColumns=1}) => {
   if (!achievements) achievements = {};
   const data = $u.processAchievements(achievements, {
     unstarted: showAll,
-    hidden: showAll
+    hidden: showAll,
   });
-
   const navigation = useNavigation();
-
+  
   return (
     <FlatList
       data={data}
@@ -28,11 +27,14 @@ const AchievementSwipe = ({achievements, showAll=false, style}) => {
                     accessibilityLabel="Achievement details"
                     accessibilityHint="Click to view achievement details"
                     accessibilityRole="button"
+                    imageOnly={!horizontal}
                   />
                  }
       keyExtractor={item => item.key}
+      contentContainerStyle={inset}
       pagingEnabled={true}
-      horizontal={true}
+      horizontal={horizontal}
+      numColumns={numColumns}
       snapToAlignment="start"
       snapToInterval={BadgeWidth}
       showsHorizontalScrollIndicator={false}

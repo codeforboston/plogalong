@@ -7,10 +7,14 @@ const crypto = require('crypto');
 const geokit = require('geokit');
 
 const db = app.firestore();
-const Plogs = db.collection('plogs');
-const Regions = db.collection('regions');
+const { Plogs, Regions } = require('./collections');
 
 const Storage = app.storage();
+
+/**
+ * @template P
+ * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
+ */
 
 /**
  * @template {firebase.firestore.DocumentData} T
@@ -70,6 +74,38 @@ async function withDocs(collection, where, fn, limit=100) {
 }
 
 /**
+ * @template T
+ * @param {T[]} xs
+ * @param {number} n
+ *
+ * @returns {T[][]}
+ */
+function partition(xs, n) {
+  const splitXs = [];
+  for (let i = 0, l = xs.length; i < l; i += n) {
+    splitXs.push(xs.slice(i, i+n));
+  }
+  return splitXs;
+}
+
+const ArrayContainsMax = 10;
+
+/**
+ * @template {firebase.firestore.DocumentData} T
+ * @param {admin.firestore.CollectionReference<T>} collection
+ * @param {any[]} vals
+ * @param {string | admin.firestore.FieldPath} field
+ *
+ * @returns {Promise<firebase.firestore.QueryDocumentSnapshot<T>[]}
+ */
+async function whereIn(collection, vals, field=admin.firestore.FieldPath.documentId()) {
+  return await Promise.all(
+    partition(vals, ArrayContainsMax)
+      .map(vs => collection.where(field, 'in', vs).get().then(res => res.docs))
+  ).then(resLists => [].concat(...resLists));
+}
+
+/**
  * @param {Parameters<typeof Plogs.where>} where
  */
 async function updatePlogsWhere(where, changes, limit=100) {
@@ -81,7 +117,7 @@ async function updatePlogsWhere(where, changes, limit=100) {
 }
 
 function parseStorageURL(url) {
-  const [_, bucket, fullPath] = url.startsWith('gs://') ?
+  const [, bucket, fullPath] = url.startsWith('gs://') ?
         url.match(/gs:\/\/([A-Za-z0-9.\-_]+)(\/([^?#]*).*)?$/) :
         url.match(/\/v\d+\/b\/([A-Za-z0-9.\-_]+)\/o(\/([^?#]*).*)?$/);
   const idx = fullPath.indexOf('?');
@@ -153,6 +189,19 @@ async function locationInfoForRegion(coords) {
 }
 
 /**
+ * @param {Unwrapped<ReturnType<typeof Regions.get>>} doc
+ */
+function regionInfoForDoc(doc) {
+  const { county, state, country } = doc.data();
+  return {
+    id: doc.id,
+    county,
+    state,
+    country
+  };
+}
+
+/**
  * @param {{ longitude: number, latitude: number }} coords
  */
 async function regionInfo(coords, cache=true) {
@@ -161,7 +210,6 @@ async function regionInfo(coords, cache=true) {
   const regions = await regionForGeohash(geohash);
   if (regions.size) {
     const doc = regions.docs[0];
-    const { county, state, country } = doc.data();
 
     if (cache) {
       Regions.doc(doc.id).update({
@@ -171,12 +219,7 @@ async function regionInfo(coords, cache=true) {
       });
     }
 
-    return {
-      id: doc.id,
-      county,
-      state,
-      country
-    };
+    return regionInfoForDoc(doc);
   }
 
   const info = await locationInfoForRegion(coords);
@@ -203,7 +246,9 @@ module.exports = {
   regionForCoords,
   regionForGeohash,
   regionInfo,
+  regionInfoForDoc,
   updatePlogsWhere,
+  whereIn,
   withBatch,
   withDocs,
 };

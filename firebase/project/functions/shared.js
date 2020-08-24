@@ -14,15 +14,32 @@
  * @typedef {keyof Pick<T, WithValueType<T, S>[keyof T]>} KeysWithValueType
  */
 /** @typedef {import('firebase').firestore.Timestamp} Timestamp */
+/** @typedef {import('firebase').firestore.GeoPoint} GeoPoint */
 
 /** @typedef {import('geofirestore-core').GeoFirestoreTypes.GeoDocumentData} GeoDocumentData */
-/** @typedef {import('../../plogs.js').PlogData & GeoDocumentData} PlogData */
+/**
+ * @typedef {Object} PlogDataFields
+ * @property {string[]} TrashTypes
+ * @property {string} ActivityType
+ * @property {GeoPoint} coordinates
+ * @property {string} GeoLabel
+ * @property {string} HelperType
+ * @property {'Plog'|'Flag'} PlogType
+ * @property {Timestamp} DateTime
+ * @property {number} TZ
+ * @property {string} UserID
+ * @property {string} Photos
+ * @property {number} PlogDuration
+ * @property {boolean} Public
+ * @property {string} UserProfilePicture
+ * @property {string} UserDisplayName
+ * @property {string[]} [_Flaggers]
+ */
+/** @typedef {PlogDataFields & GeoDocumentData} PlogData */
 /** @typedef {PlogData & { id: string }} PlogDataWithId */
 /** @typedef {PlogData & { id: string, LocalDate: Date }} ExtendedPlogData */
 
-/** @typedef {import('../../regions.js').Region} Region */
-/** @typedef {{ ids: string[], data: any }} RecentPlogs */
-/** @typedef {Omit<Region, 'recentPlogs'> & { recentPlogs: RecentPlogs }} RegionData */
+/** @typedef {import('../../regions.js').RegionData} RegionData */
 
 /**
   * @typedef {{ completed: Timestamp, updated: Timestamp, refID: string } & { [k in PropertyKey ]: any}} AchievementData
@@ -314,7 +331,7 @@ function updateAchievements(achievements, newPlogs, region) {
       console.error(`error updating '${name}' achievement`, err);
       return updated;
     }
-  }, achievements);
+  }, achievements || {});
 
   return {
     achievements: updatedAchievements,
@@ -390,7 +407,7 @@ function mergeAchievements(achievementsA, achievementsB) {
  * @typedef {{ [k in TimeUnit]: PlogStats }} CollectedPlogStats
  */
 /** @typedef {CollectedPlogStats} RegionStats */
-/** @typedef {{ [k in TimeUnit]: UserPlogStats }} UserStats */
+/** @typedef {{ [k in TimeUnit]: UserPlogStats } & { latest: { id: string, dateTime: Timestamp } }} UserStats */
 
 /** @typedef {{ unit: TimeUnit, when: (dt: Date) => string }} TimeUnitConfig */
 
@@ -456,6 +473,23 @@ function updateStats(stats, plog, bonusMinutes=0, regionID=null) {
       unitStats.region[regionID].count += 1;
     }
   });
+}
+
+/**
+ * @param {UserStats} stats
+ * @param {PlogDataWithId} plog
+ * @param {number} [bonusMinutes]
+ * @param {string} [regionID]
+ *
+ * @returns {UserStats}
+ */
+function updateUserStats(stats, plog, bonusMinutes, regionID) {
+  return Object.assign(
+    updateStats(stats, plog, bonusMinutes, regionID),
+    {
+      latest: { id: plog.id, dateTime: plog.DateTime }
+    }
+  );
 }
 
 /**
@@ -573,7 +607,7 @@ function findPosition(sorted, score, scoreFn, n=20) {
 }
 
 /**
- * @param {Region["leaderboard"]} leaders
+ * @param {RegionData["leaderboard"]} leaders
  * @param {string} userID
  * @param {PlogStats} stats
  */
@@ -620,6 +654,7 @@ module.exports = {
   mergeStats,
   updateAchievements,
   updateStats,
+  updateUserStats,
   addBonusMinutes,
 
   addPlogToRegion,

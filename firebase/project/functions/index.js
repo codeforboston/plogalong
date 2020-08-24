@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const app = require('./app');
 
-const { updateAchievements, updateStats, AchievementHandlers, calculateBonusMinutes, addBonusMinutes, localPlogDate} = require('./shared');
+const { updateAchievements, updateUserStats, AchievementHandlers, calculateBonusMinutes, addBonusMinutes, localPlogDate} = require('./shared');
 const $u = require('./util');
 const regions = require('./regions');
 const email = require('./email');
@@ -83,7 +83,7 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
       // Update the user stats first. If a region ID is supplied, the user's
       // stats for that region will also be updated
       plogData.id = snap.id;
-      let userStats = updateStats(userData.stats, plogData, 0, regionInfo && regionInfo.locationInfo.id);
+      let userStats = updateUserStats(userData.stats, plogData, 0, regionInfo && regionInfo.locationInfo.id);
 
       // regions.plogCreated uses userStats to potentially update the region
       // leaderboard
@@ -168,3 +168,4 @@ exports.loadUserProfile = functions.https.onCall(http.loadUserProfile);
 exports.mergeWithAccount = functions.https.onCall(http.mergeWithAccount);
 exports.reportPlog = functions.https.onCall(http.reportPlog);
 exports.getRegionInfo = functions.https.onCall(http.getRegionInfo);
+exports.getRegionLeaders = functions.https.onCall(http.getRegionLeaders);

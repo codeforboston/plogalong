@@ -49,17 +49,15 @@ export const OpenURLButton = ({ url, children }) => {
 
 export const NavLink = ({children, onPress: onPressOrig, pop, route, style, screen, params, ...props}) => {
   const navigation = useNavigation();
-  let onPress;
-  if (pop)
-    onPress = (_, e) => {
+  const onPress = React.useCallback((_, e) => {
+    if (pop) {
       navigation.pop();
-      return onPressOrig && onPressOrig(navigation, e);
-    };
-  else if (route)
-    onPress = (_, e) => {
+    } else if (route) {
       navigation.navigate(route, screen ? { screen, params } : params);
-      return onPressOrig && onPressOrig(navigation, e);
-    };
+    }
+
+    return onPressOrig && onPressOrig(navigation, e);
+  }, [onPressOrig, navigation, pop, route]);
 
   return (
     <Text {...props} style={[$S.link, style]} onPress={onPress}>

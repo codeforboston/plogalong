@@ -14,10 +14,12 @@ import { plogStateToDoc } from '../../firebase/plogs';
 
 const initialState = {
   /** @type {User} */
-  current: null,
+  current: undefined,
   /** @type {{ [k in UserID]: User }} */
   users: {},
+  /** @type {import('expo-location').LocationData["coords"]} */
   location: null,
+  /** @type {import('expo-location').Address} */
   locationInfo: null,
   /** @type {{ type: 'email' | 'google' | 'facebook' | 'anonymous', params: any }} */
   authenticating: null,

@@ -172,8 +172,8 @@ const AchievementTypes = {
   breakTheSeal: {
     badgeTheme: 'Break the Seal',
     icon: SingleCheckmark,
-    description: 'Be the first plogger in the neighborhood',
-    incompleteDescription: 'First plogger in the neighborhood',
+    description: 'You were the first plogger in the neighborhood',
+    incompleteDescription: 'Be the first plogger in the neighborhood',
   },
 };
 

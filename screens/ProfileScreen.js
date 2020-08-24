@@ -89,15 +89,15 @@ class ProfileScreen extends React.Component {
           ]
         );
 
-        if (result === 'logout') {
-          logOut();
-        } else if (result === 'create') {
+        if (result === 'create') {
           this.goToSignup();
+          return;
+        } else if (result !== 'logout') {
+          return;
         }
       }
-    } else {
-      logOut();
     }
+      logOut();
   }
 
   setHomeBaseFromLocationInfo = () => {
