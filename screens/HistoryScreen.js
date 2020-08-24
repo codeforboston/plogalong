@@ -74,7 +74,7 @@ export const HistoryScreen = _ => {
                     <Banner>
                       {monthStats.count ?
                        `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
-                       "You haven't plogged yet."}
+                       "You haven't plogged yet.\nPlog to earn your first badge."}
                       {yearStats.milliseconds ?
                        `You earned ${formatDuration(yearStats.milliseconds, true)} this year.` : ''}
                     </Banner>
