@@ -36,6 +36,12 @@ export default store => {
   );
 
   return next => action => {
+    switch (action.type) {
+    case types.USER_EMAIL_CONFIRMED:
+      if (auth.currentUser)
+        next(actions.setCurrentUser(auth.currentUser.toJSON()));
+    }
+
     return next(action);
   };
 };
