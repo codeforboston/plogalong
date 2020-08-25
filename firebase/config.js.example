@@ -8,6 +8,16 @@ export default {
 
 
   auth: {
+    google: {
+      bundleID: "com.plogalong.plogalong",
+      redirectURL: '',
+      webClientId: "",
+      androidClientID: "",
+      androidClientIDExpo: "",
+      iosStandaloneAppClientId: "",
+      iosClientId: "",
+      scopes: ['profile'],
+    },
     facebook: {
       appId: "12345678",
     },

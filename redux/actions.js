@@ -284,7 +284,7 @@ export const gotLocationInfo = locationInfo => ({
 
 export const flashMessage = (message, options=null) => ({
   type: types.FLASH,
-  payload: { text: message, stamp: Date.now, options }
+  payload: { text: message, stamp: Date.now(), options }
 });
 
 export default {

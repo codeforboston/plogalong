@@ -5,7 +5,7 @@ import { coalesceCalls, rateLimited } from '../util/async';
 import { updateLocalStorage } from '../util/native';
 
 import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS } from './actionTypes';
-import { gotPlogData, localPlogsUpdated, plogsUpdated } from './actions';
+import { gotPlogData, localPlogsUpdated, plogsUpdated, loadLocalHistory } from './actions';
 import * as actions from './actions';
 import { plogDocToState, queryUserPlogs } from '../firebase/plogs';
 import { getRegion } from '../firebase/regions';
@@ -227,10 +227,19 @@ export default store => {
 
       let {current, location} = store.getState().users;
 
-      if (type === LOCATION_CHANGED)
+      if (type === LOCATION_CHANGED) {
         location = payload.location;
-      else if (type === LOAD_LOCAL_HISTORY)
+
+        if (shouldLoadLocalHistory) {
+          next(action);
+          result = next(loadLocalHistory());
+        }
+      } else if (type === LOAD_LOCAL_HISTORY) {
         shouldLoadLocalHistory = true;
+
+        if (!location)
+          return;
+      }
 
       if (location && current && shouldLoadLocalHistory) {
         if (type === LOAD_LOCAL_HISTORY && loadMoreLocalPlogs) {

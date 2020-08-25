@@ -112,6 +112,7 @@ class LoginScreen extends React.Component {
           <TextInput style={$S.textInput}
                      autoCapitalize="none"
                      autoCompleteType="email"
+                     textContentType="username"
                      ref={input => { this._focusInput = input; }}
                      keyboardType="email-address"
                      value={params.email}
@@ -122,6 +123,7 @@ class LoginScreen extends React.Component {
           <Text style={$S.inputLabel}>Password</Text>
           <PasswordInput style={$S.textInput}
                          onChangeText={this.setParam('password')}
+                         textContentType="password"
                          value={params.password}
           />
         </View>
