@@ -15,15 +15,17 @@ let {
   amazonAffiliateSourceFile = './assets/other/amazon.html',
   iosBundleIdentifier = bundleIdentifier,
   androidBundleIdentifier = bundleIdentifier,
+  googleMapsAPIKey,
   ...extra
 } = localConfig;
 
 const { appDomain = "app.plogalong.com" } = extra;
 
-if (!androidBundleIdentifier) {
+if (!androidBundleIdentifier || !googleMapsAPIKey) {
   try {
     const googleConfig = require(googleServicesJson);
-    androidBundleIdentifier = googleConfig.client[0].client_info.android_client_info.package_name;
+    androidBundleIdentifier = androidBundleIdentifier || googleConfig.client[0].client_info.android_client_info.package_name;
+    googleMapsAPIKey = googleMapsAPIKey || googleConfig.client[0].api_key[0].current_key;
   } catch (_) {
     androidBundleIdentifier = "com.plogalong.plogalong";
   }
@@ -107,7 +109,12 @@ export default ({config}) => {
               "DEFAULT"
             ]
           }
-        ]
+        ],
+        "config": {
+          "googleMaps": {
+            "apiKey": googleMapsAPIKey
+          }
+        }
       },
       "packagerOpts": {
         "config": "metro.config.js",
