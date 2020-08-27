@@ -126,7 +126,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
          <Ionicons name="ios-alert"
                    size={20}
                    color="maroon"
-         style={{ margin: 10 }}
+                   style={{ margin: 10 }}
          />}
         <Text style={[styles.plogInfo, styles.plogStatusText]}>{
           status === 'error' || error ? `Error while loading plog: ${error}`:
@@ -147,10 +147,6 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
   const onHeartPress = useCallback(() => {
     likePlog(id, !liked);
   }, [id, liked]);
-
-  const showPhotos = useCallback(() => {
-    navigation.navigate('PhotoViewer', {photos: plogPhotos || []});
-  }, [plogInfo]);
 
   const showUser = useCallback(() => {
     navigation.navigate('User', { userID: userID });
@@ -173,7 +169,12 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
   return (
     <View style={{ paddingBottom: 10 }}>
       <View style={[styles.plogStyle, saving || plogInfo._deleting && styles.savingStyle]}>
-        <TouchableOpacity onPress={showUser}>
+        <TouchableOpacity onPress={showUser}
+                          accessibilityLabel={`${userDisplayName}'s Profile`}
+                          accessibilityHint={`Navigates to ${userDisplayName}'s public profile`}
+                          accessibilityIgnoresInvertColors
+                          accessibilityRole="link"
+        >
           {
             userProfilePicture ?
               <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
@@ -236,18 +237,30 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
             </MapView> :
           <View style={[styles.map, styles.mapPlaceholder]}/>
         }
-        {
+        {React.useMemo(() =>
           plogPhotos && plogPhotos.length ?
             <ScrollView contentContainerStyle={styles.photos}>
-              {plogPhotos.map(({uri}) => (
-                <TouchableOpacity onPress={showPhotos} key={uri}>
-                  <Image source={{uri}}
-                         key={uri}
-                         style={styles.plogPhoto}/>
-                </TouchableOpacity>))}
+              {plogPhotos.map(({uri}, i) => {
+                return (
+                  <TouchableOpacity onPress={e => {
+                    navigation.navigate('PhotoViewer', {
+                      photos: plogPhotos || [],
+                      index: i
+                    });
+                  }}
+                                    key={uri}
+                                    accessibilityLabel="Enlarge photo"
+                                    accessibilityTraits={['image', 'link']}
+                  >
+                    <Image source={{uri}}
+                           key={uri}
+                           style={styles.plogPhoto}/>
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView> :
           null
-        }
+                      )}
       </View>
       <View style={[styles.plogStyle, styles.detailsStyle]}>
         <GroupIcon fill={ Colors.textGray }

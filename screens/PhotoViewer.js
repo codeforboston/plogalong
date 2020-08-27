@@ -13,7 +13,7 @@ import DismissButton from '../components/DismissButton';
 
 
 export default ({ route }) => {
-  const { photos } = route.params;
+  const { photos, index = 0 } = route.params;
   const { dimensions: size, onLayout } = useDimensions();
 
   return (
@@ -22,6 +22,7 @@ export default ({ route }) => {
       <FlatList data={photos}
                 onLayout={onLayout}
                 style={styles.backdrop}
+                initialScrollIndex={index}
                 renderItem={({item: {uri}}) => (
                   <View style={styles.photoPage}>
                     <Image source={{ uri }} style={[styles.photo, size]}
