@@ -26,7 +26,7 @@ import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
 import { Divider } from './Elements';
-import ProfilePlaceholder from './ProfilePlaceholder';
+import UserPicture from './UserPicture';
 
 
 function range(values) {
@@ -67,6 +67,7 @@ const formatTrashTypes = (trashTypes=[]) =>
       (!trashTypes || !trashTypes.length ? 'trash' :
        trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', '));
 
+
 const MiniPlog = ({plogID}) => {
   const plog = usePlogs(plogID);
 
@@ -75,7 +76,7 @@ const MiniPlog = ({plogID}) => {
   }
 
   const {
-    timeSpent, userID, userDisplayName, userProfilePicture, when, groupType
+    timeSpent, userID, userDisplayName, when, groupType
   } = plog;
   const ratio = PixelRatio.getFontScale();
   const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
@@ -83,11 +84,7 @@ const MiniPlog = ({plogID}) => {
   return (
     <View>
       <View style={styles.plogStyle}>
-        {
-          userProfilePicture ?
-            <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
-          <ProfilePlaceholder style={styles.profileImage} />
-        }
+        <UserPicture url={plog.userProfilePicture} />
         <View style={styles.plogInfo}>
           <Text style={styles.actionText} adjustsFontSizeToFit>
             <Text style={{ fontWeight: '500'}}>
@@ -139,8 +136,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
 
   const {
     id, location: { lat, lng }, likeCount, plogPhotos = [], timeSpent,
-    trashTypes = [], userID, userDisplayName, userProfilePicture, when,
-    saving, groupType
+    trashTypes = [], userID, userDisplayName, when, saving, groupType
   } = plogInfo;
 
   // Callbacks
@@ -175,11 +171,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
                           accessibilityIgnoresInvertColors
                           accessibilityRole="link"
         >
-          {
-            userProfilePicture ?
-              <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
-            <ProfilePlaceholder style={styles.profileImage} />
-          }
+          <UserPicture url={ plogInfo.userProfilePicture} />
         </TouchableOpacity>
         <View style={styles.plogInfo}>
           <Text style={styles.actionText} adjustsFontSizeToFit>
@@ -388,13 +380,6 @@ const styles = StyleSheet.create({
   },
   savingStyle: {
     opacity: 0.8,
-  },
-  profileImage: {
-    margin: 10,
-    marginBottom: 0,
-    marginTop: 0,
-    width: 50,
-    height: 50,
   },
   actionText: {
     fontSize: 18
