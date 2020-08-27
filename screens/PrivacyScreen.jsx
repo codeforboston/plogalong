@@ -5,7 +5,7 @@ import {
   View,
 } from "react-native";
 
-import { OpenURLButton } from '../components/Link';
+import { A, OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
@@ -32,7 +32,7 @@ export default class PrivacyScreen extends React.Component {
     return (
       <ScrollView style={$S.container}>
         <View style={$S.bodyContainer}>
-          <Text style={$S.body} selectable={true}>{mainMessage}<Text style={$S.link} onPress={() => Linking.openURL(firebasePrivacyURL)}>Google Firebase</Text></Text>
+          <Text style={$S.body} selectable={true}>{mainMessage}<A href={firebasePrivacyURL}>Google Firebase</A></Text>
           {privacyDetails.split('\n').map((text, i) => (
             <LI key={i}>{text.trim()}</LI>
           ))}
