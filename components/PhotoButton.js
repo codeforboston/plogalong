@@ -70,7 +70,9 @@ class PhotoButton extends React.Component {
             onPictureSelected && onPictureSelected(result);
 
           if (manipulatorActions) {
-            const updatedImage = await ImageManipulator.manipulateAsync(result.uri, manipulatorActions);
+            const updatedImage = await ImageManipulator.manipulateAsync(result.uri, manipulatorActions,
+                                                                        { compress: 0.7,
+                                                                          format: ImageManipulator.SaveFormat.JPEG });
             onPictureSelected && onPictureSelected(updatedImage);
           }
         }
