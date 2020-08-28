@@ -19,12 +19,15 @@ export async function likePlog(plogID, like=true) {
 }
 
 const convertStamp = val => (val && new firebase.firestore.Timestamp(val._seconds, val._nanoseconds));
+
+/** @typedef {import('./project/functions/http').UserProfile} UserProfile */
 /**
  * @param {string} userID
- * @returns {Promise<import('./project/functions/http').UserProfile>}
+ * @returns {Promise<UserProfile & { id: string }>}
  */
 export async function loadUserProfile(userID) {
   const {data} = (await _loadUserProfile({userID}));
+  data.id = userID;
   return update(data, {
     'achievements.*': {
       completed: convertStamp,
