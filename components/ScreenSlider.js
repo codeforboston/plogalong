@@ -38,7 +38,8 @@ class ScreenSlider extends React.Component {
         this.props.loginAnonymously();
     }
 
-    advance = (step=1) => {
+    advance = (step) => {
+        if (typeof step !== 'number') step = 1;
         let {showingIndex} = this.state;
         showingIndex += step;
 
@@ -57,9 +58,9 @@ class ScreenSlider extends React.Component {
     renderInstructions = ({index, item}) => {
         const { width } = this.state;
 
-        return <View style={{ flex: 1, width }} key={index}>
+        return <View style={{ width }} key={index}>
                  <Instructions {...item}
-                               onButtonPress={() => this.advance()}
+                               onButtonPress={this.advance}
                  />
                </View>;
     }

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
+import {KeyboardAwareScrollView as ScrollView} from 'react-native-keyboard-aware-scrollview';
 
 import * as actions from '../redux/actions';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -161,14 +162,17 @@ class LoginScreen extends React.Component {
   }
 
   render() {
+    const { loggingIn } = this.props;
+
     return (
         <SafeAreaView style={$S.safeContainer}>
-          <View style={[$S.container, $S.form,
-                        this.props.loggingIn && styles.loggingIn]}>
-            {this.props.loggingIn ?
+          <ScrollView style={[$S.form, loggingIn && styles.loggingIn]}
+                      contentContainerStyle={[$S.container,
+                                              loggingIn && styles.loggingInContainer]}>
+            {loggingIn ?
              this.renderLoggingIn() :
              this.renderForm()}
-          </View>
+          </ScrollView>
         </SafeAreaView>
     );
   }
@@ -176,9 +180,11 @@ class LoginScreen extends React.Component {
 
 const styles = StyleSheet.create({
   loggingIn: {
+    paddingTop: 50,
+  },
+  loggingInContainer: {
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 50,
   },
   loadingText: {
     fontSize: 30
