@@ -28,6 +28,17 @@ import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 import { useSelector } from '../redux/hooks';
 
+
+const useAppleSignInAvailable = () => {
+  const [isAvailable, setAvailable] = useState(false);
+
+  React.useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setAvailable);
+  }, []);
+
+  return isAvailable;
+};
+
 /** @typedef {import('../firebase/project/functions/shared').UserData} UserData */
 /** @typedef {import('firebase').User & { data?: UserData }} User */
 
@@ -46,6 +57,7 @@ const SignupScreen = props => {
   ), [params]);
   const [authenticating, setAuthenticating] = useState(null);
   const [error, setError] = useState(null);
+  const appleEnabled = useAppleSignInAvailable();
 
   const link = useCallback(async (fn, ...args) => {
     try {
@@ -180,7 +192,7 @@ const SignupScreen = props => {
                 />
               )
           }
-          {AppleAuthentication.isAvailableAsync() &&
+          {appleEnabled &&
            (providers['apple.com'] ?
             <Button primary
                     onPress={unlinkApple}
