@@ -27,7 +27,7 @@ const TextInputWithIcon = React.forwardRef(
 
     if (!(icon || iconName)) {
       return (
-        <TextInput style={[$S.textInput, styles.inputStyle, styles.greenOutline]}
+        <TextInput style={[$S.textInput, styles.inputStyle, styles.greenOutline, style]}
                    editable={editable}
                    ref={ref}
                    {...props} />
@@ -60,7 +60,7 @@ const TextInputWithIcon = React.forwardRef(
                      name={iconName} /> :
            null}
         </TouchableOpacity>
-        <TextInput style={[$S.textInput, styles.inputStyle, isPressed ? styles.purpleOutline : styles.greenOutline]}
+        <TextInput style={[$S.textInput, styles.inputStyle, isPressed ? styles.purpleOutline : styles.greenOutline, style]}
                    editable={editable}
                    ref={ref}
                    {...props} />

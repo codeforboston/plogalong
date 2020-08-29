@@ -19,6 +19,7 @@ import { getStats, indexBy } from '../util';
 import { useParams } from '../util/react';
 import { usePrompt } from '../Prompt';
 
+import Colors from '../constants/Colors';
 import $S from '../styles';
 
 import Button from '../components/Button';
@@ -142,13 +143,16 @@ const SignupScreen = props => {
                                  value={params.password}
                   />
                 </View>
-                {!!params.password && <View style={$S.inputGroup}>
-                     <Text style={$S.inputLabel}>Retype Pasword</Text>
-                     <PasswordInput autoCompleteType="password"
-                                    onChangeText={setter('confirmPassword')}
-                                    value={params.confirmPassword}
-                     />
-                   </View>}
+                {!!params.password &&
+                 <View style={$S.inputGroup}>
+                   <Text style={$S.inputLabel}>Retype Pasword</Text>
+                   <PasswordInput autoCompleteType="password"
+                                  onChangeText={setter('confirmPassword')}
+                                  value={params.confirmPassword}
+                                  style={params.password !== params.confirmPassword &&
+                                         { borderColor: Colors.errorBackground }}
+                   />
+                 </View>}
                 <Button title="Register"
                         primary
                         onPress={onSubmit}
@@ -157,7 +161,7 @@ const SignupScreen = props => {
               </> :
 
             <>
-              <Text style={{}}>
+              <Text>
                 Linked to email address: {providers['password']['email']}
               </Text>
             </>
