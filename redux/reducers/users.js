@@ -104,6 +104,16 @@ export default usersReducer = (state = initialState, {type, payload}) => {
   case types.SIGNUP:
     return { ...state, authenticating: payload, signupError: null };
 
+  case types.USER_EMAIL_CONFIRMED: {
+    return {
+      ...state,
+      current: state.current && {
+        ...state.current,
+        emailVerified: true
+      }
+    };
+  }
+
   case types.AUTH_CANCELED:
     return { ...state, authenticating: null, signupError: null };
 
