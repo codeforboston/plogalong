@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useCallback } from 'react';
 import {
   FlatList,
-  Image,
   PixelRatio,
   ScrollView,
   StyleSheet,
@@ -15,6 +14,7 @@ import {connect} from 'react-redux';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import Image from './Image';
 
 import moment from 'moment';
 
