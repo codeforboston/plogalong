@@ -230,7 +230,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
           <View style={[styles.map, styles.mapPlaceholder]}/>
         }
         {React.useMemo(() =>
-          plogPhotos && plogPhotos.length ?
+          (plogPhotos && plogPhotos.length ?
             <ScrollView contentContainerStyle={styles.photos}>
               {plogPhotos.map(({uri}, i) => {
                 return (
@@ -251,8 +251,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
                 );
               })}
             </ScrollView> :
-          null
-                      )}
+           null), [plogPhotos])}
       </View>
       <View style={[styles.plogStyle, styles.detailsStyle]}>
         <GroupIcon fill={ Colors.textGray }
