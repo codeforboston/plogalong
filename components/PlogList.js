@@ -27,6 +27,7 @@ import Options from '../constants/Options';
 
 import { Divider } from './Elements';
 import UserPicture from './UserPicture';
+import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
 
 
 function range(values) {
@@ -80,7 +81,6 @@ const MiniPlog = ({plogID}) => {
   } = plog;
   const ratio = PixelRatio.getFontScale();
   const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
-
   return (
     <View>
       <View style={styles.plogStyle}>
@@ -324,9 +324,26 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
     <FlatList data={filter ? plogs.filter(filter) : plogs}
               renderItem={({item, index}) => (
                 item.type === 'achievement' ?
-                <>
-                   <Text>{JSON.stringify(item.achievement)}</Text>
-                </> :
+                <View style={{marginLeft: 10, marginRight: 10,}}>
+                   <View style={styles.unlocked}>
+                      <View style={styles.star}>
+                      {React.createElement(Star, { fill: Colors.selectionColor, width: 50, height: 50, backgroundColor: 'white' })}
+                      </View>
+                      <View style={{alignSelf: 'center',}}>
+                        <Text style={{fontSize: 18}}>Achievement Unlocked</Text>
+                        <Text style={{color: Colors.textGray}}>{moment(item.date).fromNow()}</Text>
+                      </View>
+                   </View>
+
+                   <View style={styles.icon}>
+                      {React.createElement(item.achievement.icon, { fill: Colors.selectionColor, width: 150, height: 150 })}
+                      <View style={styles.achievementText}>
+                        <Text style={{color: Colors.selectionColor, fontSize: 18, fontWeight: 'bold', marginBottom: 5}}>{item.achievement.badgeTheme}</Text>
+                        <Text style={{color: Colors.selectionColor, marginBottom: 5}}>{item.achievement.description}.</Text>
+                        <Text style={{color: Colors.selectionColor, fontWeight: 'bold'}}>+ {item.achievement.points} bonus minutes</Text>
+                      </View>
+                  </View>
+                </View> :
                 <Plog plogInfo={item}
                       currentUserID={currentUser && currentUser.uid}
                       liked={doesUserLikePlog(currentUser, item.id)}
@@ -374,6 +391,32 @@ const styles = StyleSheet.create({
   },
   detailsStyle: {
     justifyContent: 'space-between',
+  },
+  achievementText: {
+    marginLeft: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  icon: {
+    backgroundColor: '#EAF2F8',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.selectionColor,
+    padding: 10,
+    margin: 5,
+    flexDirection: 'row',
+  },
+  star: {
+    backgroundColor: '#EAF2F8',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.selectionColor,
+    padding: 5,
+    margin: 5,
+    width: 62,
+  },
+  unlocked: {
+    flexDirection: 'row',
   },
   likeCount: {
     flexDirection: 'row',

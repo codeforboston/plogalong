@@ -20,6 +20,7 @@ import Loading from '../components/Loading';
 import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
 import { processAchievement } from '../util/users';
+import moment from 'moment';
 
 const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
 
@@ -53,16 +54,16 @@ export const HistoryScreen = _ => {
   const achievementsByRefID = React.useMemo(() => {
     const achievementsByRefID = {};
     const { achievements } = currentUser.data;
-
     if (achievements) {
       for (const k in achievements) {
         const refID = achievements[k] && achievements[k].refID;
-
-        if (refID) {
+        if (refID && plogData[achievements[k].refID]) {
+          const date = plogData[achievements[k].refID].when;
           const achievement = {
             type: 'achievement',
             id: k,
-            achievement: processAchievement(achievements, k)
+            achievement: processAchievement(achievements, k),
+            date:  date,
           };
           if (refID in achievementsByRefID)
             achievementsByRefID[refID].push(achievement);
@@ -71,7 +72,6 @@ export const HistoryScreen = _ => {
         }
       }
     }
-
     return achievementsByRefID;
   }, [currentUser.data.achievements]);
 
@@ -87,7 +87,6 @@ export const HistoryScreen = _ => {
 
       combinedHistory.push(plogData[id]);
     });
-
     return combinedHistory;
   }, [history, plogData, achievementsByRefID]);
 
