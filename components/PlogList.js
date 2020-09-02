@@ -163,7 +163,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
   const ratio = PixelRatio.getFontScale();
 
   return (
-    <View style={{ paddingBottom: 10 }}>
+    <View style={{ paddingBottom: 10, marginBottom: 10, }}>
       <View style={[styles.plogStyle, saving || plogInfo._deleting && styles.savingStyle]}>
         <TouchableOpacity onPress={showUser}
                           accessibilityLabel={`${userDisplayName}'s Profile`}
@@ -324,7 +324,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
     <FlatList data={filter ? plogs.filter(filter) : plogs}
               renderItem={({item, index}) => (
                 item.type === 'achievement' ?
-                <View style={{marginLeft: 10, marginRight: 10,}}>
+                <View style={{marginLeft: 10, marginRight: 10, marginBottom: 20,}}>
                    <View style={styles.unlocked}>
                       <View style={styles.star}>
                       {React.createElement(Star, { fill: Colors.selectionColor, width: 50, height: 50, backgroundColor: 'white' })}
@@ -336,11 +336,11 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
                    </View>
 
                    <View style={styles.icon}>
-                      {React.createElement(item.achievement.icon, { fill: Colors.selectionColor, width: 150, height: 150 })}
+                      {React.createElement(item.achievement.icon, { fill: Colors.selectionColor, width: 75, height: 75 })}
                       <View style={styles.achievementText}>
                         <Text style={{color: Colors.selectionColor, fontSize: 18, fontWeight: 'bold', marginBottom: 5}}>{item.achievement.badgeTheme}</Text>
-                        <Text style={{color: Colors.selectionColor, marginBottom: 5}}>{item.achievement.description}.</Text>
-                        <Text style={{color: Colors.selectionColor, fontWeight: 'bold'}}>+ {item.achievement.points} bonus minutes</Text>
+                        <Text style={{color: "black", marginBottom: 5}}>{item.achievement.description}.</Text>
+                        <Text style={{color: "black", fontWeight: 'bold'}}>+ {item.achievement.points} bonus minutes</Text>
                       </View>
                   </View>
                 </View> :
@@ -398,11 +398,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   icon: {
-    backgroundColor: '#EAF2F8',
+    //backgroundColor: '#EAF2F8',
     borderRadius: 5,
     borderWidth: 1,
     borderColor: Colors.selectionColor,
-    padding: 10,
+    padding: 20,
     margin: 5,
     flexDirection: 'row',
   },
@@ -412,8 +412,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.selectionColor,
     padding: 5,
-    margin: 5,
-    width: 62,
+    marginTop: 5,
+    marginRight: 8,
+    marginBottom: 5,
+    marginLeft: 5,
+    width: 59,
   },
   unlocked: {
     flexDirection: 'row',
