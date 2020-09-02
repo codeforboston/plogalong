@@ -53,6 +53,8 @@ const UserProfile = ({user}) => {
                     {React.createElement(item.icon, {
                       fill: $C.selectionColor,
                       style: styles.achievementBadge,
+                      height: 45,
+                      width: 45,
                     })}
                     <View style={styles.achievementInfo}>
                       <Text style={$S.itemTitle}>{ item.badgeTheme }</Text>
@@ -92,7 +94,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   achievementBadge: {
-    marginRight: 10
+    marginRight: 15,
   },
   achievementInfo: {
     flexDirection: 'column',
