@@ -64,8 +64,9 @@ service cloud.firestore {
     match /comments/{any} {
       allow create: if request.auth.uid != null
                     && request.resource.data.keys().hasOnly([
-                       "comment", "email", "label", "name", "topic"
+                       "comment", "email", "label", "name", "topic", "date"
                     ])
+                    && timestampCurrent(request.resource.data.date, 60)
     }
 
     match /regions/{any} {
