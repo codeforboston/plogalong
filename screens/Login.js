@@ -24,8 +24,6 @@ import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 import TextInput from '../components/TextInput';
 
-import Logo from '../assets/images/plogalong.png';
-
 
 class LoginScreen extends React.Component {
   static navigationOptions = {
@@ -78,11 +76,7 @@ class LoginScreen extends React.Component {
 
   renderLoggingIn() {
     return (
-      <>
-        <Image source={Logo} />
-        <Loading/>
-        <View style={{ height: 100 }}/>
-      </>
+        <Loading style={{ marginVertical: 100 }}/>
     );
   }
 
