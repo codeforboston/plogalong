@@ -30,6 +30,11 @@ export default ({ route }) => {
                     />
                   </View>
                 )}
+                getItemLayout={(_, i) => ({
+                  length: size.width,
+                  offset: size.width*i,
+                  index: i
+                })}
                 keyExtractor={(_, i) => `${i}`}
                 horizontal
                 pagingEnabled
