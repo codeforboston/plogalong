@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Linking } from 'expo';
 
-import { auth } from '../firebase/init';
 import { parseURL } from '../util';
 import { useEffectWithPrevious } from '../util/react';
 import { useSelector, useDispatch } from '../redux/hooks';
@@ -47,12 +46,7 @@ const AppNavigator = () => {
 
       if (parsed) {
         if (parsed.params['mode'] === 'verifyEmail') {
-          try {
-            await auth.applyActionCode(parsed.params['oobCode']);
-            dispatch(actions.flashMessage('Your email address is now confirmed.'));
-          } catch (err) {
-            dispatch(actions.flashMessage(err.toString()));
-          }
+          dispatch(actions.verifyEmail(parsed.params['oobCode']));
           return;
         } else if (parsed.params['mode'] === 'resetPassword') {
           navigation.navigate('ChangePassword', parsed.params);

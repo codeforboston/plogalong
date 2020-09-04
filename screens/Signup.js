@@ -6,20 +6,20 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { connect } from 'react-redux';
 import * as AppleAuthentication from 'expo-apple-authentication';
 
 import {
   linkToEmail, linkToFacebook, linkToGoogle,
-  unlinkFacebook, unlinkGoogle,
+  unlinkGoogle,
   linkToApple,
   mergeAnonymousAccount,
   unlinkApple
 } from '../firebase/auth';
 import { getStats, indexBy } from '../util';
 import { useParams } from '../util/react';
-import { withPrompt } from '../Prompt';
+import { usePrompt } from '../Prompt';
 
+import Colors from '../constants/Colors';
 import $S from '../styles';
 
 import Button from '../components/Button';
@@ -27,12 +27,26 @@ import ModalHeader from '../components/ModalHeader';
 import Error from '../components/Error';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
+import { useSelector } from '../redux/hooks';
+
+
+const useAppleSignInAvailable = () => {
+  const [isAvailable, setAvailable] = useState(false);
+
+  React.useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setAvailable);
+  }, []);
+
+  return isAvailable;
+};
 
 /** @typedef {import('../firebase/project/functions/shared').UserData} UserData */
 /** @typedef {import('firebase').User & { data?: UserData }} User */
 
 const SignupScreen = props => {
-  const {currentUser, navigation, prompt} = props;
+  const {navigation} = props;
+  const currentUser = useSelector(state => state.users.current);
+  const { prompt } = usePrompt();
 
   const {params, setter} = useParams({
     email: '',
@@ -44,6 +58,7 @@ const SignupScreen = props => {
   ), [params]);
   const [authenticating, setAuthenticating] = useState(null);
   const [error, setError] = useState(null);
+  const appleEnabled = useAppleSignInAvailable();
 
   const link = useCallback(async (fn, ...args) => {
     try {
@@ -128,13 +143,16 @@ const SignupScreen = props => {
                                  value={params.password}
                   />
                 </View>
-                {!!params.password && <View style={$S.inputGroup}>
-                     <Text style={$S.inputLabel}>Retype Pasword</Text>
-                     <PasswordInput autoCompleteType="password"
-                                    onChangeText={setter('confirmPassword')}
-                                    value={params.confirmPassword}
-                     />
-                   </View>}
+                {!!params.password &&
+                 <View style={$S.inputGroup}>
+                   <Text style={$S.inputLabel}>Retype Pasword</Text>
+                   <PasswordInput autoCompleteType="password"
+                                  onChangeText={setter('confirmPassword')}
+                                  value={params.confirmPassword}
+                                  style={params.password !== params.confirmPassword &&
+                                         { borderColor: Colors.errorBackground }}
+                   />
+                 </View>}
                 <Button title="Register"
                         primary
                         onPress={onSubmit}
@@ -143,7 +161,7 @@ const SignupScreen = props => {
               </> :
 
             <>
-              <Text style={{}}>
+              <Text>
                 Linked to email address: {providers['password']['email']}
               </Text>
             </>
@@ -178,7 +196,7 @@ const SignupScreen = props => {
                 />
               )
           }
-          {AppleAuthentication.isAvailableAsync() &&
+          {appleEnabled &&
            (providers['apple.com'] ?
             <Button primary
                     onPress={unlinkApple}
@@ -201,11 +219,4 @@ const SignupScreen = props => {
 };
 
 
-export default connect(
-  state => ({
-    error: state.users.signupError,
-    currentUser: state.users.current,
-    authenticating: state.users.authenticating,
-  }),
-  dispatch => ({})
-)(withPrompt(SignupScreen));
+export default SignupScreen;

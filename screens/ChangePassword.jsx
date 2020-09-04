@@ -94,10 +94,11 @@ const ChangePassword = ({flashMessage, navigation, route}) => {
                     {errors.oldPassword && <Text style={styles.errorText}>{errors.oldPassword}</Text>}
                     <Text style={$S.inputLabel}>Old Password</Text>
                     <PasswordInput style={$S.textInput}
-                      autoCompleteType="off"
+                      autoCompleteType="password"
                       autoFocus={true}
                       value={values.oldPassword}
                       onChangeText={handleChange('oldPassword')}
+                      textContentType="password"
                     />
                   </View>
                 }
@@ -107,6 +108,9 @@ const ChangePassword = ({flashMessage, navigation, route}) => {
                   <PasswordInput style={$S.textInput}
                                  value={values.newPassword}
                                  onChangeText={handleChange('newPassword')}
+                                 autoFocus={!!oobCode}
+                                 textContentType="newPassword"
+                    passwordRules
                   />
                 </View>
                 <View style={$S.inputGroup}>
@@ -115,6 +119,7 @@ const ChangePassword = ({flashMessage, navigation, route}) => {
                   <PasswordInput style={$S.textInput}
                                  value={values.confirmPassword}
                                  onChangeText={handleChange('confirmPassword')}
+                                 textContentType="newPassword"
                   />
                 </View>
                 <View>

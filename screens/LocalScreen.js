@@ -61,26 +61,11 @@ const LocalScreen = ({ navigation }) => {
   const header = (
     <>
       <Banner>
-        {
-          loading ?
-            'The best time to plog is yesterday. The second best time is today!' :
-          noPloggers
-            ?
-            "There are no other ploggers nearby.\nPlog to earn your first badge."
-            :
-            recentCount === 1
-              ?
-              "Only 1 plogger has plogged nearby recently."
-              :
-              `${recentCount} ploggers have plogged nearby recently.`
-        }
+        The best time to plog is yesterday.{'\n'}The second best time is today!
       </Banner>
       {
         region &&
           <>
-            <Text style={$S.h1}>
-              {region.county}, {region.state}
-            </Text>
             <NavLink route="Leaderboard" params={{ regionID: region.id }} style={$S.subheadLink}>
               Leaderboard
             </NavLink>

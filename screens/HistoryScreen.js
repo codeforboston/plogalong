@@ -19,6 +19,8 @@ import Banner from '../components/Banner';
 import Loading from '../components/Loading';
 import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
+import { processAchievement } from '../util/users';
+import moment from 'moment';
 
 const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
 
@@ -39,15 +41,55 @@ const renderEmpty = () => (
 
 export const HistoryScreen = _ => {
   const dispatch = useDispatch();
-  const { currentUser, history, loading } = useSelector(({log, users}) => {
-    const {plogData, history} = log;
-
+  const { currentUser, history, loading, plogData } = useSelector(({log, users}) => {
     return {
       loading: log.historyLoading,
-      history: keep(id => plogData[id], history).sort((a, b) => (b.when - a.when)),
+      history: log.history,
       currentUser: users.current,
+      plogData: log.plogData,
     };
   }, shallowEqual);
+
+  /** @type {{ [k in string]: (ReturnType<typeof processAchievement>)[] }} */
+  const achievementsByRefID = React.useMemo(() => {
+    const achievementsByRefID = {};
+    const { achievements } = currentUser.data;
+    if (achievements) {
+      for (const k in achievements) {
+        const refID = achievements[k] && achievements[k].refID;
+        if (refID && plogData[achievements[k].refID]) {
+          const date = plogData[achievements[k].refID].when;
+          const achievement = {
+            type: 'achievement',
+            id: k,
+            achievement: processAchievement(achievements, k),
+            date:  date,
+          };
+          if (refID in achievementsByRefID)
+            achievementsByRefID[refID].push(achievement);
+          else
+            achievementsByRefID[refID] = [achievement];
+        }
+      }
+    }
+    return achievementsByRefID;
+  }, [currentUser.data.achievements]);
+
+  const combinedHistory = React.useMemo(() => {
+    const combinedHistory = [];
+
+    history.forEach(id => {
+      if (achievementsByRefID[id]) {
+        for (const achievement of achievementsByRefID[id]) {
+          combinedHistory.push(achievement);
+        }
+      };
+
+      combinedHistory.push(plogData[id]);
+    });
+    return combinedHistory;
+  }, [history, plogData, achievementsByRefID]);
+
   const loadNextPage = React.useCallback(() => {
     if (currentUser && !loading)
       dispatch(actions.loadHistory(currentUser.uid, false));
@@ -67,7 +109,7 @@ export const HistoryScreen = _ => {
   return (
     <View style={$S.screenContainer}>
 
-      <PlogList plogs={history}
+      <PlogList plogs={combinedHistory}
                 currentUser={currentUser}
                 header={
                   <View style={{ paddingTop: 20 }}>

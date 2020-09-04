@@ -1,8 +1,6 @@
 import React from "react";
 import {
-  Linking,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";

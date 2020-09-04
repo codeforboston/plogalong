@@ -8,6 +8,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import * as Permissions from 'expo-permissions';
 import MapView, { Camera } from 'react-native-maps';
@@ -61,7 +62,13 @@ class PlogScreen extends React.Component {
     };
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  async coordInBounds({ latitude, longitude } = this.props.location) {
+    const { northEast, southWest } = await this.mapView.getMapBoundaries();
+    return latitude >= southWest.latitude && latitude <= northEast.latitude &&
+      longitude >= southWest.longitude && longitude <= northEast.longitude;
+  }
+
+  async componentDidUpdate(prevProps, prevState) {
     if (!this.props.submitting && prevProps.submitting &&
         !this.props.error) {
       this.setState({
@@ -82,8 +89,12 @@ class PlogScreen extends React.Component {
       }
     }
 
-    if (this.props.location && !prevProps.location) {
-      this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+    if (this.props.location) {
+      if (!prevProps.location ||
+          (Platform.OS === 'android' && this.state.shouldFollow &&
+           !(await this.coordInBounds(this.props.location)))) {
+        this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+      }
     }
   }
 
@@ -343,7 +354,7 @@ class PlogScreen extends React.Component {
           {params} = this.state,
           {user, error, preferences: { showDetailedOptions }} = this.props,
           locationInfo = state.markedLocationInfo || this.props.locationInfo,
-          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' })
+          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' });
     const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
     const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);

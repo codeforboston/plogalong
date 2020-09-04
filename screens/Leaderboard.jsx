@@ -17,7 +17,7 @@ import { useSelector } from '../redux/hooks';
 
 import { Divider } from '../components/Elements';
 import PopupDataView, { PopupHeader } from '../components/PopupDataView';
-import ProfilePlaceholder from '../components/ProfilePlaceholder';
+import UserPicture from '../components/UserPicture';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -63,11 +63,7 @@ export const Leaderboard = props => {
                                     disabled={!onPress}
                   >
                     <View style={styles.leader}>
-                      {
-                        profilePicture ?
-                          <Image source={{ uri: profilePicture }} style={styles.profileImage} /> :
-                        <ProfilePlaceholder style={styles.profileImage}/>
-                      }
+                      <UserPicture url={profilePicture} />
                       <View style={styles.leaderInfo}>
                         <View style={styles.leaderInfoDetails}>
                           <Text style={styles.username} onPress={onPress}>
@@ -143,13 +139,6 @@ const RegionLeaderboardScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  profileImage: {
-    margin: 10,
-    marginBottom: 0,
-    marginTop: 0,
-    width: 50,
-    height: 50,
-  },
   leader: {
     flexDirection: 'row',
     marginTop: 5,

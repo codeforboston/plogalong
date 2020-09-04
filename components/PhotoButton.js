@@ -4,6 +4,7 @@ import {
     Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import * as Linking from 'expo-linking';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
@@ -12,6 +13,23 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import icons from '../icons';
 
 import Button from './Button';
+
+
+const getPermissions = async (permsType) => {
+  let perms = await Permissions.getAsync(permsType);
+
+  while (perms.status !== 'granted') {
+    if (perms.canAskAgain) {
+      const {status} = await Permissions.askAsync(permsType);
+      if (status === 'granted')
+        break;
+    }
+
+    return false;
+  }
+
+  return true;
+}
 
 /** @typedef {React.ComponentProps<typeof Image>} ImageProps */
 /** @typedef {React.ComponentProps<typeof Button>} ButtonProps */
@@ -52,13 +70,21 @@ class PhotoButton extends React.Component {
             onPictureSelected && onPictureSelected(result);
 
           if (manipulatorActions) {
-            const updatedImage = await ImageManipulator.manipulateAsync(result.uri, manipulatorActions);
+            const updatedImage = await ImageManipulator.manipulateAsync(result.uri, manipulatorActions,
+                                                                        { compress: 0.7,
+                                                                          format: ImageManipulator.SaveFormat.JPEG });
             onPictureSelected && onPictureSelected(updatedImage);
           }
         }
     }
 
     takeAndSelectPhoto = async () => {
+      if (!(await getPermissions(Permissions.CAMERA))) {
+        Alert.alert('Permission Required',
+                    'We need access to your camera for that option.');
+        return;
+      }
+
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             aspect: [1, 1]
@@ -68,12 +94,11 @@ class PhotoButton extends React.Component {
     }
 
     pickImage = async () => {
-        const {status} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-
-        if (status !== 'granted') {
-            Alert.alert('Permission Required', 'We need access to your camera roll for that option.');
-            return;
-        }
+      if (!(await getPermissions(Permissions.CAMERA_ROLL))) {
+        Alert.alert('Permission Required',
+                    'We need access to your camera roll for that option.');
+        return;
+      }
 
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,

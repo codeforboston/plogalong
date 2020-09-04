@@ -32,14 +32,20 @@ class ScreenSlider extends React.Component {
         };
     }
 
-    advance = (step=1) => {
+    done = () => {
+        this.props.setPreferences({ sawIntro: true });
+        this.props.navigation.navigate('Login');
+        this.props.loginAnonymously();
+    }
+
+    advance = (step) => {
+        if (typeof step !== 'number') step = 1;
         let {showingIndex} = this.state;
         showingIndex += step;
 
         const len = 4;
         if (showingIndex >= len) {
-            this.props.setPreferences({ sawIntro: true });
-            this.props.navigation.goBack();
+            this.done();
             return;
         }
         if (showingIndex < 0)
@@ -52,9 +58,9 @@ class ScreenSlider extends React.Component {
     renderInstructions = ({index, item}) => {
         const { width } = this.state;
 
-        return <View style={{ flex: 1, width }} key={index}>
+        return <View style={{ width }} key={index}>
                  <Instructions {...item}
-                               onButtonPress={() => this.advance()}
+                               onButtonPress={this.advance}
                  />
                </View>;
     }
@@ -110,10 +116,7 @@ class ScreenSlider extends React.Component {
                         style={styles.slider}
               />
               <NavLink style={styles.textLink}
-                       onPress={() => {
-                           this.props.setPreferences({ sawIntro: true });
-                       }}
-                       pop>
+                       onPress={this.done} >
                 Skip intro
               </NavLink>
               {this.renderPageIndicator()}
@@ -160,5 +163,6 @@ const styles = StyleSheet.create({
 });
 
 export default connect(null, dispatch => ({
-    setPreferences: (...args) => dispatch(actions.setPreferences(...args))
+  loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
+  setPreferences: (...args) => dispatch(actions.setPreferences(...args))
 }))(ScreenSlider);

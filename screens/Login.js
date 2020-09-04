@@ -5,10 +5,10 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
+import {KeyboardAwareScrollView as ScrollView} from 'react-native-keyboard-aware-scrollview';
 
 import * as actions from '../redux/actions';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -19,10 +19,10 @@ import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
 import Link from '../components/Link';
+import { NavLink } from '../components/Link';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
-
-import Logo from '../assets/images/plogalong.png';
+import TextInput from '../components/TextInput';
 
 
 class LoginScreen extends React.Component {
@@ -33,13 +33,18 @@ class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      params: {}
+      params: {},
+      appleAuthAvailable: false,
     };
   }
 
   componentDidMount() {
     this.props.navigation.addListener('blur', () => {
       Keyboard.dismiss();
+    });
+
+    AppleAuthentication.isAvailableAsync().then(appleAuthAvailable => {
+      this.setState({ appleAuthAvailable });
     });
 
     this.props.navigation.addListener('focus', () => {
@@ -71,21 +76,13 @@ class LoginScreen extends React.Component {
 
   renderLoggingIn() {
     return (
-      <>
-        <Image source={Logo} />
-        <Loading/>
-        <View style={{ height: 100 }}/>
-      </>
+        <Loading style={{ marginVertical: 100 }}/>
     );
   }
 
-  loginAnonymously = () => { this.props.loginAnonymously() }
+  loginAnonymously = () => this.props.loginAnonymously()
 
-  intro = () => { this.props.navigation.navigate('Intro'); }
-  
-  forgotPassword = () => { this.props.navigation.navigate('ForgotPassword'); }
-
-  loginWithGoogle = () => { this.props.loginWithGoogle() }
+  loginWithGoogle = () => this.props.loginWithGoogle()
 
   _setters = {}
   setParam = (param) => {
@@ -110,6 +107,7 @@ class LoginScreen extends React.Component {
           <TextInput style={$S.textInput}
                      autoCapitalize="none"
                      autoCompleteType="email"
+                     textContentType="username"
                      ref={input => { this._focusInput = input; }}
                      keyboardType="email-address"
                      value={params.email}
@@ -120,6 +118,7 @@ class LoginScreen extends React.Component {
           <Text style={$S.inputLabel}>Password</Text>
           <PasswordInput style={$S.textInput}
                          onChangeText={this.setParam('password')}
+                         textContentType="password"
                          value={params.password}
           />
         </View>
@@ -134,39 +133,40 @@ class LoginScreen extends React.Component {
                 onPress={this.loginWithGoogle}
                 style={[{ marginTop: 20 }]} />
 
-        {AppleAuthentication.isAvailableAsync() &&
+        {this.state.appleAuthAvailable &&
          <Button primary
            onPress={this.props.loginWithApple}
            title="Login with Apple"
          />}
 
-        <Link onPress={this.forgotPassword}
-              style={$S.linkStyle} >
+        <NavLink route="ForgotPassword" style={styles.centered}>
           Forgot Your Password?
-        </Link>
+        </NavLink>
 
         <Link onPress={this.loginAnonymously}
-              style={$S.linkStyle}>
+              style={styles.centered}>
           Skip Registration
         </Link>
 
-        <Link onPress={this.intro}
-              style={[$S.helpLink, $S.linkStyle]}>
+        <NavLink route="Intro" style={[$S.helpLink, styles.centered]}>
           What is Plogging?
-        </Link>
+        </NavLink>
       </>
     );
   }
 
   render() {
+    const { loggingIn } = this.props;
+
     return (
         <SafeAreaView style={$S.safeContainer}>
-          <View style={[$S.container, $S.form,
-          this.props.loggingIn && styles.loggingIn]}>
-            {this.props.loggingIn ?
-              this.renderLoggingIn() :
-              this.renderForm()}
-          </View>
+          <ScrollView style={[$S.form, loggingIn && styles.loggingIn]}
+                      contentContainerStyle={[$S.container,
+                                              loggingIn && styles.loggingInContainer]}>
+            {loggingIn ?
+             this.renderLoggingIn() :
+             this.renderForm()}
+          </ScrollView>
         </SafeAreaView>
     );
   }
@@ -174,13 +174,19 @@ class LoginScreen extends React.Component {
 
 const styles = StyleSheet.create({
   loggingIn: {
+    paddingTop: 50,
+  },
+  loggingInContainer: {
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 50,
   },
   loadingText: {
     fontSize: 30
   },
+  centered: {
+    marginTop: 30,
+    textAlign: 'center'
+  }
 });
 
 export default connect(

@@ -13,27 +13,32 @@ let {
   googleReservedClientId,
   uriScheme = "plogalong",
   amazonAffiliateSourceFile = './assets/other/amazon.html',
+  iosBundleIdentifier = bundleIdentifier,
+  androidBundleIdentifier = bundleIdentifier,
+  googleMapsAPIKey,
   ...extra
 } = localConfig;
 
 const { appDomain = "app.plogalong.com" } = extra;
 
-if (!bundleIdentifier) {
+if (!androidBundleIdentifier || !googleMapsAPIKey) {
   try {
     const googleConfig = require(googleServicesJson);
-    bundleIdentifier = googleConfig.client[0].client_info.android_client_info.package_name;
+    androidBundleIdentifier = androidBundleIdentifier || googleConfig.client[0].client_info.android_client_info.package_name;
+    googleMapsAPIKey = googleMapsAPIKey || googleConfig.client[0].api_key[0].current_key;
   } catch (_) {
-    bundleIdentifier = "com.plogalong.Plogalong";
+    androidBundleIdentifier = "com.plogalong.plogalong";
   }
 }
 
 const fs = require('fs');
-if (!googleReservedClientId) {
+if (!googleReservedClientId || !iosBundleIdentifier) {
   try {
     const iosConfig = plist(fs.readFileSync(googleServicesPlist));
-    googleReservedClientId = iosConfig['REVERSED_CLIENT_ID'];
+    googleReservedClientId = googleReservedClientId || iosConfig['REVERSED_CLIENT_ID'];
+    iosBundleIdentifier = iosBundleIdentifier || iosConfig['BUNDLE_ID'];
   } catch (_) {
-    googleReservedClientId = "com.googleusercontent.apps.682793596171-i7d7f566bivop6gronrpcc67fqdecg3t";
+    googleReservedClientId = "com.googleusercontent.apps.682793596171-a6od8omgskpmfo7pt4q7es3h8sdtvv3n";
   }
 }
 
@@ -72,10 +77,10 @@ export default ({config}) => {
       ],
       "ios": {
         "infoPlist": {
-          "NSLocationWhenInUseUsageDescription": "ABC"
+          "NSLocationWhenInUseUsageDescription": "We need your location to record where you plog"
         },
         "associatedDomains": [`applinks:${appDomain}`],
-        "bundleIdentifier": bundleIdentifier,
+        "bundleIdentifier": iosBundleIdentifier,
         "supportsTablet": false,
         "config": {
           "googleSignIn": {
@@ -86,7 +91,7 @@ export default ({config}) => {
         "usesAppleSignIn": true
       },
       "android": {
-        "package": bundleIdentifier,
+        "package": androidBundleIdentifier,
         "googleServicesFile": googleServicesJson,
         "intentFilters": [
           {
@@ -104,7 +109,12 @@ export default ({config}) => {
               "DEFAULT"
             ]
           }
-        ]
+        ],
+        "config": {
+          "googleMaps": {
+            "apiKey": googleMapsAPIKey
+          }
+        }
       },
       "packagerOpts": {
         "config": "metro.config.js",

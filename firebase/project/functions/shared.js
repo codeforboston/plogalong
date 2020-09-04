@@ -42,7 +42,7 @@
 /** @typedef {import('../../regions.js').RegionData} RegionData */
 
 /**
-  * @typedef {{ completed: Timestamp, updated: Timestamp, refID: string } & { [k in PropertyKey ]: any}} AchievementData
+  * @typedef {{ completed: Timestamp, updated: Timestamp, refID?: string } & { [k in PropertyKey ]: any}} AchievementData
   */
 /**
  * @typedef {Object} AchievementHandler

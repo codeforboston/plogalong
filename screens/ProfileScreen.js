@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Switch,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
@@ -16,13 +15,11 @@ import {
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import PhotoButton from '../components/PhotoButton';
-import TextInputWithoutIcon from '../components/TextInputWithoutIcon';
-import TextInputWithIcon from '../components/TextInputWithIcon';
-import { setPreferences, logout} from '../redux/actions';
-import { getStats, pluralize } from '../util';
+import TextInput from '../components/TextInput';
+import { setPreferences } from '../redux/actions';
+import { getStats } from '../util';
 import { asyncAlert } from '../util/native';
 
-import Colors from '../constants/Colors';
 import $S from '../styles';
 import ProfilePlaceholder from '../components/ProfilePlaceholder';
 
@@ -153,28 +150,26 @@ class ProfileScreen extends React.Component {
                  </Text> }
              </View>
 
-             <View style={$S.inputGroup}>
-               <Text style={$S.inputLabel}>Username (visible to others)</Text>
-               <TextInputWithoutIcon
-                          autoCapitalize="none"
-                          value={params.displayName}
-                          autoCompleteType="username"
-                          onChangeText={setParam('displayName')}
-                          onBlur={this.save}
-                          maxLength={40}
-               />
-             </View>
+               <View style={$S.inputGroup}>
+                 <Text style={$S.inputLabel}>Username (visible to others)</Text>
+                 <TextInput autoCapitalize="none"
+                            value={params.displayName}
+                            onChangeText={setParam('displayName')}
+                            onBlur={this.save}
+                            maxLength={40}
+                 />
+               </View>
 
-             <View style={$S.inputGroup}>
-               <Text style={$S.inputLabel}>Home Base</Text>
-               <TextInputWithIcon autoCapitalize="sentences"
-                                  value={params.homeBase}
-                                  onChangeText={setParam('homeBase')}
-                                  onBlur={this.save}
-                                  onPress={this.setHomeBaseFromLocationInfo}
-                                  iconName="ios-navigate"
-                                  maxLength={40}/>
-             </View>
+               <View style={$S.inputGroup}>
+                 <Text style={$S.inputLabel}>Home Base</Text>
+                 <TextInput autoCapitalize="sentences"
+                            value={params.homeBase}
+                            onChangeText={setParam('homeBase')}
+                            onBlur={this.save}
+                            onPress={this.setHomeBaseFromLocationInfo}
+                            iconName="ios-navigate"
+                            maxLength={40}/>
+               </View>
 
              <View style={$S.switchInputGroup}>
                <Text style={$S.inputLabel}>

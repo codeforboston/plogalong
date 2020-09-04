@@ -284,8 +284,19 @@ export const gotLocationInfo = locationInfo => ({
 
 export const flashMessage = (message, options=null) => ({
   type: types.FLASH,
-  payload: { text: message, stamp: Date.now, options }
+  payload: { text: message, stamp: Date.now(), options }
 });
+
+export const verifyEmail = oobCode => (
+  async dispatch => {
+    try {
+      await auth.applyActionCode(oobCode);
+      dispatch({ type: types.USER_EMAIL_CONFIRMED });
+    } catch (error) {
+      dispatch({ type: types.ACTION_CODE_ERROR, payload: { error, oobCode } });
+    }
+  }
+);
 
 export default {
     logPlog,

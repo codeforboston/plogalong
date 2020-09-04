@@ -18,13 +18,14 @@ export const useDispatch = reactRedux.useDispatch;
 export const useSelector = reactRedux.useSelector;
 
 export const usePlogs = plogIds => {
-  let unloadedIds = [];
   const plogData = useSelector(state => state.log.plogData);
   const dispatch = useDispatch();
 
-  const plogs = useMemo(() => {
+  return useMemo(() => {
     const ids = Array.isArray(plogIds) ? plogIds : [plogIds];
-    return ids.map(id => {
+    let unloadedIds = [];
+
+    const plogs = ids.map(id => {
       if (!plogData[id]) {
         unloadedIds.push(id);
         return { id, status: 'loading' };
@@ -32,12 +33,12 @@ export const usePlogs = plogIds => {
 
       return plogData[id];
     });
+
+    if (unloadedIds.length) {
+      // Request for the plogs to be loaded
+      dispatch(actions.loadPlogs(unloadedIds));
+    }
+
+    return Array.isArray(plogIds) ? plogs : plogs[0];
   }, [plogData, plogIds]);
-
-  if (unloadedIds.length) {
-    // Request for the plogs to be loaded
-    dispatch(actions.loadPlogs(unloadedIds));
-  }
-
-  return Array.isArray(plogIds) ? plogs : plogs[0];
 };

@@ -26,7 +26,8 @@ import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
 import { Divider } from './Elements';
-import ProfilePlaceholder from './ProfilePlaceholder';
+import UserPicture from './UserPicture';
+import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
 
 
 function range(values) {
@@ -67,6 +68,7 @@ const formatTrashTypes = (trashTypes=[]) =>
       (!trashTypes || !trashTypes.length ? 'trash' :
        trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', '));
 
+
 const MiniPlog = ({plogID}) => {
   const plog = usePlogs(plogID);
 
@@ -75,19 +77,14 @@ const MiniPlog = ({plogID}) => {
   }
 
   const {
-    timeSpent, userID, userDisplayName, userProfilePicture, when, groupType
+    timeSpent, userID, userDisplayName, when, groupType
   } = plog;
   const ratio = PixelRatio.getFontScale();
   const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
-
   return (
     <View>
       <View style={styles.plogStyle}>
-        {
-          userProfilePicture ?
-            <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
-          <ProfilePlaceholder style={styles.profileImage} />
-        }
+        <UserPicture url={plog.userProfilePicture} />
         <View style={styles.plogInfo}>
           <Text style={styles.actionText} adjustsFontSizeToFit>
             <Text style={{ fontWeight: '500'}}>
@@ -126,7 +123,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
          <Ionicons name="ios-alert"
                    size={20}
                    color="maroon"
-         style={{ margin: 10 }}
+                   style={{ margin: 10 }}
          />}
         <Text style={[styles.plogInfo, styles.plogStatusText]}>{
           status === 'error' || error ? `Error while loading plog: ${error}`:
@@ -139,18 +136,13 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
 
   const {
     id, location: { lat, lng }, likeCount, plogPhotos = [], timeSpent,
-    trashTypes = [], userID, userDisplayName, userProfilePicture, when,
-    saving, groupType
+    trashTypes = [], userID, userDisplayName, when, saving, groupType
   } = plogInfo;
 
   // Callbacks
   const onHeartPress = useCallback(() => {
     likePlog(id, !liked);
   }, [id, liked]);
-
-  const showPhotos = useCallback(() => {
-    navigation.navigate('PhotoViewer', {photos: plogPhotos || []});
-  }, [plogInfo]);
 
   const showUser = useCallback(() => {
     navigation.navigate('User', { userID: userID });
@@ -171,14 +163,15 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
   const ratio = PixelRatio.getFontScale();
 
   return (
-    <View style={{ paddingBottom: 10 }}>
+    <View style={{ paddingBottom: 10, marginBottom: 10, }}>
       <View style={[styles.plogStyle, saving || plogInfo._deleting && styles.savingStyle]}>
-        <TouchableOpacity onPress={showUser}>
-          {
-            userProfilePicture ?
-              <Image source={{ uri: userProfilePicture }} style={styles.profileImage} /> :
-            <ProfilePlaceholder style={styles.profileImage} />
-          }
+        <TouchableOpacity onPress={showUser}
+                          accessibilityLabel={`${userDisplayName}'s Profile`}
+                          accessibilityHint={`Navigates to ${userDisplayName}'s public profile`}
+                          accessibilityIgnoresInvertColors
+                          accessibilityRole="link"
+        >
+          <UserPicture url={ plogInfo.userProfilePicture} />
         </TouchableOpacity>
         <View style={styles.plogInfo}>
           <Text style={styles.actionText} adjustsFontSizeToFit>
@@ -236,18 +229,29 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
             </MapView> :
           <View style={[styles.map, styles.mapPlaceholder]}/>
         }
-        {
-          plogPhotos && plogPhotos.length ?
+        {React.useMemo(() =>
+          (plogPhotos && plogPhotos.length ?
             <ScrollView contentContainerStyle={styles.photos}>
-              {plogPhotos.map(({uri}) => (
-                <TouchableOpacity onPress={showPhotos} key={uri}>
-                  <Image source={{uri}}
-                         key={uri}
-                         style={styles.plogPhoto}/>
-                </TouchableOpacity>))}
+              {plogPhotos.map(({uri}, i) => {
+                return (
+                  <TouchableOpacity onPress={e => {
+                    navigation.navigate('PhotoViewer', {
+                      photos: plogPhotos || [],
+                      index: i
+                    });
+                  }}
+                                    key={uri}
+                                    accessibilityLabel="Enlarge photo"
+                                    accessibilityTraits={['image', 'link']}
+                  >
+                    <Image source={{uri}}
+                           key={uri}
+                           style={styles.plogPhoto}/>
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView> :
-          null
-        }
+           null), [plogPhotos])}
       </View>
       <View style={[styles.plogStyle, styles.detailsStyle]}>
         <GroupIcon fill={ Colors.textGray }
@@ -313,11 +317,33 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
     }
   }, [currentUser.uid]);
 
-  const [viewabilityConfig, visible] = useVisible();
+  // const [viewabilityConfig, visible] = useVisible();
+  const visible = { has(_) { return true; }};
 
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
               renderItem={({item, index}) => (
+                item.type === 'achievement' ?
+                <View style={{marginLeft: 10, marginRight: 10, marginBottom: 20,}}>
+                   <View style={styles.unlocked}>
+                      <View style={styles.star}>
+                      {React.createElement(Star, { fill: Colors.selectionColor, width: 50, height: 50, backgroundColor: 'white' })}
+                      </View>
+                      <View style={{alignSelf: 'center',}}>
+                        <Text style={{fontSize: 18}}>Achievement Unlocked</Text>
+                        <Text style={{color: Colors.textGray}}>{moment(item.date).fromNow()}</Text>
+                      </View>
+                   </View>
+
+                   <View style={styles.icon}>
+                      {React.createElement(item.achievement.icon, { fill: Colors.selectionColor, width: 75, height: 75 })}
+                      <View style={styles.achievementText}>
+                        <Text style={{color: Colors.selectionColor, fontSize: 18, fontWeight: 'bold', marginBottom: 5}}>{item.achievement.badgeTheme}</Text>
+                        <Text style={{color: "black", marginBottom: 5}}>{item.achievement.description}.</Text>
+                        <Text style={{color: "black", fontWeight: 'bold'}}>+ {item.achievement.points} bonus minutes</Text>
+                      </View>
+                  </View>
+                </View> :
                 <Plog plogInfo={item}
                       currentUserID={currentUser && currentUser.uid}
                       liked={doesUserLikePlog(currentUser, item.id)}
@@ -332,7 +358,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
               initialNumToRender={3}
               onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
-              viewabilityConfigCallbackPairs={viewabilityConfig}
+              // viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
               extraData={{ liked: likedPlogIds(currentUser), visible }}
               ItemSeparatorComponent={Divider}
@@ -366,6 +392,35 @@ const styles = StyleSheet.create({
   detailsStyle: {
     justifyContent: 'space-between',
   },
+  achievementText: {
+    marginLeft: 10,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  icon: {
+    //backgroundColor: '#EAF2F8',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.selectionColor,
+    padding: 20,
+    margin: 5,
+    flexDirection: 'row',
+  },
+  star: {
+    backgroundColor: '#EAF2F8',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.selectionColor,
+    padding: 5,
+    marginTop: 5,
+    marginRight: 8,
+    marginBottom: 5,
+    marginLeft: 5,
+    width: 59,
+  },
+  unlocked: {
+    flexDirection: 'row',
+  },
   likeCount: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -375,13 +430,6 @@ const styles = StyleSheet.create({
   },
   savingStyle: {
     opacity: 0.8,
-  },
-  profileImage: {
-    margin: 10,
-    marginBottom: 0,
-    marginTop: 0,
-    width: 50,
-    height: 50,
   },
   actionText: {
     fontSize: 18

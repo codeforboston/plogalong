@@ -1,10 +1,8 @@
 import * as React from 'react';
 import {
   Alert,
-  Button as RNButton,
   Linking,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -14,15 +12,15 @@ import $S from '../styles';
 
 
 const Link = ({children, style, ...props}) => (
-  <TouchableOpacity {...props}>
-    <Text style={[$S.link, style]}>
-      {children}
-    </Text>
-  </TouchableOpacity>
+  <Text style={[$S.link, style]} {...props}>
+    {children}
+  </Text>
 );
 
-export const A = ({ href, ...props }) => (
-  <Text style={$S.link} {...props} onPress={() => Linking.openURL(href) } />
+export const A = ({ href, style, ...props }) => (
+  <Text style={[$S.link, style]}
+        {...props}
+        onPress={React.useCallback(() => Linking.openURL(href), [href])} />
 );
 
 // https://reactnative.dev/docs/linking

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 
 /**
@@ -31,4 +31,15 @@ export const useParams = init => {
     /** @type {<K extends keyof T>(key: K) => ((val: T[K]) => void)} */
     setter: k => (val => setParams({ ...params, [k]: val }))
   };
+};
+
+
+export const useToggle = (init=false) => {
+  const [status, setStatus] = useState(init);
+  return [
+    status,
+    useCallback((show=null) => setStatus(isOn => typeof show === 'boolean' ? show : !isOn),
+                [setStatus]),
+    setStatus
+  ];
 };
