@@ -9,7 +9,7 @@ import { shallowEqual } from 'react-redux';
 import { useDispatch, useSelector } from '../redux/hooks';
 
 import * as actions from '../redux/actions';
-import { formatDuration, getStats, keep } from '../util';
+import { formatDuration, getStats } from '../util';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -20,7 +20,6 @@ import Loading from '../components/Loading';
 import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
 import { processAchievement } from '../util/users';
-import moment from 'moment';
 
 const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
 
@@ -97,6 +96,7 @@ export const HistoryScreen = _ => {
 
   const monthStats = getStats(currentUser, 'month');
   const yearStats = getStats(currentUser, 'year');
+  const totalStats = getStats(currentUser, 'total');
 
   useEffect(() => {
     if (currentUser)
@@ -114,11 +114,15 @@ export const HistoryScreen = _ => {
                 header={
                   <View style={{ paddingTop: 20 }}>
                     <Banner>
-                      {monthStats.count ?
-                       `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
-                       "You haven't plogged yet.\nPlog to earn your first badge."}
+                      {
+                        totalStats.count ?
+                          monthStats.count ?
+                          `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
+                          "You haven't plogged yet this month." :
+                        "Plog something to earn your first badge!"
+                      }
                       {yearStats.milliseconds ?
-                       `You earned ${formatDuration(yearStats.milliseconds, true)} this year.` : ''}
+                       `\nYou've earned ${formatDuration(yearStats.milliseconds, true)} this year.` : ''}
                     </Banner>
                     <View style={{
                       marginTop: 5
