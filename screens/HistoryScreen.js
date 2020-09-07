@@ -72,7 +72,7 @@ export const HistoryScreen = _ => {
       }
     }
     return achievementsByRefID;
-  }, [currentUser.data.achievements]);
+  }, [currentUser.data.achievements, plogData]);
 
   const combinedHistory = React.useMemo(() => {
     const combinedHistory = [];
