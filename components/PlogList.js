@@ -28,6 +28,7 @@ import Options from '../constants/Options';
 import { Divider } from './Elements';
 import UserPicture from './UserPicture';
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
+import AchievementView from './AchievementView';
 
 
 function range(values) {
@@ -335,14 +336,11 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
                       </View>
                    </View>
 
-                   <View style={styles.icon}>
-                      {React.createElement(item.achievement.icon, { fill: Colors.selectionColor, width: 75, height: 75 })}
-                      <View style={styles.achievementText}>
-                        <Text style={{color: Colors.selectionColor, fontSize: 18, fontWeight: 'bold', marginBottom: 5}}>{item.achievement.badgeTheme}</Text>
-                        <Text style={{color: "black", marginBottom: 5}}>{item.achievement.description}.</Text>
-                        <Text style={{color: "black", fontWeight: 'bold'}}>+ {item.achievement.points} bonus minutes</Text>
-                      </View>
-                  </View>
+                   <AchievementView 
+                      item={item}
+                      achievement={item.achievement}
+                   />
+                   
                 </View> :
                 <Plog plogInfo={item}
                       currentUserID={currentUser && currentUser.uid}

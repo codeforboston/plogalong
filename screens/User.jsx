@@ -18,6 +18,7 @@ import PopupDataView, { PopupHeader } from '../components/PopupDataView';
 import ProfilePlaceholder from '../components/ProfilePlaceholder';
 import { NavLink } from '../components/Link';
 import { useSelector } from '../redux/hooks';
+import AchievementView from '../components/AchievementView';
 
 
 const ProfileErrors = {
@@ -30,7 +31,7 @@ const ProfileErrors = {
   }
 };
 
-const UserProfile = ({user}) => {
+const UserProfile = ({user, plogs}) => {
   const currentUser = useSelector(state => state.users.current);
 
   return (
@@ -47,6 +48,16 @@ const UserProfile = ({user}) => {
         }
       />
       <Text style={$S.subheader}>Achievements</Text>
+      <FlatList data={users.processAchievements(user.achievements, { partial: false })}
+                //data={filter ? plogs.filter(filter) : plogs}
+                renderItem={({item}) => (
+                  <AchievementView 
+                    item={item}
+                    achievement={item.achievement}
+                  />
+                )}
+      />
+{/*
       <FlatList data={users.processAchievements(user.achievements, { partial: false })}
                 renderItem={({item}) => (
                   <View style={styles.achievement}>
@@ -65,6 +76,7 @@ const UserProfile = ({user}) => {
                   </View>
                 )}
       />
+*/}
       <View style={{ flex: 1 }}/>
     {currentUser && currentUser.uid === user.id &&
      <Text style={styles.profileLink}>

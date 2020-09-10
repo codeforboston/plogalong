@@ -51,7 +51,8 @@ export const HistoryScreen = _ => {
   }, shallowEqual);
 
   /** @type {{ [k in string]: (ReturnType<typeof processAchievement>)[] }} */
-  const achievementsByRefID = React.useMemo(() => {
+  const achievementsByRefID = (() => {
+  //const achievementsByRefID = React.useMemo(() => {
     const achievementsByRefID = {};
     const { achievements } = currentUser.data;
     if (achievements) {
@@ -73,7 +74,8 @@ export const HistoryScreen = _ => {
       }
     }
     return achievementsByRefID;
-  }, [currentUser.data.achievements]);
+  })();
+  //}, [currentUser.data.achievements]);
 
   const combinedHistory = React.useMemo(() => {
     const combinedHistory = [];
