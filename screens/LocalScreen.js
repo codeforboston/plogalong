@@ -5,7 +5,7 @@ import {
   Text
 } from 'react-native';
 import { shallowEqual } from 'react-redux';
-import { useDispatch, useSelector } from '../redux/hooks';
+import { useDispatch, useSelector, usePaginatedPlogs } from '../redux/hooks';
 import MapView, { Marker } from 'react-native-maps';
 
 import * as actions from '../redux/actions';
@@ -26,21 +26,23 @@ const LocalScreen = ({ navigation }) => {
   const likePlog = React.useCallback((...args) => {
     dispatch(actions.likePlog(...args));
   }, []);
+
+  const { currentUser, loading, location, plogIDs, region } =
+        useSelector(({ log, users }) => {
+          const { plogData, localPlogs } = log;
+
+          return {
+            plogIDs: localPlogs,
+            currentUser: users.current,
+            loading: log.localPlogsLoading,
+            location: users.location,
+            region: log.region,
+          };
+        }, shallowEqual);
+
   React.useEffect(() => {
     dispatch(actions.loadLocalHistory());
-  }, []);
-
-  const { history, currentUser, loading, location, region } = useSelector(({ log, users }) => {
-    const { plogData, localPlogs } = log;
-
-    return {
-      history: keep(id => plogData[id], localPlogs).sort((a, b) => (b.when - a.when)),
-      currentUser: users.current,
-      loading: log.localPlogsLoading,
-      location: users.location,
-      region: log.region,
-    };
-  }, shallowEqual);
+  }, [currentUser && currentUser.uid]);
 
   const goToPlogScreen = React.useCallback(() => {
     navigation.navigate('Plog');
@@ -48,10 +50,8 @@ const LocalScreen = ({ navigation }) => {
   const goToInviteScreen = React.useCallback(() => {
     navigation.navigate('Invite');
   }, [navigation]);
-  const loadNextPage = React.useCallback(() => {
-    if (!loading)
-      dispatch(actions.loadLocalHistory(false));
-  });
+
+  const [history, , loadNextPage] = usePaginatedPlogs(plogIDs);
 
   const ActivityIcon = Options.activities.get('walking').icon;
   const noPloggers = history.length === 0 && !loading;

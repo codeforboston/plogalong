@@ -22,6 +22,7 @@ export const LOAD_PLOGS = 'LOAD_PLOGS';
 export const UNLOAD_PLOGS = 'UNLOAD_PLOGS';
 
 export const SET_REGION = 'SET_REGION';
+export const LOCAL_PLOG_IDS = 'LOCAL_PLOG_IDS';
 
 export const SET_CURRENT_USER = 'SET_CURRENT_USER';
 export const USER_DATA = 'USER_DATA';

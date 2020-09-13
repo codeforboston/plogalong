@@ -12,6 +12,7 @@ import {
   PLOG_DELETED,
   PLOG_DATA,
   SET_REGION,
+  LOCAL_PLOG_IDS,
 } from "../actionTypes";
 
 import { specUpdate, revert, updateInCopy } from '../../util/redux';
@@ -57,7 +58,7 @@ const log = (state = initialState, action) => {
     }
 
     case LOAD_LOCAL_HISTORY: {
-      return { ...state, localPlogsLoading: true };
+      return { ...state };
     }
 
     case PLOG_DATA: {
@@ -69,6 +70,14 @@ const log = (state = initialState, action) => {
           ...state.plogData,
           ...plogs.reduce((pd, plog) => { pd[plog.id] = plog; return pd; }, {})
         }
+      };
+    }
+
+    case LOCAL_PLOG_IDS: {
+      return {
+        ...state,
+        localPlogs: action.payload.plogIDs,
+        localPlogsLoading: false
       };
     }
 

@@ -168,7 +168,12 @@ export const likePlog = (plogID, like) => (
 
 export const setRegion = region => ({
   type: types.SET_REGION,
-  payload: { region}
+  payload: { region }
+});
+
+export const localPlogIDs = plogIDs => ({
+  type: types.LOCAL_PLOG_IDS,
+  payload: { plogIDs }
 });
 
 export const setCurrentUser = (user) => ({
