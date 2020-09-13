@@ -20,6 +20,7 @@ import SignupScreen from '../screens/Signup';
 import UserScreen from '../screens/User';
 import ChangePassword from '../screens/ChangePassword';
 import ForgotPassword from '../screens/ForgotPassword';
+import VerifyAccount from '../screens/VerifyAccount';
 import AchievementModal from '../screens/AchievementModal';
 
 import icons from '../icons';
@@ -123,6 +124,7 @@ const AppNavigator = () => {
         <AppStack.Screen name="Leaderboard" component={ RegionLeaderboardScreen } options={{ headerShown: false }}/>
         <AppStack.Screen name="ChangePassword" component={ ChangePassword } options={{ headerShown: false }}/>
         <AppStack.Screen name="ForgotPassword" component={ ForgotPassword } options={{ headerShown: false }}/>
+        <AppStack.Screen name="VerifyAccount" component={ VerifyAccount } options={{ headerShown: false }}/>
         <AppStack.Screen name="AchievementModal" component={ AchievementModal } options={{ headerShown: false }}/>
         <AppStack.Screen name="Invite" component={ InviteModalScreen } options={{ headerShown: false }}/>
       </AppStack.Navigator>
