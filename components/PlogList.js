@@ -317,8 +317,14 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
     }
   }, [currentUser.uid]);
 
-  // const [viewabilityConfig, visible] = useVisible();
-  const visible = { has(_) { return true; }};
+  // NOTE If you're working on styling the PlogList or Plog component, comment
+  // out this line...
+  const [viewabilityConfig, visible] = useVisible();
+  // ...and uncomment this line:
+  // const visible = { has(_) { return true; }};
+
+  // NOTE You'll also need to comment out the line below beginning
+  // `viewabilityConfigCallbackPairs`.
 
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
@@ -358,7 +364,8 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
               initialNumToRender={3}
               onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
-              // viewabilityConfigCallbackPairs={viewabilityConfig}
+    /* Comment out when debugging: */
+              viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
               extraData={{ liked: likedPlogIds(currentUser), visible }}
               ItemSeparatorComponent={Divider}
