@@ -64,6 +64,10 @@ class ProfileScreen extends React.Component {
     this.props.navigation.navigate('ChangePassword');
   }
 
+  goToVerify = () => {
+    this.props.navigation.navigate('VerifyAccount');
+  }
+
   save = event => {
     this.props.setUserData({...this.state.params});
   }
@@ -145,7 +149,7 @@ class ProfileScreen extends React.Component {
                    { currentUser ? currentUser.email : '' }
                  </Text>
                  {!currentUser.emailVerified &&
-                 <Text style={$S.alertText}>
+                 <Text style={$S.alertText} onPress={this.goToVerify}>
                    Not verified
                  </Text> }
              </View>

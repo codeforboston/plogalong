@@ -186,18 +186,18 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
             <Text style={styles.subText}>
               {moment(when).fromNow()}
             </Text>
-            <TouchableOpacity onPress={onHeartPress}>
-              <View style={styles.likeCount}>
-                {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
-                <Ionicons
-                  size={20 * ratio}
-                  name={'md-heart'}
-                  color={liked ? Colors.selectionColor : Colors.activeGray}
-                />
-              </View>
-            </TouchableOpacity>
           </View>
         </View>
+        <TouchableOpacity onPress={onHeartPress} hitSlop={{ bottom: 25, top: 25, left: 25, right: 25 }}>
+          <View style={styles.likeCount}>
+            {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
+            <Ionicons
+              size={20 * ratio}
+              name={'md-heart'}
+              color={liked ? Colors.selectionColor : Colors.activeGray}
+            />
+          </View>
+        </TouchableOpacity>
       </View>
       <View style={styles.plogStyle}>
         {
@@ -317,8 +317,14 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
     }
   }, [currentUser.uid]);
 
+  // NOTE If you're working on styling the PlogList or Plog component, comment
+  // out this line...
   // const [viewabilityConfig, visible] = useVisible();
+  // ...and uncomment this line:
   const visible = { has(_) { return true; }};
+
+  // NOTE You'll also need to comment out the line below beginning
+  // `viewabilityConfigCallbackPairs`.
 
   return (
     <FlatList data={filter ? plogs.filter(filter) : plogs}
@@ -358,6 +364,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
               initialNumToRender={3}
               onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
+    /* Comment out when debugging: */
               // viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
               extraData={{ liked: likedPlogIds(currentUser), visible }}

@@ -216,6 +216,7 @@ export default StyleSheet.create({
     fontWeight: "bold",
     color: Colors.warningText,
     backgroundColor: Colors.warningBackground,
+    padding: 5,
   },
 
   mapContainer: {

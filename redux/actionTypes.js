@@ -19,6 +19,7 @@ export const LOAD_LOCAL_HISTORY = 'LOAD_LOCAL_HISTORY';
 export const PLOG_DATA = 'PLOG_DATA';
 
 export const LOAD_PLOGS = 'LOAD_PLOGS';
+export const UNLOAD_PLOGS = 'UNLOAD_PLOGS';
 
 export const SET_REGION = 'SET_REGION';
 

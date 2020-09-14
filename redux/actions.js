@@ -124,6 +124,11 @@ export const loadPlogs = plogIDs => ({
   payload: { plogIDs }
 });
 
+export const unloadPlogs = plogIDs => ({
+  type: types.UNLOAD_PLOGS,
+  payload: { plogIDs }
+});
+
 export const gotPlogData = plogs => ({
   type: types.PLOG_DATA,
   payload: { plogs }
