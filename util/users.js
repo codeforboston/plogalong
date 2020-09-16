@@ -4,8 +4,8 @@ import { keep } from './iter';
 
 import AchievedTypes from '../constants/AchievedMockup';
 
-/** @typedef {import('../firebase/project/functions/shared').UserAchievements} UserAchievements */
-
+/** @typedef {shared.UserData} UserData */
+/** @typedef {shared.UserAchievements} UserAchievements */
 /** @typedef {(a: AchievementInstance, b: AchievementInstance) => (-1 | 0 | 1)} AchievementSorter */
 
 /**
@@ -61,13 +61,13 @@ const achievementSorter = ({updated: a, completed: ac, key: ak},
  */
 /**
  * @param {UserAchievements} achievements
- * @param {ProcessAchievementsOptions} [show]
+ * @param {ProcessAchievementsOptions} [options]
  *
  * @returns {ReturnType<typeof processAchievement>[]}
  */
-export const processAchievements = (achievements, show = {}) => {
+export const processAchievements = (achievements, options = {}) => {
   const {partial=true, unstarted=false, hidden=false,
-         sorter = achievementSorter} = show;
+         sorter = achievementSorter} = options;
   return keep(achType => {
     const a = achievements[achType];
     if (!partial && !a.completed)
@@ -77,12 +77,13 @@ export const processAchievements = (achievements, show = {}) => {
             (unstarted || achievement.progress) &&
             (hidden || !achievement.hide)) ? achievement : null;
   }, Object.keys(achievements)).sort(sorter);
-  };
+};
 
 /**
+ * @param {{ data: UserData }} user
  * @param {shared.TimeUnit} unit
  *
- * @returns {shared.PlogStats}
+ * @returns {shared.UserPlogStats}
  */
 export function getStats(user, unit, now=new Date()) {
   /** @type {shared.UserData['stats']} */

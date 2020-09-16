@@ -9,7 +9,8 @@ import { shallowEqual } from 'react-redux';
 import { useDispatch, useSelector } from '../redux/hooks';
 
 import * as actions from '../redux/actions';
-import { formatDuration, getStats } from '../util';
+import { formatPloggingMinutes } from '../util/string';
+import { getStats } from '../util/users';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -95,7 +96,6 @@ export const HistoryScreen = _ => {
   }, [currentUser, loading]);
 
   const monthStats = getStats(currentUser, 'month');
-  const yearStats = getStats(currentUser, 'year');
   const totalStats = getStats(currentUser, 'total');
 
   useEffect(() => {
@@ -121,8 +121,8 @@ export const HistoryScreen = _ => {
                           "You haven't plogged yet this month." :
                         "Plog something to earn your first badge!"
                       }
-                      {yearStats.milliseconds ?
-                       `\nYou've earned ${formatDuration(yearStats.milliseconds, true)} this year.` : ''}
+                      {totalStats.milliseconds ?
+                       `\nYou've earned ${formatPloggingMinutes(totalStats.milliseconds + 60000*totalStats.bonusMinutes, true)}.` : ''}
                     </Banner>
                     <View style={{
                       marginTop: 5

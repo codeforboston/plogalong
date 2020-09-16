@@ -76,21 +76,22 @@ export function formatDateOrRelative(dt) {
 /**
  * @param {number} ms Duration in milliseconds
  */
-export function formatDuration(ms, plogFormat=false) {
+export function formatDuration(ms) {
   const s = Math.round(ms / 1000);
   if (s < 60) {
-    return plogFormat ? `1 plogging minute` : `1 minute`;
+    return `1 minute`;
   }
 
   let m = Math.floor(s / 60);
   if (m < 60) {
-    return plogFormat
-      ? `${m} plogging minute${m === 1 ? '' : 's'}`
-      : `${m} minute${m === 1 ? '' : 's'}`;
+    return `${m} minute${m === 1 ? '' : 's'}`;
   }
 
   let h = Math.floor(m / 60);
-  return plogFormat
-    ? `${h} plogging hour${h === 1 ? '' : 's'}`
-    : `${h} hour${h === 1 ? '' : 's'}`;
+  return `${h} hour${h === 1 ? '' : 's'}`;
+}
+
+export function formatPloggingMinutes(ms) {
+  const m = Math.max(1, Math.round(ms / 60000));
+  return pluralize(m, 'plogging minute');
 }
