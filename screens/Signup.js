@@ -6,7 +6,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import * as AppleAuthentication from 'expo-apple-authentication';
 
 import {
   linkToEmail, linkToFacebook, linkToGoogle,
@@ -17,6 +16,7 @@ import {
 } from '../firebase/auth';
 import { getStats, indexBy } from '../util';
 import { useParams } from '../util/react';
+import { useAppleSignInAvailable } from '../util/native';
 import { usePrompt } from '../Prompt';
 
 import Colors from '../constants/Colors';
@@ -29,16 +29,6 @@ import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 import { useSelector } from '../redux/hooks';
 
-
-const useAppleSignInAvailable = () => {
-  const [isAvailable, setAvailable] = useState(false);
-
-  React.useEffect(() => {
-    AppleAuthentication.isAvailableAsync().then(setAvailable);
-  }, []);
-
-  return isAvailable;
-};
 
 /** @typedef {import('../firebase/project/functions/shared').UserData} UserData */
 /** @typedef {import('firebase').User & { data?: UserData }} User */

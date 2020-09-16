@@ -5,6 +5,7 @@ import {
   Dimensions,
   View,
 } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 
 /**
@@ -57,3 +58,12 @@ export const useDimensions = () => {
   return { dimensions, onLayout };
 };
 
+export const useAppleSignInAvailable = () => {
+  const [isAvailable, setAvailable] = React.useState(false);
+
+  React.useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setAvailable);
+  }, []);
+
+  return isAvailable;
+};
