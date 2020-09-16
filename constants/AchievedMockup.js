@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { AchievementHandlers } from '../firebase/project/functions/shared';
-import { pluralize } from '../util';
+import { pluralize } from '../util/string';
 
 import Umbrella from '../assets/svg/achievement_badges_48_48/baseline-beach_access-48px.svg';
 import SingleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_outline-48px.svg';
