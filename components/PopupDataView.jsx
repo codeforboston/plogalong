@@ -43,7 +43,7 @@ export const PopupHeader = ({title, image, details}) => (
  * @template {(params: any) => any} T
  * @type {((props: PopupDataViewProps<T>) => JSX.Element)}
  */
-const PopupDataView = ({loader, children, errorTitle, errorDetails}) => {
+const PopupDataView = ({loader, children, errorTitle, errorDetails, hideDismissButton, style}) => {
   const render = children;
   console.assert(typeof render === 'function', 'Child must be a function');
 
@@ -75,8 +75,8 @@ const PopupDataView = ({loader, children, errorTitle, errorDetails}) => {
   }
 
   return (
-    <View style={[styles.container, $S.form]}>
-      <DismissButton color="black"/>
+    <View style={[styles.container, $S.form, style]}>
+      {!hideDismissButton && <DismissButton color="black"/>}
       {content}
     </View>
   );

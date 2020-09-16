@@ -9,7 +9,7 @@ export default {
     ['straws', {title: 'Straws', value: 'straws'}],
     ['plastic_bags', {title: 'Plastic Bags', value: 'plastic_bags'}],
     ['cigarette_butts', {title: 'Cigarette Butts', value: 'cigarette_butts'}],
-    ['needles', {title: 'Needles', value: 'needles'}],
+    ['needles', {title: 'Metal/Junk', value: 'needles'}],
     ['glass', {title: 'Glass', value: 'glass'}],
     ['dog_poop', {title: 'Dog Poop', value: 'dog_poop'}],
     ['invasive_plants', {title: 'Invasive Plants', value: 'invasive_plants'}],
@@ -18,19 +18,19 @@ export default {
 
   activities: new Map([
     ['walking', {title: 'Walking', icon: icons.Walk}],
-    ['running', {title: 'Running', icon: icons.Running}],
+    ['running', {title: 'Jogging', icon: icons.Running}],
     ['hiking', {title: 'Hiking', icon: icons.Backpacker}],
     ['biking', {title: 'Biking', icon: icons.Bike}],
-    ['swimming', {title: 'Swimming', icon: icons.Swimmer}],
-    ['canoeing', {title: 'Canoeing', icon: icons.Canoe}]
+    ['swimming', {title: 'On the Beach', icon: icons.Swimmer}],
+    ['canoeing', {title: 'Paddling', icon: icons.Canoe}]
   ]),
 
   groups: new Map([
-    ['alone', {title: 'I was alone', icon: icons.Walk}],
-    ['dog', {title: 'My dog', icon: icons.Dog}],
-    ['teacher', {title: 'A child', icon: icons.Teacher}],
-    ['friend', {title: 'A friend', icon: icons.Couple}],
-    ['team', {title: 'A team', icon: icons.Team}]
+    ['alone', {title: 'I was alone.', icon: icons.Walk}],
+    ['dog', {title: 'My dog(s) cheered me on.', icon: icons.Dog}],
+    ['teacher', {title: 'Kid plogger(s).', icon: icons.Teacher}],
+    ['friend', {title: 'A friend or partner.', icon: icons.Couple}],
+    ['team', {title: 'It was a group effort.', icon: icons.Team}]
   ]),
 
   plogPhotoWidth: 500,

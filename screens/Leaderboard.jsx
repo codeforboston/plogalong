@@ -115,7 +115,7 @@ export const RegionLeaderboard = ({region, leaders, ...props}) => (
   </View>
 );
 
-const RegionLeaderboardScreen = () => {
+const RegionLeaderboardScreen = ({ regionID }) => {
   const currentUser = useSelector(state => state.users.current,
                                   (u1, u2) => (u1 && u2 && u1.uid === u2.uid));
   const navigation = useNavigation();
@@ -124,9 +124,11 @@ const RegionLeaderboardScreen = () => {
   }, [navigation]);
 
   return (
-    <PopupDataView loader={params => getRegionLeaders(params.regionID)}
+    <PopupDataView loader={() => getRegionLeaders(regionID)}
                    errorTitle={e => (LeaderboardErrors[e.code] || {}).title}
-                   errorDetails={e => (LeaderboardErrors[e.code] || {}).details}>
+                   errorDetails={e => (LeaderboardErrors[e.code] || {}).details}
+                   style={{ padding: 0, paddingTop: 10, backgroundColor: 'transparent' }}
+                   hideDismissButton >
       {React.useCallback(object => <RegionLeaderboard
                                      region={object.region}
                                      leaders={object.leaders}

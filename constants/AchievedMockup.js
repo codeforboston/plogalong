@@ -24,6 +24,7 @@ import Bear from '../assets/svg/achievement_badges_48_48/bear_48.svg';
 import Face from '../assets/svg/achievement_badges_48_48/baseline-face-48px.svg';
 import Airplane from '../assets/svg/achievement_badges_48_48/baseline-flight_land-48px.svg';
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
+import MetalHand from '../assets/svg/achievement_badges_48_48/024-concert.svg';
 
 import icons from '../icons';
 
@@ -101,10 +102,10 @@ const AchievementTypes = {
     incompleteDescription: 'Remove standing water',
   },
   dangerPay: {
-    badgeTheme: 'Danger Pay',
-    icon: Syringe,
-    description: 'Plogged shards or glass',
-    incompleteDescription: 'Plog shards or glass',
+    badgeTheme: 'Metal Head',
+    icon: MetalHand,
+    description: 'Plogged metal or junk',
+    incompleteDescription: 'Plog metal or junk',
   },
   daredevil: {
     badgeTheme: 'Daredevil',
