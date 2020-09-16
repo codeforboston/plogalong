@@ -63,14 +63,7 @@ const LocalScreen = ({ navigation }) => {
       <Banner>
         The best time to plog is yesterday.{'\n'}The second best time is today!
       </Banner>
-      {
-        region &&
-          <>
-            <NavLink route="Leaderboard" params={{ regionID: region.id }} style={$S.subheadLink}>
-              Leaderboard
-            </NavLink>
-          </>
-      }
+
     </>
   );
 

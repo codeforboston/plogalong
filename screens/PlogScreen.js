@@ -300,7 +300,7 @@ class PlogScreen extends React.Component {
     case 'Log':
       return (
         <>
-          <Question question="What were you up to?" style={$S.h2}/>
+          <Question question="What were you up to?"/>
           <View style={styles.selectable} >
             {Array.from(Options.activities).map(([value, type]) => {
               const { buttonIcon: ButtonIcon=type.icon } = this.props;
@@ -318,7 +318,7 @@ class PlogScreen extends React.Component {
             }
           )}
           </View>
-          <Answer answer={activityName} style={$S.h2}/>
+          <Answer answer={activityName}/>
 
           <Question question="Who helped?" style={$S.h2}/>
           <View style={styles.selectable} >
@@ -473,7 +473,7 @@ class PlogScreen extends React.Component {
         <Button title={showDetailedOptions ? 'Hide Detailed Options' : 'Show Detailed Options'}
                 onPress={this.toggleDetailedOptions}
         />
-        <Answer answer={cleanedUp} style={$S.h2}/>
+        {/* <Answer answer={cleanedUp} style={$S.h2}/> */}
 
         {this.renderModeQuestions()}
 

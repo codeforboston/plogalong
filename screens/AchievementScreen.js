@@ -6,15 +6,31 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import {connect} from 'react-redux';
 
+import * as actions from '../redux/actions';
+import {connect} from 'react-redux';
+import { useDispatch, useSelector } from '../redux/hooks';
+import { shallowEqual } from 'react-redux';
 import {getStats} from '../util';
 
+import $S from '../styles';
 import AchievementSwipe from '../components/AchievementSwipe';
 import Banner from '../components/Banner';
 import Colors from '../constants/Colors';
+import Leaderboard from '../screens/Leaderboard';
 
-export const AchievementScreen = ({currentUser}) => {
+
+export const AchievementScreen = ({currentUser }) => {
+    const dispatch = useDispatch();
+    React.useEffect(() => {
+        dispatch(actions.loadLocalHistory());
+      }, []);
+
+    const { region } = useSelector(({ log }) => {
+        return {
+          region: log.region,
+        };
+      }, shallowEqual);
 
     const [isBadges, setIsBadges] = useState(true);
 
@@ -50,9 +66,14 @@ export const AchievementScreen = ({currentUser}) => {
                 inset={{paddingBottom: 120,}}
             />
         ) :
-        (<Text style={{textAlign: 'center', fontSize: 18, marginTop: 20,}}>
-            The Leaderboard is still under construction. Come back soon!
-        </Text>)
+ 
+                region &&
+                <>
+                    <View style={{ height: '100%' }}>
+                        <Leaderboard regionID={region.id} style={$S.subheadLink}/>
+                    </View>
+                </>
+
         }
       </View>
     );
