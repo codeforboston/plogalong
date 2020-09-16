@@ -27,6 +27,16 @@ import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg
 
 import icons from '../icons';
 
+import dogsBestFriend from '../assets/svg/achievement_badges_24_24/pets-24px.svg';
+import babysitter from '../assets/svg/achievement_badges_24_24/child_care-24px.svg';
+import takeAHike from '../assets/svg/achievement_badges_24_24/backpack-24px.svg';
+import streaker from '../assets/svg/achievement_badges_24_24/emoji_people-24px.svg';
+import marathoner from '../assets/svg/achievement_badges_24_24/directions_run-24px';
+import waterSports from '../assets/svg/achievement_badges_24_24/rowing-24px.svg';
+import twofer from '../assets/svg/achievement_badges_24_24/looks_two-24px.svg';
+import noButts from '../assets/svg/achievement_badges_24_24/smoke_free-24px.svg';
+import breakTheSeal from '../assets/svg/achievement_badges_24_24/lock_open-24px.svg';
+
 
 /** @typedef {import('../firebase/project/functions/shared').UserAchievements} UserAchievements */
 
@@ -71,7 +81,7 @@ const AchievementTypes = {
   },
   streaker: {
     badgeTheme: 'Streaker',
-    icon: Star,
+    icon: streaker,
     detailText: ({complete, streak}) => complete ? '' : `${pluralize(streak, 'day')} down, ${7-streak} to go`,
     progress: ({streak}) => (streak || 0)/7,
     hide: ({ streaker: { updated, streak }}) => streak < 2,
@@ -129,19 +139,19 @@ const AchievementTypes = {
 
   dogsBestFriend: {
     badgeTheme: "Dog's Best Friend",
-    icon: DogWalking,
+    icon: dogsBestFriend,
     description: 'Plogged with your dog',
     incompleteDescription: 'Plog with your dog',
   },
   babysitter: {
     badgeTheme: 'Babysitter',
-    icon: icons.Teacher,
+    icon: babysitter,
     description: 'Plogged with a kid',
     incompleteDescription: 'Plog with a kid',
   },
   twofer: {
     badgeTheme: 'Twofer',
-    icon: icons.Couple,
+    icon: twofer,
     description: 'Plogged with a friend or partner',
     incompleteDescription: 'Plog with a friend or partner',
   },
@@ -153,27 +163,33 @@ const AchievementTypes = {
   },
   noButts: {
     badgeTheme: 'No Butts',
-    icon: SingleCheckmark,
+    icon: noButts,
     description: 'Cleaned up cigarette butts',
     incompleteDescription: 'Clean up cigarette butts',
   },
   marathoner: {
     badgeTheme: 'Marathoner',
-    icon: icons.Running,
+    icon: marathoner,
     description: 'Plogged while jogging',
     incompleteDescription: 'Plog while jogging',
   },
   takeAHike: {
     badgeTheme: 'Take a Hike',
-    icon: icons.Backpacker,
+    icon: takeAHike,
     description: 'Plogged while hiking',
     incompleteDescription: 'Plog while hiking',
   },
   breakTheSeal: {
     badgeTheme: 'Break the Seal',
-    icon: SingleCheckmark,
+    icon: breakTheSeal,
     description: 'You were the first plogger in the neighborhood',
     incompleteDescription: 'Be the first plogger in the neighborhood',
+  },
+  waterSports: {
+    badgeTheme: 'Water Sports',
+    icon: waterSports,
+    description: 'Plogged on the water',
+    incompleteDescription: 'Plog on the water',
   },
 };
 
