@@ -1,6 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as redux from 'redux';
 import * as reactRedux from 'react-redux';
+
+import * as Permissions from 'expo-permissions';
 
 import * as actions from './actions';
 import { useEffectWithPrevious } from '../util/react';
@@ -17,6 +19,13 @@ export const useDispatch = reactRedux.useDispatch;
 
 /** @type {<TSelected=unknown>(selector: (state: AppState) => TSelected, equalityFn?: (left: TSelected, right: TSelected) => boolean) => TSelected} */
 export const useSelector = reactRedux.useSelector;
+
+/** @param {AppState} state */
+const UserSelector = state => state.users.current;
+/** @param {AppState} state */
+const LocationSelector = state => state.users.location;
+
+export const useCurrentUser = () => useSelector(UserSelector);
 
 export const usePlogs = plogIds => {
   const plogData = useSelector(state => state.log.plogData);
@@ -96,3 +105,19 @@ export function usePaginatedPlogs(plogIDs, perPage=3) {
 
   return /** @type {[typeof plogs, boolean, () => void]} */([plogs, loading, loadNext]);
 };
+
+export function useLocation() {
+  const location = useSelector(LocationSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    Permissions.askAsync(Permissions.LOCATION)
+      .then(response => {
+        if (response.status === 'granted') {
+          dispatch(actions.startWatchingLocation());
+        }
+      });
+  }, []);
+
+  return location;
+}

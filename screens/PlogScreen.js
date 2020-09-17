@@ -10,7 +10,9 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import * as Permissions from 'expo-permissions';
+import { shallowEqual } from 'react-redux';
+
+
 import MapView, { Camera } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -25,7 +27,7 @@ import Options from '../constants/Options';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
-import {connect} from 'react-redux';
+import { useSelector, useDispatch, useLocation } from '../redux/hooks';
 import * as actions from '../redux/actions';
 import {
   setUserData
@@ -276,13 +278,6 @@ class PlogScreen extends React.Component {
 
   toggleDetailedOptions = () => {
     this.props.setPreferences({ showDetailedOptions: !this.props.preferences.showDetailedOptions });
-  }
-
-  async componentDidMount() {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status === 'granted') {
-      this.props.startWatchingLocation();
-    }
   }
 
   componentWillUnmount() {
@@ -607,22 +602,22 @@ const styles = StyleSheet.create({
   }
 });
 
-const PlogScreenContainer = connect(({preferences, users, log}) => ({
-  user: users.current,
-  location: users.location,
-  locationInfo: users.locationInfo,
-  submitting: log.submitting,
-  error: log.logError,
-  preferences,
-}),
-                                    (dispatch) => ({
-                                      logPlog(plogInfo) {
-                                        dispatch(actions.logPlog(plogInfo));
-                                      },
-                                      startWatchingLocation() {
-                                        dispatch(actions.startWatchingLocation());
-                                      },
-                                      setPreferences: (...args) => dispatch(actions.setPreferences(...args))
-                                    }))(PlogScreen);
+export default () => {
+  const dispatch = useDispatch();
+  const dataProps = useSelector(({ preferences, users, log }) => ({
+    user: users.current,
+    locationInfo: users.locationInfo,
+    submitting: log.submitting,
+    error: log.logError,
+    preferences
+  }), shallowEqual);
 
-export default PlogScreenContainer;
+  const actionProps = {
+    logPlog(plogInfo) {
+      dispatch(actions.logPlog(plogInfo));
+    },
+    setPreferences: (...args) => dispatch(actions.setPreferences(...args))
+  };
+
+  return <PlogScreen location={useLocation()} {...dataProps} {...actionProps} />;
+};

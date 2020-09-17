@@ -30,6 +30,8 @@ const initialState = {
   region: null,
   historyLoading: false,
   localPlogsLoading: false,
+  submitting: null,
+  logError: null,
 };
 
 /**
