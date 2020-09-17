@@ -33,7 +33,7 @@ export const authCancelled = _ => ({
 
 export const loginError = error => ({
   type: types.LOGIN_ERROR,
-  payload: { error: error.code === 'auth/user-canceled' ? null : error }
+  payload: { error: error && error.code === 'auth/user-canceled' ? null : error }
 });
 
 export const signupError = (error) => ({

@@ -197,6 +197,7 @@ export const linkToApple = withAppleCredential(cred => auth.currentUser.linkWith
 export const unlinkApple = () => auth.currentUser.unlink('apple.com').then(_refreshUser);
 
 
+/** @type {typeof auth.signInWithEmailAndPassword} */
 export const loginWithEmail = auth.signInWithEmailAndPassword.bind(auth);
 
 export const linkToEmail = async (email, password) => {
@@ -209,6 +210,8 @@ export const linkToEmail = async (email, password) => {
 
   return userCred.user;
 };
+
+export const loginAnonymously = auth.signInAnonymously.bind(auth);
 
 export const logOut = () => auth.signOut();
 
