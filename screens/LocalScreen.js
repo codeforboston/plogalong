@@ -5,7 +5,7 @@ import {
   Text
 } from 'react-native';
 import { shallowEqual } from 'react-redux';
-import { useDispatch, useSelector, usePaginatedPlogs } from '../redux/hooks';
+import { useDispatch, useSelector, usePaginatedPlogs, useLocation } from '../redux/hooks';
 import MapView, { Marker } from 'react-native-maps';
 
 import * as actions from '../redux/actions';
@@ -27,7 +27,7 @@ const LocalScreen = ({ navigation }) => {
     dispatch(actions.likePlog(...args));
   }, []);
 
-  const { currentUser, loading, location, plogIDs, region } =
+  const { currentUser, loading, plogIDs } =
         useSelector(({ log, users }) => {
           const { plogData, localPlogs } = log;
 
@@ -35,10 +35,9 @@ const LocalScreen = ({ navigation }) => {
             plogIDs: localPlogs,
             currentUser: users.current,
             loading: log.localPlogsLoading,
-            location: users.location,
-            region: log.region,
           };
         }, shallowEqual);
+  const location = useLocation();
 
   React.useEffect(() => {
     dispatch(actions.loadLocalHistory());
@@ -59,12 +58,9 @@ const LocalScreen = ({ navigation }) => {
   const recentCount = history.length;
 
   const header = (
-    <>
-      <Banner>
-        The best time to plog is yesterday.{'\n'}The second best time is today!
-      </Banner>
-
-    </>
+    <Banner>
+      The best time to plog is yesterday.{'\n'}The second best time is today!
+    </Banner>
   );
 
   if (noPloggers) {
@@ -118,11 +114,7 @@ const LocalScreen = ({ navigation }) => {
           currentUser={currentUser}
           likePlog={likePlog}
           loadNextPage={loadNextPage}
-          header={
-            <View style={{ paddingTop: 20 }}>
-              {header}
-            </View>
-          }
+          header={header}
           footer={
             loading ?
               <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 10 }}>
