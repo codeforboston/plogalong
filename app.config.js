@@ -1,3 +1,4 @@
+const path = require('path');
 const plist = require('./util/plist');
 
 let localConfig = {};
@@ -8,11 +9,11 @@ if (process.env.LOCAL_CONFIG_FILE) {
 
 let {
   bundleIdentifier,
-  googleServicesPlist = "./GoogleService-Info.plist",
-  googleServicesJson = "./google-services.json",
+  googleServicesPlist = path.join(__dirname, "GoogleService-Info.plist"),
+  googleServicesJson = path.join(__dirname, "google-services.json"),
   googleReservedClientId,
   uriScheme = "plogalong",
-  amazonAffiliateSourceFile = './assets/other/amazon.html',
+  amazonAffiliateSourceFile = path.join(__dirname, 'assets/other/amazon.html'),
   iosBundleIdentifier = bundleIdentifier,
   androidBundleIdentifier = bundleIdentifier,
   googleMapsAPIKey,
