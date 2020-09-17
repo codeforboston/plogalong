@@ -3,6 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "{{ android.package }}",
-    "sha256_cert_fingerprints": {{ stringify android.certFingerprints }}
+    "sha256_cert_fingerprints": {{{ stringify android.certFingerprints }}}
   }
 }]
