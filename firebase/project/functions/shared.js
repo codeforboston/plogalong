@@ -462,7 +462,9 @@ function updateStats(stats, plog, bonusMinutes=0, regionID=null) {
   return withStats(stats, localPlogDate(plog), unitStats => {
     unitStats.milliseconds += plog.PlogDuration || 0;
     unitStats.count += 1;
-    unitStats.bonusMinutes = bonusMinutes;
+    if (bonusMinutes) {
+      unitStats.bonusMinutes = (unitStats.bonusMinutes || 0) + bonusMinutes;
+    }
 
     if (regionID) {
       if (!unitStats.region)
