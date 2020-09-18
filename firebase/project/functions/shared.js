@@ -564,7 +564,7 @@ function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
   if (!recentPlogs)
     recentPlogs = { ids: [], data: {} };
   if (recentPlogs.ids.push(plogData.id) > maxLength) {
-    for (const plogID of recentPlogs.ids.slice(maxLength-1))
+    for (const plogID of recentPlogs.ids.slice(maxLength))
       delete recentPlogs.data[plogID];
 
     recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
