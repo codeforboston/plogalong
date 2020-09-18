@@ -2,6 +2,7 @@ import * as geokit from 'geokit';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import { coalesceCalls, rateLimited } from '../util/async';
+import { keep } from '../util/iter';
 import { updateLocalStorage } from '../util/native';
 
 import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS } from './actionTypes';
@@ -128,7 +129,7 @@ export default store => {
 
       getRegion(id).onSnapshot(snapshot => {
         const regionData = snapshot.data() || {};
-        const plogIds = (regionData.recentPlogs || []).map(plog => plog.id);
+        const plogIds = keep(plog => plog && plog.id, regionData.recentPlogs || []);
 
         updateLocalStorage(REGION_CACHE_KEY, cached => {
           cached.geohashes = regionData.geohashes;
