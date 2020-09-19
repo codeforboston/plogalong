@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export default () => {
+export default (props) => {
   const dispatch = useDispatch();
   const dataProps = useSelector(({ preferences, users, log }) => ({
     user: users.current,
@@ -619,5 +619,5 @@ export default () => {
     setPreferences: (...args) => dispatch(actions.setPreferences(...args))
   };
 
-  return <PlogScreen location={useLocation()} {...dataProps} {...actionProps} />;
+  return <PlogScreen location={useLocation()} {...dataProps} {...actionProps} {...props} />;
 };
