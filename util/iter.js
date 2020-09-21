@@ -102,3 +102,18 @@ export function denormList(input, { idsKey = 'ids', dataKey = 'data', idKey = 'i
                       id => input[dataKey][id]) :
     [];
 }
+
+/**
+ * @template T
+ * @param {T[]} xs
+ * @param {number} n
+ *
+ * @returns {T[][]}
+ */
+export function partition(xs, n) {
+  const splitXs = [];
+  for (let i = 0, l = xs.length; i < l; i += n) {
+    splitXs.push(xs.slice(i, i+n));
+  }
+  return splitXs;
+}
