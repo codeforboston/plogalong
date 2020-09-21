@@ -101,6 +101,10 @@ class ProfileScreen extends React.Component {
       logOut();
   }
 
+  disableConserveMemory = () => {
+    this.props.updatePreferences({ conserveMemory: false });
+  }
+
   setHomeBaseFromLocationInfo = () => {
     const { locationInfo } = this.props;
 
@@ -217,6 +221,9 @@ class ProfileScreen extends React.Component {
               <Button primary
                 onPress={this.goToChangePassword}
                 title="Change Password"           /> }
+            {this.props.preferences.conserveMemory &&
+             <Button onPress={this.disableConserveMemory}
+                     title="Disable Memory Conservation" />}
           </View>
         </ScrollView>
     );
@@ -277,6 +284,7 @@ export default connect(
   ({users, preferences}) => ({
     currentUser: users.current,
     locationInfo: users.locationInfo,
+    preferences
   }),
   (dispatch) => ({
     updatePreferences(preferences) {

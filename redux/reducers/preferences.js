@@ -1,6 +1,16 @@
 import { SET_PREFERENCES } from "../actionTypes";
 
-export default preferences = (state = {}, action) => {
+/** @typedef {{
+ *    conserveMemory?: boolean,
+ *    sawIntro?: boolean,
+ *    showDetailedOptions?: boolean,
+ *    [k in string]: any
+ *  }} Preferences
+ */
+
+
+/** @type {(state: Preferences, action: any) => Preferences} */
+export default (state = {}, action) => {
     switch (action.type) {
         case SET_PREFERENCES: {
           return {

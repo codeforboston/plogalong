@@ -20,7 +20,7 @@ import moment from 'moment';
 
 import * as actions from '../redux/actions';
 import { formatDate, formatDuration } from '../util';
-import { usePlogs } from '../redux/hooks';
+import { usePlogs, useSelector } from '../redux/hooks';
 import { usePrompt } from '../Prompt';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
@@ -39,14 +39,16 @@ function range(values) {
   return [min, max];
 }
 
-function IndexRange(min, max) {
+function VisibleRange(min, max, extras=2) {
   return {
-    has: isFinite(min) ? (n => (min <= n && n <= max)) : (_ => false)
+    setExtra: v => VisibleRange(min, max, v),
+    has: n => isFinite(min) ? (min-extras <= n && n <= max+extras) : (n => false)
   };
 }
 
-function useVisible() {
-  const [visible, setVisible] = React.useState(new Set());
+function useVisible(extra=2) {
+  const [visible, setVisible] = React.useState(VisibleRange());
+  const extraRef = React.useRef(extra);
 
   const viewability = React.useMemo(() => {
     return [{
@@ -56,10 +58,17 @@ function useVisible() {
       },
       onViewableItemsChanged: ({viewableItems}) => {
         let [min, max] = range(viewableItems.map(({index}) => index));
-        setVisible(IndexRange(min-2, max+2));
+        setVisible(VisibleRange(min, max, extraRef.current));
       }
     }];
   }, [setVisible]);
+
+  React.useEffect(() => {
+    if (extraRef.current !== extra) {
+      setVisible(range => range.setExtra(extra));
+      extraRef.current = extra;
+    }
+  }, [extra]);
 
   return [viewability, visible];
 }
@@ -276,10 +285,11 @@ const likedPlogIds = user => (
   user && user.data && user.data.likedPlogs && JSON.stringify(user.data.likedPlogs)
 );
 
-const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deletePlog, reportPlog, loadNextPage}) => {
+const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, reportPlog, loadNextPage}) => {
   const navigation = useNavigation();
 
   const { prompt } = usePrompt();
+  const conserveMemory = useSelector(state => state.preferences.conserveMemory);
   const onReportPlog = useCallback(async plogInfo => {
     const me = currentUser && plogInfo.userID === currentUser.uid;
 
@@ -319,15 +329,15 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
 
   // NOTE If you're working on styling the PlogList or Plog component, comment
   // out this line...
-  // const [viewabilityConfig, visible] = useVisible();
+  const [viewabilityConfig, visible] = useVisible(conserveMemory ? 0 : 2);
   // ...and uncomment this line:
-  const visible = { has(_) { return true; }};
+  // const visible = { has(_) { return true; }};
 
   // NOTE You'll also need to comment out the line below beginning
   // `viewabilityConfigCallbackPairs`.
 
   return (
-    <FlatList data={filter ? plogs.filter(filter) : plogs}
+    <FlatList data={plogs}
               renderItem={({item, index}) => (
                 item.type === 'achievement' ?
                 <View style={{marginLeft: 10, marginRight: 10, marginBottom: 20,}}>
@@ -365,7 +375,7 @@ const PlogList = ({plogs, currentUser, filter, header, footer, likePlog, deleteP
               onEndReachedThreshold={0.5}
               onEndReached={loadNextPage}
     /* Comment out when debugging: */
-              // viewabilityConfigCallbackPairs={viewabilityConfig}
+              viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
               extraData={{ liked: likedPlogIds(currentUser), visible }}
               ItemSeparatorComponent={Divider}

@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { AppState } from 'react-native';
+import { enableScreens } from 'react-native-screens';
+import { NavigationContainer,  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Linking } from 'expo';
 
@@ -26,6 +28,7 @@ import AchievementModal from '../screens/AchievementModal';
 import icons from '../icons';
 
 
+enableScreens();
 const AppStack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -35,6 +38,17 @@ const AppNavigator = () => {
   const dispatch = useDispatch();
   const currentUser = useSelector(state => state.users.current);
   const preferences = useSelector(state => state.preferences);
+
+  React.useEffect(() => {
+    const onLowMemory = state => {
+      dispatch(actions.setPreferences({ conserveMemory: true }));
+    };
+    AppState.addEventListener('memoryWarning', onLowMemory);
+
+    return () => {
+      AppState.removeEventListener('memoryWarning', onLowMemory);
+    };
+  }, []);
 
   useEffectWithPrevious(async (lastURL, prevUser) => {
     if (!ref.current)
