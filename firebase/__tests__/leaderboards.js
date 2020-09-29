@@ -45,5 +45,11 @@ describe('', () => {
     expect(Board.ids).toHaveLength(5);
     expect(new Set(Board.ids)).toStrictEqual(new Set(Object.keys(Board.data)));
     // console.log(denormalize(Board));
+
+    updateLeaderboard(Board, '-', { count: 0 }, 5);
+    expect(Board.ids).toHaveLength(5);
+    expect(Board.ids).not.toContain('-');
+    console.log(Board);
+
   });
 });
