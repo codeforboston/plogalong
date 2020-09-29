@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { shallowEqual } from 'react-redux';
 
-
 import MapView, { Camera } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 

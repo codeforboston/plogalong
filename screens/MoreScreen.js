@@ -17,11 +17,7 @@ import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
 import PrivacyScreen from './PrivacyScreen';
 import PloggingSuppliesScreen from './PloggingSuppliesScreen';
-
-
-
 import AchievementScreen from './AchievementScreen';
-
 
 
 import arrow from '../assets/svg/headerBackImage/arrow.svg';
@@ -83,12 +79,6 @@ export class MoreScreen extends React.Component {
 const Stack = createStackNavigator();
 
 export default ({navigation, route}) => {
-  useEffect(() => {
-    if (route.params && route.params.subscreen)
-      navigation.navigate(route.params.subscreen);
-
-  }, [route.params]);
-
     return (
         <Stack.Navigator screenOptions={{
             headerBackTitle: ' ',

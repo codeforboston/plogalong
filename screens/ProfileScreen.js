@@ -12,8 +12,10 @@ import {
   logOut,
   setUserData
 } from '../firebase/auth';
+
 import Banner from '../components/Banner';
 import Button from '../components/Button';
+import { NavLink } from '../components/Link';
 import PhotoButton from '../components/PhotoButton';
 import TextInput from '../components/TextInput';
 import { setPreferences } from '../redux/actions';
@@ -145,8 +147,8 @@ class ProfileScreen extends React.Component {
                  onCleared={() => { this.setProfilePhoto(null); }}
                />
                  <Text style={{ fontWeight: '500' }}>
-                   { currentUser ? 
-                     displayName : 
+                   { currentUser ?
+                     displayName :
                      'Mysterious Plogger' }
                  </Text>
                  <Text style={{ fontWeight: '500' }}>
@@ -156,6 +158,9 @@ class ProfileScreen extends React.Component {
                  <Text style={$S.alertText} onPress={this.goToVerify}>
                    Not verified
                  </Text> }
+               <NavLink route="More" params={{ screen: 'Achievements' }}>
+                 Achievements
+               </NavLink>
              </View>
 
                <View style={$S.inputGroup}>
