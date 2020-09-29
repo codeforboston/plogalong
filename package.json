@@ -10,7 +10,8 @@
     "eject": "expo eject",
     "test": "node_modules/.bin/jest --watchAll",
     "postinstall": "node ./scripts/postinstall.js",
-    "testDebug": "jest -o --watch --coverage=false"
+    "testDebug": "jest -o --watch --coverage=false",
+    "contributors": "node ./scripts/contributors.js"
   },
   "jest": {
     "preset": "jest-expo",
