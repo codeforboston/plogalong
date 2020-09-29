@@ -339,12 +339,15 @@ class PlogScreen extends React.Component {
     return null;
   }
 
+  getTrashTypes = () =>
+    Array.from(Options.trashTypes)
+    .slice(0, this.props.preferences.showDetailedOptions ? -1 : 2)
+    .concat(Array.from(Options.trashTypes).slice(-1));
+
   render() {
     const {state} = this,
           trashTypes = Object.keys(state.trashTypes),
           typesCount = trashTypes.length,
-          cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-          typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
           {params} = this.state,
           {user, error, preferences: { showDetailedOptions }} = this.props,
           locationInfo = state.markedLocationInfo || this.props.locationInfo,
@@ -456,7 +459,7 @@ class PlogScreen extends React.Component {
 
         <Question question="What did you clean up?" style={$S.h2}/>
         <View style={styles.selectable} >
-          {Array.from(Options.trashTypes).slice(0, showDetailedOptions ? undefined : 3).map(([value, type]) => (
+          {this.getTrashTypes().map(([value, type]) => (
             <Button title={type.title} value={value} icon={type.icon} key={value}
                     onPress={() => this.toggleTrashType(value)}
                     selected={state.trashTypes[value]}
@@ -467,7 +470,6 @@ class PlogScreen extends React.Component {
         <Button title={showDetailedOptions ? 'Hide Detailed Options' : 'Show Detailed Options'}
                 onPress={this.toggleDetailedOptions}
         />
-        {/* <Answer answer={cleanedUp} style={$S.h2}/> */}
 
         {this.renderModeQuestions()}
 

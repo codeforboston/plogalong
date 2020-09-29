@@ -4,7 +4,6 @@ export default {
   trashTypes: new Map([
     ['trash', {title: 'Trash', value: 'trash'}],
     ['recycling', {title: 'Recycling', value: 'recycling'}],
-    ['other', {title: 'Other', value: 'other'}],
     ['bottles', {title: 'Bottles', value: 'bottles'}],
     ['straws', {title: 'Straws', value: 'straws'}],
     ['plastic_bags', {title: 'Plastic Bags', value: 'plastic_bags'}],
@@ -14,6 +13,8 @@ export default {
     ['dog_poop', {title: 'Dog Poop', value: 'dog_poop'}],
     ['invasive_plants', {title: 'Invasive Plants', value: 'invasive_plants'}],
     ['standing_water', {title: 'Standing Water', value: 'standing_water', icon: ''}],
+
+    ['other', {title: 'Other', value: 'other'}]
   ]),
 
   activities: new Map([
