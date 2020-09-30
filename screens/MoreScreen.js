@@ -62,10 +62,6 @@ export class MoreScreen extends React.Component {
         </Banner>
         <NavMenu routes={this.pages}/>
         <View style={$S.footerButtons}>
-          <Button title="Invite"
-                  large
-                  onPress={this.toggleIsInviteModalVisible}
-          />
           <Button title="Plog"
                   large primary
                   onPress={this.goToPlogScreen}

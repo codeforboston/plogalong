@@ -101,10 +101,6 @@ const LocalScreen = ({ navigation }) => {
               large primary
               onPress={goToPlogScreen}
             />
-            <Button title="Invite"
-              large
-              onPress={goToInviteScreen}
-            />
         </View>
       </ScrollView>);
   } else {
