@@ -37,20 +37,23 @@ export const processAchievement = (achievements, achType) => {
 export const cmp = (a, b) => a >= b ? (a <= b ? 0 : 1) : -1;
 
 /**
- * Sort order: completed achievements, in descending order of completion time;
- * then in-progress achievements, in descending update order; then the rest. If
- * two achievements were completed or updated at the same time, sorts by the
- * achievement name (ascending).
+ * Sort order: completed achievements, in descending order of completion time,
+ * then in-progress achievements, (then points if time is equal, then name if
+ * points are equal; in descending update order; then the rest). If two
+ * achievements were completed or updated at the same time, sort by the point
+ * value. If the point value is also equal, sort by achievement name
+ * (ascending).
  *
  * @type {AchievementSorter}
  */
-const achievementSorter = ({updated: a, completed: ac, key: ak},
-                           {updated: b, completed: bc, key: bk}) =>
-      (ac ? (bc ? (cmp(bc, ac) || cmp(ak, bk)) : -1)
+const achievementSorter = ({updated: a, completed: ac, badgeTheme: btA, points: pA},
+                           {updated: b, completed: bc, badgeTheme: btB, points: pB}) =>
+      ((ac ? (bc ? cmp(bc, ac) : -1)
        : (bc ? 1
           : (a ?
-             (b ? (cmp(b, a) || cmp(ak, bk)) : -1)
-             : (b ? 1 : cmp(ak, bk)))));
+             (b ? cmp(b, a) : -1)
+             : (b ? 1 : 0)))))
+      || cmp(pB, pA) || cmp(btA, btB);
 
 /**
  * @typedef {Object} ProcessAchievementsOptions
