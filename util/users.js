@@ -104,3 +104,28 @@ export function getStats(user, unit, now=new Date()) {
   // Ensure that no keys are missing
   return Object.assign(defaults, stats[unit]);
 }
+
+/**
+ * @param {UserAchievements} achievements
+ *
+ * @returns { number }
+ */
+export function calculateCompletedBadges(achievements) {
+  let badgeCount = 0;
+  for (const badge in achievements) {
+    if (achievements[badge] != null && achievements[badge].completed != null) {
+      badgeCount += 1;
+    }
+  }
+  return badgeCount;
+}
+
+/**
+ * @param {shared.UserPlogStats} userPlogStats
+ *
+ * BonusMinutes + Milliseconds
+ * @returns { number } 
+ */
+export function calculateTotalPloggingTime(userPlogStats) {
+  return userPlogStats.milliseconds + (60000 * userPlogStats.bonusMinutes)
+}

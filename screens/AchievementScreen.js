@@ -11,7 +11,7 @@ import * as actions from '../redux/actions';
 import {connect} from 'react-redux';
 import { useDispatch, useSelector } from '../redux/hooks';
 import { shallowEqual } from 'react-redux';
-import {getStats} from '../util';
+import { getStats, calculateTotalPloggingTime, formatCompletedBadges, calculateCompletedBadges, formatPloggingMinutes } from '../util';
 
 import $S from '../styles';
 import AchievementSwipe from '../components/AchievementSwipe';
@@ -34,15 +34,12 @@ export const AchievementScreen = ({currentUser }) => {
 
     const [isBadges, setIsBadges] = useState(true);
 
-    const bonus = getStats(currentUser, 'total').bonusMinutes;
-    let badgeCount = 0;
-    for (const badge in currentUser.data.achievements) {
-            if (currentUser.data.achievements[badge] != null && currentUser.data.achievements[badge].completed != null) {badgeCount += 1}
-        }
+    const stats = getStats(currentUser, 'total')
+
     return (
         <View style={{margin: 15, padding: 0,}}>
         <Banner >
-            You earned {badgeCount} badge{badgeCount === 1 ? '': 's'} and {bonus === undefined ? 0: bonus} bonus minute{bonus === 1 ? '': 's'}.
+            You earned {formatCompletedBadges(calculateCompletedBadges(currentUser.data.achievements))} and {'\n'} {formatPloggingMinutes(calculateTotalPloggingTime(stats))}!
         </Banner>
         <View style={styles.toggle}>
         <TouchableWithoutFeedback onPress={() => setIsBadges(true)}>

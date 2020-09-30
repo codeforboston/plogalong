@@ -19,7 +19,7 @@ import { NavLink } from '../components/Link';
 import PhotoButton from '../components/PhotoButton';
 import TextInput from '../components/TextInput';
 import { setPreferences } from '../redux/actions';
-import { getStats } from '../util';
+import { getStats, calculateTotalPloggingTime, formatCompletedBadges, calculateCompletedBadges, formatPloggingMinutes } from '../util';
 import { asyncAlert } from '../util/native';
 
 import $S from '../styles';
@@ -32,7 +32,7 @@ const stateFromProps =
                                displayName,
                                shareActivity = false,
                                emailUpdatesEnabled = false,
-                               privateProfile = false,
+                               privateProfile = false,                               
                              } = {}
                      }} = {}) => ({
                          params: {
@@ -129,10 +129,12 @@ class ProfileScreen extends React.Component {
 
     const hasPassword = !!currentUser.providerData.find(pd => pd.providerId === 'password');
 
+    const stats = getStats(currentUser, 'total');
+
     return (
         <ScrollView style={$S.screenContainer} contentContainerStyle={[$S.scrollContentContainer, styles.contentContainer]}>
           <Banner>
-            Plogging since {moment(created).format('MMMM D, YYYY')}
+            Plogging since {moment(created).format('MMMM YYYY')}
           </Banner>
 
           {!currentUser.isAnonymous ?
@@ -159,7 +161,7 @@ class ProfileScreen extends React.Component {
                    Not verified
                  </Text> }
                <NavLink route="More" params={{ screen: 'Achievements' }}>
-                 Achievements
+                 {formatPloggingMinutes(calculateTotalPloggingTime(stats))} and {formatCompletedBadges(calculateCompletedBadges(achievements))}
                </NavLink>
              </View>
 

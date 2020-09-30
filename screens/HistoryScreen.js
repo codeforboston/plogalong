@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from '../redux/hooks';
 
 import * as actions from '../redux/actions';
 import { formatPloggingMinutes } from '../util/string';
-import { getStats } from '../util/users';
+import { getStats, calculateTotalPloggingTime } from '../util/users';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -122,7 +122,7 @@ export const HistoryScreen = _ => {
                         "Plog something to earn your first badge!"
                       }
                       {totalStats.milliseconds ?
-                       `\nYou've earned ${formatPloggingMinutes(totalStats.milliseconds + 60000*totalStats.bonusMinutes, true)}.` : ''}
+                       `\nYou've earned ${formatPloggingMinutes(calculateTotalPloggingTime(totalStats))}` : ''} 
                     </Banner>
                     <View style={{
                       marginTop: 5

@@ -95,3 +95,7 @@ export function formatPloggingMinutes(ms) {
   const m = Math.max(1, Math.round(ms / 60000));
   return pluralize(m, 'plogging minute');
 }
+
+export function formatCompletedBadges(badgeCount) {
+  return pluralize(badgeCount, 'badge');
+}
