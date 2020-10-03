@@ -62,7 +62,10 @@ const log = (state = initialState, action) => {
     }
 
     case LOAD_LOCAL_HISTORY: {
-      return { ...state };
+      return {
+        ...state,
+        localPlogsLoading: true,
+      };
     }
 
     case PLOG_DATA: {

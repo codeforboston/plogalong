@@ -85,7 +85,7 @@ export default store => {
   let plogSubscriptions = new Map();
   let localRegionId;
   let localGeohash;
-  const runLocalPlogQuery = rateLimited(async (location) => {
+  const runRegionQuery = rateLimited(async (location) => {
     if (runningLocalPlogQuery)
       return;
 
@@ -219,8 +219,7 @@ export default store => {
       }
 
       if (location && current && shouldLoadLocalHistory) {
-        runLocalPlogQuery(location, payload.number);
-        shouldLoadLocalHistory = false;
+        runRegionQuery(location);
       }
 
       if (result)

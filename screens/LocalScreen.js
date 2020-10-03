@@ -2,20 +2,17 @@ import * as React from 'react';
 import {
   View,
   ScrollView,
-  Text
 } from 'react-native';
 import { shallowEqual } from 'react-redux';
 import { useDispatch, useSelector, usePaginatedPlogs, useLocation } from '../redux/hooks';
 import MapView, { Marker } from 'react-native-maps';
 
 import * as actions from '../redux/actions';
-import { keep } from '../util/iter';
 import $S from '../styles';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Loading from '../components/Loading';
-import { NavLink } from '../components/Link';
 import Options from '../constants/Options';
 import Colors from '../constants/Colors';
 import PlogList from '../components/PlogList';
@@ -32,7 +29,7 @@ const LocalScreen = ({ navigation }) => {
           const { plogData, localPlogs } = log;
 
           return {
-            plogIDs: localPlogs,
+            plogIDs: log.localPlogsLoading ? [] : localPlogs,
             currentUser: users.current,
             loading: log.localPlogsLoading,
           };
@@ -45,9 +42,6 @@ const LocalScreen = ({ navigation }) => {
 
   const goToPlogScreen = React.useCallback(() => {
     navigation.navigate('Plog');
-  }, [navigation]);
-  const goToInviteScreen = React.useCallback(() => {
-    navigation.navigate('Invite');
   }, [navigation]);
 
   const [history, , loadNextPage] = usePaginatedPlogs(plogIDs);

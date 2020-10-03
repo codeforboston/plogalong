@@ -114,9 +114,9 @@ export const loadHistory = (userID, replace=true) => ({
   payload: { userID, replace }
 });
 
-export const loadLocalHistory = (replace=true, n=5) => ({
+export const loadLocalHistory = () => ({
   type: types.LOAD_LOCAL_HISTORY,
-  payload: { replace, number: n }
+  payload: { }
 });
 
 export const loadPlogs = plogIDs => ({
