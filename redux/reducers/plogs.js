@@ -32,6 +32,8 @@ const initialState = {
   historyLoading: false,
   localPlogsLoading: false,
   submitting: null,
+  /** @type {string} */
+  lastPlogID: null, // the ID of the last plog saved from this client since the app started
   logError: null,
 };
 
@@ -47,7 +49,7 @@ const log = (state = initialState, action) => {
       return { ...state, submitting: payload.plog, logError: null };
 
     case PLOG_LOGGED:
-      return { ...state, submitting: null };
+      return { ...state, lastPlogID: payload.plogID, submitting: null };
 
     case LOG_PLOG_ERROR:
       return { ...state, submitting: null, logError: action.error };

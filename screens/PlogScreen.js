@@ -70,8 +70,7 @@ class PlogScreen extends React.Component {
   }
 
   async componentDidUpdate(prevProps, prevState) {
-    if (!this.props.submitting && prevProps.submitting &&
-        !this.props.error) {
+    if (this.props.lastPlogID !== prevProps.lastPlogID) {
       this.setState({
         trashTypes: {},
         selectedMode: 0,
