@@ -59,7 +59,7 @@ const PopupDataView = ({loader, children, errorTitle, errorDetails, hideDismissB
     loader(params)
       .then(setObject, setError)
       .finally(_ => setLoading(false));
-  }, [params]);
+  }, [params, loader]);
 
   if (loading)
     return <Loading style={{ marginTop: 150 }}/>;

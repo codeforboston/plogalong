@@ -99,12 +99,9 @@ export const Leaderboard = props => {
 /** @type {React.FunctionComponent<RegionLeaderboardProps>} */
 export const RegionLeaderboard = ({region, leaders, ...props}) => (
   <View>
-    <PopupHeader
-      title={`${region.county}, ${region.state}`}
-      details=""
-      image={null}
-    />
-    <Text style={$S.subheader}>Top Ploggers</Text>
+    <Text style={$S.subheader}>
+      Top Ploggers in {region.county}, {region.state}
+    </Text>
     {
       leaders.length ?
         <Leaderboard users={leaders} {...props} /> :
@@ -122,9 +119,10 @@ const RegionLeaderboardScreen = ({ regionID }) => {
   const onPressUser = React.useCallback((user) => {
     navigation.navigate('User', { userID: user.id });
   }, [navigation]);
+  const loader = React.useCallback(() => getRegionLeaders(regionID), [regionID]);
 
   return (
-    <PopupDataView loader={() => getRegionLeaders(regionID)}
+    <PopupDataView loader={loader}
                    errorTitle={e => (LeaderboardErrors[e.code] || {}).title}
                    errorDetails={e => (LeaderboardErrors[e.code] || {}).details}
                    style={{ padding: 0, paddingTop: 10, backgroundColor: 'transparent' }}
