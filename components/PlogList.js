@@ -26,6 +26,7 @@ import Colors from '../constants/Colors';
 import Options from '../constants/Options';
 
 import { Divider } from './Elements';
+import Unlocked from './Unlocked';
 import UserPicture from './UserPicture';
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
 
@@ -351,14 +352,10 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
                       </View>
                    </View>
 
-                   <View style={styles.icon}>
-                      {React.createElement(item.achievement.icon, { fill: Colors.selectionColor, width: 75, height: 75 })}
-                      <View style={styles.achievementText}>
-                        <Text style={{color: Colors.selectionColor, fontSize: 18, fontWeight: 'bold', marginBottom: 5}}>{item.achievement.badgeTheme}</Text>
-                        <Text style={{color: "black", marginBottom: 5}}>{item.achievement.description}.</Text>
-                        <Text style={{color: "black", fontWeight: 'bold'}}>+ {item.achievement.points} bonus minutes</Text>
-                      </View>
-                  </View>
+                  <Unlocked icon={item.achievement.icon}
+                            title={item.achievement.badgeTheme}
+                            description={`${item.achievement.description}.`}
+                            bonusText={`+ ${item.achievement.points} bonus minutes`} />
                 </View> :
                 <Plog plogInfo={item}
                       currentUserID={currentUser && currentUser.uid}
@@ -408,20 +405,6 @@ const styles = StyleSheet.create({
   },
   detailsStyle: {
     justifyContent: 'space-between',
-  },
-  achievementText: {
-    marginLeft: 10,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  icon: {
-    //backgroundColor: '#EAF2F8',
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: Colors.selectionColor,
-    padding: 20,
-    margin: 5,
-    flexDirection: 'row',
   },
   star: {
     backgroundColor: '#EAF2F8',
