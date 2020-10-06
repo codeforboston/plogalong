@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {
   Alert,
-  AsyncStorage,
   Dimensions,
   View,
 } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 /**

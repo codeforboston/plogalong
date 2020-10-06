@@ -23,11 +23,11 @@ const FlashMessage = ({ message }) => {
     q.loop(async message => {
       setText(message.text);
       await new Promise(resolve => {
-        Animated.timing(opacity, { toValue: 1 }).start(resolve);
+        Animated.timing(opacity, { toValue: 1, useNativeDriver: true }).start(resolve);
       });
       await wait(3000);
       await new Promise(resolve => {
-        Animated.timing(opacity, { toValue: 0 }).start(resolve);
+        Animated.timing(opacity, { toValue: 0, useNativeDriver: true }).start(resolve);
       });
     });
 

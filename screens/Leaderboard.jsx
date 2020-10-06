@@ -16,7 +16,7 @@ import { useDimensions } from '../util/native';
 import { useSelector } from '../redux/hooks';
 
 import { Divider } from '../components/Elements';
-import PopupDataView, { PopupHeader } from '../components/PopupDataView';
+import PopupDataView from '../components/PopupDataView';
 import UserPicture from '../components/UserPicture';
 import { useNavigation } from '@react-navigation/native';
 

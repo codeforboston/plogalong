@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import { NavigationContainer,  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Linking } from 'expo';
+import * as Linking from 'expo-linking';
 
 import { parseURL } from '../util';
 import { useEffectWithPrevious } from '../util/react';
@@ -129,7 +129,7 @@ const AppNavigator = () => {
                            }
                          }}>
           {props => <MainTabNavigator currentUser={currentUser} {...props} />}
-      </AppStack.Screen>
+        </AppStack.Screen>
         <AppStack.Screen name="Intro" component={ ScreenSlider } options={{ headerShown: false }}/>
         <AppStack.Screen name="PhotoViewer" component={ PhotoViewer} options={{ headerShown: false }}/>
         <AppStack.Screen name="Login" component={ LoginScreen } options={{ headerShown: false }}/>

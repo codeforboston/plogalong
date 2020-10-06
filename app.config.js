@@ -94,6 +94,7 @@ export default ({config}) => {
       "android": {
         "package": androidBundleIdentifier,
         "googleServicesFile": googleServicesJson,
+        // "softwareKeyboardLayoutMode": "pan",
         "intentFilters": [
           {
             "action": "VIEW",

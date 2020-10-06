@@ -29,7 +29,7 @@ const LocalScreen = ({ navigation }) => {
           const { plogData, localPlogs } = log;
 
           return {
-            plogIDs: log.localPlogsLoading ? [] : localPlogs,
+            plogIDs: localPlogs,
             currentUser: users.current,
             loading: log.localPlogsLoading,
           };

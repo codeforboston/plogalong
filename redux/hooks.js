@@ -93,10 +93,6 @@ export function usePaginatedPlogs(plogIDs, perPage=3) {
   const plogs = usePlogs(plogIDs.slice(0, offset));
   const loading = !!plogs.find(plog => plog.status === 'loading');
 
-  useCallback(() => {
-    setOffset(Math.min(offset, plogIDs.length));
-  }, [plogIDs]);
-
   const loadNext = useCallback(() => {
     if (!loading && offset < plogIDs.length) {
       setOffset(Math.min(plogIDs.length, offset+perPage));

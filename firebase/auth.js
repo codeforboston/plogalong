@@ -1,5 +1,5 @@
 import {
-  YellowBox
+  LogBox
  } from 'react-native';
 
 import * as AppAuth from 'expo-app-auth';
@@ -46,7 +46,7 @@ export function onAuthStateChanged(callback) {
 /**
  * @param {firebase.User|firebase.auth.UserCredential} user
  */
-function _refreshUser(user) {
+export function _refreshUser(user) {
   if (user.user)
     user = user.user;
 
@@ -126,7 +126,7 @@ const withGoogleCredential =
       });
 
 if (InExpo)
-  YellowBox.ignoreWarnings(['Deprecated: You will need to use expo-google-sign-in']);
+  LogBox.ignoreLogs(['Deprecated: You will need to use expo-google-sign-in']);
 
 const makeRandom = len => {
   let data = '', left = len;
