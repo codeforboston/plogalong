@@ -34,13 +34,16 @@ export const AchievementScreen = ({currentUser }) => {
 
     const [isBadges, setIsBadges] = useState(true);
 
-    const stats = getStats(currentUser, 'total')
+    const stats = getStats(currentUser, 'total');
 
     return (
         <View style={{margin: 15, padding: 0,}}>
         <Banner >
-            You earned {formatCompletedBadges(calculateCompletedBadges(currentUser.data.achievements))} and {'\n'} {formatPloggingMinutes(calculateTotalPloggingTime(stats))}!
-        </Banner>
+            {stats.count === 0 
+                ? "Plog something to earn your first badge!" 
+                : `You earned ${formatCompletedBadges(calculateCompletedBadges(currentUser.data.achievements))} and \n ${formatPloggingMinutes(calculateTotalPloggingTime(stats))}!`
+            }
+            </Banner>
         <View style={styles.toggle}>
         <TouchableWithoutFeedback onPress={() => setIsBadges(true)}>
             <View  style={isBadges ? styles.isBadges : styles.notBadges}>

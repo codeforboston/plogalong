@@ -13,17 +13,18 @@ import AchievedTypes from '../constants/AchievedMockup';
  * @param {keyof UserAchievements} achType
  */
 export const processAchievement = (achievements, achType) => {
-  let a = achievements[achType];
+  const originalA = achievements[achType];
+  let a = originalA;
 
   // if (!a) return null;
   if (!a) {a = achType}
 
   const {hide, icon, progress, detailText, ...rest} = AchievedTypes[achType];
  
-  const progressPercent = a.completed ? 100 : progress && a ? progress(a) : 0;
+  const progressPercent = a.completed ? 100 : progress && originalA ? progress(originalA) : 0;
   return {
     progress: progressPercent,
-    hide: hide ? hide(achievements) : false,
+    hide: originalA && hide ? hide(achievements) : false,
     icon,
     key: achType,
     detailText: detailText && detailText(a),
@@ -73,13 +74,13 @@ export const processAchievements = (achievements, options = {}) => {
          sorter = achievementSorter} = options;
   return keep(achType => {
     const a = achievements[achType];
-    if (!partial && !a.completed)
+    if (!partial && (!a || !a.completed))
       return null;
     const achievement = processAchievement(achievements, achType);
     return (achievement &&
             (unstarted || achievement.progress) &&
             (hidden || !achievement.hide)) ? achievement : null;
-  }, Object.keys(achievements)).sort(sorter);
+  }, Object.keys(AchievedTypes)).sort(sorter);
 };
 
 /**
@@ -127,5 +128,5 @@ export function calculateCompletedBadges(achievements) {
  * @returns { number } 
  */
 export function calculateTotalPloggingTime(userPlogStats) {
-  return userPlogStats.milliseconds + (60000 * userPlogStats.bonusMinutes)
+  return (userPlogStats.milliseconds||0) + (60000 * userPlogStats.bonusMinutes)
 }
