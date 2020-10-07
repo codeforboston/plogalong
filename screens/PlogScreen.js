@@ -585,6 +585,7 @@ export default (props) => {
     user: users.current,
     locationInfo: users.locationInfo,
     submitting: log.submitting,
+    lastPlogID: log.lastPlogID,
     error: log.logError,
     preferences,
   }), shallowEqual);
