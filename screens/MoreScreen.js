@@ -20,7 +20,7 @@ import PloggingSuppliesScreen from './PloggingSuppliesScreen';
 import AchievementScreen from './AchievementScreen';
 
 
-import arrow from '../assets/svg/headerBackImage/arrow.svg';
+import Arrow from '../assets/svg/headerBackImage/arrow.svg';
 import $S from '../styles';
 
 
@@ -61,12 +61,10 @@ export class MoreScreen extends React.Component {
           Life is hard. Plogging is easy.
         </Banner>
         <NavMenu routes={this.pages}/>
-        <View style={$S.footerButtons}>
           <Button title="Plog"
                   large primary
                   onPress={this.goToPlogScreen}
           />
-        </View>
       </View>
     );
   }
@@ -78,7 +76,7 @@ export default ({navigation, route}) => {
     return (
         <Stack.Navigator screenOptions={{
             headerBackTitle: ' ',
-            headerBackImage: arrow,
+            headerBackImage: () => <Arrow fill="purple"/>,
             title: decamel(routeName(route)),
             headerTitle: (props) => (
                 <Header text={props.children} />
