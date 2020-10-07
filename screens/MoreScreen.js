@@ -87,7 +87,8 @@ export default ({navigation, route}) => {
                 borderBottomColor: 'purple',
                 borderBottomWidth: 4,
             }
-        }}>
+        }}
+                         initialRouteName="More">
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
           <Stack.Screen name="Achievements" component={ AchievementScreen }/>
