@@ -13,6 +13,10 @@ function makeBoard() {
   };
 }
 
+const randInt = (max, min=0, round=Math.ceil) =>
+      min+round(Math.random()*(max-min));
+const randChar = () => String.fromCharCode(randInt(96, 122));
+
 /** @typedef {ReturnType<typeof makeBoard>} Leaderboard */
 
 /**
@@ -51,5 +55,9 @@ describe('', () => {
     expect(Board.ids).not.toContain('-');
     console.log(Board);
 
+    for (let i = 0; i < 100; ++i) {
+      updateLeaderboard(Board, randChar(), { count: randInt(500) }, 5);
+    }
+    expect(denormalize(Board, d => d.count)).toBeSortedDesc();
   });
 });

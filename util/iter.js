@@ -86,21 +86,68 @@ export const getter = f => (
   typeof f === 'string' ? (x => x[f]) : f
 );
 
+/**
+ * @template T
+ * @typedef {object} NormalizedList
+ * @property {string[]} ids
+ * @property {{ [k in string]: T }} data
+ */
+
+/**
+ * @template {NormalizedList<any>} L
+ * @typedef {L extends NormalizedList<infer T> ? T[] : never} DenormalizedList
+ */
+
+/**
+ * @template {any} T
+ * @param {T[]} list
+ *
+ * @returns {NormalizedList<T>}
+ */
 export function normList(list, { idsKey = 'ids', dataKey = 'data', getID = 'id' } = {}) {
   getID = getter(getID);
   return (list || []).reduce((m, x) => {
     const id = getID(x);
-    m.ids.push(id);
-    m.data[id] = x;
+    m[idsKey].push(id);
+    m[dataKey][id] = x;
+    return m;
   }, { [idsKey]: [], [dataKey]: {} });
 }
 
+/**
+ * @param {any} T
+ * @param {NormalizedList<T>} input
+ *
+ * @returns {DenormalizedList<T>}
+ */
 export function denormList(input, { idsKey = 'ids', dataKey = 'data', idKey = 'id' } = {}) {
   return input ?
     input[idsKey].map(idKey ?
                       id => Object.assign({ [idKey]: id }, input[dataKey][id]) :
                       id => input[dataKey][id]) :
     [];
+}
+
+/**
+ * @template {any} T
+ * @param {NormalizedList<T>} input
+ * @param {(item: T, id: any) => any} fn
+ *
+ * @returns {NormalizedList<T>}
+ */
+export function filterNorm(input, fn, { idsKey = 'ids', dataKey = 'data' } = {}) {
+  const data = input && input[dataKey] || {};
+  const ids = input && input[idsKey] || [];
+  return ids.reduce(
+    (m, id) => {
+      if (fn(data[id], id)) {
+        m[dataKey][id] = data[id];
+        m[idsKey].push(id);
+      }
+
+      return m;
+    },
+    { [idsKey]: [], [dataKey]: {} });
 }
 
 /**

@@ -1,6 +1,6 @@
 import { firestore } from 'firebase';
 
-import { updateAchievements } from '../project/functions/shared';
+import { calculateBonusMinutes, updateAchievements, updateStats } from '../project/functions/shared';
 
 const initialAchievements = {};
 
@@ -45,6 +45,9 @@ describe('', () => {
     for (const k of ['teamEffort', 'springChicken', 'fallColor', 'polarBear']) {
       expect(achievements[k]).toBe(null);
     }
+
+    const bonus = calculateBonusMinutes(completed);
+    expect(typeof bonus === 'number').toBeTruthy();
   });
 
   it('should correctly track streaks', () => {
