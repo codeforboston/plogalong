@@ -278,9 +278,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: '25%',
+    opacity: 0.1,
   },
   anonymousBigIcon: {
-    opacity: 0.1,
     width: '100%',
     height: '50%',
   },
