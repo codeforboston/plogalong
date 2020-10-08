@@ -4,7 +4,7 @@
  * @param {Fn} fn
  * @returns {ReturnType<Fn>[]}
  */
-export const times = (n, fn) => {
+const times = (n, fn) => {
   const arr = [];
   for (let i = 0; i < n; ++i)
     arr.push(fn(i));
@@ -18,7 +18,7 @@ export const times = (n, fn) => {
  * @param {T[]} xs
  * @returns {ReturnType<Fn>[]}
  */
-export function keep(fn, xs) {
+function keep(fn, xs) {
   const result = [];
   let i = 0;
   for (const x of xs) {
@@ -40,7 +40,7 @@ function _doUpdate(m, k, spec) {
   }
 }
 
-export function update(m, spec) {
+function update(m, spec) {
   Object.keys(spec).forEach(k => {
     const childSpec = spec[k];
     const dotIdx = k.indexOf('.');
@@ -65,7 +65,7 @@ export function update(m, spec) {
  *
  * @returns {{[k in (Lookup extends keyof T ? T[Lookup] : ReturnType<Lookup>)]: T}}
  */
-export function indexBy(xs, lookup) {
+function indexBy(xs, lookup) {
   const fn = typeof lookup === 'function' ? lookup : (x => x[lookup]);
   return xs.reduce((m, item) => {
     m[fn(item)] = item;
@@ -73,7 +73,7 @@ export function indexBy(xs, lookup) {
   }, {});
 }
 
-export const empty = obj => {
+const empty = obj => {
   for (let k in obj) {
     if (obj.hasOwnProperty(k))
       return false;
@@ -82,7 +82,7 @@ export const empty = obj => {
   return true;
 };
 
-export const getter = f => (
+const getter = f => (
   typeof f === 'string' ? (x => x[f]) : f
 );
 
@@ -104,27 +104,27 @@ export const getter = f => (
  *
  * @returns {NormalizedList<T>}
  */
-export function normList(list, { idsKey = 'ids', dataKey = 'data', getID = 'id' } = {}) {
+function normList(list, { getID = 'id' } = {}) {
   getID = getter(getID);
   return (list || []).reduce((m, x) => {
     const id = getID(x);
-    m[idsKey].push(id);
-    m[dataKey][id] = x;
+    m.ids.push(id);
+    m.data[id] = x;
     return m;
-  }, { [idsKey]: [], [dataKey]: {} });
+  }, { ids: [], data: {} });
 }
 
 /**
- * @param {any} T
- * @param {NormalizedList<T>} input
+ * @template T
  *
- * @returns {DenormalizedList<T>}
+ * @param {NormalizedList<T>} input
  */
-export function denormList(input, { idsKey = 'ids', dataKey = 'data', idKey = 'id' } = {}) {
+function denormList(input, options = {}) {
+  const { idKey = 'id' } = options;
   return input ?
-    input[idsKey].map(idKey ?
-                      id => Object.assign({ [idKey]: id }, input[dataKey][id]) :
-                      id => input[dataKey][id]) :
+    input.ids.map(idKey ?
+                  id => Object.assign({ [idKey]: id }, input.data[id]) :
+                  id => input.data[id]) :
     [];
 }
 
@@ -135,20 +135,27 @@ export function denormList(input, { idsKey = 'ids', dataKey = 'data', idKey = 'i
  *
  * @returns {NormalizedList<T>}
  */
-export function filterNorm(input, fn, { idsKey = 'ids', dataKey = 'data' } = {}) {
-  const data = input && input[dataKey] || {};
-  const ids = input && input[idsKey] || [];
+function filterNorm(input, fn) {
+  const data = input && input.data || {};
+  const ids = input && input.ids || [];
   return ids.reduce(
     (m, id) => {
       if (fn(data[id], id)) {
-        m[dataKey][id] = data[id];
-        m[idsKey].push(id);
+        m.data[id] = data[id];
+        m.ids.push(id);
       }
 
       return m;
     },
-    { [idsKey]: [], [dataKey]: {} });
+    { ids: [], data: {} });
 }
+
+/**
+ * @template T, U
+ * @param {NormalizedList<T>} input
+ * @param {(item: T, id: string) => U} fn
+ */
+const mapNorm =(input, fn) => input.ids.map(id => fn(input.data[id], id));
 
 /**
  * @template T
@@ -157,10 +164,25 @@ export function filterNorm(input, fn, { idsKey = 'ids', dataKey = 'data' } = {})
  *
  * @returns {T[][]}
  */
-export function partition(xs, n) {
+function partition(xs, n) {
   const splitXs = [];
   for (let i = 0, l = xs.length; i < l; i += n) {
     splitXs.push(xs.slice(i, i+n));
   }
   return splitXs;
 }
+
+
+module.exports = {
+  denormList,
+  empty,
+  filterNorm,
+  indexBy,
+  keep,
+  mapNorm,
+  normList,
+  times,
+  update,
+  partition,
+
+};
