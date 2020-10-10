@@ -9,6 +9,7 @@ const _mergeWithAccount = functions.httpsCallable('mergeWithAccount');
 const _reportPlog = functions.httpsCallable('reportPlog');
 const _getRegionInfo = functions.httpsCallable('getRegionInfo');
 const _getRegionLeaders = functions.httpsCallable('getRegionLeaders');
+const _userLinked = functions.httpsCallable('userLinked');
 
 /**
  * @param {string} plogID
@@ -60,4 +61,8 @@ export async function getRegionInfo(latitude, longitude) {
  */
 export async function getRegionLeaders(regionID) {
   return (await _getRegionLeaders({ regionID })).data;
+}
+
+export async function userLinked() {
+  await _userLinked();
 }

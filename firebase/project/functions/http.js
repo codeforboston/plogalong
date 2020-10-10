@@ -3,6 +3,7 @@ const crypto = require('crypto');
 
 const app = require('./app');
 const email = require('./email');
+const regions = require('./regions');
 const users = require('./users');
 const $u = require('./util.js');
 
@@ -72,6 +73,42 @@ async function likePlog(data, context) {
 }
 
 /**
+ * Intended to be called by the client after the user links their Plogalong
+ * account to an auth provider.
+ *
+ * @param {functions.https.CallableContext} context
+ */
+async function userLinked(_, context) {
+  if (!context.auth || !context.auth.uid)
+    throw new HttpsError('unauthenticated', 'Request not authenticated');
+
+  const result = await app.firestore().runTransaction(async t => {
+    const dataDoc = Users.doc(context.auth.uid);
+    const [user, userData] = await Promise.all([
+      app.auth().getUser(context.auth.uid),
+      t.get(dataDoc)
+    ]);
+
+    if (!user.providerData.length || !userData.exists())
+      return null;
+
+    const data = userData.data();
+
+    if (data.linked)
+      return [];
+
+    const regionIDs = await regions.updateLeaderboardsForUser(user.uid, data.stats, t);
+    t.update(dataDoc, { linked: true });
+    return regionIDs;
+  });
+
+  if (!result)
+    throw new HttpsError('permission-denied', 'Can only be called by a user with a linked credential');
+
+  return { regionIDs: result };
+}
+
+/**
  * @typedef {object} ProfileRequest
  * @property {string} userID
  */
@@ -114,6 +151,7 @@ async function loadUserProfile(data, context) {
     displayName,
     achievements: achievements || null,
     profilePicture,
+    anonymous: !(user.emailVerified || user.providerData.length)
   };
 }
 
@@ -307,4 +345,5 @@ module.exports = {
   reportPlog,
   getRegionInfo,
   getRegionLeaders,
+  userLinked,
 };

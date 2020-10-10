@@ -114,8 +114,44 @@ async function plogCreated(plogData, regionDoc, regionSnap, regionLocationData, 
   return regionData;
 }
 
+/**
+ * Add a previously unranked user (usually one who was plogging anonymously) to
+ * the leaderboards for any regions where they've recorded plogs.
+ *
+ * @param {string} userID
+ * @param {UserStats} userStats
+ * @param {firebase.firestore.Transaction} t
+ *
+ * @returns {Promise<string[]>} ids of updated regions
+ */
+async function updateLeaderboardsForUser(userID, userStats, t) {
+  const regionTotals = userStats && userStats.total && userStats.total.region;
+  const updated = [];
+
+  if (regionTotals) {
+    const regionIDs = Object.keys(regionTotals);
+    const regions = await Promise.all(regionIDs.map(id => t.get(Regions.doc(id))));
+
+    for (const region of regions) {
+      if (!region.exists) continue;
+
+      const regionData = region.data();
+      const update = updateLeaderboard(
+        regionData.leaderboard, userID, regionTotals[region.id]);
+
+      if (update) {
+        t.update(region.ref, { leaderboard: update });
+        updated.push(region.id);
+      }
+    }
+  }
+
+  return updated;
+}
+
 module.exports = {
   deletePlogFromRegions,
   getRegionForPlog,
   plogCreated,
+  updateLeaderboardsForUser,
 };
