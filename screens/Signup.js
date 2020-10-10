@@ -157,21 +157,6 @@ const SignupScreen = props => {
             </>
           }
           {
-            providers['facebook.com'] ?
-              (
-                <Button primary
-                        onPress={null}
-                        title="Disconnect Facebook" />
-              ) :
-              (
-                <Button
-                  primary
-                  onPress={_ => link(linkToFacebook)}
-                  title="Facebook Login"
-                />
-              )
-          }
-          {
             providers['google.com'] ?
               (
                 <Button primary
