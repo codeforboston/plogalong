@@ -62,7 +62,7 @@ function updateCollection() {
     const userInfo = $u.indexBy(users.users, 'uid');
     leaderboard = $u.filterNorm(leaderboard, (_, uid) =>
                                 userInfo[uid] && userInfo[uid].providerData.length > 0);
-
+    leaderboard = sortNorm(leaderboard, (a, b) => (b.count - a.count));
     if (data.leaderboard.ids.join('') === leaderboard.ids.join('')) {
       console.log('No change for', data.county, data.state);
     } else {
