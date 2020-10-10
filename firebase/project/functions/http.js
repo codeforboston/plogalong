@@ -271,9 +271,14 @@ async function getRegionLeaders(data, context) {
   if (!county)
     throw new HttpsError('not-found', 'Invalid region id');
 
-  const users = await $u.whereIn(Users, ids);
+  const users = await $u.whereIn(Users, ids).then(
+    users => users.reduce((m, u) => {
+      m[u.id] = u;
+      return m;
+    }, {}));
 
-  const leaders = users.map(user => {
+  const leaders = ids.map(id => {
+    const user = users[id];
     const { displayName, profilePicture } = user.data();
 
     return {
