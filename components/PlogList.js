@@ -328,6 +328,11 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
     }
   }, [currentUser.uid]);
 
+  const onEndReached = useCallback(({ distanceFromEnd }) => {
+    if (distanceFromEnd < 0) return;
+    loadNextPage();
+  }, [loadNextPage]);
+
   // NOTE If you're working on styling the PlogList or Plog component, comment
   // out this line...
   const [viewabilityConfig, visible] = useVisible(conserveMemory ? 0 : 2);
@@ -370,7 +375,7 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
                 />)}
               initialNumToRender={3}
               onEndReachedThreshold={0.5}
-              onEndReached={loadNextPage}
+              onEndReached={onEndReached}
     /* Comment out when debugging: */
               viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
