@@ -7,7 +7,7 @@ import {
   LIKE_PLOG,
   LIKE_PLOG_ERROR,
   LOAD_HISTORY,
-  LOAD_LOCAL_HISTORY,
+  LOCAL_HISTORY_LOADING,
   DELETE_PLOG,
   PLOG_DELETED,
   PLOG_DATA,
@@ -61,7 +61,7 @@ const log = (state = initialState, action) => {
       return { ...state, historyLoading: true };
     }
 
-    case LOAD_LOCAL_HISTORY: {
+    case LOCAL_HISTORY_LOADING: {
       return {
         ...state,
         localPlogsLoading: true,

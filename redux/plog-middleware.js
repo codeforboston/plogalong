@@ -5,7 +5,7 @@ import { coalesceCalls, rateLimited } from '../util/async';
 import { keep } from '../util/iter';
 import { updateLocalStorage } from '../util/native';
 
-import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS } from './actionTypes';
+import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS, LOCAL_HISTORY_LOADING } from './actionTypes';
 import { gotPlogData, localPlogIDs, plogsUpdated, loadLocalHistory } from './actions';
 import * as actions from './actions';
 import { plogDocToState, queryUserPlogs } from '../firebase/plogs';
@@ -22,7 +22,7 @@ const REGION_CACHE_KEY = 'com.plogalong.regionInfoCache';
 export default store => {
   let unsubscribe, firstPageLoaded, lastPageLoaded, lastDoc, historyLoading,
       userId;
-  let shouldLoadLocalHistory = false, runningLocalPlogQuery = false;
+  let shouldLoadLocalHistory = false;
 
   const dispatchUpdates = coalesceCalls((plogs) => {
     store.dispatch(gotPlogData(plogs));
@@ -86,14 +86,12 @@ export default store => {
   let localRegionId;
   let localGeohash;
   const runRegionQuery = rateLimited(async (location) => {
-    if (runningLocalPlogQuery)
-      return;
-
     const geohash = geokit.hash({ lat: location.latitude, lng: location.longitude }, 7);
 
     if (geohash === localGeohash)
       return;
 
+    store.dispatch({ type: LOCAL_HISTORY_LOADING });
     try {
       localGeohash = geohash;
       let regionInfo;
@@ -106,8 +104,6 @@ export default store => {
             regionInfo = null;
         }
       } catch (err) {}
-
-      runningLocalPlogQuery = true;
 
       if (!regionInfo) {
         regionInfo = await getRegionInfo(location.latitude, location.longitude);
@@ -123,10 +119,6 @@ export default store => {
 
       store.dispatch(actions.setRegion(regionInfo));
 
-      for (const unsubscribe of plogSubscriptions.values()) {
-        unsubscribe();
-      }
-
       getRegion(id).onSnapshot(snapshot => {
         const regionData = snapshot.data() || {};
         const plogIds = keep(plog => plog && plog.id, regionData.recentPlogs || []);
@@ -139,10 +131,8 @@ export default store => {
         store.dispatch(localPlogIDs(plogIds.reverse()));
         ///
       }, _ => {
-        subscribeToPlogs([], plogSubscriptions);
       });
     } finally {
-      runningLocalPlogQuery = false;
     }
   }, 5000);
 
@@ -199,23 +189,16 @@ export default store => {
     } else if (type === LOCATION_CHANGED || type === SET_CURRENT_USER || type === LOAD_LOCAL_HISTORY) {
       let result;
 
-      if (type === SET_CURRENT_USER)
+      if (type === SET_CURRENT_USER || type === LOCATION_CHANGED)
         result = next(action);
+      // else if (type === LOCATION_CHANGED)
+      //   result = next(action);
+          // location = payload.location;
 
       let {current, location} = store.getState().users;
 
-      if (type === LOCATION_CHANGED) {
-        location = payload.location;
-
-        if (shouldLoadLocalHistory) {
-          next(action);
-          result = next(loadLocalHistory());
-        }
-      } else if (type === LOAD_LOCAL_HISTORY) {
+      if (type === LOAD_LOCAL_HISTORY) {
         shouldLoadLocalHistory = true;
-
-        if (!location)
-          return;
       }
 
       if (location && current && shouldLoadLocalHistory) {
