@@ -1,11 +1,11 @@
-const app = require('./app');
 const admin = require('firebase-admin');
 const $u = require('./util');
-const { addPlogToRegion } = require('./shared');
+const { addPlogToRegion, updateLeaderboard } = require('./shared');
 
 const { Regions } = require('./collections');
 
 /** @typedef {import('./shared').PlogData} PlogData */
+/** @typedef {import('./shared').PlogDataWithId} PlogDataWithId */
 /** @typedef {import('./shared').RegionData} RegionData */
 /** @typedef {import('./shared').UserStats} UserStats */
 
@@ -84,7 +84,10 @@ async function plogCreated(plogData, regionDoc, regionSnap, regionLocationData, 
       geohashes: [geohash]
     };
   }
-  const changes = addPlogToRegion(regionData, plogData, userStats.total.region[regionDoc.id]);
+
+  const user = await admin.auth().getUser(plogData.UserID);
+  const isAnonymous = !user.providerData.length;
+  const changes = addPlogToRegion(regionData, plogData, userStats.total.region[regionDoc.id], !isAnonymous);
 
   if (regionSnap.exists) {
     {
