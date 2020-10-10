@@ -5,6 +5,8 @@ import { NavigationContainer,  } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Linking from 'expo-linking';
 
+import { auth } from '../firebase/init';
+import { _refreshUser } from '../firebase/auth';
 import { parseURL } from '../util';
 import { useEffectWithPrevious } from '../util/react';
 import { useSelector, useDispatch } from '../redux/hooks';
@@ -43,10 +45,21 @@ const AppNavigator = () => {
     const onLowMemory = state => {
       dispatch(actions.setPreferences({ conserveMemory: true }));
     };
+
+    const onChange = async state => {
+      if (state === 'active' && auth.currentUser && !auth.currentUser.emailVerified) {
+        auth.currentUser.reload().then(_ => {
+          _refreshUser(auth.currentUser);
+        });
+      }
+    };
+
     AppState.addEventListener('memoryWarning', onLowMemory);
+    AppState.addEventListener('change', onChange);
 
     return () => {
       AppState.removeEventListener('memoryWarning', onLowMemory);
+      AppState.removeEventListener('change', onChange);
     };
   }, []);
 
