@@ -14,7 +14,6 @@ import Button from './components/Button';
 import ModalHeader from './components/ModalHeader';
 import Error from './components/Error';
 import { LoadingOverlay } from './components/Loading';
-import { useEffectWithPrevious } from './util/react';
 
 
 const Context = createContext(null);
@@ -106,8 +105,6 @@ export const PromptComponent = props => {
  * @property {boolean} shown
  */
 
-/**x @type {React.FunctionComponent<PromptProps>} */
-
 export const usePrompt = () => {
   const { setPrompt } = useContext(Context);
   /** @type {(options: PromptProps) => Promise<any>} */
@@ -133,9 +130,8 @@ export const usePrompt = () => {
 
 export const PromptRenderer = ({children}) => {
   const [prompt, setPrompt] = useState(null);
-  useEffectWithPrevious(lastPrompt => {
-    if (lastPrompt && lastPrompt.onCancel)
-      lastPrompt.onCancel();
+  React.useEffect(() => {
+    return prompt && prompt.onCancel ? () => { prompt.onCancel(); } : undefined;
   }, [prompt]);
 
   return (
