@@ -1,17 +1,21 @@
 import * as React from 'react';
+import { useCallback } from 'react';
 import {
   Image,
   Keyboard,
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { connect } from 'react-redux';
+import {KeyboardAwareScrollView as ScrollView} from 'react-native-keyboard-aware-scrollview';
 
 import * as actions from '../redux/actions';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { useCurrentUser, useSelector, useDispatch } from '../redux/hooks';
+import { useParams, useEffectWithPrevious } from '../util/react';
+import { useAppleSignInAvailable } from '../util/native';
 
 import $S from '../styles';
 
@@ -19,181 +23,148 @@ import Button from '../components/Button';
 import DismissButton from '../components/DismissButton';
 import Error from '../components/Error';
 import Link from '../components/Link';
+import { NavLink } from '../components/Link';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
+import TextInput from '../components/TextInput';
+import { useNavigation } from '@react-navigation/native';
 
-import Logo from '../assets/images/plogalong.png';
 
+const LoginForm = (
+  {currentUser, disabled, error, params, setter, loginWithGoogle, loginWithApple, onSubmit, loginAnonymously}) => {
+  const appleAuthAvailable = useAppleSignInAvailable();
 
-class LoginScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Log In'
-  };
+  return (
+    <>
+      {currentUser &&
+       <DismissButton color="black" />}
+      {error && <Error error={error}/>}
+      <View style={$S.inputGroup}>
+        <Text style={$S.inputLabel}>Email</Text>
+        <TextInput style={$S.textInput}
+                   autoCapitalize="none"
+                   autoCompleteType="email"
+                   textContentType="username"
+                   /* ref={input => { this._focusInput = input; }} */
+                   keyboardType="email-address"
+                   value={params.email}
+                   onChangeText={setter('email')}
+        />
+      </View>
+      <View style={$S.inputGroup}>
+        <Text style={$S.inputLabel}>Password</Text>
+        <PasswordInput style={$S.textInput}
+                       onChangeText={setter('password')}
+                       textContentType="password"
+                       value={params.password}
+        />
+      </View>
+      <Button title="Login"
+              primary
+              onPress={onSubmit}
+              style={[{ marginTop: 20 }]}
+              disabled={disabled} />
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      params: {}
-    };
-  }
+      <Button title="Login with Google"
+              primary
+              onPress={loginWithGoogle}
+              style={[{ marginTop: 20 }]} />
 
-  componentDidMount() {
-    this.props.navigation.addListener('blur', () => {
+      {appleAuthAvailable &&
+       <Button primary
+               onPress={loginWithApple}
+               title="Login with Apple"
+       />}
+
+      <NavLink route="ForgotPassword" style={styles.centered}>
+        Forgot Your Password?
+      </NavLink>
+
+      <Link onPress={loginAnonymously}
+            style={styles.centered}>
+        Skip Registration
+      </Link>
+
+      <NavLink route="Intro" style={[$S.helpLink, styles.centered]}>
+        What is Plogging?
+      </NavLink>
+    </>
+  );
+};
+
+export default () => {
+  const {currentUser, error, loggingIn} = useSelector(({users}) => ({
+    currentUser: users.current,
+    error: users.loginError,
+    loggingIn: users.authenticating,
+  }));
+  const dispatch = useDispatch();
+
+  const {params, setter} = useParams({
+    email: '',
+    password: ''
+  });
+
+  const disabled = !params || !params.email || !params.password;
+  const onSubmit = useCallback(() => {
+    if (disabled) return;
+
+    dispatch(actions.loginWithEmail(params.email, params.password));
+  }, [disabled, params]);
+  const onGoogle = useCallback(() => dispatch(actions.loginWithGoogle()), []);
+  const onApple = useCallback(() => dispatch(actions.loginWithApple()), []);
+  const onSkip = useCallback(() => dispatch(actions.loginAnonymously()), []);
+
+  const navigation = useNavigation();
+
+  React.useEffect(() => {
+    const onBlur = () => {
       Keyboard.dismiss();
-    });
+      dispatch(actions.loginError(null));
+    };
 
-    this.props.navigation.addListener('focus', () => {
-      this._focusTimeout = setTimeout(() => {
-        this._focusInput && this._focusInput.focus();
-      }, 1000);
-    });
-  }
+    navigation.addListener('blur', onBlur);
+    return () => { navigation.removeListener('blur', onBlur); };
+  }, []);
 
-  componentDidUpdate() {
-    if (this.props.currentUser) {
-      clearTimeout(this._focusTimeout);
-      this.props.navigation.navigate("Main");
+  useEffectWithPrevious((wasLoggingIn) => {
+    if (wasLoggingIn && !loggingIn && !error) {
+      navigation.navigate('Main');
     }
-  }
+  }, [loggingIn, error]);
 
-  onSubmit = () => {
-    if (this.disabled())
-      return;
-
-    const {email, password} = this.state.params;
-    this.props.loginWithEmail(email, password);
-  }
-
-  disabled = () => {
-    const {params} = this.state;
-    return !params || !params.email || !params.password;
-  }
-
-  renderLoggingIn() {
-    return (
-      <>
-        <Image source={Logo} />
-        <Loading/>
-        <View style={{ height: 100 }}/>
-      </>
-    );
-  }
-
-  loginAnonymously = () => { this.props.loginAnonymously() }
-
-  intro = () => { this.props.navigation.navigate('Intro'); }
-  
-  forgotPassword = () => { this.props.navigation.navigate('ForgotPassword'); }
-
-  loginWithGoogle = () => { this.props.loginWithGoogle() }
-
-  _setters = {}
-  setParam = (param) => {
-    if (!this._setters[param]) {
-      this._setters[param] = (text => this.setState(({params}) => ({params: { ...params, [param]: text }})));
-    }
-
-    return this._setters[param];
-  }
-
-  renderForm = () => {
-    const {params} = this.state;
-    const {error} = this.props;
-
-    return (
-      <>
-        {this.props.currentUser &&
-         <DismissButton color="black" onDismiss={this.props.clearError} />}
-        {error && <Error error={error}/>}
-        <View style={$S.inputGroup}>
-          <Text style={$S.inputLabel}>Email</Text>
-          <TextInput style={$S.textInput}
-                     autoCapitalize="none"
-                     autoCompleteType="email"
-                     ref={input => { this._focusInput = input; }}
-                     keyboardType="email-address"
-                     value={params.email}
-                     onChangeText={this.setParam('email')}
-          />
-        </View>
-        <View style={$S.inputGroup}>
-          <Text style={$S.inputLabel}>Password</Text>
-          <PasswordInput style={$S.textInput}
-                         onChangeText={this.setParam('password')}
-                         value={params.password}
-          />
-        </View>
-        <Button title="Login"
-                primary
-                onPress={this.onSubmit}
-                style={[{ marginTop: 20 }]}
-                disabled={this.disabled()} />
-
-        <Button title="Login with Google"
-                primary
-                onPress={this.loginWithGoogle}
-                style={[{ marginTop: 20 }]} />
-
-        {AppleAuthentication.isAvailableAsync() &&
-         <Button primary
-           onPress={this.props.loginWithApple}
-           title="Login with Apple"
-         />}
-
-        <Link onPress={this.forgotPassword}
-              style={$S.linkStyle} >
-          Forgot Your Password?
-        </Link>
-
-        <Link onPress={this.loginAnonymously}
-              style={$S.linkStyle}>
-          Skip Registration
-        </Link>
-
-        <Link onPress={this.intro}
-              style={[$S.helpLink, $S.linkStyle]}>
-          What is Plogging?
-        </Link>
-      </>
-    );
-  }
-
-  render() {
-    return (
-        <SafeAreaView style={$S.safeContainer}>
-          <View style={[$S.container, $S.form,
-          this.props.loggingIn && styles.loggingIn]}>
-            {this.props.loggingIn ?
-              this.renderLoggingIn() :
-              this.renderForm()}
-          </View>
-        </SafeAreaView>
-    );
-  }
-}
+  return (
+    <SafeAreaView style={$S.safeContainer}>
+      <ScrollView style={[$S.form, loggingIn && styles.loggingIn]}
+                  contentContainerStyle={[$S.container,
+                                          loggingIn && styles.loggingInContainer]}>
+        {loggingIn ?
+         <Loading style={{ marginVertical: 100 }}/> :
+         <LoginForm onSubmit={onSubmit}
+                    disabled={disabled}
+                    params={params}
+                    setter={setter}
+                    error={error}
+                    loginWithGoogle={onGoogle}
+                    loginWithApple={onApple}
+                    loginAnonymously={onSkip}
+         />
+         }
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
   loggingIn: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingTop: 50,
   },
-  loadingText: {
-    fontSize: 30
+  loggingInContainer: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
+  centered: {
+    marginTop: 30,
+    textAlign: 'center'
+  }
 });
-
-export default connect(
-  ({users}) => ({
-    error: users.loginError,
-    currentUser: users.current,
-    loggingIn: users.authenticating,
-  }),
-  dispatch => ({
-    clearError: () => dispatch(actions.loginError()),
-    loginWithEmail: (...args) => dispatch(actions.loginWithEmail(...args)),
-    loginAnonymously: (...args) => dispatch(actions.loginAnonymously(...args)),
-    loginWithGoogle: (...args) => dispatch(actions.loginWithGoogle(...args)),
-    loginWithApple: (...args) => dispatch(actions.loginWithApple(...args)),
-  })
-)(LoginScreen);

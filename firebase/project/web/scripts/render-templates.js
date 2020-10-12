@@ -27,6 +27,8 @@ const DefaultMatcher = ({name}) => {
   return m && name.slice(0, m.index) + name.slice(m.index + m[0].length);
 };
 
+handlebars.registerHelper('stringify', any => JSON.stringify(any));
+
 /**
  * @param {typeof handlebars} Handlebars
  */

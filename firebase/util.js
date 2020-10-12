@@ -3,7 +3,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { storage } from './init';
 import * as firebase from 'firebase';
 
-const { TaskEvent, TaskState } = firebase.storage;
+const { TaskEvent } = firebase.storage;
 
 /**
  * @typedef {object} UploadOptions
@@ -21,7 +21,8 @@ export async function uploadImage(uri, path, options={}) {
   if (options.resize) {
     const modified = await ImageManipulator.manipulateAsync(uri,
                                                             [{ resize: options.resize }],
-                                                            { compress: 7 });
+                                                            { compress: 0.7,
+                                                              format: ImageManipulator.SaveFormat.JPEG });
     uri = modified.uri;
   }
 

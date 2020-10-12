@@ -1,32 +1,35 @@
 import * as React from 'react';
 import {
     Image,
+    ScrollView,
     StyleSheet,
     Text,
     View,
 } from 'react-native';
+
 import Button from './Button';
 import Colors from '../constants/Colors';
 
 const Instructions = ({ heading, singleImage, logo, instructionText, buttonText, linkText, onButtonPress }) => {
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.instructionsContainer}>
-                <Text style={styles.headingText}>{heading}</Text>
+                <Text style={styles.headingText} maxFontSizeMultiplier={2}>{heading}</Text>
                 {logo &&
                 <Image source={logo} style={styles.logo}></Image>
                 }
                 {singleImage &&
                 <Image source={singleImage} style={styles.singleImage}></Image>
                 }
-                <Text style={styles.instructionText}>
+                <Text style={styles.instructionText} maxFontSizeMultiplier={2.5}>
                     {instructionText}
                 </Text>
             </View>
             <Button style={styles.buttonStyle} title={buttonText} onPress={onButtonPress}/>
-        </View>
-    )};
+        </ScrollView>
+    );
+};
 
 export default Instructions;
 
@@ -42,7 +45,7 @@ const styles = StyleSheet.create({
       padding: 20,
       marginLeft: 20,
       marginRight: 20,
-        minHeight: 400,
+      minHeight: 400,
       borderRadius: 10,
     },
     headingText: {
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
         height: 226,
         width: 307,
         borderRadius: 5,
-        borderColor: Colors.textGray,
+        borderColor: 'purple',
         borderWidth: 3,
     }
   

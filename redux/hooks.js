@@ -1,8 +1,11 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as redux from 'redux';
 import * as reactRedux from 'react-redux';
 
+import * as Permissions from 'expo-permissions';
+
 import * as actions from './actions';
+import { useEffectWithPrevious } from '../util/react';
 
 /** @typedef {typeof import('./reducers/index.js').default} RootReducer  */
 /**
@@ -17,14 +20,42 @@ export const useDispatch = reactRedux.useDispatch;
 /** @type {<TSelected=unknown>(selector: (state: AppState) => TSelected, equalityFn?: (left: TSelected, right: TSelected) => boolean) => TSelected} */
 export const useSelector = reactRedux.useSelector;
 
+/** @param {AppState} state */
+const UserSelector = state => state.users.current;
+/** @param {AppState} state */
+const LocationSelector = state => state.users.location;
+
+export const useCurrentUser = () => useSelector(UserSelector);
+
 export const usePlogs = plogIds => {
-  let unloadedIds = [];
   const plogData = useSelector(state => state.log.plogData);
   const dispatch = useDispatch();
 
-  const plogs = useMemo(() => {
-    const ids = Array.isArray(plogIds) ? plogIds : [plogIds];
-    return ids.map(id => {
+  // Signal to middleware to unsubscribe from updates to these plogs
+  useEffectWithPrevious((oldIDs) => {
+    if (oldIDs) {
+      const unloadIDs = new Set(oldIDs);
+      for (const id of plogIds) {
+        unloadIDs.delete(id);
+      }
+      if (unloadIDs.size) {
+        dispatch(actions.unloadPlogs(Array.from(unloadIDs)));
+      }
+    }
+
+    // On unmount, unsubscribe from updates
+    return () => {
+      if (plogIds) {
+        dispatch(actions.unloadPlogs(plogIds));
+      }
+    };
+  }, [plogIds]);
+
+  return useMemo(() => {
+    const ids = Array.isArray(plogIds) ? plogIds : plogIds ? [plogIds] : [];
+    let unloadedIds = [];
+
+    const plogs = ids.map(id => {
       if (!plogData[id]) {
         unloadedIds.push(id);
         return { id, status: 'loading' };
@@ -32,12 +63,56 @@ export const usePlogs = plogIds => {
 
       return plogData[id];
     });
+
+    if (unloadedIds.length) {
+      // Request for the plogs to be loaded
+      dispatch(actions.loadPlogs(unloadedIds));
+    }
+
+    return plogs;
   }, [plogData, plogIds]);
-
-  if (unloadedIds.length) {
-    // Request for the plogs to be loaded
-    dispatch(actions.loadPlogs(unloadedIds));
-  }
-
-  return Array.isArray(plogIds) ? plogs : plogs[0];
 };
+
+export const usePlog = (plogId) => {
+  const plogs = usePlogs(plogId ? [plogId] : []);
+
+  return plogs[0];
+};
+
+/**
+ * Given a list of plog IDs, loads the plog data in increments of `perPage`.
+ * Returns a tuple containing: an array of plogs (including those currently
+ * being loaded); a boolean indicating if plogs are currently being loaded; and
+ * a function that will load the next "page".
+ *
+ * @param {string[]} plogIDs
+ * @param {number} perPage
+ */
+export function usePaginatedPlogs(plogIDs, perPage=3) {
+  const [offset, setOffset] = useState(perPage);
+  const plogs = usePlogs(plogIDs.slice(0, offset));
+  const loading = !!plogs.find(plog => plog.status === 'loading');
+
+  const loadNext = useCallback(() => {
+    if (!loading)
+      setOffset(offset => Math.min(plogIDs.length, offset+perPage));
+  }, [loading, plogIDs.length, perPage]);
+
+  return /** @type {[typeof plogs, boolean, () => void]} */([plogs, loading, loadNext]);
+};
+
+export function useLocation() {
+  const location = useSelector(LocationSelector);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    Permissions.askAsync(Permissions.LOCATION)
+      .then(response => {
+        if (response.status === 'granted') {
+          dispatch(actions.startWatchingLocation());
+        }
+      });
+  }, []);
+
+  return location;
+}

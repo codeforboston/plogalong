@@ -8,8 +8,10 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
-import * as Permissions from 'expo-permissions';
+import { shallowEqual } from 'react-redux';
+
 import MapView, { Camera } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -24,14 +26,16 @@ import Options from '../constants/Options';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
-import {connect} from 'react-redux';
+import { useSelector, useDispatch, useLocation } from '../redux/hooks';
 import * as actions from '../redux/actions';
 import {
   setUserData
 } from '../firebase/auth';
 import { formatAddress, prepareAddress, reverseGeocode } from '../util/location';
+import useTimer from '../util/timer';
 
 import PlogScreenWeather from './PlogScreenWeather';
+
 
 class PlogScreen extends React.Component {
   static modes = ['Log'];
@@ -44,10 +48,6 @@ class PlogScreen extends React.Component {
       activityType: ['walking'],
       groupType: ['alone'],
       plogPhotos: [null, null, null, null, null],
-      timerInterval: null,
-      plogStart: null,
-      plogTotalTime: 0,
-      plogTimer: '00:00:00',
       params: {
         homeBase: 'Boston, MA',
         username: 'Beach Bum'
@@ -61,17 +61,19 @@ class PlogScreen extends React.Component {
     };
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.props.submitting && prevProps.submitting &&
-        !this.props.error) {
+  async coordInBounds({ latitude, longitude } = this.props.location) {
+    const { northEast, southWest } = await this.mapView.getMapBoundaries();
+    return latitude >= southWest.latitude && latitude <= northEast.latitude &&
+      longitude >= southWest.longitude && longitude <= northEast.longitude;
+  }
+
+  async componentDidUpdate(prevProps, prevState) {
+    if (this.props.lastPlogID !== prevProps.lastPlogID) {
+      this.props.timer.reset();
       this.setState({
         trashTypes: {},
         selectedMode: 0,
         plogPhotos: [null, null, null, null, null],
-        timerInterval: clearInterval(this.state.timerInterval),
-        plogStart: null,
-        plogTotalTime: 0,
-        plogTimer: '00:00:00',
 
         markedLocation: null,
         markedLocationInfo: null,
@@ -82,8 +84,12 @@ class PlogScreen extends React.Component {
       }
     }
 
-    if (this.props.location && !prevProps.location) {
-      this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+    if (this.props.location) {
+      if (!prevProps.location ||
+          (Platform.OS === 'android' && this.state.shouldFollow &&
+           !(await this.coordInBounds(this.props.location)))) {
+        this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
+      }
     }
   }
 
@@ -128,6 +134,7 @@ class PlogScreen extends React.Component {
           duration: 200,
           easing: Easing.in(Easing.ease),
           toValue: 1,
+          useNativeDriver: true,
         })
         .start();
     }
@@ -154,7 +161,8 @@ class PlogScreen extends React.Component {
         Animated.timing(this._markerScale, {
           duration: 200,
           easing: Easing.in(Easing.ease),
-          toValue: 0.667
+          toValue: 0.667,
+          useNativeDriver: true,
         }).start();
     }
   }
@@ -187,7 +195,7 @@ class PlogScreen extends React.Component {
       activityType: this.state.activityType[0],
       groupType: this.state.groupType[0],
       plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
-      timeSpent: this.state.plogTotalTime + (this.state.plogStart ? Date.now() - this.state.plogStart : 0),
+      timeSpent: this.props.timer.total,
       public: this.props.user.data.shareActivity,
       userProfilePicture: this.props.user.data.profilePicture,
       userDisplayName: this.props.user.data.displayName,
@@ -227,31 +235,15 @@ class PlogScreen extends React.Component {
   }
 
   toggleTimer = () => {
-    if(this.state.timerInterval) {
-      this.setState(prevState => ({
-        timerInterval: clearInterval(this.state.timerInterval),
-        plogTotalTime: prevState.plogTotalTime + Date.now() - prevState.plogStart,
-        plogStart: null
-      }));
-    } else {
-      this.setState(prevState => ({
-        timerInterval: setInterval(this.tick, 1000),
-        plogStart: Date.now()
-      }));
-    }
+    this.props.timer.toggle();
   }
 
   clearTimer = () => {
-    this.setState({
-      timerInterval: clearInterval(this.state.timerInterval),
-      plogStart: null,
-      plogTotalTime: 0,
-      plogTimer: '00:00:00',
-    });
+    this.props.timer.reset();
   }
 
-  tick = () => {
-    let difference = (Date.now() - this.state.plogStart + this.state.plogTotalTime) / 1000;
+  formatTimer = () => {
+    const difference = this.props.timer.total/1000;
     let hours   = Math.floor(difference / 3600);
     let minutes = Math.floor((difference - (hours * 3600)) / 60);
     let seconds = Math.floor(difference - (hours * 3600) - (minutes * 60));
@@ -260,22 +252,11 @@ class PlogScreen extends React.Component {
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
 
-    this.setState({plogTimer: `${hours}:${minutes}:${seconds}`});
+    return `${hours}:${minutes}:${seconds}`;
   }
 
   toggleDetailedOptions = () => {
     this.props.setPreferences({ showDetailedOptions: !this.props.preferences.showDetailedOptions });
-  }
-
-  async componentDidMount() {
-    let { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status === 'granted') {
-      this.props.startWatchingLocation();
-    }
-  }
-
-  componentWillUnmount() {
-    this.setState({timerInterval: clearInterval(this.state.timerInterval)});
   }
 
   renderModeQuestions(mode=this.mode) {
@@ -289,7 +270,7 @@ class PlogScreen extends React.Component {
     case 'Log':
       return (
         <>
-          <Question question="What were you up to?" style={$S.h2}/>
+          <Question question="What were you up to?"/>
           <View style={styles.selectable} >
             {Array.from(Options.activities).map(([value, type]) => {
               const { buttonIcon: ButtonIcon=type.icon } = this.props;
@@ -307,7 +288,7 @@ class PlogScreen extends React.Component {
             }
           )}
           </View>
-          <Answer answer={activityName} style={$S.h2}/>
+          <Answer answer={activityName}/>
 
           <Question question="Who helped?" style={$S.h2}/>
           <View style={styles.selectable} >
@@ -334,16 +315,19 @@ class PlogScreen extends React.Component {
     return null;
   }
 
+  getTrashTypes = () =>
+    Array.from(Options.trashTypes)
+    .slice(0, this.props.preferences.showDetailedOptions ? -1 : 2)
+    .concat(Array.from(Options.trashTypes).slice(-1));
+
   render() {
     const {state} = this,
           trashTypes = Object.keys(state.trashTypes),
           typesCount = trashTypes.length,
-          cleanedUp = typesCount > 1 ? `${typesCount} selected` :
-          typesCount ? Options.trashTypes.get(trashTypes[0]).title : '',
           {params} = this.state,
           {user, error, preferences: { showDetailedOptions }} = this.props,
           locationInfo = state.markedLocationInfo || this.props.locationInfo,
-          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' })
+          where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' });
     const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
 
     const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
@@ -377,7 +361,7 @@ class PlogScreen extends React.Component {
           <Text style={styles.timer}>
             {/* <Text onPress={this.clearTimer} style={styles.clearButton}>clear</Text> */}
             <Text> </Text>
-            {this.state.plogTimer}
+            {this.formatTimer()}
           </Text>
         </View>
 
@@ -408,10 +392,10 @@ class PlogScreen extends React.Component {
 
           <View style={styles.timerButtonContainer} pointerEvents="box-none" >
             <Button
-              title={this.state.timerInterval ? 'STOP TIMER' : 'START TIMER'}
+              title={this.props.timer.started ? 'STOP TIMER' : 'START TIMER'}
               onPress={this.toggleTimer}
               style={styles.timerButton}
-              selected={!!this.state.timerInterval}
+              selected={!!this.props.timer.started}
             />
           </View>
 
@@ -451,7 +435,7 @@ class PlogScreen extends React.Component {
 
         <Question question="What did you clean up?" style={$S.h2}/>
         <View style={styles.selectable} >
-          {Array.from(Options.trashTypes).slice(0, showDetailedOptions ? undefined : 3).map(([value, type]) => (
+          {this.getTrashTypes().map(([value, type]) => (
             <Button title={type.title} value={value} icon={type.icon} key={value}
                     onPress={() => this.toggleTrashType(value)}
                     selected={state.trashTypes[value]}
@@ -462,7 +446,6 @@ class PlogScreen extends React.Component {
         <Button title={showDetailedOptions ? 'Hide Detailed Options' : 'Show Detailed Options'}
                 onPress={this.toggleDetailedOptions}
         />
-        <Answer answer={cleanedUp} style={$S.h2}/>
 
         {this.renderModeQuestions()}
 
@@ -596,22 +579,24 @@ const styles = StyleSheet.create({
   }
 });
 
-const PlogScreenContainer = connect(({preferences, users, log}) => ({
-  user: users.current,
-  location: users.location,
-  locationInfo: users.locationInfo,
-  submitting: log.submitting,
-  error: log.logError,
-  preferences,
-}),
-                                    (dispatch) => ({
-                                      logPlog(plogInfo) {
-                                        dispatch(actions.logPlog(plogInfo));
-                                      },
-                                      startWatchingLocation() {
-                                        dispatch(actions.startWatchingLocation());
-                                      },
-                                      setPreferences: (...args) => dispatch(actions.setPreferences(...args))
-                                    }))(PlogScreen);
+export default (props) => {
+  const dispatch = useDispatch();
+  const dataProps = useSelector(({ preferences, users, log }) => ({
+    user: users.current,
+    locationInfo: users.locationInfo,
+    submitting: log.submitting,
+    lastPlogID: log.lastPlogID,
+    error: log.logError,
+    preferences,
+  }), shallowEqual);
+  const timer = useTimer();
 
-export default PlogScreenContainer;
+  const actionProps = {
+    logPlog(plogInfo) {
+      dispatch(actions.logPlog(plogInfo));
+    },
+    setPreferences: (...args) => dispatch(actions.setPreferences(...args))
+  };
+
+  return <PlogScreen location={useLocation()} timer={timer} {...dataProps} {...actionProps} {...props} />;
+};

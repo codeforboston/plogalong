@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -17,14 +17,10 @@ import TermsScreen from './TermsScreen';
 import ContactScreen from './ContactScreen';
 import PrivacyScreen from './PrivacyScreen';
 import PloggingSuppliesScreen from './PloggingSuppliesScreen';
-
-
-
 import AchievementScreen from './AchievementScreen';
 
 
-
-import arrow from '../assets/svg/headerBackImage/arrow.svg';
+import Arrow from '../assets/svg/headerBackImage/arrow.svg';
 import $S from '../styles';
 
 
@@ -65,16 +61,10 @@ export class MoreScreen extends React.Component {
           Life is hard. Plogging is easy.
         </Banner>
         <NavMenu routes={this.pages}/>
-        <View style={$S.footerButtons}>
-          <Button title="Invite"
-                  large
-                  onPress={this.toggleIsInviteModalVisible}
-          />
           <Button title="Plog"
                   large primary
                   onPress={this.goToPlogScreen}
           />
-        </View>
       </View>
     );
   }
@@ -83,16 +73,10 @@ export class MoreScreen extends React.Component {
 const Stack = createStackNavigator();
 
 export default ({navigation, route}) => {
-  useEffect(() => {
-    if (route.params && route.params.subscreen)
-      navigation.navigate(route.params.subscreen);
-
-  }, [route.params]);
-
     return (
         <Stack.Navigator screenOptions={{
             headerBackTitle: ' ',
-            headerBackImage: arrow,
+            headerBackImage: () => <Arrow fill="purple"/>,
             title: decamel(routeName(route)),
             headerTitle: (props) => (
                 <Header text={props.children} />
@@ -103,7 +87,8 @@ export default ({navigation, route}) => {
                 borderBottomColor: 'purple',
                 borderBottomWidth: 4,
             }
-        }}>
+        }}
+                         initialRouteName="More">
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
           <Stack.Screen name="Achievements" component={ AchievementScreen }/>

@@ -119,13 +119,6 @@ export default StyleSheet.create({
         textDecorationLine: 'underline',
     },
 
-  linkStyle: {
-    color: Colors.secondaryColor,
-    textDecorationLine: 'underline',
-    marginTop: 30,
-    textAlign: 'center'
-  },
-
     helpLink: {
         textDecorationStyle: 'dotted',
         textDecorationColor: 'black',
@@ -223,6 +216,7 @@ export default StyleSheet.create({
     fontWeight: "bold",
     color: Colors.warningText,
     backgroundColor: Colors.warningBackground,
+    padding: 5,
   },
 
   mapContainer: {

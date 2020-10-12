@@ -33,7 +33,7 @@ export const authCancelled = _ => ({
 
 export const loginError = error => ({
   type: types.LOGIN_ERROR,
-  payload: { error: error.code === 'auth/user-canceled' ? null : error }
+  payload: { error: error && error.code === 'auth/user-canceled' ? null : error }
 });
 
 export const signupError = (error) => ({
@@ -114,13 +114,18 @@ export const loadHistory = (userID, replace=true) => ({
   payload: { userID, replace }
 });
 
-export const loadLocalHistory = (replace=true, n=5) => ({
+export const loadLocalHistory = () => ({
   type: types.LOAD_LOCAL_HISTORY,
-  payload: { replace, number: n }
+  payload: { }
 });
 
 export const loadPlogs = plogIDs => ({
   type: types.LOAD_PLOGS,
+  payload: { plogIDs }
+});
+
+export const unloadPlogs = plogIDs => ({
+  type: types.UNLOAD_PLOGS,
   payload: { plogIDs }
 });
 
@@ -163,7 +168,12 @@ export const likePlog = (plogID, like) => (
 
 export const setRegion = region => ({
   type: types.SET_REGION,
-  payload: { region}
+  payload: { region }
+});
+
+export const localPlogIDs = plogIDs => ({
+  type: types.LOCAL_PLOG_IDS,
+  payload: { plogIDs }
 });
 
 export const setCurrentUser = (user) => ({
@@ -284,8 +294,19 @@ export const gotLocationInfo = locationInfo => ({
 
 export const flashMessage = (message, options=null) => ({
   type: types.FLASH,
-  payload: { text: message, stamp: Date.now, options }
+  payload: { text: message, stamp: Date.now(), options }
 });
+
+export const verifyEmail = oobCode => (
+  async dispatch => {
+    try {
+      await auth.applyActionCode(oobCode);
+      dispatch({ type: types.USER_EMAIL_CONFIRMED });
+    } catch (error) {
+      dispatch({ type: types.ACTION_CODE_ERROR, payload: { error, oobCode } });
+    }
+  }
+);
 
 export default {
     logPlog,

@@ -2,10 +2,11 @@ import * as geokit from 'geokit';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import { coalesceCalls, rateLimited } from '../util/async';
+import { keep } from '../util/iter';
 import { updateLocalStorage } from '../util/native';
 
-import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS } from './actionTypes';
-import { gotPlogData, localPlogsUpdated, plogsUpdated } from './actions';
+import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS, LOCAL_HISTORY_LOADING } from './actionTypes';
+import { gotPlogData, localPlogIDs, plogsUpdated, loadLocalHistory } from './actions';
 import * as actions from './actions';
 import { plogDocToState, queryUserPlogs } from '../firebase/plogs';
 import { getRegion } from '../firebase/regions';
@@ -21,7 +22,7 @@ const REGION_CACHE_KEY = 'com.plogalong.regionInfoCache';
 export default store => {
   let unsubscribe, firstPageLoaded, lastPageLoaded, lastDoc, historyLoading,
       userId;
-  let shouldLoadLocalHistory = false, runningLocalPlogQuery = false;
+  let shouldLoadLocalHistory = false;
 
   const dispatchUpdates = coalesceCalls((plogs) => {
     store.dispatch(gotPlogData(plogs));
@@ -59,8 +60,10 @@ export default store => {
                 markDone(plogID);
               }
             }, error => {
-              dispatchUpdates({ id: plogID, status: 'error', error });
-              markDone(plogID);
+              if (remaining.has(plogID)) {
+                dispatchUpdates({ id: plogID, status: 'error', error });
+                markDone(plogID);
+              }
             }));
         }
       });
@@ -82,17 +85,13 @@ export default store => {
   let plogSubscriptions = new Map();
   let localRegionId;
   let localGeohash;
-  let loadMoreLocalPlogs;
-  let loadingLocalPlogs = false;
-  const runLocalPlogQuery = rateLimited(async (location) => {
-    if (runningLocalPlogQuery)
-      return;
-
+  const runRegionQuery = rateLimited(async (location) => {
     const geohash = geokit.hash({ lat: location.latitude, lng: location.longitude }, 7);
 
     if (geohash === localGeohash)
       return;
 
+    store.dispatch({ type: LOCAL_HISTORY_LOADING });
     try {
       localGeohash = geohash;
       let regionInfo;
@@ -105,8 +104,6 @@ export default store => {
             regionInfo = null;
         }
       } catch (err) {}
-
-      runningLocalPlogQuery = true;
 
       if (!regionInfo) {
         regionInfo = await getRegionInfo(location.latitude, location.longitude);
@@ -122,50 +119,20 @@ export default store => {
 
       store.dispatch(actions.setRegion(regionInfo));
 
-      for (const unsubscribe of plogSubscriptions.values()) {
-        unsubscribe();
-      }
-
       getRegion(id).onSnapshot(snapshot => {
         const regionData = snapshot.data() || {};
-        const plogIds = (regionData.recentPlogs || []).map(plog => plog.id);
+        const plogIds = keep(plog => plog && plog.id, regionData.recentPlogs || []);
 
         updateLocalStorage(REGION_CACHE_KEY, cached => {
           cached.geohashes = regionData.geohashes;
           return cached;
         });
+
+        store.dispatch(localPlogIDs(plogIds.reverse()));
         ///
-        let localPlogsLoaded = 0;
-        loadingLocalPlogs = false;
-        loadMoreLocalPlogs = (n=QUERY_LIMIT) => {
-          if (loadingLocalPlogs)
-            return false;
-
-          loadingLocalPlogs = true;
-          store.dispatch(localPlogsUpdated([], plogIds));
-
-          if (localPlogsLoaded < plogIds.length) {
-            const newPlogIds = plogIds.slice(localPlogsLoaded, localPlogsLoaded+n);
-            subscribeToPlogs(newPlogIds, plogSubscriptions, !localPlogsLoaded)
-              .finally(() => {
-                store.dispatch(localPlogsUpdated([], plogIds));
-                loadingLocalPlogs = false;
-              });
-            localPlogsLoaded = Math.min(plogIds.length, localPlogsLoaded+n);
-
-            return true;
-          }
-
-          return false;
-        };
-        ////
-
-        loadMoreLocalPlogs();
       }, _ => {
-        subscribeToPlogs([], plogSubscriptions);
       });
     } finally {
-      runningLocalPlogQuery = false;
     }
   }, 5000);
 
@@ -222,27 +189,20 @@ export default store => {
     } else if (type === LOCATION_CHANGED || type === SET_CURRENT_USER || type === LOAD_LOCAL_HISTORY) {
       let result;
 
-      if (type === SET_CURRENT_USER)
+      if (type === SET_CURRENT_USER || type === LOCATION_CHANGED)
         result = next(action);
+      // else if (type === LOCATION_CHANGED)
+      //   result = next(action);
+          // location = payload.location;
 
       let {current, location} = store.getState().users;
 
-      if (type === LOCATION_CHANGED)
-        location = payload.location;
-      else if (type === LOAD_LOCAL_HISTORY)
+      if (type === LOAD_LOCAL_HISTORY) {
         shouldLoadLocalHistory = true;
+      }
 
       if (location && current && shouldLoadLocalHistory) {
-        if (type === LOAD_LOCAL_HISTORY && loadMoreLocalPlogs) {
-          // If there are no more plogs to load, or if loading is ongoing,
-          // swallow the action so the UI doesn't indicate that we're in a
-          // loading state
-          if (!loadMoreLocalPlogs(payload.number)) {
-            return;
-          }
-        } else {
-          runLocalPlogQuery(location, payload.number);
-        }
+        runRegionQuery(location);
       }
 
       if (result)
@@ -252,7 +212,7 @@ export default store => {
     } else if (type === LOAD_PLOGS) {
       const ids = payload.plogIDs.filter(id => !plogSubscriptions.has(id));
       store.dispatch(gotPlogData(ids.map(id => ({ id, status: 'loading' }))));
-      subscribeToPlogs(ids);
+      subscribeToPlogs(ids, plogSubscriptions);
     }
 
     return next(action);

@@ -23,7 +23,8 @@ const initialState = {
   locationInfo: null,
   /** @type {{ type: 'email' | 'google' | 'facebook' | 'anonymous', params: any }} */
   authenticating: null,
-  signupError: null
+  loginError: null,
+  signupError: null,
 };
 
 /**
@@ -102,7 +103,17 @@ export default usersReducer = (state = initialState, {type, payload}) => {
   }
 
   case types.SIGNUP:
-    return { ...state, authenticating: payload, signupError: null };
+    return { ...state, authenticating: payload, signupError: null, loginError: null };
+
+  case types.USER_EMAIL_CONFIRMED: {
+    return {
+      ...state,
+      current: state.current && {
+        ...state.current,
+        emailVerified: true
+      }
+    };
+  }
 
   case types.AUTH_CANCELED:
     return { ...state, authenticating: null, signupError: null };

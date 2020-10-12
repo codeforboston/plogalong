@@ -1,4 +1,5 @@
 import { Queue, wait, rateLimited, coalesceCalls } from '../async';
+import { partition } from '../iter';
 
 describe('Queue', () => {
   it('', async () => {
@@ -52,6 +53,36 @@ describe('Rate limit', () => {
     });
 
     expect(results).toHaveLength(5);
+    expect(results).toBeSorted();
+  });
+
+  it('should not allow overlapping calls to async function', async () => {
+    const results = [];
+    let i = 0;
+    const fn = jest.fn(async () => {
+      const start = ++i;
+      results.push(i);
+      await wait(50);
+      results.push(start);
+      return start;
+    });
+    const limitedFn = rateLimited(fn);
+
+    await new Promise(resolve => {
+      let i = 0;
+      const intv = setInterval(() => {
+        limitedFn();
+        if (i++ >= 40) {
+          clearInterval(intv);
+          resolve();
+        }
+      }, 10);
+    });
+
+    for (const pair of partition(results, 2)) {
+      if (pair.length === 2)
+        expect(pair[0]).toBe(pair[1]);
+    }
   });
 });
 

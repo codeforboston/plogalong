@@ -39,6 +39,7 @@ export const ShowHide = props => {
     running.current = Animated.timing(value, {
       ...animationConfig,
       toValue: shown ? shownValue : hiddenValue,
+      useNativeDriver: true,
     }).start(({ finished }) => {
       if (finished) {
         setAnimating(false);

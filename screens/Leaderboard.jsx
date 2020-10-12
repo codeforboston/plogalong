@@ -16,8 +16,8 @@ import { useDimensions } from '../util/native';
 import { useSelector } from '../redux/hooks';
 
 import { Divider } from '../components/Elements';
-import PopupDataView, { PopupHeader } from '../components/PopupDataView';
-import ProfilePlaceholder from '../components/ProfilePlaceholder';
+import PopupDataView from '../components/PopupDataView';
+import UserPicture from '../components/UserPicture';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -63,11 +63,7 @@ export const Leaderboard = props => {
                                     disabled={!onPress}
                   >
                     <View style={styles.leader}>
-                      {
-                        profilePicture ?
-                          <Image source={{ uri: profilePicture }} style={styles.profileImage} /> :
-                        <ProfilePlaceholder style={styles.profileImage}/>
-                      }
+                      <UserPicture url={profilePicture} />
                       <View style={styles.leaderInfo}>
                         <View style={styles.leaderInfoDetails}>
                           <Text style={styles.username} onPress={onPress}>
@@ -103,12 +99,9 @@ export const Leaderboard = props => {
 /** @type {React.FunctionComponent<RegionLeaderboardProps>} */
 export const RegionLeaderboard = ({region, leaders, ...props}) => (
   <View>
-    <PopupHeader
-      title={`${region.county}, ${region.state}`}
-      details=""
-      image={null}
-    />
-    <Text style={$S.subheader}>Top Ploggers</Text>
+    <Text style={$S.subheader}>
+      Top Ploggers in {region.county}, {region.state}
+    </Text>
     {
       leaders.length ?
         <Leaderboard users={leaders} {...props} /> :
@@ -119,18 +112,21 @@ export const RegionLeaderboard = ({region, leaders, ...props}) => (
   </View>
 );
 
-const RegionLeaderboardScreen = () => {
+const RegionLeaderboardScreen = ({ regionID }) => {
   const currentUser = useSelector(state => state.users.current,
                                   (u1, u2) => (u1 && u2 && u1.uid === u2.uid));
   const navigation = useNavigation();
   const onPressUser = React.useCallback((user) => {
     navigation.navigate('User', { userID: user.id });
   }, [navigation]);
+  const loader = React.useCallback(() => getRegionLeaders(regionID), [regionID]);
 
   return (
-    <PopupDataView loader={params => getRegionLeaders(params.regionID)}
+    <PopupDataView loader={loader}
                    errorTitle={e => (LeaderboardErrors[e.code] || {}).title}
-                   errorDetails={e => (LeaderboardErrors[e.code] || {}).details}>
+                   errorDetails={e => (LeaderboardErrors[e.code] || {}).details}
+                   style={{ padding: 0, paddingTop: 10, backgroundColor: 'transparent' }}
+                   hideDismissButton >
       {React.useCallback(object => <RegionLeaderboard
                                      region={object.region}
                                      leaders={object.leaders}
@@ -143,13 +139,6 @@ const RegionLeaderboardScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  profileImage: {
-    margin: 10,
-    marginBottom: 0,
-    marginTop: 0,
-    width: 50,
-    height: 50,
-  },
   leader: {
     flexDirection: 'row',
     marginTop: 5,

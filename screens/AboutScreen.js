@@ -1,8 +1,6 @@
 import React from "react";
 import {
-  Linking,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -35,7 +33,7 @@ export default class AboutScreen extends React.Component {
         </View>
 
         <OpenURLButton url={websiteURL}>Visit plogalong.com</OpenURLButton>
-        <OpenURLButton url="https://www.facebook.com/Plogalong-100585405000063/">Like Us On Facebook</OpenURLButton>
+        <OpenURLButton url="https://www.facebook.com/Plogalong-100585405000063/">Like us on Facebook</OpenURLButton>
       </ScrollView>
     );
   }

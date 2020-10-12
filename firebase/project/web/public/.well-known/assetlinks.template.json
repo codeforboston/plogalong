@@ -1,8 +1,8 @@
 [{
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
-    "namespace": "{{ android.namespace }}",
+    "namespace": "android_app",
     "package_name": "{{ android.package }}",
-    "sha256_cert_fingerprints": {{ android.certFingerprints }}
+    "sha256_cert_fingerprints": {{{ stringify android.certFingerprints }}}
   }
 }]

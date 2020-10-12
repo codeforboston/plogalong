@@ -92,7 +92,7 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
 
       // achievements may depend on locally aggregated data (stats, leaderboard)
       const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData, regionData);
-
+c
       if (completed.length) {
         // add bonus minutes from achievements
         userStats = addBonusMinutes(userStats, localPlogDate(plogData), calculateBonusMinutes(completed));
@@ -169,3 +169,4 @@ exports.mergeWithAccount = functions.https.onCall(http.mergeWithAccount);
 exports.reportPlog = functions.https.onCall(http.reportPlog);
 exports.getRegionInfo = functions.https.onCall(http.getRegionInfo);
 exports.getRegionLeaders = functions.https.onCall(http.getRegionLeaders);
+exports.userLinked = functions.https.onCall(http.userLinked);

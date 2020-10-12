@@ -9,7 +9,8 @@ import { shallowEqual } from 'react-redux';
 import { useDispatch, useSelector } from '../redux/hooks';
 
 import * as actions from '../redux/actions';
-import { formatDuration, getStats, keep } from '../util';
+import { formatPloggingMinutes } from '../util/string';
+import { getStats, calculateTotalPloggingTime } from '../util/users';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -19,6 +20,7 @@ import Banner from '../components/Banner';
 import Loading from '../components/Loading';
 import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
+import { processAchievement } from '../util/users';
 
 const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
 
@@ -31,7 +33,7 @@ const renderEmpty = () => (
                       style={{ backgroundColor: '#eee' }}
                       showDescription={true} />
     <Text style={[$S.subheader, styles.subheader]}>
-      <L to="More" params={{ subscreen: 'About' }}>Check the About Screen</L> for some tips. Once you've plogged something,
+      <L to="More" params={{ screen: 'About', initial: false }}>Check the About Screen</L> for some tips. Once you've plogged something,
       record it on the <L to="Plog">Plogging Screen</L> to get your first achievement!
     </Text>
   </View>
@@ -39,22 +41,62 @@ const renderEmpty = () => (
 
 export const HistoryScreen = _ => {
   const dispatch = useDispatch();
-  const { currentUser, history, loading } = useSelector(({log, users}) => {
-    const {plogData, history} = log;
-
+  const { currentUser, history, loading, plogData } = useSelector(({log, users}) => {
     return {
       loading: log.historyLoading,
-      history: keep(id => plogData[id], history).sort((a, b) => (b.when - a.when)),
+      history: log.history,
       currentUser: users.current,
+      plogData: log.plogData,
     };
   }, shallowEqual);
+
+  /** @type {{ [k in string]: (ReturnType<typeof processAchievement>)[] }} */
+  const achievementsByRefID = React.useMemo(() => {
+    const achievementsByRefID = {};
+    const { achievements } = currentUser.data;
+    if (achievements) {
+      for (const k in achievements) {
+        const refID = achievements[k] && achievements[k].refID;
+        if (refID && plogData[achievements[k].refID]) {
+          const date = plogData[achievements[k].refID].when;
+          const achievement = {
+            type: 'achievement',
+            id: k,
+            achievement: processAchievement(achievements, k),
+            date:  date,
+          };
+          if (refID in achievementsByRefID)
+            achievementsByRefID[refID].push(achievement);
+          else
+            achievementsByRefID[refID] = [achievement];
+        }
+      }
+    }
+    return achievementsByRefID;
+  }, [currentUser.data.achievements, plogData]);
+
+  const combinedHistory = React.useMemo(() => {
+    const combinedHistory = [];
+
+    history.forEach(id => {
+      if (achievementsByRefID[id]) {
+        for (const achievement of achievementsByRefID[id]) {
+          combinedHistory.push(achievement);
+        }
+      };
+
+      combinedHistory.push(plogData[id]);
+    });
+    return combinedHistory;
+  }, [history, plogData, achievementsByRefID]);
+
   const loadNextPage = React.useCallback(() => {
     if (currentUser && !loading)
       dispatch(actions.loadHistory(currentUser.uid, false));
   }, [currentUser, loading]);
 
   const monthStats = getStats(currentUser, 'month');
-  const yearStats = getStats(currentUser, 'year');
+  const totalStats = getStats(currentUser, 'total');
 
   useEffect(() => {
     if (currentUser)
@@ -67,16 +109,20 @@ export const HistoryScreen = _ => {
   return (
     <View style={$S.screenContainer}>
 
-      <PlogList plogs={history}
+      <PlogList plogs={combinedHistory}
                 currentUser={currentUser}
                 header={
                   <View style={{ paddingTop: 20 }}>
                     <Banner>
-                      {monthStats.count ?
-                       `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
-                       "You haven't plogged yet."}
-                      {yearStats.milliseconds ?
-                       `You earned ${formatDuration(yearStats.milliseconds, true)} this year.` : ''}
+                      {
+                        totalStats.count ?
+                          monthStats.count ?
+                          `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
+                          "You haven't plogged yet this month." :
+                        "Plog something to earn your first badge!"
+                      }
+                      {totalStats.milliseconds ?
+                       `\nYou've earned ${formatPloggingMinutes(calculateTotalPloggingTime(totalStats))}` : ''} 
                     </Banner>
                     <View style={{
                       marginTop: 5

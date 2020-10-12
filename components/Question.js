@@ -16,21 +16,14 @@ const Question = ({question, answer}) => (
 
 const styles = StyleSheet.create({
     question: {
-        flex: 1,
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
         margin: 5,
         padding: 5,
     },
     left: {
-        fontWeight: 'bold'
-    },
-    right: {
-        color: Colors.textGray,
+        color: Colors.activeColor,
+        fontWeight: 'bold',
         fontSize: 18,
-    }
+    },
 });
 
 export default Question;

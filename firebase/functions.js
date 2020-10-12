@@ -9,6 +9,7 @@ const _mergeWithAccount = functions.httpsCallable('mergeWithAccount');
 const _reportPlog = functions.httpsCallable('reportPlog');
 const _getRegionInfo = functions.httpsCallable('getRegionInfo');
 const _getRegionLeaders = functions.httpsCallable('getRegionLeaders');
+const _userLinked = functions.httpsCallable('userLinked');
 
 /**
  * @param {string} plogID
@@ -19,12 +20,15 @@ export async function likePlog(plogID, like=true) {
 }
 
 const convertStamp = val => (val && new firebase.firestore.Timestamp(val._seconds, val._nanoseconds));
+
+/** @typedef {import('./project/functions/http').UserProfile} UserProfile */
 /**
  * @param {string} userID
- * @returns {Promise<import('./project/functions/http').UserProfile>}
+ * @returns {Promise<UserProfile & { id: string }>}
  */
 export async function loadUserProfile(userID) {
   const {data} = (await _loadUserProfile({userID}));
+  data.id = userID;
   return update(data, {
     'achievements.*': {
       completed: convertStamp,
@@ -57,4 +61,8 @@ export async function getRegionInfo(latitude, longitude) {
  */
 export async function getRegionLeaders(regionID) {
   return (await _getRegionLeaders({ regionID })).data;
+}
+
+export async function userLinked() {
+  await _userLinked();
 }
