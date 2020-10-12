@@ -16,8 +16,8 @@ service cloud.firestore {
     }
 
     function checkUserFields() {
-       return doCheckUserFields(request.resource.data["d"],
-                                get(/databases/$(database)/documents/users/$(request.resource.data["d"]["UserID"])))
+       return doCheckUserFields(request.resource.data,
+                                get(/databases/$(database)/documents/users/$(request.resource.data["UserID"])))
     }
 
     function changedFields() {
@@ -27,7 +27,7 @@ service cloud.firestore {
     }
 
     match /plogs/{any} {
-    	allow read: if request.auth.uid != null && (!resource.data || request.auth.uid == resource.data.UserID || resource.data.Public)
+    	allow read: if request.auth.uid != null && (resource == null || request.auth.uid == resource.data.UserID || resource.data.Public)
       allow delete: if request.auth.uid != null && request.auth.uid == resource.data.UserID;
       allow create: if request.auth.uid == request.resource.data.UserID
                     && request.resource.data.keys().hasOnly([
@@ -63,8 +63,9 @@ service cloud.firestore {
 
     match /comments/{any} {
       allow create: if request.auth.uid != null
+                    && request.resource.data.userID == request.auth.uid
                     && request.resource.data.keys().hasOnly([
-                       "comment", "email", "label", "name", "topic", "date"
+                       "comment", "email", "label", "name", "topic", "date", "userID",
                     ])
                     && timestampCurrent(request.resource.data.date, 60)
     }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useReducer, useMemo } from 'react';
 
 
 /**
@@ -16,20 +16,26 @@ export const useEffectWithPrevious = (callback, deps) => {
   }, deps);
 };
 
-/** @typedef {<T>(newState: T) => void} SetState */
+const paramsReducer = (params, change) => ({ ...params, ...change });
 
 /**
  * @template T
  * @param {T} init
  */
 export const useParams = init => {
-  const [params, setParams] = useState(init);
+  const [params, setParams] = useReducer(paramsReducer, init);
+  const setters = useRef({});
 
   return {
+    /** @type {T} */
     params,
     setParams,
     /** @type {<K extends keyof T>(key: K) => ((val: T[K]) => void)} */
-    setter: k => (val => setParams({ ...params, [k]: val }))
+    setter: k => {
+      if (!setters.current[k])
+        setters.current[k] = (val => setParams({ [k]: val }));
+      return setters.current[k];
+    }
   };
 };
 

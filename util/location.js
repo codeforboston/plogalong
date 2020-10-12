@@ -36,4 +36,4 @@ export function formatAddress(address) {
   return prepared && `${prepared.preposition} ${prepared.name}`;
 }
 
-export const reverseGeocode = rateLimited(Location.reverseGeocodeAsync, 5000);
+export const reverseGeocode = rateLimited(Location.reverseGeocodeAsync, 500);

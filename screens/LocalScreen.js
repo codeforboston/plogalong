@@ -2,20 +2,17 @@ import * as React from 'react';
 import {
   View,
   ScrollView,
-  Text
 } from 'react-native';
 import { shallowEqual } from 'react-redux';
-import { useDispatch, useSelector } from '../redux/hooks';
+import { useDispatch, useSelector, usePaginatedPlogs, useLocation } from '../redux/hooks';
 import MapView, { Marker } from 'react-native-maps';
 
 import * as actions from '../redux/actions';
-import { keep } from '../util/iter';
 import $S from '../styles';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Loading from '../components/Loading';
-import { NavLink } from '../components/Link';
 import Options from '../constants/Options';
 import Colors from '../constants/Colors';
 import PlogList from '../components/PlogList';
@@ -26,32 +23,28 @@ const LocalScreen = ({ navigation }) => {
   const likePlog = React.useCallback((...args) => {
     dispatch(actions.likePlog(...args));
   }, []);
+
+  const { currentUser, loading, plogIDs } =
+        useSelector(({ log, users }) => {
+          const { plogData, localPlogs } = log;
+
+          return {
+            plogIDs: localPlogs,
+            currentUser: users.current,
+            loading: log.localPlogsLoading,
+          };
+        }, shallowEqual);
+  const location = useLocation();
+
   React.useEffect(() => {
     dispatch(actions.loadLocalHistory());
-  }, []);
-
-  const { history, currentUser, loading, location, region } = useSelector(({ log, users }) => {
-    const { plogData, localPlogs } = log;
-
-    return {
-      history: keep(id => plogData[id], localPlogs).sort((a, b) => (b.when - a.when)),
-      currentUser: users.current,
-      loading: log.localPlogsLoading,
-      location: users.location,
-      region: log.region,
-    };
-  }, shallowEqual);
+  }, [currentUser && currentUser.uid]);
 
   const goToPlogScreen = React.useCallback(() => {
     navigation.navigate('Plog');
   }, [navigation]);
-  const goToInviteScreen = React.useCallback(() => {
-    navigation.navigate('Invite');
-  }, [navigation]);
-  const loadNextPage = React.useCallback(() => {
-    if (!loading)
-      dispatch(actions.loadLocalHistory(false));
-  });
+
+  const [history, , loadNextPage] = usePaginatedPlogs(loading ? [] : plogIDs);
 
   const ActivityIcon = Options.activities.get('walking').icon;
   const noPloggers = history.length === 0 && !loading;
@@ -59,19 +52,9 @@ const LocalScreen = ({ navigation }) => {
   const recentCount = history.length;
 
   const header = (
-    <>
-      <Banner>
-        The best time to plog is yesterday.{'\n'}The second best time is today!
-      </Banner>
-      {
-        region &&
-          <>
-            <NavLink route="Leaderboard" params={{ regionID: region.id }} style={$S.subheadLink}>
-              Leaderboard
-            </NavLink>
-          </>
-      }
-    </>
+    <Banner>
+      The best time to plog is yesterday.{'\n'}The second best time is today!
+    </Banner>
   );
 
   if (noPloggers) {
@@ -112,10 +95,6 @@ const LocalScreen = ({ navigation }) => {
               large primary
               onPress={goToPlogScreen}
             />
-            <Button title="Invite"
-              large
-              onPress={goToInviteScreen}
-            />
         </View>
       </ScrollView>);
   } else {
@@ -125,11 +104,7 @@ const LocalScreen = ({ navigation }) => {
           currentUser={currentUser}
           likePlog={likePlog}
           loadNextPage={loadNextPage}
-          header={
-            <View style={{ paddingTop: 20 }}>
-              {header}
-            </View>
-          }
+          header={header}
           footer={
             loading ?
               <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 10 }}>

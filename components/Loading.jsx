@@ -21,9 +21,9 @@ const LoadingIndicator = ({dots = 3, dotImage=Dot, dotStyle=null, style=null, ..
         scale.map((av, i) =>
                   Animated.sequence([
                     Animated.delay(i*125),
-                    Animated.timing(av, { toValue: 1.5, duration: 250 }),
-                    Animated.timing(av, { toValue: 0.5, duration: 250 }),
-                    Animated.timing(av, { toValue: 1, duration: 250 }),
+                    Animated.timing(av, { toValue: 1.5, duration: 250, useNativeDriver: true }),
+                    Animated.timing(av, { toValue: 0.5, duration: 250, useNativeDriver: true }),
+                    Animated.timing(av, { toValue: 1, duration: 250, useNativeDriver: true }),
                     Animated.delay(125),
                   ]))
       )

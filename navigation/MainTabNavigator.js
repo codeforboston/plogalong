@@ -3,16 +3,13 @@ import {
   PixelRatio,
   StyleSheet,
 } from 'react-native';
-import { Linking } from 'expo';
-import { connect } from 'react-redux';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
 import { auth } from '../firebase/init';
 import icons from '../icons';
 import Colors from '../constants/Colors';
 import { parseURL } from '../util';
-import { processAchievement } from '../util/users';
-import { useEffectWithPrevious } from '../util/react';
+import { useCurrentUser } from '../redux/hooks';
 
 import Loading from '../components/Loading';
 
@@ -67,10 +64,12 @@ const Tab = createBottomTabNavigator();
 
 const MainTabNavigator = ({ currentUser, navigation, route, ...props }) => {
   const childRouteName = route.state ? route.state.routes[route.state.index].name : 'Plog';
-  navigation.setOptions({
-    title: decamel(routeName(route, 'Plog')),
-    headerShown: childRouteName !== 'More',
-  });
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: decamel(routeName(route, 'Plog')),
+      headerShown: childRouteName !== 'More',
+    });
+  }, [navigation, childRouteName]);
 
   if (!currentUser)
     return <Loading style={{ marginTop: 150 }} />;

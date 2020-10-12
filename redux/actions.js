@@ -33,7 +33,7 @@ export const authCancelled = _ => ({
 
 export const loginError = error => ({
   type: types.LOGIN_ERROR,
-  payload: { error: error.code === 'auth/user-canceled' ? null : error }
+  payload: { error: error && error.code === 'auth/user-canceled' ? null : error }
 });
 
 export const signupError = (error) => ({
@@ -114,9 +114,9 @@ export const loadHistory = (userID, replace=true) => ({
   payload: { userID, replace }
 });
 
-export const loadLocalHistory = (replace=true, n=5) => ({
+export const loadLocalHistory = () => ({
   type: types.LOAD_LOCAL_HISTORY,
-  payload: { replace, number: n }
+  payload: { }
 });
 
 export const loadPlogs = plogIDs => ({
@@ -168,7 +168,12 @@ export const likePlog = (plogID, like) => (
 
 export const setRegion = region => ({
   type: types.SET_REGION,
-  payload: { region}
+  payload: { region }
+});
+
+export const localPlogIDs = plogIDs => ({
+  type: types.LOCAL_PLOG_IDS,
+  payload: { plogIDs }
 });
 
 export const setCurrentUser = (user) => ({

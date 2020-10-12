@@ -18,6 +18,7 @@ import PopupDataView, { PopupHeader } from '../components/PopupDataView';
 import ProfilePlaceholder from '../components/ProfilePlaceholder';
 import { NavLink } from '../components/Link';
 import { useSelector } from '../redux/hooks';
+import Unlocked from '../components/Unlocked';
 
 
 const ProfileErrors = {
@@ -49,20 +50,11 @@ const UserProfile = ({user}) => {
       <Text style={$S.subheader}>Achievements</Text>
       <FlatList data={users.processAchievements(user.achievements, { partial: false })}
                 renderItem={({item}) => (
-                  <View style={styles.achievement}>
-                    {React.createElement(item.icon, {
-                      fill: $C.selectionColor,
-                      style: styles.achievementBadge,
-                      height: 45,
-                      width: 45,
-                    })}
-                    <View style={styles.achievementInfo}>
-                      <Text style={$S.itemTitle}>{ item.badgeTheme }</Text>
-                      <Text>
-                        Completed {moment(item.completed.toDate()).fromNow()}
-                      </Text>
-                    </View>
-                  </View>
+                  <Unlocked icon={item.icon}
+                            title={item.badgeTheme}
+                            description={`Completed ${moment(item.completed.toDate()).fromNow()}`}
+                            style={{ padding: 10 }}
+                  />
                 )}
       />
       <View style={{ flex: 1 }}/>
@@ -87,18 +79,6 @@ const UserScreen = () => (
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  achievement: {
-    flexDirection: 'row',
-    marginLeft: 10,
-    marginBottom: 10,
-  },
-  achievementBadge: {
-    marginRight: 15,
-  },
-  achievementInfo: {
-    flexDirection: 'column',
-    justifyContent: 'center'
   },
   profileLink: {
     fontSize: 20,

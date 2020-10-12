@@ -10,28 +10,23 @@
  * @param {number} ms
  * @returns {Fn}
  */
-export function rateLimited(fn, ms, throwOnDequeue=false, delayFirst=false) {
-  let pending, dequeuePending, running, waiting, rejectWaiting,
-      lastRun = delayFirst ? Date.now() : 0;
+export function rateLimited(fn, ms=0, throwOnDequeue=false, delayFirst=false) {
+  let pending, dequeuePending, running,
+      lastRun = delayFirst ? Date.now() : 0,
+      callId = 0;
 
   return (...args) => {
     pending = new Promise(async (resolve, reject) => {
+      const id = ++callId;
+
       if (running) {
-        if (waiting)
-          rejectWaiting();
-
-        waiting = new Promise(res => {
-          rejectWaiting = () => { res(false); };
-          running.finally(() => res(true));
-        });
-
-        const proceed = await waiting;
-        waiting = rejectWaiting = null;
-        if (!proceed) {
+        await running.catch(() => { });
+        if (callId !== id) {
           if (throwOnDequeue)
             reject(new Error('Dequeued'));
           return;
         }
+
         lastRun = Date.now();
       }
 

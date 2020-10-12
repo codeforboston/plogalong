@@ -16,12 +16,14 @@ export const REPORT_PLOG_ERROR = 'REPORT_PLOG_ERROR';
 export const LOAD_HISTORY = 'LOAD_HISTORY';
 export const PLOGS_UPDATED = 'PLOGS_UPDATED';
 export const LOAD_LOCAL_HISTORY = 'LOAD_LOCAL_HISTORY';
+export const LOCAL_HISTORY_LOADING = 'LOCAL_HISTORY_LOADING';
 export const PLOG_DATA = 'PLOG_DATA';
 
 export const LOAD_PLOGS = 'LOAD_PLOGS';
 export const UNLOAD_PLOGS = 'UNLOAD_PLOGS';
 
 export const SET_REGION = 'SET_REGION';
+export const LOCAL_PLOG_IDS = 'LOCAL_PLOG_IDS';
 
 export const SET_CURRENT_USER = 'SET_CURRENT_USER';
 export const USER_DATA = 'USER_DATA';

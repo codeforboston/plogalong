@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
         height: 226,
         width: 307,
         borderRadius: 5,
-        borderColor: Colors.textGray,
+        borderColor: 'purple',
         borderWidth: 3,
     }
   

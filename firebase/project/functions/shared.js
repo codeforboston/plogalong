@@ -462,7 +462,9 @@ function updateStats(stats, plog, bonusMinutes=0, regionID=null) {
   return withStats(stats, localPlogDate(plog), unitStats => {
     unitStats.milliseconds += plog.PlogDuration || 0;
     unitStats.count += 1;
-    unitStats.bonusMinutes = bonusMinutes;
+    if (bonusMinutes) {
+      unitStats.bonusMinutes = (unitStats.bonusMinutes || 0) + bonusMinutes;
+    }
 
     if (regionID) {
       if (!unitStats.region)
@@ -564,7 +566,7 @@ function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
   if (!recentPlogs)
     recentPlogs = { ids: [], data: {} };
   if (recentPlogs.ids.push(plogData.id) > maxLength) {
-    for (const plogID of recentPlogs.ids.slice(maxLength-1))
+    for (const plogID of recentPlogs.ids.slice(maxLength))
       delete recentPlogs.data[plogID];
 
     recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
@@ -581,14 +583,17 @@ function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
  * @param {RegionData} regionData
  * @param {PlogDataWithId} plogData
  * @param {UserPlogStatsForRegion} plogStats
+ * @param {boolean} [shouldUpdateLeaderboard]
  *
  * @returns {Partial<RegionData>}
  */
-function addPlogToRegion(regionData, plogData, plogStats) {
+function addPlogToRegion(regionData, plogData, plogStats, shouldUpdateLeaderboard=true) {
+  const leaderboard = (shouldUpdateLeaderboard &&
+                       updateLeaderboard(regionData.leaderboard, plogData.UserID, plogStats)) || regionData.leaderboard;
   return {
     recentPlogs: addPlogToRecents(regionData.recentPlogs, plogData),
     stats: updateStats(regionData.stats, plogData),
-    leaderboard: updateLeaderboard(regionData.leaderboard, plogData.UserID, plogStats)
+    leaderboard
   };
 }
 
@@ -609,7 +614,11 @@ function findPosition(sorted, score, scoreFn, n=20) {
 /**
  * @param {RegionData["leaderboard"]} leaders
  * @param {string} userID
- * @param {PlogStats} stats
+ * @param {PlogStats} stats - for the user being added or updated
+ * @param {number} n - the number of entries in the leaderboard
+ *
+ * @returns {RegionData["leaderboard"]|null} Will be null if the user is not
+ * ranked
  */
 function updateLeaderboard(leaders, userID, stats, n=20) {
   leaders = Object.assign({ ids: [], data: {} }, leaders);
@@ -617,7 +626,7 @@ function updateLeaderboard(leaders, userID, stats, n=20) {
   const position = findPosition(leaders.ids, stats.count,
                                 (uid => leaders.data[uid].count), n);
   if (position === null)
-    return {};
+    return null;
 
   // Update the user data
   leaders.data[userID] = Object.assign({}, leaders.data[userID], stats);
