@@ -10,7 +10,6 @@ import moment from 'moment';
 import { loadUserProfile } from '../firebase/functions';
 
 import $S from '../styles';
-import $C from '../constants/Colors';
 import { pluralize } from '../util';
 import * as users from '../util/users';
 

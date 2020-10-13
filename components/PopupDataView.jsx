@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import {
+  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -66,16 +67,22 @@ const PopupDataView = ({loader, children, errorTitle, errorDetails, hideDismissB
 
   if (error) {
     return (
-      <PopupHeader
-        title={errorTitle(error)}
-        image={<Ionicons name={'ios-alert'} size={60} color="maroon" style={{ textAlign: 'center' }} />}
-        details={errorDetails(error)}
-      />
+      <View style={[$S.container, style]}>
+        {!hideDismissButton && <DismissButton color="black"/>}
+        <PopupHeader
+          title={errorTitle(error)}
+          image={<Ionicons name={'ios-alert'} size={60} color="maroon"
+                           style={{ textAlign: 'center', height: 60, width: 70, }} />}
+        />
+        <Text style={[$S.body, $S.bodyContainer]}>
+          {errorDetails(error)}
+        </Text>
+      </View>
     );
   }
 
   return (
-    <View style={[styles.container, $S.form, style]}>
+    <View style={[$S.container, $S.form, style]}>
       {!hideDismissButton && <DismissButton color="black"/>}
       {content}
     </View>
@@ -83,11 +90,6 @@ const PopupDataView = ({loader, children, errorTitle, errorDetails, hideDismissB
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20
-  },
   popupHeader: {
     flexDirection: 'row',
     alignItems: 'center',
