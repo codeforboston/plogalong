@@ -1,5 +1,3 @@
-const tintColor = '#2f95dc';
-
 // can we get some comments/examples where it's used up in hurr
 export default {
   bannerBackground: '#faedce',
@@ -9,11 +7,8 @@ export default {
   activeColor: '#8557C7',
   inactiveColor: '#495564',
   selectionColorLight: '#ac8dd8', // periwinkle
-  tintColor,
   tabIconDefault: '#ccc',
-  tabIconSelected: tintColor,
   tabBar: '#fefefe',
-  // textGray: '#969FAA',
   activeGray: '#666666',
   inactiveGray: '#ccc',
   textGray: '#5f646b',
@@ -21,7 +16,6 @@ export default {
   errorText: '#fff',
   warningBackground: '#7fba5f',
   warningText: '#fff',
-  noticeBackground: tintColor,
   noticeText: '#fff',
   divider: '#dcdcdc',
 };

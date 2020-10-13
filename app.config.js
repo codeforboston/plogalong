@@ -95,6 +95,7 @@ export default ({config}) => {
         "package": androidBundleIdentifier,
         "googleServicesFile": googleServicesJson,
         // "softwareKeyboardLayoutMode": "pan",
+        "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"],
         "intentFilters": [
           {
             "action": "VIEW",

@@ -123,7 +123,8 @@ async function processTemplates() {
       const source = await readFile(filepath);
       const fn = handlebars.compile(source.toString());
       try {
-        await writeFile(outpath, fn(context));
+        const urlPath = path.relative(ROOT, outpath);
+        await writeFile(outpath, fn({ ...context, path: urlPath }));
       } catch (err) {
         console.error(`Processing failed on template`,
                       filepath, err);

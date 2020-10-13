@@ -6,6 +6,7 @@ import {
     View,
     TouchableWithoutFeedback
 } from 'react-native';
+import * as RN from 'react-native';
 
 import Colors from '../constants/Colors';
 import $S from '../styles';
@@ -26,6 +27,7 @@ const makeToggle = (init) => {
  * @property {React.Component|JSX.Element} icon
  * @property {React.Component|JSX.Element} activeIcon
  * @property {React.Component|JSX.Element} selectedIcon
+ * @property {RN.StyleProp<RN.ViewStyle>} [style]
  * @property {boolean} disabled
  * @property {boolean} large
  * @property {boolean} primary
