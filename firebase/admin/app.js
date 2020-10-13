@@ -6,4 +6,6 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   process.env.GOOGLE_APPLICATION_CREDENTIALS = credsFile;
 }
 
-module.exports = admin.initializeApp();
+module.exports = admin.initializeApp({
+  storageBucket: 'plogalong-a723a.appspot.com'
+});
