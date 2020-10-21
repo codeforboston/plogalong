@@ -18,7 +18,7 @@ const createdBy =
 export default class AboutScreen extends React.Component {
   render() {
     return (
-      <ScrollView style={$S.container}>
+      <ScrollView style={$S.container} contentContainerStyle={{ paddingBottom: 30 }}>
         <View style={$S.bodyContainer}>
           <Text style={$S.body}>
             When you plog, you pick up trash as you go about your daily life... jogging, hiking, or simply walking down the street. Ploggers help keep our neighborhoods, parks, and oceans clean.
