@@ -50,8 +50,8 @@ export class MoreScreen extends React.Component {
     {label: 'Achievements', route: 'Achievements'},
     {label: 'Contact Us', route: 'Contact Us'},
     {label: 'Plogging Supplies', route: 'Plogging Supplies'},
-    {label: 'Privacy & Security', route: 'Privacy & Security'},
-    {label: 'Terms & Conditions', route: 'Terms & Conditions'},
+    {label: 'Privacy & Security', route: 'Privacy'},
+    {label: 'Terms & Conditions', route: 'Terms'},
   ];
 
   render() {
@@ -93,8 +93,8 @@ export default ({navigation, route}) => {
           <Stack.Screen name="About" component={ AboutScreen }/>
           <Stack.Screen name="Achievements" component={ AchievementScreen }/>
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
-          <Stack.Screen name="Privacy &amp; Security" component={ PrivacyScreen }/>
-          <Stack.Screen name="Terms &amp; Conditions" component={ TermsScreen }/>
+          <Stack.Screen name="Privacy" component={ PrivacyScreen }/>
+          <Stack.Screen name="Terms" component={ TermsScreen }/>
           <Stack.Screen name="Plogging Supplies" component={ PloggingSuppliesScreen }/>
         </Stack.Navigator>
     );

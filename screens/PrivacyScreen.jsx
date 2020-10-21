@@ -6,6 +6,7 @@ import {
 } from "react-native";
 
 import { A, OpenURLButton } from '../components/Link';
+import LI from '../components/LI';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
@@ -19,18 +20,10 @@ const privacyDetails =
    We will not contact you without your permission`;
 
 
-const DefaultBullet = <Text style={{ fontSize: 30, marginTop: -7 }}>{'\u2022'}</Text>;
-const LI = ({children, bullet=DefaultBullet}) => (
-  <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 15 }}>
-    {React.cloneElement(bullet, { style: [bullet.props.style, { flex: 0, paddingRight: 10 }] })}
-    <Text style={[$S.body, { marginBottom: 0 }]}>{children}</Text>
-  </View>
-);
-
 export default class PrivacyScreen extends React.Component {
   render() {
     return (
-      <ScrollView style={$S.container}>
+      <ScrollView style={$S.container} contentContainerStyle={{ paddingBottom: 30 }}>
         <View style={$S.bodyContainer}>
           <Text style={$S.body} selectable={true}>{mainMessage}<A href={firebasePrivacyURL}>Google Firebase</A>.</Text>
           {privacyDetails.split('\n').map((text, i) => (
