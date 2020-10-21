@@ -121,8 +121,8 @@ export const HistoryScreen = _ => {
                           "You haven't plogged yet this month." :
                         "Plog something to earn your first badge!"
                       }
-                      {totalStats.milliseconds ?
-                       `\nYou've earned ${formatPloggingMinutes(calculateTotalPloggingTime(totalStats))}` : ''} 
+                      {totalStats.count ?
+                       `\nYou've earned ${formatPloggingMinutes(calculateTotalPloggingTime(totalStats))}.` : ''}
                     </Banner>
                     <View style={{
                       marginTop: 5
