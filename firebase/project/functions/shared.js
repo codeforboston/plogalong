@@ -429,6 +429,9 @@ const timeUnits = [
  * @property {UserAchievements} achievements
  * @property {string} [profilePicture]
  * @property {string} displayName
+ * @property {boolean} emailUpdatesEnabled
+ * @property {boolean} privateProfile
+ * @property {string} homeBase
  */
 
 /**
@@ -492,6 +495,14 @@ function updateUserStats(stats, plog, bonusMinutes, regionID) {
       latest: { id: plog.id, dateTime: plog.DateTime }
     }
   );
+}
+
+/**
+ * @param {UserAchievements} achievements
+ */
+function tallyBonusMinutes(achievements) {
+  const completed = Object.keys(achievements).filter(k => achievements[k] && achievements[k].completed);
+  return calculateBonusMinutes(completed);
 }
 
 /**
@@ -668,4 +679,5 @@ module.exports = {
 
   addPlogToRegion,
   updateLeaderboard,
+  tallyBonusMinutes,
 };

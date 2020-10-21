@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const app = require('./app');
 
-const { updateAchievements, updateUserStats, AchievementHandlers, calculateBonusMinutes, addBonusMinutes, localPlogDate} = require('./shared');
+const { updateAchievements, updateUserStats, AchievementHandlers, calculateBonusMinutes, addBonusMinutes, localPlogDate, tallyBonusMinutes } = require('./shared');
 const $u = require('./util');
 const regions = require('./regions');
 const email = require('./email');
@@ -31,8 +31,7 @@ async function *queryGen(query, limit=100) {
   }
 }
 
-const Users = app.firestore().collection('users');
-const Plogs = app.firestore().collection('plogs');
+const { Users, Plogs } = require('./collections');
 
 /** @typedef {import('./shared').AchievementType} AchievementType */
 /**
@@ -66,12 +65,14 @@ async function initAchievements(userID, types) {
 // TODO Ignore duplicate events
 exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
   .onCreate(async (snap, context) => {
+    /** @type {import('./shared').PlogData} */
     const plogData = snap.data();
     const {UserID} = plogData;
     let initUserAchievements = [];
     const userDocRef = Users.doc(UserID);
 
     await app.firestore().runTransaction(async t => {
+      /** @type {import('./shared').UserData} */
       const userData = await t.get(userDocRef).then(u => u.data());
       /** @type {Unwrapped<ReturnType<typeof regions.getRegionForPlog>>} */
       let regionInfo;
@@ -80,9 +81,11 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
         regionInfo = await regions.getRegionForPlog(snap, t);
       }
 
-      // Update the user stats first. If a region ID is supplied, the user's
-      // stats for that region will also be updated
       plogData.id = snap.id;
+
+      // Update the user stats first, initializing them if necessary. If a
+      // region ID is supplied, the user's stats for that region will also be
+      // updated
       let userStats = updateUserStats(userData.stats, plogData, 0, regionInfo && regionInfo.locationInfo.id);
 
       // regions.plogCreated uses userStats to potentially update the region
@@ -92,10 +95,16 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
 
       // achievements may depend on locally aggregated data (stats, leaderboard)
       const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData, regionData);
-c
+
       if (completed.length) {
+        console.log(`completed achievements:`, completed);
         // add bonus minutes from achievements
         userStats = addBonusMinutes(userStats, localPlogDate(plogData), calculateBonusMinutes(completed));
+      }
+
+      if (isNaN(userStats.total.bonusMinutes)) {
+        // Recalculate all bonus minutes if necessary
+        userStats.total.bonusMinutes = tallyBonusMinutes(achievements);
       }
 
       t.update(userDocRef, {
