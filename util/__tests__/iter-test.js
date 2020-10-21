@@ -49,3 +49,30 @@ describe('normalized lists', () => {
     }
   });
 });
+
+describe('keepKeys', () => {
+  const N = 100;
+  const input = {};
+  for (let i = 0; i < N; i++) {
+    input[randInt(1000000).toString(16)] = true;
+  }
+
+  it('should filter out keys that do not pass', () => {
+    const output = $iter.keepKeys(input, () => false);
+    expect($iter.empty(output)).toBeTruthy();
+  });
+
+  it('should keep keys that do pass', () => {
+    const output = $iter.keepKeys(input, () => true);
+    expect(output).toStrictEqual(input);
+  });
+
+  it('should rewrite keys', () => {
+    const output = $iter.keepKeys(input, k => `prefixed-${k}`);
+    expect(Object.keys(output).length).toEqual(N);
+    for (let k in input) {
+      expect(output).not.toHaveProperty(k);
+      expect(output).toHaveProperty(`prefixed-${k}`);
+    }
+  });
+});

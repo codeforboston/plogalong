@@ -86,6 +86,29 @@ const getter = f => (
   typeof f === 'string' ? (x => x[f]) : f
 );
 
+
+/**
+ * Filter and rewrite the keys of an object and return the new resulting object.
+ * If the predicate function returns a falsey value for a key-value pair, the
+ * pair will be omitted from output. If it returns a string or symbol, the value
+ * will be stored in the new object at that new key. For any other truthy return
+ * value, the pair will be included as is.
+ *
+ * @param {{ [ k in PropertyKey]: any }} obj
+ * @param {(key: PropertyKey, item: any) => (PropertyKey | false | null)} fn
+ */
+function keepKeys(obj, fn) {
+  return Object.keys(obj).reduce((m, k) => {
+    const result = fn(k, obj[k]);
+    if (result) {
+      const outKey = typeof result === 'string' || typeof result === 'symbol' ? result : k;
+      m[outKey] = obj[k];
+    }
+    return m;
+  }, {});
+}
+
+
 /**
  * @template T
  * @typedef {object} NormalizedList
@@ -184,5 +207,5 @@ module.exports = {
   times,
   update,
   partition,
-
+  keepKeys
 };
