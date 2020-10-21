@@ -74,6 +74,12 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
     await app.firestore().runTransaction(async t => {
       /** @type {import('./shared').UserData} */
       const userData = await t.get(userDocRef).then(u => u.data());
+      try {
+        // Already processed this plog
+        if (userData.stats.latest.id === snap.id)
+          return;
+      } catch (_) {}
+
       /** @type {Unwrapped<ReturnType<typeof regions.getRegionForPlog>>} */
       let regionInfo;
 
