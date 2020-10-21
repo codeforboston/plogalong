@@ -5,6 +5,7 @@ const functions = require('firebase-functions');
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 const geokit = require('geokit');
+const vision = require('@google-cloud/vision');
 
 const db = app.firestore();
 const { Plogs, Regions } = require('./collections');
@@ -107,6 +108,7 @@ async function whereIn(collection, vals, field=admin.firestore.FieldPath.documen
 
 /**
  * @param {Parameters<typeof Plogs.where>} where
+ * @param {firebase.firestore.UpdateData} changes
  */
 async function updatePlogsWhere(where, changes, limit=100) {
   await withBatch(Plogs, where,
@@ -231,6 +233,40 @@ async function regionInfo(coords, cache=true) {
   return info;
 }
 
+const FeatureType = vision.protos.google.cloud.vision.v1.Feature.Type;
+const Likelihood = vision.protos.google.cloud.vision.v1.Likelihood;
+const NSFWTags = ['racy', 'adult', 'violence'];
+
+/** @typedef {vision.protos.google.cloud.vision.v1.SafeSearchAnnotation} SafeSearchAnnotation */
+/** @typedef {vision.protos.google.cloud.vision.v1.AnnotateImageResponse} AnnotateImageResponse */
+
+/**
+ * @param {SafeSearchAnnotation} safeSearch
+ */
+function nsfwTags(safeSearch, nsfwThreshold=Likelihood.LIKELY, tags=NSFWTags) {
+  return safeSearch
+    ? tags.filter(tag => Likelihood[safeSearch[tag]] >= nsfwThreshold)
+    : [];
+}
+
+
+/** @typedef {import('@google-cloud/storage').File} File */
+
+/**
+ * @param {string} objectName
+ * @param {File} file
+ *
+ * @returns {Promise<AnnotateImageResponse]>}
+ */
+async function detectLabels(objectName, file) {
+  const client = new vision.ImageAnnotatorClient();
+  const url = await file.getSignedUrl({ action: 'read', expires: Date.now()+60000 });
+  const [result] = await client.annotateImage({ image: { source: { imageUri: url }},
+                                                features: [{ type: FeatureType.SAFE_SEARCH_DETECTION }, 
+                                                           { type: FeatureType.LABEL_DETECTION }]});
+  return result;
+}
+
 
 module.exports = {
   geohash,
@@ -245,4 +281,6 @@ module.exports = {
   whereIn,
   withBatch,
   withDocs,
+  detectLabels,
+  nsfwTags
 };

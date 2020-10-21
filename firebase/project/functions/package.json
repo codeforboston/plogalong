@@ -12,6 +12,7 @@
     "node": "10"
   },
   "dependencies": {
+    "@google-cloud/vision": "^2.1.2",
     "firebase-admin": "^8.12.1",
     "firebase-functions": "^3.8.0",
     "geokit": "^1.1.0"

@@ -171,6 +171,48 @@ exports.onUserDeleted = functions.auth.user().onDelete(async user => {
   await users.deleteUserData(user.uid);
 });
 
+exports.onImageUpload = functions.storage.bucket('plogalong-a723a.appspot.com').object().onFinalize(async (object, context) => {
+  const match = object.name.match(/^user(data|public|test)\/.*?\.jpe?g/i);
+
+  if (match) {
+    // Storage rules prevent clients from setting arbitrary metadata on files
+    if (object.metadata && object.metadata.scanned) {
+      console.log('Skipping scan for', object.name, '(already scanned)');
+      return;
+    }
+
+    const file = app.storage().bucket(object.bucket).file(object.name);
+
+    try {
+      if (context.authType !== 'ADMIN' && match[1] !== 'test') {
+        const plogPath = object.name.match(/^user(?:data|public)\/([a-z0-9]+)\/plog\/([a-z0-9]+)\/(\d+)\.jpe?g/i);
+
+        if (plogPath) {
+          const plog = await Plogs.doc(plogPath[2]).get();
+          if (!plog.exists || plog.data().UserID !== plogPath[1]) {
+            await file.delete();
+            return;
+          }
+        }
+      }
+
+      const { safeSearchAnnotation } = await $u.detectLabels(object.name, file);
+      const fileMeta = { scanned: '1' };
+
+      const nsfwTags = $u.nsfwTags(safeSearchAnnotation);
+      if (nsfwTags.length) {
+        fileMeta.nsfwTags = nsfwTags.join(',');
+        fileMeta.markedUnsafe = '1';
+      }
+      file.setMetadata(fileMeta).catch(err => {
+        console.error('Unable to set file metadata on', object.name, err);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+});
+
 const http = require('./http');
 exports.likePlog = functions.https.onCall(http.likePlog);
 exports.loadUserProfile = functions.https.onCall(http.loadUserProfile);

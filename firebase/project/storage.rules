@@ -2,25 +2,43 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
   
-    match /userdata/{userId}/{allPaths=**} {
-      allow read, delete: if request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId
-                   && request.resource.size < 512 * 1024;
-      
-      match /plog/{plogId}/{n} {
-      	allow write: if n.matches("[0-9]\\.jpg");
+    match /{root}/{userId} {
+      function isPublic() {
+        return root == "userpublic";
       }
-    }
-
-    match /userpublic/{userId}/{allPaths=**} {
-      allow read: if request.auth != null
-      allow write: if request.auth != null && request.auth.uid == userId && request.resource.size < 512 * 1024;
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      function rootAllowed() {
+        return root == "userdata" || root == "userpublic";
+      }
+      function isOwner() {
+        return request.auth != null
+               && request.auth.uid == userId
+               && rootAllowed();
+      }
+      function checkMetadata(metadata) {
+      	return metadata == null || !metadata.keys().hasAny([
+        	// blacklisted keys
+        	"scanned", "nsfw-tags", "marked-safe", "admin"
+        ]);
+      }
       
+      function isUploadAllowed() {
+        return isOwner()
+               && request.resource.size < 512 * 1024
+               && request.resource.contentType == 'image/jpeg'
+               && checkMetadata(request.resource.metadata);
+      }
+
       match /plog/{plogId}/{n} {
-      	allow write: if n.matches("[0-9]\\.jpg");
+      	allow write: if isUploadAllowed()
+                     && n.matches("[0-9]\\.jpg");
+        allow read: if isPublic() || isOwner();
+      }
+
+      match /plog/profile.jpg {
+        allow write: if isUploadAllowed();
+        allow delete: if isOwner();
+      	allow read: if isPublic() || isOwner();
       }
     }
   }
 }
-
