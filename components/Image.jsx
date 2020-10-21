@@ -2,9 +2,14 @@ import * as React from 'react';
 import {
   Image
 } from 'react-native';
+import * as RN from 'react-native';
 import * as Crypto from 'expo-crypto';
 import * as FileSystem from 'expo-file-system';
 
+import { keepKeys } from '../util/iter';
+
+
+/** @typedef {RN.ImageURISource} ImageURISource */
 
 /**
  * @param {string} uri
@@ -18,8 +23,17 @@ async function mangleURI(uri) {
   return `${FileSystem.cacheDirectory}${filename}`;
 }
 
-const useSource = (source, makeLocalURI=mangleURI) => {
-  const [cachedSource, setCachedSource] = React.useState(null);
+const prefix = pref => (s => s.startsWith(pref) ? s.slice(pref.length) : false);
+
+/** @typedef {{ [k in string]: string }} FileMetadata */
+/**
+ * @param {RN.ImageURISource} source
+ * @param {(uri: string) => Promise<string>} mangleLocalURI
+ *
+ * @returns {[RN.ImageURISource, FileMetadata]}
+ */
+export const useSource = (source, makeLocalURI=mangleURI, includeMetadata=true) => {
+  const [cachedSource, setCachedSource] = React.useState([null, {}]);
   const downloading = React.useRef();
 
   React.useEffect(() => {
@@ -28,24 +42,33 @@ const useSource = (source, makeLocalURI=mangleURI) => {
       if (source && source.uri) {
         if (source.uri.match(/^https?:\/\//)) {
           const localURI = await makeLocalURI(source.uri);
+          const metadataURI = `${localURI}.json`;
           const info = await FileSystem.getInfoAsync(localURI);
+          const metadata = {};
 
           if (!info.exists) {
-            console.log('downloading', source.uri, '->', localURI);
-            await FileSystem.downloadAsync(
+            const { headers } = await FileSystem.downloadAsync(
               source.uri, localURI,
               Object.assign({}, source.headers && { headers: source.headers }));
-          } else {
-            console.log('reading cached image from file', localURI);
+            if (includeMetadata) {
+              Object.assign(metadata, keepKeys(headers, prefix('x-goog-meta-')));
+              FileSystem.writeAsStringAsync(metadataURI, JSON.stringify(metadata)).catch(console.error);
+            }
+          } else if (includeMetadata) {
+            const loadedMetadata = await FileSystem.readAsStringAsync(metadataURI).then(JSON.parse, _ => ({}));
+            Object.assign(metadata, loadedMetadata);
           }
 
           if (source.uri === downloading.current) {
-            setCachedSource(Object.assign({}, source, { uri: localURI }));
+            setCachedSource([
+              Object.assign({}, source, { uri: localURI }),
+              metadata
+            ]);
           }
           return;
         }
       }
-      setCachedSource(source);
+      setCachedSource([source, {}]);
     })();
   }, [source]);
 
@@ -56,7 +79,12 @@ const useSource = (source, makeLocalURI=mangleURI) => {
 /** @typedef {React.ComponentProps<typeof Image>} ImageProps */
 /** @type {React.ForwardRefExoticComponent<ImageProps>} */
 const CachingImage = React.memo(React.forwardRef(({ source, ...props}, ref) => {
-  const cachedSource = useSource(source);
+  const [cachedSource] = useSource(source);
+
+  return (
+    <Image ref={ref} source={cachedSource} {...props} />
+  );
+}));
 
   return (
     <Image ref={ref} source={cachedSource} {...props} />
