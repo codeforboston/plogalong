@@ -343,7 +343,7 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
   // `viewabilityConfigCallbackPairs`.
 
   return (
-    <FlatList data={plogs}
+    <FlatList data={plogs.filter(p => !!p)}
               renderItem={({item, index}) => (
                 item.type === 'achievement' ?
                 <View style={{marginLeft: 10, marginRight: 10, marginBottom: 20,}}>
