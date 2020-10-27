@@ -37,24 +37,28 @@ export const AchievementScreen = ({currentUser }) => {
     const stats = getStats(currentUser, 'total');
 
     return (
-        <View style={{margin: 15, padding: 0,}}>
+      <View style={{margin: 15, padding: 0,}}>
         <Banner >
             {stats.count === 0 
                 ? "Plog something to earn your first badge!" 
                 : `You earned ${formatCompletedBadges(calculateCompletedBadges(currentUser.data.achievements))} and \n ${formatPloggingMinutes(calculateTotalPloggingTime(stats))}!`
             }
-            </Banner>
+        </Banner>
         <View style={styles.toggle}>
-        <TouchableWithoutFeedback onPress={() => setIsBadges(true)}>
-            <View  style={isBadges ? styles.isBadges : styles.notBadges}>
-                <Text style={{color: isBadges ? 'white' : Colors.secondaryColor}}>BADGES</Text>
-            </View>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback onPress={() => setIsBadges(false)}>
-            <View  style={!isBadges ? styles.isBadges : styles.notBadges}>
-                <Text style={{color: !isBadges ? 'white' : Colors.secondaryColor}}>LEADERBOARD</Text>
-            </View>
-        </TouchableWithoutFeedback>
+            <View style={styles.spacer}></View>
+            <TouchableWithoutFeedback onPress={() => setIsBadges(true)}>
+                <View  style={isBadges ? styles.isBadges : styles.notBadges}>
+                    <Text style={{color: isBadges ? 'white' : Colors.secondaryColor}}>BADGES</Text>
+                </View>
+            </TouchableWithoutFeedback>
+            <View style={styles.spacer}></View>
+            {/*
+            <TouchableWithoutFeedback onPress={() => setIsBadges(false)}>
+                <View  style={!isBadges ? styles.isBadges : styles.notBadges}>
+                    <Text style={{color: !isBadges ? 'white' : Colors.secondaryColor}}>LEADERBOARD</Text>
+                </View>
+            </TouchableWithoutFeedback>
+            */}
         </View>
         {isBadges ? (
             <AchievementSwipe
@@ -66,14 +70,13 @@ export const AchievementScreen = ({currentUser }) => {
                 inset={{paddingBottom: 120,}}
             />
         ) :
- 
-                region &&
-                <>
-                    <View style={{ height: '100%' }}>
-                        <Leaderboard regionID={region.id} style={$S.subheadLink}/>
-                    </View>
-                </>
-
+            region 
+            &&
+            <>
+                <View style={{ height: '100%' }}>
+                    <Leaderboard regionID={region.id} style={$S.subheadLink}/>
+                </View>
+            </>        
         }
       </View>
     );
@@ -85,22 +88,33 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         alignItems: 'center',
         width: '50%',
+        borderColor: Colors.secondaryColor,
+        borderRadius: 5,
+        borderWidth: 1,
     },
     notBadges: {
         paddingVertical: 5,
         alignItems: 'center',
         width: '50%',
+        borderColor: Colors.secondaryColor,
+        borderRadius: 5,
+        borderWidth: 1,
     },
     toggle: {
         flex: 0,
         flexDirection: 'row',
+        /*
         borderColor: Colors.secondaryColor,
         borderRadius: 5,
         borderWidth: 1,
+        */
         marginLeft: 5,
         marginRight: 5,
         marginBottom: 0,
         marginTop: 15,
+    },
+    spacer: {
+        width: '25%',
     },
 });
 
