@@ -150,6 +150,7 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
     // Date when the longest streak was lost
     streakLost: null,
   };
+
   return {
     initial,
     points,
@@ -187,9 +188,9 @@ function _makeStreakHandler(target, points, floor=floorDay, inc=incDay) {
     },
     merge(left, right) {
       return {
-        streak: max(left.streak, right.streak),
+        streak: left.updated > right.streak ? left.streak : right.streak,
         longestStreak: max(left.longestStreak, right.longestStreak),
-        streakLost: newest(left.streakLost, right.streakLost)
+        streakLost: left.longestStreak > right.longestStreak ? left.streakLost : right.streakLost,
       };
     }
   };
@@ -521,6 +522,9 @@ function addBonusMinutes(stats, date, bonusMinutes) {
  * @param {UserStats} statsB
  */
 function mergeStats(statsA, statsB) {
+  if (!statsA) return statsB;
+  if (!statsB) return statsA;
+
   /** @type {UserStats} */
   const merged = {};
   for (let {unit} of timeUnits) {

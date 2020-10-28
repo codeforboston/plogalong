@@ -1,21 +1,99 @@
 const app = require('./app');
 const admin = require('firebase-admin');
 
-const { updatePlogsWhere, withBatch, withDocs } = require('./util');
+const { mergeAchievements, mergeStats, updateLeaderboard } = require('./shared');
+const { updatePlogsWhere, withBatch, withDocs, whereIn } = require('./util');
 
-const { Plogs, Users } = require('./collections');
+const { Plogs, Users, Regions } = require('./collections');
+const { region } = require('firebase-functions');
 
-async function mergeUsers(fromUserID, toUserID) {
-  const userDoc = await Users.doc(toUserID).get();
-  const { displayName, profilePicture } = userDoc.data();
-  const updates = { 'UserID': toUserID, };
+/** @typedef {import('@google-cloud/storage').File} File */
+
+
+/**
+ * Move files from one user to another and update the associated plog documents
+ *
+ * @param {string} fromUserID
+ * @param {string} toUserID
+ */
+async function migrateUserPlogs(fromUserID, toUserID, updates={}) {
+  /** @type {{ [k in string]: File[] }} */
+  const moved = {};
+  const bucket = app.storage().bucket();
+
+  for (const dir of ['userdata', 'userpublic']) {
+    const prefix =  `${dir}/${fromUserID}/plog/`;
+    /** @type {[File[]]} */
+    const [files] = await bucket.getFiles({ prefix });
+
+    const moveToPref = `${dir}/${toUserID}/plog/`;
+
+    await Promise.all(files.map(async file => {
+      try {
+        const subpath = file.name.slice(prefix.length);
+        if (!subpath.includes('/'))
+          return;
+
+        const destFile = bucket.file(moveToPref + subpath);
+        const [plogID] = subpath.split('/');
+
+        console.log('renaming', file.name, '->', destFile.name);
+        await file.move(destFile);
+
+        if (!moved[plogID])
+          moved[plogID] = [];
+        moved[plogID].push(destFile);
+      } catch (er) {
+        console.error(`Couldn't move ${file.name}:`, er);
+        return;
+      }
+    }));
+  }
+
+  await withBatch(Plogs, ['UserID', '==', fromUserID], async (batch, plogDoc) => {
+    batch.update(plogDoc, {
+      Plogs: moved[plogDoc.id] ? await Promise.all(moved[plogDoc.id].map(file => file.getSignedUrl())) : [],
+      ...updates
+    });
+  });
+}
+
+/**
+ * Merge a user's plogs into
+ */
+async function mergeUsers(fromUserID, intoUserID) {
+  const intoUserDoc = Users.doc(intoUserID);
+  const { displayName, profilePicture, stats, achievements, likedPlogs } = await intoUserDoc.get().then(doc => doc.data());
+  const updates = { 'UserID': intoUserID, };
 
   if (displayName)
     updates['UserDisplayName'] = displayName;
   if (profilePicture)
     updates['UserProfilePicture'] = profilePicture;
 
-  await updatePlogsWhere(['UserID', '==', fromUserID], updates);
+  await migrateUserPlogs(fromUserID, intoUserID);
+
+  const fromUser = await Users.doc(fromUserID).get().then(u => u.data());
+  const updatedStats = mergeStats(fromUser.stats, stats);
+  console.log('updated user stats', updatedStats);
+  await intoUserDoc.update({
+    stats: updatedStats,
+    achievements: mergeAchievements(fromUser.achievements, achievements),
+    likedPlogs: Object.assign(fromUser.likedPlogs || {}, likedPlogs)
+  });
+
+  const regionStats = fromUser.stats && fromUser.stats.total && fromUser.stats.total.region;
+  if (!regionStats)
+    return;
+
+  const regionIds = Object.keys(regionStats);
+  await Promise.all((await whereIn(Regions, regionIds)).map(async doc => {
+    const leaderboard = updateLeaderboard(doc.data().leaderboard, intoUserID, regionStats[doc.id]);
+    if (leaderboard) {
+      console.log('Updating leaderboard for region', doc.id, leaderboard);
+      return await doc.update({ leaderboard });
+    }
+  }));
 }
 
 async function deleteUserPlogs(userID) {
