@@ -8,11 +8,13 @@ import {
 } from 'react-native';
 
 import {
-  linkToEmail, linkToFacebook, linkToGoogle,
+  linkToEmail,
+  linkToGoogle,
   unlinkGoogle,
   linkToApple,
   mergeAnonymousAccount,
-  unlinkApple
+  unlinkApple,
+  Providers
 } from '../firebase/auth';
 import { getStats, indexBy } from '../util';
 import { useParams } from '../util/react';
@@ -28,7 +30,94 @@ import Error from '../components/Error';
 import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 import { useSelector } from '../redux/hooks';
+import { auth } from '../firebase/init';
 
+
+const makeLinkCallback = (navigation, currentUser, prompt, setError, setAuthenticating) => {
+  return async (fn, ...args) => {
+    setError(null);
+    setAuthenticating(true);
+
+     try {
+      while (1) {
+        try {
+          const user = await fn(...args);
+          if (user)
+            navigation.navigate('Profile');
+        } catch (e) {
+          if (e.code === 'auth/email-already-in-use') {
+            if (e.email) {
+              const [provider] = await auth.fetchSignInMethodsForEmail(e.email);
+              const providerConfig = Providers[provider];
+
+              if (providerConfig && providerConfig.link) {
+                const result = await prompt({
+                  title: `Email already in use`,
+                  message: `${e.email} is already registered to another user. Would you like to use ${providerConfig.name} to sign in instead?`,
+                  options: [
+                    {
+                      title: `Login with ${providerConfig.name}`,
+                      value: 'continue'
+                    },
+                    {
+                      title: 'Cancel',
+                    }
+                  ]
+                });
+                if (result === 'continue') {
+                  fn = providerConfig.link;
+                  continue;
+                }
+              }
+
+              setError(e);
+            }
+          } else if (e.code === 'auth/credential-already-in-use') {
+            const { credential } = e;
+
+            if (getStats(currentUser, 'total').count) {
+              const providerName = (Providers[credential.providerId] || {}).name;
+              const accountName = e.email && providerName ? `the ${providerName} account for ${e.email}` :
+                    'that account';
+              const result = await prompt({
+                title: 'Link to existing account?',
+                message: `Another Plogalong user is already linked to ${accountName}. Do you want to add your plogs to the existing user? `,
+                value: '',
+                options: [
+                  {
+                    title: 'Merge accounts',
+                    value: 'merge',
+                    run: async (setMessage) => {
+                      setMessage('Merging accounts...');
+                      await mergeAnonymousAccount(credential, { email: e.email });
+                    }
+                  },
+
+                  {
+                    title: 'Cancel',
+                    run: () => { },
+                  }
+                ]
+              });
+
+              if (result === 'merge')
+                navigation.navigate('Profile');
+            } else {
+              await mergeAnonymousAccount(credential, { email: e.email });
+              navigation.navigate('Profile');
+            }
+          } else if (e.code !== 'auth/user-canceled') {
+            console.log(JSON.stringify(e));
+            setError(e);
+          }
+        }
+        break;
+      }
+     } finally {
+       setAuthenticating(false);
+     }
+  };
+};
 
 /** @typedef {import('../firebase/project/functions/shared').UserData} UserData */
 /** @typedef {import('firebase').User & { data?: UserData }} User */
@@ -50,60 +139,20 @@ const SignupScreen = props => {
   const [error, setError] = useState(null);
   const appleEnabled = useAppleSignInAvailable();
 
-  const link = useCallback(async (fn, ...args) => {
-    try {
-      setError(null);
-      setAuthenticating(true);
-      await fn(...args);
-      navigation.navigate('Profile');
-    } catch (e) {
-      if (e.code === 'auth/credential-already-in-use') {
-        const { credential } = e;
-
-        if (getStats(currentUser, 'total').count) {
-          const result = await prompt({
-            title: 'Link to existing account?',
-            message: 'Another Plogalong user is already linked to that account. Do you want to add your plogs to the existing user? ',
-            value: '',
-            options: [
-              {
-                title: 'Merge accounts',
-                value: 'merge',
-                run: async (setMessage) => {
-                  setMessage('Merging accounts...');
-                  await mergeAnonymousAccount(credential, { email: e.email });
-                }
-              },
-
-              {
-                title: 'Cancel',
-                run: () => { },
-              }
-            ]
-          });
-
-          if (result === 'merge')
-            navigation.navigate('Profile');
-        } else {
-          await mergeAnonymousAccount(credential, { email: e.email });
-          navigation.navigate('Profile');
-        }
-      } else if (e.code !== 'auth/user-canceled') {
-        console.log(e.code);
-        setError(e);
-      }
-      setAuthenticating(false);
-    }
-  }, [navigation]);
+  const [onGoogleLink, onAppleLink, link] = useMemo(() => {
+    const link = makeLinkCallback(navigation, currentUser, prompt, setError, setAuthenticating);
+    return [
+      link.bind(null, linkToGoogle),
+      link.bind(null, linkToApple),
+      link
+    ];
+  }, [navigation, currentUser, prompt]);
 
   const onSubmit = useCallback(() => {
     link(linkToEmail, params.email, params.password);
   }, [enabled && params]);
-  const onDismiss = useCallback(() => {
-    setError(null);
-  }, []);
-  const providers = useMemo(() => indexBy(currentUser.providerData, 'providerId'),
-                            [currentUser]);
+  const onDismiss = useCallback(() => { setError(null); }, []);
+  const providers =  indexBy(currentUser.providerData, 'providerId');
 
   const content = authenticating ?
         <Loading /> :
@@ -166,7 +215,7 @@ const SignupScreen = props => {
               (
                 <Button
                   primary
-                  onPress={_ => link(linkToGoogle)}
+                  onPress={onGoogleLink}
                   title="Google Login"
                 />
               )
@@ -178,7 +227,7 @@ const SignupScreen = props => {
                     title="Disconnect Apple" />
             :
             <Button primary
-                    onPress={linkToApple}
+                    onPress={onAppleLink}
                     title="Apple Login"/>)
           }
         </>
