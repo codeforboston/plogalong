@@ -10,7 +10,8 @@ import { useDispatch, useSelector } from '../redux/hooks';
 
 import * as actions from '../redux/actions';
 import { formatPloggingMinutes } from '../util/string';
-import { getStats, calculateTotalPloggingTime } from '../util/users';
+import { getStats, calculateTotalPloggingTime, processAchievement } from '../util/users';
+import { mapcat } from '../util/iter';
 import Colors from '../constants/Colors';
 import $S from '../styles';
 
@@ -20,7 +21,6 @@ import Banner from '../components/Banner';
 import Loading from '../components/Loading';
 import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
-import { processAchievement } from '../util/users';
 
 const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
 
@@ -75,25 +75,17 @@ export const HistoryScreen = _ => {
     return achievementsByRefID;
   }, [currentUser.data.achievements, plogData]);
 
-  const combinedHistory = React.useMemo(() => {
-    const combinedHistory = [];
-
-    history.forEach(id => {
-      if (achievementsByRefID[id]) {
-        for (const achievement of achievementsByRefID[id]) {
-          combinedHistory.push(achievement);
-        }
-      };
-
-      combinedHistory.push(plogData[id]);
-    });
-    return combinedHistory;
-  }, [history, plogData, achievementsByRefID]);
+  const combinedHistory = React.useMemo(() => (
+    mapcat((id => [
+      ...(achievementsByRefID[id] || []),
+      plogData[id]
+    ]), history)
+  ) , [history, plogData, achievementsByRefID]);
 
   const loadNextPage = React.useCallback(() => {
-    if (currentUser && !loading)
+    if (currentUser)
       dispatch(actions.loadHistory(currentUser.uid, false));
-  }, [currentUser, loading]);
+  }, [currentUser]);
 
   const monthStats = getStats(currentUser, 'month');
   const totalStats = getStats(currentUser, 'total');

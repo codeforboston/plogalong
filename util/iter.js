@@ -13,7 +13,7 @@ const times = (n, fn) => {
 
 /**
  * @template T
- * @template {(item: T, index?: i) => any} Fn
+ * @template {(item: T, index?: number) => any} Fn
  * @param {Fn} fn
  * @param {T[]} xs
  * @returns {ReturnType<Fn>[]}
@@ -24,6 +24,24 @@ function keep(fn, xs) {
   for (const x of xs) {
     const val = fn(x, i++);
     if (val) result.push(val);
+  }
+  return result;
+}
+
+
+/**
+ * @template T
+ * @template {(item: T, index?: number) => any} Fn
+ * @param {Fn} fn
+ * @param {T[]} xs
+ *
+ * @returns {ReturnType<Fn>}
+ */
+function mapcat(fn, xs) {
+  const result = [];
+  let i = 0;
+  for (const x of xs) {
+    result.push(...fn(x, i++));
   }
   return result;
 }
@@ -202,6 +220,7 @@ module.exports = {
   filterNorm,
   indexBy,
   keep,
+  mapcat,
   mapNorm,
   normList,
   times,
