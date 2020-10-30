@@ -62,12 +62,13 @@ async function getRegionForPlog(plog, t) {
 
 /**
  * @param {PlogDataWithId} plogData
- * @param {admin.firestore.DocumentReference<RegionData>} regionDoc
  * @param {admin.firestore.DocumentSnapshot<RegionData>} regionSnap
+ * @param {LocationData} regionLocationData
  * @param {UserStats} userStats
  * @param {admin.firestore.Transaction} [t]
  */
-async function plogCreated(plogData, regionDoc, regionSnap, regionLocationData, userStats, t) {
+async function plogCreated(plogData, regionSnap, regionLocationData, userStats, t) {
+  const regionDoc = regionSnap.ref;
   const geohash = plogData.g.geohash.slice(0, 7);
   /** @type {RegionData} */
   let regionData;
@@ -108,7 +109,7 @@ async function plogCreated(plogData, regionDoc, regionSnap, regionLocationData, 
     if (t)
       t.set(regionDoc, regionData);
     else
-      regionDoc.set(regionData);
+      await regionDoc.set(regionData);
   }
 
   return regionData;

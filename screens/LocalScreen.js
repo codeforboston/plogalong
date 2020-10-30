@@ -26,7 +26,7 @@ const LocalScreen = ({ navigation }) => {
 
   const { currentUser, loading, plogIDs } =
         useSelector(({ log, users }) => {
-          const { plogData, localPlogs } = log;
+          const { localPlogs } = log;
 
           return {
             plogIDs: localPlogs,
@@ -49,7 +49,6 @@ const LocalScreen = ({ navigation }) => {
   const ActivityIcon = Options.activities.get('walking').icon;
   const noPloggers = history.length === 0 && !loading;
   // const recentCount = history.filter(plog => plog.userID !== currentUser.uid).length;
-  const recentCount = history.length;
 
   const header = (
     <Banner>

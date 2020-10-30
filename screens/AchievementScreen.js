@@ -76,7 +76,7 @@ export const AchievementScreen = ({currentUser }) => {
                 <View style={{ height: '100%' }}>
                     <Leaderboard regionID={region.id} style={$S.subheadLink}/>
                 </View>
-            </>        
+            </>
         }
       </View>
     );
@@ -119,10 +119,6 @@ const styles = StyleSheet.create({
 });
 
 
-export default connect(({users}) => {
-    return {
-      currentUser: users.current,
-    };
-  }, dispatch => ({
-    loadHistory: (...args) => dispatch(actions.loadHistory(...args)),
-  }))(AchievementScreen);
+export default connect(({users}) => ({
+  currentUser: users.current,
+}))(AchievementScreen);

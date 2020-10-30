@@ -27,7 +27,7 @@ service cloud.firestore {
     }
 
     match /plogs/{any} {
-    	allow read: if request.auth.uid != null && (resource == null || request.auth.uid == resource.data.UserID || resource.data.Public)
+    	allow read: if request.auth.uid != null && (resource == null || request.auth.uid == resource.data.UserID || resource.data.Public);
       allow delete: if request.auth.uid != null && request.auth.uid == resource.data.UserID;
       allow create: if request.auth.uid == request.resource.data.UserID
                     && request.resource.data.keys().hasOnly([
@@ -46,11 +46,11 @@ service cloud.firestore {
       							(request.auth.uid == resource.data.UserID
                    	&& request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                       "Photos", "Public"
-                   	]))
+                   	]));
     }
 
     match /users/{userId} {
-      allow read: if request.auth.uid == userId
+      allow read: if request.auth.uid == userId;
       allow update, create, write: if userId == request.auth.uid
                                    && changedFields().hasOnly([
                                       "homeBase", "displayName", "shareActivity",
@@ -58,7 +58,7 @@ service cloud.firestore {
                                       "profilePicture", "allowMergeWith"
                                    ])
                                    && checkSize("displayName", 40)
-                                   && checkSize("homeBase", 40)
+                                   && checkSize("homeBase", 40);
     }
 
     match /comments/{any} {

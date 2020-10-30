@@ -204,20 +204,6 @@ export const signupWithEmail = (email, password) => (
     }
 );
 
-export const linkToEmail = (email, password) => (
-    async dispatch => {
-      dispatch(signup('email', { email, password }));
-        try {
-            const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-            const creds = await auth.currentUser.linkWithCredential(credential);
-            dispatch(setCurrentUser(creds.user.toJSON()));
-        } catch(err) {
-          dispatch(signupError(err));
-        }
-    }
-);
-
-
 export const loginWithEmail = _action(auth.signInWithEmailAndPassword.bind(auth), {
   pre: signup('email'),
   err: loginError

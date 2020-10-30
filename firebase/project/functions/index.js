@@ -97,7 +97,7 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
       // regions.plogCreated uses userStats to potentially update the region
       // leaderboard
       const regionData = regionInfo &&
-            await regions.plogCreated(plogData, regionInfo.doc, regionInfo.snap, regionInfo.locationInfo, userStats, t);
+            await regions.plogCreated(plogData, regionInfo.snap, regionInfo.locationInfo, userStats, t);
 
       // achievements may depend on locally aggregated data (stats, leaderboard)
       const {achievements, completed, needInit} = updateAchievements(userData.achievements, plogData, regionData);
