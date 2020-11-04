@@ -55,6 +55,16 @@ export function _refreshUser(user) {
 }
 
 /**
+ * Call to run post-registration hook code
+ *
+ * @param {firebase.User|firebase.auth.UserCredential} user
+ */
+function onUserLinked(user) {
+  _refreshUser(user);
+  functions.userLinked();
+}
+
+/**
  * @template P
  * @typedef { P extends PromiseLike<infer U> ? U : P } Unwrapped
  */
@@ -178,7 +188,7 @@ const signInWithCredential = auth.signInWithCredential.bind(auth);
 export const loginWithFacebook = withFBCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const linkToFacebook = withFBCredential(
-  cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
+  cred => auth.currentUser.linkWithCredential(cred).then(onUserLinked));
 
 export const unlinkFacebook = () =>
   auth.currentUser.unlink('facebook.com').then(_refreshUser);
@@ -186,34 +196,52 @@ export const unlinkFacebook = () =>
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const loginWithGoogle = withGoogleCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
-export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
+export const linkToGoogle = withGoogleCredential(cred => auth.currentUser.linkWithCredential(cred).then(onUserLinked));
 
 export const unlinkGoogle = () => auth.currentUser.unlink('google.com').then(_refreshUser);
 
 /** @type {() => Promise<firebase.auth.UserCredential>} */
 export const loginWithApple = withAppleCredential(signInWithCredential);
 /** @type {() => Promise<firebase.auth.UserCredential>} */
-export const linkToApple = withAppleCredential(cred => auth.currentUser.linkWithCredential(cred).then(_refreshUser));
+export const linkToApple = withAppleCredential(cred => auth.currentUser.linkWithCredential(cred).then(onUserLinked));
 export const unlinkApple = () => auth.currentUser.unlink('apple.com').then(_refreshUser);
 
 
-/** @type {typeof auth.signInWithEmailAndPassword} */
-export const loginWithEmail = auth.signInWithEmailAndPassword.bind(auth);
-
 export const linkToEmail = async (email, password) => {
   const credential = firebase.auth.EmailAuthProvider.credential(email, password);
-  const userCred = await auth.currentUser.linkWithCredential(credential);
-  
-  _refreshUser(userCred);
+  try {
+    const userCred = await auth.currentUser.linkWithCredential(credential);
+    onUserLinked(userCred);
 
-  userCred.user.sendEmailVerification().catch(console.warn);
+    userCred.user.sendEmailVerification().catch(console.warn);
 
-  return userCred.user;
+    return userCred.user;
+  } catch (e) {
+    if (e.code) {
+      if (!e.email)
+        e.email = email;
+      if (!e.credential)
+        e.credential = credential;
+    }
+
+    throw e;
+  }
 };
 
 export const loginAnonymously = auth.signInAnonymously.bind(auth);
 
 export const logOut = () => auth.signOut();
+
+export const Providers = {
+  'google.com': {
+    link: linkToGoogle,
+    name: 'Google'
+  },
+  'apple.com': {
+    link: linkToApple,
+    name: 'Apple'
+  }
+};
 
 /**
  * @param {firebase.firestore.DocumentReference} ref

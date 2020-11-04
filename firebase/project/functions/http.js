@@ -92,13 +92,15 @@ async function userLinked(_, context) {
     if (!user.providerData.length || !userData.exists())
       return null;
 
+    const providers = user.providerData.map(pd => pd.providerId).join(',');
+    const changes = { providers };
     const data = userData.data();
 
-    if (data.linked)
-      return [];
+    if (!data.displayName)
+      data.displayName = user.displayName;
 
-    const regionIDs = await regions.updateLeaderboardsForUser(user.uid, data.stats, t);
-    t.update(dataDoc, { linked: true });
+    // const regionIDs = await regions.updateLeaderboardsForUser(user.uid, data.stats, t);
+    t.update(dataDoc, changes);
     return regionIDs;
   });
 
