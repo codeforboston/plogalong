@@ -600,11 +600,13 @@ function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
  * @param {UserPlogStatsForRegion} plogStats
  * @param {boolean} [shouldUpdateLeaderboard]
  *
- * @returns {Partial<RegionData>}
+ * @returns {Pick<RegionData, 'recentPlogs' | 'stats' | 'leaderboard'>}
  */
 function addPlogToRegion(regionData, plogData, plogStats, shouldUpdateLeaderboard=true) {
   const leaderboard = (shouldUpdateLeaderboard &&
-                       updateLeaderboard(regionData.leaderboard, plogData.UserID, plogStats)) || regionData.leaderboard;
+                       updateLeaderboard(regionData.leaderboard, plogData.UserID, plogStats))
+        || regionData.leaderboard
+        || null;
   return {
     recentPlogs: addPlogToRecents(regionData.recentPlogs, plogData),
     stats: updateStats(regionData.stats, plogData),
