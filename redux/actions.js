@@ -109,10 +109,15 @@ export const reportPlog = plogID => (
     }
   });
 
-export const loadHistory = (userID, replace=true) => ({
-  type: types.LOAD_HISTORY,
-  payload: { userID, replace }
-});
+export const loadHistory = (userID, replace=true) => (
+  (dispatch, getState) => {
+    const { log } = getState();
+    if (!log.historyLoading)
+      dispatch({
+        type: types.LOAD_HISTORY,
+        payload: { userID, replace }
+      });
+  });
 
 export const loadLocalHistory = () => ({
   type: types.LOAD_LOCAL_HISTORY,
