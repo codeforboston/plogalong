@@ -159,7 +159,7 @@ async function loadUserProfile(data, context) {
 
 /**
  * @typedef {object} MergeAccountRequest
- * @property {string} userID uid of the anonymous user to merge into this account
+ * @property {string} userID
  * @property {string} merge
  * @property {boolean} [skipPlogMerge]
  */
@@ -204,7 +204,7 @@ async function mergeWithAccount(data, context) {
   }
 
   if (!skipPlogMerge)
-    await users.mergeUsers(data.userID, context.auth.uid);
+    await users.mergeUsers(context.auth.uid, data.userID);
 
   await app.auth().deleteUser(data.userID);
   await Users.doc(data.userID).delete();
@@ -290,7 +290,7 @@ async function getRegionInfo(data, context) {
 }
 
 /**
- * @param {{ regionID: string }} data
+ * @param {{ regionID: string, limit?: number }} data
  * @param {functions.https.CallableContext} context
  */
 async function getRegionLeaders(data, context) {
@@ -305,26 +305,22 @@ async function getRegionLeaders(data, context) {
   if (!region.exists)
     throw new HttpsError('not-found', 'Invalid region id');
 
-  /** @type {import('./shared').RegionData} */
-  const { leaderboard: { ids = [], data: leaderData = {} } = { }, county } = region.data();
+  const { county } = region.data();
 
   if (!county)
     throw new HttpsError('not-found', 'Invalid region id');
 
-  const users = await $u.whereIn(Users, ids).then(
-    users => users.reduce((m, u) => {
-      m[u.id] = u;
-      return m;
-    }, {}));
+  const max = Math.min(data.limit || 20, 30);
+  const users = await regions.getLeaders(data.regionID, max);
 
-  const leaders = ids.map(id => {
-    const user = users[id];
-    const { displayName, profilePicture } = user.data();
+  const leaders = users.map(user => {
+    const { displayName, profilePicture, id, stats } = user;
+    const { count: regionCount, milliseconds: regionMilliseconds } = stats.total.region[data.regionID];
 
     return {
-      id: user.id,
-      regionCount: leaderData[user.id].count,
-      regionMilliseconds: leaderData[user.id].milliseconds,
+      id,
+      regionCount,
+      regionMilliseconds,
       profilePicture,
       displayName,
     };
