@@ -64,7 +64,7 @@ async function initAchievements(userID, types) {
 
 // TODO Ignore duplicate events
 exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
-  .onCreate(async (snap, context) => {
+  .onCreate(async (snap, _context) => {
     /** @type {import('./shared').PlogData} */
     const plogData = snap.data();
     const {UserID} = plogData;
@@ -85,6 +85,7 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
 
       if (plogData.Public && plogData.coordinates) {
         regionInfo = await regions.getRegionForPlog(snap, t);
+        console.log('Found region for plog:', regionInfo.locationInfo.id);
       }
 
       plogData.id = snap.id;
@@ -137,10 +138,9 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
     }
   });
 
-exports.plogDeleted = functions.firestore.document('/plogs/{plogID}')
-  .onDelete(async (snap, context) => {
-    await $u.deletePlogFromRegions(snap.id);
-  });
+// exports.plogDeleted = functions.firestore.document('/plogs/{plogID}')
+//   .onDelete(async (snap, context) => {
+//   });
 
 exports.updateUserPlogs = functions.firestore.document('/users/{userId}')
     .onUpdate(async (snap, context) => {
