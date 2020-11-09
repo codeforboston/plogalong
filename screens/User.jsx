@@ -36,7 +36,7 @@ const UserProfile = ({user}) => {
   return (
     <View style={styles.container}>
       <PopupHeader
-        title={user.displayName}
+        title={user.displayName || 'Mysterious Plogger'}
         details={
           `Started plogging ${moment(user.created).fromNow()}\nLast seen ${moment(user.last).fromNow()}\nPlogged ${pluralize(user.plogCount, 'time')}`
         }

@@ -25,7 +25,7 @@ import * as functions from './functions';
  */
 const initialUserData = (user, locationInfo) => ({
   homeBase: locationInfo ? `${locationInfo.city}, ${locationInfo.region}` : '',
-  displayName: user && user.displayName || 'Mysterious Plogger',
+  displayName: user && user.displayName || '',
   shareActivity: false,
   emailUpdatesEnabled: false,
   privateProfile: false,

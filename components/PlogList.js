@@ -87,7 +87,7 @@ const MiniPlog = ({plogID}) => {
   }
 
   const {
-    timeSpent, userID, userDisplayName, when, groupType
+    timeSpent, userDisplayName, when, groupType
   } = plog;
   const ratio = PixelRatio.getFontScale();
   const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
@@ -97,8 +97,8 @@ const MiniPlog = ({plogID}) => {
         <UserPicture url={plog.userProfilePicture} />
         <View style={styles.plogInfo}>
           <Text style={styles.actionText} adjustsFontSizeToFit>
-            <Text style={{ fontWeight: '500'}}>
-              {((userDisplayName||'').trim() || 'Anonymous') + ' '}
+            <Text style={[styles.plogUsername, !userDisplayName && styles.anonymous]}>
+              {((userDisplayName||'').trim() || 'Mysterious Plogger') + ' '}
             </Text>
             plogged {timeSpent ? `for ${formatDuration(timeSpent, false)}` : formatDate(new Date(when))}.
           </Text>
@@ -187,8 +187,9 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
           <Text style={styles.actionText} adjustsFontSizeToFit>
             {me ?
              'You' :
-             <Text style={{ fontWeight: '500'}} onPress={showUser}>
-               {(userDisplayName||'').trim() || 'Anonymous'}
+             <Text style={[styles.plogUsername, !userDisplayName && styles.anonymous]}
+                   onPress={showUser}>
+               {(userDisplayName||'').trim() || 'Mysterious Plogger'}
              </Text>
             } plogged {timeSpent ? `for ${formatDuration(timeSpent, false)}` : formatDate(new Date(when))}.
           </Text>
@@ -392,6 +393,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 10,
     paddingBottom: 0,
+  },
+  plogUsername: {
+    fontWeight: '500'
+  },
+  anonymous: {
+    fontStyle: 'italic',
   },
   plogInfo: {
     paddingTop: 5,
