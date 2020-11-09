@@ -27,7 +27,7 @@ const initialState = {
   history: [],
   /** @type {string[]} */
   localPlogs: [],
-  /** @type {import('../../firebase/regions').Region} */
+  /** @type {import('../../firebase/regions').RegionData} */
   region: null,
   historyLoading: false,
   localPlogsLoading: false,
