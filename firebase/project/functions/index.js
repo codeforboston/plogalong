@@ -196,21 +196,30 @@ exports.onImageUpload = functions.storage.bucket('plogalong-a723a.appspot.com').
         if (plogPath) {
           const plog = await Plogs.doc(plogPath[2]).get();
           if (!plog.exists || plog.data().UserID !== plogPath[1]) {
+            console.log('Deleting file', object.name, 'for nonexistent plog ID:', plogPath[2]);
             await file.delete();
             return;
           }
         }
       }
 
-      const { safeSearchAnnotation } = await $u.detectLabels(object.name, file);
-      const fileMeta = { scanned: '1' };
+      console.log('Scanning user-uploaded file', object.name);
+      const { safeSearchAnnotation, labelAnnotations } = await $u.detectLabels(file);
+      const fileMeta = {
+        scanned: '1',
+        labels: JSON.stringify(
+          labelAnnotations.map(({ mid, description }) => ({ mid, description }))
+        )
+      };
 
       const nsfwTags = $u.nsfwTags(safeSearchAnnotation);
       if (nsfwTags.length) {
         fileMeta.nsfwTags = nsfwTags.join(',');
         fileMeta.markedUnsafe = '1';
       }
-      file.setMetadata(fileMeta).catch(err => {
+
+      console.log('Setting metadata:', JSON.stringify(fileMeta));
+      file.setMetadata({ metadata: fileMeta }).catch(err => {
         console.error('Unable to set file metadata on', object.name, err);
       });
     } catch (err) {

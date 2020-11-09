@@ -33,6 +33,5 @@ export async function uploadImage(uri, path, options={}) {
     upload.on(TaskEvent.STATE_CHANGED, options.progress);
 
   await upload;
-
   return await ref.getDownloadURL();
 }
