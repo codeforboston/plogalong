@@ -21,12 +21,14 @@ const Storage = app.storage();
  * @template {firebase.firestore.DocumentData} T
  * @param {admin.firestore.CollectionReference<T>} collection
  * @param {Parameters<typeof Plogs.where>} where
- * @param {(batch: admin.firestore.WriteBatch, doc: admin.firestore.QueryDocumentSnapshot<T>) => null} fn
+ * @param {(batch: admin.firestore.WriteBatch, doc: admin.firestore.QueryDocumentSnapshot<T>) => Promise<any>} fn
  * @param {number} [limit]
  */
 async function withBatch(collection, where, fn, limit=100) {
   let doc;
 
+  // XXX Would it be okay to run multiple batches at the same time instead of
+  // waiting for each batch to commit?
   while (true) {
     let query = collection;
     if (where) query = query.where(...where);
@@ -95,15 +97,25 @@ const ArrayContainsMax = 10;
  * @template {firebase.firestore.DocumentData} T
  * @param {admin.firestore.CollectionReference<T>} collection
  * @param {any[]} vals
- * @param {string | admin.firestore.FieldPath} field
  *
- * @returns {Promise<firebase.firestore.QueryDocumentSnapshot<T>[]}
+ * @returns {Promise<firebase.firestore.QueryDocumentSnapshot<T>[]>}
  */
-async function whereIn(collection, vals, field=admin.firestore.FieldPath.documentId()) {
-  return await Promise.all(
+async function whereIn(collection, vals, preservePosition=false) {
+  const field = admin.firestore.FieldPath.documentId();
+  const results =  await Promise.all(
     partition(vals, ArrayContainsMax)
       .map(vs => collection.where(field, 'in', vs).get().then(res => res.docs))
   ).then(resLists => [].concat(...resLists));
+
+  if (preservePosition) {
+    const indexed = results.reduce((m, doc) => {
+      m[doc.id] = doc;
+      return m;
+    }, {});
+    return vals.map(id => indexed[id]);
+  }
+
+  return results;
 }
 
 /**
@@ -253,12 +265,11 @@ function nsfwTags(safeSearch, nsfwThreshold=Likelihood.LIKELY, tags=NSFWTags) {
 /** @typedef {import('@google-cloud/storage').File} File */
 
 /**
- * @param {string} objectName
  * @param {File} file
  *
  * @returns {Promise<AnnotateImageResponse]>}
  */
-async function detectLabels(objectName, file) {
+async function detectLabels(file) {
   const client = new vision.ImageAnnotatorClient();
   const url = await file.getSignedUrl({ action: 'read', expires: Date.now()+60000 });
   const [result] = await client.annotateImage({ image: { source: { imageUri: url }},
