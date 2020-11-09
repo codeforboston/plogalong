@@ -40,6 +40,7 @@
 /** @typedef {PlogData & { id: string, LocalDate: Date }} ExtendedPlogData */
 
 /** @typedef {import('../../regions.js').RegionData} RegionData */
+/** @typedef {RegionData["recentPlogs"]} RecentPlogs */
 
 /**
   * @typedef {{ completed: Timestamp, updated: Timestamp, refID?: string } & { [k in PropertyKey ]: any}} AchievementData
@@ -580,7 +581,7 @@ function calculateBonusMinutes(achievements) {
 function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
   if (!recentPlogs)
     recentPlogs = { ids: [], data: {} };
-  if (recentPlogs.ids.push(plogData.id) > maxLength) {
+  if (recentPlogs.ids.unshift(plogData.id) > maxLength) {
     for (const plogID of recentPlogs.ids.slice(maxLength))
       delete recentPlogs.data[plogID];
 

@@ -6,7 +6,7 @@ import { keep } from '../util/iter';
 import { updateLocalStorage } from '../util/native';
 
 import { LOAD_HISTORY, LOAD_LOCAL_HISTORY, LOCATION_CHANGED, SET_CURRENT_USER, LOAD_PLOGS, LOCAL_HISTORY_LOADING } from './actionTypes';
-import { gotPlogData, localPlogIDs, plogsUpdated, loadLocalHistory } from './actions';
+import { gotPlogData, localPlogIDs, plogsUpdated } from './actions';
 import * as actions from './actions';
 import { plogDocToState, queryUserPlogs } from '../firebase/plogs';
 import { getRegion } from '../firebase/regions';
@@ -120,15 +120,18 @@ export default store => {
       store.dispatch(actions.setRegion(regionInfo));
 
       getRegion(id).onSnapshot(snapshot => {
-        const regionData = snapshot.data() || {};
-        const plogIds = keep(plog => plog && plog.id, regionData.recentPlogs || []);
+        const regionData = snapshot.data();
+        const { recentPlogs: {
+          ids: plogIds = [],
+          geohashes = []
+        } = {} } = regionData || {};
 
         updateLocalStorage(REGION_CACHE_KEY, cached => {
-          cached.geohashes = regionData.geohashes;
+          cached.geohashes = geohashes;
           return cached;
         });
 
-        store.dispatch(localPlogIDs(plogIds.reverse()));
+        store.dispatch(localPlogIDs(plogIds));
         ///
       }, _ => {
       });
