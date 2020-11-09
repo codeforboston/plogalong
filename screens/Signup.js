@@ -21,7 +21,6 @@ import { useParams } from '../util/react';
 import { useAppleSignInAvailable } from '../util/native';
 import { usePrompt } from '../Prompt';
 
-import Colors from '../constants/Colors';
 import $S from '../styles';
 
 import Button from '../components/Button';
@@ -32,6 +31,8 @@ import PasswordInput from '../components/PasswordInput';
 import { useSelector } from '../redux/hooks';
 import { auth } from '../firebase/init';
 
+
+const ProviderScore = x => (Providers[x] ? 0 : x === 'password' ? 1 : 2);
 
 const makeLinkCallback = (navigation, currentUser, prompt, setError, setAuthenticating) => {
   return async (fn, ...args) => {
@@ -45,15 +46,22 @@ const makeLinkCallback = (navigation, currentUser, prompt, setError, setAuthenti
           if (user)
             navigation.navigate('Profile');
         } catch (e) {
+          let emailMerge = false;
+
           if (e.code === 'auth/email-already-in-use') {
             if (e.email) {
-              const [provider] = await auth.fetchSignInMethodsForEmail(e.email);
+              const [provider] = await auth.fetchSignInMethodsForEmail(e.email)
+                    .then(providers => providers.sort((a, b) => (ProviderScore(a) - ProviderScore(b))));
+
               const providerConfig = Providers[provider];
+
+              // If there's a provider config (Google, Apple), re-auth with that
 
               if (providerConfig && providerConfig.link) {
                 const result = await prompt({
                   title: `Email already in use`,
-                  message: `${e.email} is already registered to another user. Would you like to use ${providerConfig.name} to sign in instead?`,
+                  message: (`${e.email} is already registered to another user.`
+                            ` Would you like to use ${providerConfig.name} to sign in instead?`),
                   options: [
                     {
                       title: `Login with ${providerConfig.name}`,
@@ -67,18 +75,33 @@ const makeLinkCallback = (navigation, currentUser, prompt, setError, setAuthenti
                 if (result === 'continue') {
                   fn = providerConfig.link;
                   continue;
+                } else {
+                  // Don't show an error, since we've already asked the user about it
+                  break;
                 }
+              } else if (provider === 'password') {
+                // If the sign-in method is 'password' (email/password), skip
+                // ahead to the merge prompt below
+                emailMerge = true;
               }
-
-              setError(e);
             }
-          } else if (e.code === 'auth/credential-already-in-use') {
+
+            if (!emailMerge) {
+              // Unknown provider registered this email address
+              setError(e);
+              break;
+            }
+          }
+
+          if (e.code === 'auth/credential-already-in-use' || emailMerge) {
             const { credential } = e;
 
-            if (getStats(currentUser, 'total').count) {
-              const providerName = (Providers[credential.providerId] || {}).name;
-              const accountName = e.email && providerName ? `the ${providerName} account for ${e.email}` :
-                    'that account';
+            if (getStats(currentUser, 'total').count || true) {
+              const providerName = !emailMerge && (Providers[credential.providerId] || {}).name;
+              const accountName = emailMerge ? `${e.email}`
+                    : e.email && providerName ? `the ${e.email} ${providerName} account`
+                    : 'that account';
+
               const result = await prompt({
                 title: 'Link to existing account?',
                 message: `Another Plogalong user is already linked to ${accountName}. Do you want to add your plogs to the existing user? `,
@@ -130,11 +153,8 @@ const SignupScreen = props => {
   const {params, setter} = useParams({
     email: '',
     password: '',
-    confirmPassword: '',
   });
-  const enabled = useMemo(() => (
-    params && params.email && params.password && params.password === params.confirmPassword
-  ), [params]);
+  const enabled = params && params.email && params.password;
   const [authenticating, setAuthenticating] = useState(null);
   const [error, setError] = useState(null);
   const appleEnabled = useAppleSignInAvailable();
@@ -149,7 +169,7 @@ const SignupScreen = props => {
   }, [navigation, currentUser, prompt]);
 
   const onSubmit = useCallback(() => {
-    link(linkToEmail, params.email, params.password);
+    link(linkToEmail, params.email, params.password, true);
   }, [enabled && params]);
   const onDismiss = useCallback(() => { setError(null); }, []);
   const providers =  indexBy(currentUser.providerData, 'providerId');
@@ -182,16 +202,6 @@ const SignupScreen = props => {
                                  value={params.password}
                   />
                 </View>
-                {!!params.password &&
-                 <View style={$S.inputGroup}>
-                   <Text style={$S.inputLabel}>Retype Pasword</Text>
-                   <PasswordInput autoCompleteType="password"
-                                  onChangeText={setter('confirmPassword')}
-                                  value={params.confirmPassword}
-                                  style={params.password !== params.confirmPassword &&
-                                         { borderColor: Colors.errorBackground }}
-                   />
-                 </View>}
                 <Button title="Register"
                         primary
                         onPress={onSubmit}
