@@ -1,11 +1,11 @@
 const app = require('./app');
 const admin = require('firebase-admin');
+const uuid = require('uuid');
 
-const { mergeAchievements, mergeStats, updateLeaderboard } = require('./shared');
-const { updatePlogsWhere, withBatch, withDocs, whereIn } = require('./util');
+const { mergeAchievements, mergeStats, updateLeaderboard, removeFromLeaderboard, updateAchievements, updateStats, tallyBonusMinutes } = require('./shared');
+const { withBatch, withDocs, whereIn } = require('./util');
 
 const { Plogs, Users, Regions } = require('./collections');
-const { region } = require('firebase-functions');
 
 /** @typedef {import('@google-cloud/storage').File} File */
 
@@ -37,12 +37,18 @@ async function migrateUserPlogs(fromUserID, toUserID, updates={}) {
         const destFile = bucket.file(moveToPref + subpath);
         const [plogID] = subpath.split('/');
 
+        // https://googleapis.dev/nodejs/storage/latest/File.html#move
         console.log('renaming', file.name, '->', destFile.name);
-        await file.move(destFile);
+        await file.copy(destFile);
+        const token = uuid.v4();
+        await destFile.setMetadata({ firebaseStorageDownloadTokens: token });
+        await file.delete();
+
+        const publicURL = `https://firebasestorage.googleapis.com/v0/b/${destFile.bucket.name}/o/${encodeURIComponent(destFile.name)}?alt=media&token=${token}`;
 
         if (!moved[plogID])
           moved[plogID] = [];
-        moved[plogID].push(destFile);
+        moved[plogID].push(publicURL);
       } catch (er) {
         console.error(`Couldn't move ${file.name}:`, er);
         return;
@@ -50,50 +56,60 @@ async function migrateUserPlogs(fromUserID, toUserID, updates={}) {
     }));
   }
 
+
   await withBatch(Plogs, ['UserID', '==', fromUserID], async (batch, plogDoc) => {
-    batch.update(plogDoc, {
-      Plogs: moved[plogDoc.id] ? await Promise.all(moved[plogDoc.id].map(file => file.getSignedUrl())) : [],
+    batch.update(plogDoc.ref, {
+      Photos: moved[plogDoc.id] || [],
       ...updates
     });
   });
 }
 
 /**
- * Merge a user's plogs into
+ * Merge user accounts by moving the plogs from `fromUserID` to `intoUserID`, including any accompanying photos. Additionally, merge achievements and stats.
  */
-async function mergeUsers(fromUserID, intoUserID) {
+async function mergeUsers(intoUserID, fromUserID) {
+  const promises = [];
+
   const intoUserDoc = Users.doc(intoUserID);
-  const { displayName, profilePicture, stats, achievements, likedPlogs } = await intoUserDoc.get().then(doc => doc.data());
-  const updates = { 'UserID': intoUserID, };
+  const [intoUserData, fromUserData] = await whereIn(Users, [intoUserID, fromUserID], true).then(
+    snaps => snaps.map(snap => snap.data())
+  );
+  const { displayName, profilePicture, stats, achievements, likedPlogs } = intoUserData;
+  const updates = { 'UserID': intoUserID };
 
   if (displayName)
     updates['UserDisplayName'] = displayName;
   if (profilePicture)
     updates['UserProfilePicture'] = profilePicture;
 
-  await migrateUserPlogs(fromUserID, intoUserID);
+  promises.push(migrateUserPlogs(fromUserID, intoUserID, updates));
 
-  const fromUser = await Users.doc(fromUserID).get().then(u => u.data());
-  const updatedStats = mergeStats(fromUser.stats, stats);
-  console.log('updated user stats', updatedStats);
-  await intoUserDoc.update({
+  const updatedStats = mergeStats(fromUserData.stats, stats);
+  const updatedAchievements = mergeAchievements(fromUserData.achievements, achievements);
+  updatedStats.total.bonusMinutes = tallyBonusMinutes(updatedAchievements);
+
+  promises.push(intoUserDoc.update({
     stats: updatedStats,
-    achievements: mergeAchievements(fromUser.achievements, achievements),
-    likedPlogs: Object.assign(fromUser.likedPlogs || {}, likedPlogs)
-  });
-
-  const regionStats = fromUser.stats && fromUser.stats.total && fromUser.stats.total.region;
-  if (!regionStats)
-    return;
-
-  const regionIds = Object.keys(regionStats);
-  await Promise.all((await whereIn(Regions, regionIds)).map(async doc => {
-    const leaderboard = updateLeaderboard(doc.data().leaderboard, intoUserID, regionStats[doc.id]);
-    if (leaderboard) {
-      console.log('Updating leaderboard for region', doc.id, leaderboard);
-      return await doc.update({ leaderboard });
-    }
+    achievements: updatedAchievements,
+    likedPlogs: Object.assign(fromUserData.likedPlogs || {}, likedPlogs)
   }));
+
+  const regionStats = fromUserData.stats && fromUserData.stats.total && fromUserData.stats.total.region;
+  if (regionStats) {
+    // Update the leaderboard for regions where fromUser has plogged
+    const regionIds = Object.keys(regionStats);
+    promises.push(whereIn(Regions, regionIds).then(regions => regions.map(async doc => {
+      let leaderboard = updateLeaderboard(doc.data().leaderboard, intoUserID, regionStats[doc.id]);
+
+      if (!leaderboard) return;
+
+      leaderboard = removeFromLeaderboard(leaderboard, fromUserID);
+      await doc.ref.update({ leaderboard });
+    })));
+  }
+
+  await Promise.all(promises);
 }
 
 async function deleteUserPlogs(userID) {

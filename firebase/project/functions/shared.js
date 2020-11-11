@@ -434,6 +434,7 @@ const timeUnits = [
  * @property {boolean} emailUpdatesEnabled
  * @property {boolean} privateProfile
  * @property {string} homeBase
+ * @property {string} [providers]
  */
 
 /**
@@ -672,6 +673,20 @@ function updateLeaderboard(leaders, userID, stats, n=20) {
   return leaders;
 }
 
+/**
+ * @param {RegionData["leaderboard"]} leaders
+ * @param {string} userID
+ *
+ * @returns {RegionData["leaderboard"]} copy of the leaderboard with userID removed
+ */
+function removeFromLeaderboard(leaders, userID) {
+  leaders = Object.assign({ ids: [], data: {} }, leaders);
+
+  leaders.ids = leaders.ids.filter(id => id !== userID);
+  delete leaders.data[userID];
+  return leaders;
+}
+
 module.exports = {
   AchievementHandlers,
   timeUnits,
@@ -686,5 +701,7 @@ module.exports = {
 
   addPlogToRegion,
   updateLeaderboard,
+  removeFromLeaderboard,
+
   tallyBonusMinutes,
 };

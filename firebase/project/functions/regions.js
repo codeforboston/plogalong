@@ -26,6 +26,7 @@ async function deletePlogFromRegions(plogID) {
 }
 
 
+/** @typedef {Unwrapped<ReturnType<typeof $u.locationInfoForRegion>>} LocationInfo */
 /**
  * @param {admin.firestore.DocumentSnapshot<PlogData>} plog
  * @param {admin.firestore.Transaction} [t]
@@ -37,7 +38,7 @@ async function getRegionForPlog(plog, t) {
   let regionDoc;
   /** @type {Unwrapped<ReturnType<typeof Regions.get>>} */
   let regionSnap;
-  /** @type {Unwrapped<ReturnType<typeof $u.locationInfoForRegion>>} */
+  /** @type {LocationInfo} */
   let regionLocationData;
 
   {
