@@ -40,9 +40,9 @@ const LocalScreen = ({ navigation }) => {
     dispatch(actions.loadLocalHistory());
   }, [currentUser && currentUser.uid]);
 
-  const goToPlogScreen = React.useCallback(() => {
-    navigation.navigate('Plog');
-  }, [navigation]);
+    const goToPlogScreen = React.useCallback(() => {
+      navigation.navigate('Plog');
+    }, [navigation]);
 
   const [history, , loadNextPage] = usePaginatedPlogs(loading ? [] : plogIDs);
 
@@ -50,16 +50,12 @@ const LocalScreen = ({ navigation }) => {
   const noPloggers = history.length === 0 && !loading;
   // const recentCount = history.filter(plog => plog.userID !== currentUser.uid).length;
 
-  const header = (
-    <Banner>
-      The best time to plog is yesterday.{'\n'}The second best time is today!
-    </Banner>
-  );
-
   if (noPloggers) {
     return (
       <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
-        {header}
+        <Banner>
+          No nearby ploggers.{'\n'}Be the first to plog in your neighborhood!
+        </Banner>
         <View style={$S.mapContainer}>
           {location ?
             <MapView
@@ -103,7 +99,9 @@ const LocalScreen = ({ navigation }) => {
           currentUser={currentUser}
           likePlog={likePlog}
           loadNextPage={loadNextPage}
-          header={header}
+          header={<Banner>
+            The best time to plog is yesterday.{'\n'}The second best time is today!
+          </Banner>}
           footer={
             loading ?
               <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 10 }}>

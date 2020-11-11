@@ -2,42 +2,81 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import {
   StyleSheet,
-  Text,
   View,
+  ScrollView,
 } from 'react-native';
 import { shallowEqual } from 'react-redux';
-import { useDispatch, useSelector } from '../redux/hooks';
+import { useDispatch, useLocation, useSelector } from '../redux/hooks';
+import { useNavigation } from '@react-navigation/native';
 
 import * as actions from '../redux/actions';
 import { formatPloggingMinutes } from '../util/string';
 import { getStats, calculateTotalPloggingTime, processAchievement } from '../util/users';
 import { mapcat } from '../util/iter';
 import Colors from '../constants/Colors';
+import Options from '../constants/Options';
 import $S from '../styles';
 
-import AchievementBadge from '../components/AchievementBadge';
 import AchievementSwipe from '../components/AchievementSwipe';
 import Banner from '../components/Banner';
 import Loading from '../components/Loading';
-import { NavLink } from '../components/Link';
 import PlogList from '../components/PlogList';
+import MapView, { Marker } from 'react-native-maps';
+import Button from '../components/Button';
 
-const L = ({to, params, ...props}) => <NavLink style={styles.link} route={to} params={params} {...props} />;
 
-const renderEmpty = () => (
-  <View style={[$S.screenContainer, styles.empty]}>
-    <Text style={[$S.headline, styles.headline]}>
-      You haven't plogged anything yet!
-    </Text>
-    <AchievementBadge achievement="firstPlog"
-                      style={{ backgroundColor: '#eee' }}
-                      showDescription={true} />
-    <Text style={[$S.subheader, styles.subheader]}>
-      <L to="More" params={{ screen: 'About', initial: false }}>Check the About Screen</L> for some tips. Once you've plogged something,
-      record it on the <L to="Plog">Plogging Screen</L> to get your first achievement!
-    </Text>
-  </View>
-);
+const BlankSlate = () => {
+  const ActivityIcon = Options.activities.get('walking').icon;
+  const navigation = useNavigation();
+  const location = useLocation();
+
+  const goToPlogScreen = React.useCallback(() => {
+    navigation.navigate('Plog');
+  }, [navigation]);
+
+  return (
+    <ScrollView style={$S.screenContainer} contentContainerStyle={$S.scrollContentContainer}>
+      <Banner>
+        You haven't plogged yet.{'\n'}Plog to earn your first badge!
+      </Banner>
+      <View style={$S.mapContainer}>
+        {location ?
+          <MapView
+            style={[$S.map]}
+            camera={location && {
+              center: location,
+              pitch: 0,
+              heading: 0,
+              altitude: 10000,
+              zoom: 14
+            }}
+              showsMyLocationButton={false}
+              showsTraffic={false}
+              showsUserLocation={false}
+              zoomControlEnabled={false}
+            >
+              <Marker coordinate={location}
+                tracksViewChanges={true}
+              >
+                <ActivityIcon
+                  width={40}
+                  height={40}
+                  fill={Colors.activeColor}
+                />
+              </Marker>
+            </MapView> :
+          <View style={$S.map} />
+      }
+      </View>
+      <View style={$S.footerButtons}>
+        <Button title="Plog"
+          large primary
+          onPress={goToPlogScreen}
+        />
+      </View>
+    </ScrollView>
+  )
+};
 
 export const HistoryScreen = _ => {
   const dispatch = useDispatch();
@@ -96,7 +135,7 @@ export const HistoryScreen = _ => {
   }, [currentUser && currentUser.uid]);
 
   if (!loading && !history.length)
-    return renderEmpty();
+    return <BlankSlate />;
 
   return (
     <View style={$S.screenContainer}>
@@ -109,7 +148,7 @@ export const HistoryScreen = _ => {
                       {
                         totalStats.count ?
                           monthStats.count ?
-                          `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month. ` :
+                          `You plogged ${monthStats.count} time${monthStats.count === 1 ? '' : 's'} this month.` :
                           "You haven't plogged yet this month." :
                         "Plog something to earn your first badge!"
                       }
