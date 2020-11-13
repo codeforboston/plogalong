@@ -9,7 +9,7 @@ import { A, OpenURLButton } from '../components/Link';
 import $S from '../styles';
 
 const firebasePrivacyURL = "https://firebase.google.com/support/privacy";
-const plogalongPrivacyURL = ""; // TODO: Iubenda
+const plogalongPrivacyURL = "https://app.termly.io/document/privacy-policy/34e2a625-a793-44ce-b92c-a5872d420597";
 const mainMessage =
   "You must share your location with the app to log your plogs, but you can choose to keep your plogs private. Your plogging data is stored securely in ";
 const privacyDetails =
@@ -32,7 +32,7 @@ export default class PrivacyScreen extends React.Component {
     return (
       <ScrollView style={$S.container}>
         <View style={$S.bodyContainer}>
-          <Text style={$S.body} selectable={true}>{mainMessage}<A href={firebasePrivacyURL}>Google Firebase</A></Text>
+          <Text style={$S.body} selectable={true}>{mainMessage}<A href={firebasePrivacyURL}>Google Firebase</A>.</Text>
           {privacyDetails.split('\n').map((text, i) => (
             <LI key={i}>{text.trim()}</LI>
           ))}
