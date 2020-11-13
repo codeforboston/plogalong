@@ -18,6 +18,7 @@ import AchievementSwipe from '../components/AchievementSwipe';
 import Banner from '../components/Banner';
 import Colors from '../constants/Colors';
 import Leaderboard from '../screens/Leaderboard';
+import SegmentedControl from '../components/SegmentedControl';
 
 
 export const AchievementScreen = ({currentUser }) => {
@@ -32,34 +33,24 @@ export const AchievementScreen = ({currentUser }) => {
         };
       }, shallowEqual);
 
-    const [isBadges, setIsBadges] = useState(true);
+  const [isBadges, setIsBadges] = useState(true);
+  const onTabPress = React.useCallback((idx) => {
+    setIsBadges(idx === 0);
+  }, []);
 
     const stats = getStats(currentUser, 'total');
 
     return (
       <View style={{margin: 15, padding: 0,}}>
         <Banner >
-            {stats.count === 0 
-                ? "Plog something to earn your first badge!" 
+            {stats.count === 0
+                ? "Plog something to earn your first badge!"
                 : `You earned ${formatCompletedBadges(calculateCompletedBadges(currentUser.data.achievements))} and \n ${formatPloggingMinutes(calculateTotalPloggingTime(stats))}!`
             }
         </Banner>
-        <View style={styles.toggle}>
-            <View style={styles.spacer}></View>
-            <TouchableWithoutFeedback onPress={() => setIsBadges(true)}>
-                <View  style={isBadges ? styles.isBadges : styles.notBadges}>
-                    <Text style={{color: isBadges ? 'white' : Colors.secondaryColor}}>BADGES</Text>
-                </View>
-            </TouchableWithoutFeedback>
-            <View style={styles.spacer}></View>
-            {/*
-            <TouchableWithoutFeedback onPress={() => setIsBadges(false)}>
-                <View  style={!isBadges ? styles.isBadges : styles.notBadges}>
-                    <Text style={{color: !isBadges ? 'white' : Colors.secondaryColor}}>LEADERBOARD</Text>
-                </View>
-            </TouchableWithoutFeedback>
-            */}
-        </View>
+        <SegmentedControl selectedIndex={isBadges ? 0 : 1}
+                          values={['Badges', 'Leaderboard']}
+                          onChange={onTabPress} />
         {isBadges ? (
             <AchievementSwipe
                 achievements={currentUser.data.achievements}
@@ -70,7 +61,7 @@ export const AchievementScreen = ({currentUser }) => {
                 inset={{paddingBottom: 120,}}
             />
         ) :
-            region 
+            region
             &&
             <>
                 <View style={{ height: '100%' }}>
