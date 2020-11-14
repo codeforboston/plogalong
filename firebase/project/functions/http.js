@@ -280,7 +280,7 @@ async function reportPlog(data, context) {
  * @param {functions.https.CallableContext} context
  */
 async function getRegionInfo(data, context) {
-  if (!(context.auth || context.auth.uid))
+  if (!context.auth || !context.auth.uid)
     throw new HttpsError('unauthenticated', 'Request not authenticated');
 
   if (typeof data.latitude !== "number" || typeof data.longitude !== "number")
