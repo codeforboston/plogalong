@@ -14,8 +14,9 @@ import $C from '../constants/Colors';
 import { formatDuration, pluralize } from '../util';
 import { useDimensions } from '../util/native';
 import { useSelector } from '../redux/hooks';
+import Colors from '../constants/Colors';
 
-import { Divider } from '../components/Elements';
+import { Divider1 } from '../components/Elements1';
 import PopupDataView from '../components/PopupDataView';
 import UserPicture from '../components/UserPicture';
 import { useNavigation } from '@react-navigation/native';
@@ -61,6 +62,7 @@ export const Leaderboard = props => {
                 return (
                   <TouchableOpacity onPress={onPress}
                                     disabled={!onPress}
+                                    style={{paddingBottom: 5,}}
                   >
                     <View style={styles.leader}>
                       <UserPicture url={profilePicture} />
@@ -83,7 +85,7 @@ export const Leaderboard = props => {
                 );
               }}
               keyExtractor={item => item.id}
-              ItemSeparatorComponent={Divider}
+              ItemSeparatorComponent={Divider1}
               extraData={{ max }}
     />
   );
@@ -99,8 +101,8 @@ export const Leaderboard = props => {
 /** @type {React.FunctionComponent<RegionLeaderboardProps>} */
 export const RegionLeaderboard = ({region, leaders, ...props}) => (
   <View>
-    <Text style={$S.subheader}>
-      Top Ploggers in {region.county}, {region.state}
+    <Text style={styles.leaderboardSubheader}>
+      Top Ploggers in County, {region.state}
     </Text>
     {
       leaders.length ?
@@ -152,17 +154,24 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+//    alignItems: 'center',
+    paddingBottom: 0,
+    marginBottom: 0,
   },
   username: {
     // borderWidth: 2,
     // borderColor: 'black',
-    fontSize: 18,
+//    fontSize: 18,
     paddingRight: 10,
     // fontWeight: 'bold',
   },
   userScore: {
-    
+    alignItems: 'flex-end',  
+  },
+  leaderboardSubheader: {
+    color: Colors.activeColor,
+    fontWeight: 'bold',
+    fontSize: 18,
   }
 });
 
