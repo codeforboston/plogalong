@@ -76,7 +76,8 @@ export const Leaderboard = props => {
                         <View style={{
                           backgroundColor: myID === id ? $C.secondaryColor : $C.activeColor,
                           width: value/max*layout.dimensions.width,
-                          height: 5,
+//                          height: 5,
+                          height: 10,
                         }}
                         />
                       </View>
@@ -85,7 +86,7 @@ export const Leaderboard = props => {
                 );
               }}
               keyExtractor={item => item.id}
-              ItemSeparatorComponent={Divider1}
+//              ItemSeparatorComponent={Divider1}
               extraData={{ max }}
     />
   );
