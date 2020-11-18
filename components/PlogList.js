@@ -330,8 +330,8 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
   }, [currentUser.uid]);
 
   const onEndReached = useCallback(({ distanceFromEnd }) => {
-    if (distanceFromEnd < 0) return;
-    loadNextPage();
+    // if (distanceFromEnd < 0) return;
+    if (loadNextPage) loadNextPage();
   }, [loadNextPage]);
 
   // NOTE If you're working on styling the PlogList or Plog component, comment
