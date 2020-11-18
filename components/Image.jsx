@@ -86,9 +86,5 @@ const CachingImage = React.memo(React.forwardRef(({ source, ...props}, ref) => {
   );
 }));
 
-  return (
-    <Image ref={ref} source={cachedSource} {...props} />
-  );
-}));
 
 export default CachingImage;
