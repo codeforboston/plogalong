@@ -9,10 +9,8 @@ import {
 } from 'react-native';
 import { getRegionLeaders } from '../firebase/functions';
 
-import $S from '../styles';
 import $C from '../constants/Colors';
 import { formatDuration, pluralize } from '../util';
-import { useDimensions } from '../util/native';
 import { useSelector } from '../redux/hooks';
 import Colors from '../constants/Colors';
 
@@ -44,17 +42,18 @@ const Formatters = {
  * @property {(value: number) => string} [formatValue]
  * @property {string} currentUserID
  * @property {(user: Leader, e: Event) => void} [onPressUser]
+ * @property {React.ComponentType<any> | React.ReactElement} [header]
  */
 /** @type {React.FunctionComponent<LeaderboardProps>} */
 export const Leaderboard = props => {
   const {users, field='regionCount', formatValue=Formatters[field], currentUserID: myID,
          onPressUser} = props;
   const max = React.useMemo(() => Math.max(...users.map(u => u[field])), [users]);
-  const layout = useDimensions();
 
   return (
     <FlatList data={users}
-              onLayout={layout.onLayout}
+              ListHeaderComponent={props.header}
+              ListEmptyComponent={<Text>Nobody has plogged here yet!</Text>}
               renderItem={({ item }) => {
                 const { displayName, [field]: value, id, profilePicture } = item;
                 const onPress = onPressUser ? (e => onPressUser(item, e)) : null;
@@ -75,9 +74,9 @@ export const Leaderboard = props => {
                         </View>
                         <View style={{
                           backgroundColor: myID === id ? $C.secondaryColor : $C.activeColor,
-                          width: value/max*layout.dimensions.width,
+                          width: (value/max * 100) + '%',
 //                          height: 5,
-                          height: 10,
+                          height: 15,
                         }}
                         />
                       </View>
@@ -88,6 +87,7 @@ export const Leaderboard = props => {
               keyExtractor={item => item.id}
 //              ItemSeparatorComponent={Divider1}
               extraData={{ max }}
+              style={{ height: '100%' }}
     />
   );
 };
@@ -102,16 +102,11 @@ export const Leaderboard = props => {
 /** @type {React.FunctionComponent<RegionLeaderboardProps>} */
 export const RegionLeaderboard = ({region, leaders, ...props}) => (
   <View>
-    <Text style={styles.leaderboardSubheader}>
-      Top Ploggers in County, {region.state}
-    </Text>
-    {
-      leaders.length ?
-        <Leaderboard users={leaders} {...props} /> :
-      <>
-        <Text>Nobody has plogged here yet!</Text>
-      </>
-    }
+        <Leaderboard users={leaders}
+                     header={<Text style={styles.leaderboardSubheader}>
+                                Top Ploggers in your county
+                             </Text>}
+                     {...props} />
   </View>
 );
 
@@ -145,6 +140,7 @@ const styles = StyleSheet.create({
   leader: {
     flexDirection: 'row',
     marginTop: 5,
+    paddingBottom: 10,
   },
   leaderInfo: {
     flexShrink: 1,
@@ -158,21 +154,25 @@ const styles = StyleSheet.create({
 //    alignItems: 'center',
     paddingBottom: 0,
     marginBottom: 0,
+    width: '100%'
   },
   username: {
     // borderWidth: 2,
     // borderColor: 'black',
-//    fontSize: 18,
+    fontSize: 18,
     paddingRight: 10,
     // fontWeight: 'bold',
   },
   userScore: {
+    fontSize: 18,
     alignItems: 'flex-end',  
   },
   leaderboardSubheader: {
     color: Colors.activeColor,
     fontWeight: 'bold',
     fontSize: 18,
+    paddingBottom: 10,
+    textAlign: 'center',
   }
 });
 

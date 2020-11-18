@@ -41,7 +41,7 @@ export const AchievementScreen = ({currentUser }) => {
     const stats = getStats(currentUser, 'total');
 
     return (
-      <View style={{margin: 15, padding: 0,}}>
+      <View style={styles.container}>
         <Banner >
             {stats.count === 0
                 ? "Plog something to earn your first badge!"
@@ -63,17 +63,22 @@ export const AchievementScreen = ({currentUser }) => {
         ) :
             region
             &&
-            <>
-                <View style={{ height: '100%' }}>
-                    <Leaderboard regionID={region.id} style={$S.subheadLink}/>
-                </View>
-            </>
+              <View style={{ flex: 1 }}>
+                  <Leaderboard regionID={region.id} />
+              </View>
         }
       </View>
     );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    margin: 0, 
+    padding: 15, 
+    paddingBottom: 0, 
+    flex: 1, 
+    backgroundColor: 'white' 
+  },
     isBadges: {
         backgroundColor: Colors.selectionColor,
         paddingVertical: 5,
