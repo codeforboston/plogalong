@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
 
     headerText: {
         alignSelf: 'center',
-        color: 'purple',
+        color: Colors.activeColor,
         marginLeft: 7,
         fontSize: 16
     },

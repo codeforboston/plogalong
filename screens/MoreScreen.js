@@ -7,6 +7,8 @@ import {
 
 import { createStackNavigator } from '@react-navigation/stack';
 
+import Colors from '../constants/Colors';
+
 import Banner from '../components/Banner';
 import Button from '../components/Button';
 import Header from '../components/Header';
@@ -84,7 +86,7 @@ export default ({navigation, route}) => {
             headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: '#fff',
-                borderBottomColor: 'purple',
+                borderBottomColor: Colors.activeColor,
                 borderBottomWidth: 4,
             }
         }}

@@ -11,6 +11,7 @@ import { parseURL } from '../util';
 import { useEffectWithPrevious } from '../util/react';
 import { useSelector, useDispatch } from '../redux/hooks';
 import * as actions from '../redux/actions';
+import Colors from '../constants/Colors';
 
 import Header from '../components/Header';
 
@@ -137,7 +138,7 @@ const AppNavigator = () => {
                            headerTitleAlign: 'center',
                            headerStyle: {
                              backgroundColor: '#fff',
-                             borderBottomColor: 'purple',
+                             borderBottomColor: Colors.activeColor,
                              borderBottomWidth: 4,
                            }
                          }}>

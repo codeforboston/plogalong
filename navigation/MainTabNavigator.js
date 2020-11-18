@@ -54,7 +54,7 @@ const routeName = ({state, params, name}, defaultName=name) => {
 const TabBarComponent = props => <BottomTabBar {...props}
                                                style={{
                                                    backgroundColor: '#fff',
-                                                   borderTopColor: 'purple',
+                                                   borderTopColor: Colors.activeColor,
                                                    borderTopWidth: 4,
                                                    paddingTop: 5,
                                                }}
