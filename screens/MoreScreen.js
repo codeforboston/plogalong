@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 20,
+    paddingBottom: 35,
   },
   banner: {
     marginBottom: 20,

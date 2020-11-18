@@ -35,7 +35,7 @@ export default class TermsScreen extends React.Component {
             <Text style={{fontSize: 18,}}>{`\u2022`}    Supervise children while plogging</Text>
           </View>
         </View>
-        <View style={{marginBottom: 30}}>
+        <View style={{marginBottom: 50}}>
           <OpenURLButton url={disclaimerURL}>View Disclaimer</OpenURLButton>
         </View>
       </ScrollView>
