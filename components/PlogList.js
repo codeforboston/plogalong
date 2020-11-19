@@ -20,7 +20,7 @@ import moment from 'moment';
 
 import * as actions from '../redux/actions';
 import { formatDate, formatDuration } from '../util';
-import { usePlogs, useSelector } from '../redux/hooks';
+import { usePlog, useSelector } from '../redux/hooks';
 import { usePrompt } from '../Prompt';
 import Colors from '../constants/Colors';
 import Options from '../constants/Options';
@@ -80,7 +80,7 @@ const formatTrashTypes = (trashTypes=[]) =>
 
 
 const MiniPlog = ({plogID}) => {
-  const plog = usePlogs(plogID);
+  const plog = usePlog(plogID);
 
   if (plog.status) {
     return <Text>{plog.status}</Text>;
@@ -307,7 +307,7 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
         }
       ]);
     } else {
-      const result = await prompt({
+      await prompt({
         title: 'Report plog?',
         message: 'Do you really want to report this plog?',
         body: <MiniPlog plogID={plogInfo.id} />,
