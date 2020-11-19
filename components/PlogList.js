@@ -78,29 +78,53 @@ const formatTrashTypes = (trashTypes=[]) =>
       (!trashTypes || !trashTypes.length ? 'trash' :
        trashTypes.map(type => Options.trashTypes.get(type).title.toLowerCase()).join(', '));
 
+/** @typedef {ExtraButtonProps & React.ComponentProps<typeof TouchableWithoutFeedback>} ButtonProps */
+/** @typedef {React.ComponentProps<typeof TouchableOpacity>} TouchableOpacityProps */
+/**
+ * @typedef {object} PlogDetailsProps
+ * @property {import('../firebase/plogs').Plog} plog
+ * @property {RN.StyleProp<RN.ViewStyle>} [style]
+ * @property {TouchableOpacityProps} [userTouchableProps]
+ * @property {TouchableOpacityProps["onPress"]} [onPressUser]
+ *
+ * @property {TouchableOpacityProp["onPress"]} [onLike]
+ * @property {boolean} [liked]
+ * @property {boolean} [showLikes=false]
+ * @property {string} [userID]
+ */
 
-const MiniPlog = ({plogID}) => {
-  const plog = usePlog(plogID);
+const HitSlop = { bottom: 25, top: 25, left: 25, right: 25 };
 
-  if (plog.status) {
-    return <Text>{plog.status}</Text>;
-  }
+/** @type {React.FunctionComponent<PlogDetailsProps>} */
+const PlogDetails = props => {
+  const { plog, onPressUser, userTouchableProps = {}, liked, onLike, children, userID } = props;
+  const { showLikes = !!onLike } = props;
 
-  const {
-    timeSpent, userDisplayName, when, groupType
-  } = plog;
   const ratio = PixelRatio.getFontScale();
+  const {
+    groupType, likeCount, timeSpent, trashTypes = [], userDisplayName, when, saving
+  } = plog;
+  const me = plog.userID === userID;
   const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
+
   return (
-    <View>
-      <View style={styles.plogStyle}>
-        <UserPicture url={plog.userProfilePicture} />
+    <View style={props.style}>
+      <View style={[styles.plogStyle, saving || plog._deleting && styles.savingStyle]}>
+        <TouchableOpacity onPress={onPressUser}
+                          accessibilityIgnoresInvertColors
+                          {...userTouchableProps}
+        >
+          <UserPicture url={ plog.userProfilePicture} />
+        </TouchableOpacity>
         <View style={styles.plogInfo}>
           <Text style={styles.actionText} adjustsFontSizeToFit>
-            <Text style={[styles.plogUsername, !userDisplayName && styles.anonymous]}>
-              {((userDisplayName||'').trim() || 'Mysterious Plogger') + ' '}
-            </Text>
-            plogged {timeSpent ? `for ${formatDuration(timeSpent, false)}` : formatDate(new Date(when))}.
+            {me ?
+             'You' :
+             <Text style={[styles.plogUsername, !userDisplayName && styles.anonymous]}
+                   onPress={onPressUser}>
+               {(userDisplayName||'').trim() || 'Mysterious Plogger'}
+             </Text>
+            } plogged {timeSpent ? `for ${formatDuration(timeSpent, false)}` : formatDate(new Date(when))}.
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 8 }}>
             <Text style={styles.subText}>
@@ -108,7 +132,22 @@ const MiniPlog = ({plogID}) => {
             </Text>
           </View>
         </View>
+        {
+          showLikes &&
+            <TouchableOpacity onPress={onLike} hitSlop={HitSlop}>
+              <View style={styles.likeCount}>
+                {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
+                <Ionicons
+                  size={20 * ratio}
+                  name={'md-heart'}
+                  color={liked ? Colors.selectionColor : Colors.activeGray}
+                />
+              </View>
+            </TouchableOpacity>
+        }
+
       </View>
+      {children}
       <View style={[styles.plogStyle, styles.detailsStyle]}>
         <GroupIcon fill={ Colors.textGray }
                    width={20*ratio}
@@ -117,14 +156,22 @@ const MiniPlog = ({plogID}) => {
                    accessibilityLabel={`Plogged `}
         />
         <Text style={styles.subText}>
-          Cleaned up {formatTrashTypes(plog.trashTypes)}.
+          Cleaned up {formatTrashTypes(trashTypes)}.
         </Text>
       </View>
     </View>
   );
+}
+
+const MiniPlog = ({plogID}) => {
+  const plog = usePlog(plogID);
+
+  return plog.status ?
+    <Text>{plog.status}</Text>
+  : <PlogDetails plog={plog} />;
 };
 
-const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog, onLongPress, focused, index}) => {
+const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, onLongPress, focused}) => {
   const { status, error } = plogInfo;
   if (status) {
     return (
@@ -145,8 +192,8 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
   }
 
   const {
-    id, location: { lat, lng }, likeCount, plogPhotos = [], timeSpent,
-    trashTypes = [], userID, userDisplayName, when, saving, groupType
+    id, location: { lat, lng }, plogPhotos = [],
+    userID, userDisplayName
   } = plogInfo;
 
   // Callbacks
@@ -168,48 +215,20 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
   ).icon;
 
   const latLng = { latitude: lat, longitude: lng };
-  const me = userID === currentUserID;
-  const { icon: GroupIcon } = groupType && Options.groups.get(groupType) || Options.groups.get('alone');
-  const ratio = PixelRatio.getFontScale();
 
   return (
-    <View style={{ paddingBottom: 10, marginBottom: 10, }}>
-      <View style={[styles.plogStyle, saving || plogInfo._deleting && styles.savingStyle]}>
-        <TouchableOpacity onPress={showUser}
-                          accessibilityLabel={`${userDisplayName}'s Profile`}
-                          accessibilityHint={`Navigates to ${userDisplayName}'s public profile`}
-                          accessibilityIgnoresInvertColors
-                          accessibilityRole="link"
-        >
-          <UserPicture url={ plogInfo.userProfilePicture} />
-        </TouchableOpacity>
-        <View style={styles.plogInfo}>
-          <Text style={styles.actionText} adjustsFontSizeToFit>
-            {me ?
-             'You' :
-             <Text style={[styles.plogUsername, !userDisplayName && styles.anonymous]}
-                   onPress={showUser}>
-               {(userDisplayName||'').trim() || 'Mysterious Plogger'}
-             </Text>
-            } plogged {timeSpent ? `for ${formatDuration(timeSpent, false)}` : formatDate(new Date(when))}.
-          </Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: 8 }}>
-            <Text style={styles.subText}>
-              {moment(when).fromNow()}
-            </Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={onHeartPress} hitSlop={{ bottom: 25, top: 25, left: 25, right: 25 }}>
-          <View style={styles.likeCount}>
-            {likeCount - (liked ? 1 : 0) > 0 && <Text style={styles.likeCountText}>{likeCount}</Text>}
-            <Ionicons
-              size={20 * ratio}
-              name={'md-heart'}
-              color={liked ? Colors.selectionColor : Colors.activeGray}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
+    <PlogDetails onPressUser={showUser}
+                 style={{ paddingBottom: 10, marginBottom: 10, }}
+                 plog={plogInfo}
+                 userTouchableProps={{
+                   accessibilityLabel: `${userDisplayName}'s Profile`,
+                   accessibilityHint: `Navigates to ${userDisplayName}'s public profile`,
+                   accessibilityRole: "link",
+                 }}
+                 onLike={onHeartPress}
+                 liked={liked}
+                 userID={currentUserID}
+    >
       <View style={styles.plogStyle}>
         {
           focused ?
@@ -242,40 +261,29 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, deletePlog,
         }
         {React.useMemo(() =>
           (plogPhotos && plogPhotos.length ?
-            <ScrollView contentContainerStyle={styles.photos}>
-              {plogPhotos.map(({uri}, i) => {
-                return (
-                  <TouchableOpacity onPress={e => {
-                    navigation.navigate('PhotoViewer', {
-                      photos: plogPhotos || [],
-                      index: i
-                    });
-                  }}
-                                    key={uri}
-                                    accessibilityLabel="Enlarge photo"
-                                    accessibilityTraits={['image', 'link']}
-                  >
-                    <Image source={{uri}}
-                           key={uri}
-                           style={styles.plogPhoto}/>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView> :
+           <ScrollView contentContainerStyle={styles.photos}>
+             {plogPhotos.map(({uri}, i) => {
+               return (
+                 <TouchableOpacity onPress={e => {
+                                     navigation.navigate('PhotoViewer', {
+                                       photos: plogPhotos || [],
+                                       index: i
+                                     });
+                                   }}
+                                   key={uri}
+                                   accessibilityLabel="Enlarge photo"
+                                   accessibilityTraits={['image', 'link']}
+                 >
+                   <Image source={{uri}}
+                          key={uri}
+                          style={styles.plogPhoto}/>
+                 </TouchableOpacity>
+               );
+             })}
+           </ScrollView> :
            null), [plogPhotos])}
       </View>
-      <View style={[styles.plogStyle, styles.detailsStyle]}>
-        <GroupIcon fill={ Colors.textGray }
-                   width={20*ratio}
-                   height={20*ratio}
-                   style={[styles.whoPlogged, { marginRight: 5*ratio }]}
-                   accessibilityLabel={`Plogged `}
-        />
-        <Text style={styles.subText}>
-          Cleaned up {formatTrashTypes(trashTypes)}.
-        </Text>
-      </View>
-    </View>
+    </PlogDetails>
   );
 };
 
