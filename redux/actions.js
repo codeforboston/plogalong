@@ -288,6 +288,16 @@ export const flashMessage = (message, options=null) => ({
   payload: { text: message, stamp: Date.now(), options }
 });
 
+export const pauseFlashMessages = () => ({
+  type: types.PAUSE_MESSAGES,
+  payload: { paused: true }
+});
+
+export const unpauseFlashMessages = () => ({
+  type: types.PAUSE_MESSAGES,
+  payload: { paused: false }
+});
+
 export const verifyEmail = oobCode => (
   async dispatch => {
     try {

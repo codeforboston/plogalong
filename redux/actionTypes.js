@@ -48,3 +48,4 @@ export const LOCATION_ERROR = 'LOCATION_ERROR';
 export const LOCATION_INFO = 'LOCATION_INFO';
 
 export const FLASH = 'FLASH';
+export const PAUSE_MESSAGES = 'PAUSE';

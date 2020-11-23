@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useSelector } from '../redux/hooks';
+import { useDispatch, useSelector } from '../redux/hooks';
 import {
     StyleSheet,
     // Switch,
@@ -7,6 +7,7 @@ import {
     View,
 } from 'react-native';
 
+import * as actions from '../redux/actions';
 import { formatDateOrRelative } from '../util/string';
 import { processAchievement } from '../util/users';
 
@@ -22,6 +23,22 @@ const AchievementModal = ({navigation, route}) => {
   const { data: { achievements = {} } = {} } = currentUser || {};
   const achievement = processAchievement(achievements, achievementType);
   const { icon: Icon, completed } = achievement;
+
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    const unsubscribeFocused = navigation.addListener('focus', () => {
+      dispatch(actions.pauseFlashMessages());
+    });
+
+    const unsubscribeBlur = navigation.addListener('blur', () => {
+      dispatch(actions.unpauseFlashMessages());
+    });
+
+    return () => {
+      unsubscribeBlur();
+      unsubscribeFocused();
+    };
+  }, []);
 
   return (
     <View style={$S.modalContainer}>
@@ -71,12 +88,6 @@ const styles = StyleSheet.create({
   shareOptions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  badgeStyle: {
-    alignSelf: 'center',
-    backgroundColor: '#D8DCE7',
-    width: '80%',
-    margin: 30,
   },
   achievementIcon: {
     alignSelf: 'center',

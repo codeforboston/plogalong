@@ -4,13 +4,17 @@ import {
   Animated,
   StyleSheet,
 } from 'react-native';
-import { connect } from 'react-redux';
 
 import { Queue, wait } from './util/async';
+import { useSelector } from './redux/hooks';
 import Colors from './constants/Colors';
 
 
-const FlashMessage = ({ message }) => {
+const FlashMessage = () => {
+  const { message, paused } = useSelector(({ ui }) => ({
+    message: ui.flashMessage,
+    paused: ui.paused
+  }))
   const opacity = useRef(new Animated.Value(0)).current;
   const queue = useRef(/** @type {Queue<{ text: string, stamp: number, options?: any }>} */(null));
 
@@ -40,7 +44,7 @@ const FlashMessage = ({ message }) => {
   }, [message]);
 
   return (
-    <Animated.Text style={[styles.flashMessage, { opacity }]}
+    <Animated.Text style={[styles.flashMessage, { opacity: paused ? 0 : opacity }]}
                    allowFontScaling
                    adjustsFontSizeToFit>
       {text}
@@ -61,6 +65,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default connect(
-  ({ui}) => ({ message: ui.flashMessage })
-)(FlashMessage);
+export default FlashMessage;
