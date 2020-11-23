@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import {
-  StyleSheet,
   View,
   ScrollView,
 } from 'react-native';
@@ -179,31 +178,5 @@ export const HistoryScreen = _ => {
   );
 };
 
-const styles = StyleSheet.create({
-  empty: {
-    flex: 1,
-    flexDirection: 'column',
-    padding: 15,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  headline: {
-    textAlign: 'center',
-    paddingTop: 30,
-    paddingBottom: 40,
-  },
-
-  subheader: {
-    flexGrow: 1,
-    marginTop: 30,
-  },
-
-  link: {
-    color: 'black',
-    textDecorationLine: 'underline',
-    textDecorationColor: Colors.selectionColor,
-  }
-});
 
 export default HistoryScreen;
