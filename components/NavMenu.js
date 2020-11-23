@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {
   FlatList,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -26,7 +25,7 @@ const MenuItem = ({label, detail, route, params, action, navigation, handlePress
       <TouchableOpacity onPress={onPress}>
         <View style={styles.menuItem}>
           <View style={styles.menuItemBody}>
-            <Text style={styles.labelText}>{label}</Text>
+            <Text style={styles.labelText}>{label || route}</Text>
             {detail && <Text style={styles.detailText}>{detail}</Text>}
           </View>
           <Text style={styles.menuItemRight}>

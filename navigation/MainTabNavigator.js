@@ -5,11 +5,8 @@ import {
 } from 'react-native';
 import { createBottomTabNavigator, BottomTabBar } from '@react-navigation/bottom-tabs';
 
-import { auth } from '../firebase/init';
 import icons from '../icons';
 import Colors from '../constants/Colors';
-import { parseURL } from '../util';
-import { useCurrentUser } from '../redux/hooks';
 
 import Loading from '../components/Loading';
 
@@ -18,6 +15,7 @@ import HistoryScreen from '../screens/HistoryScreen';
 import LocalScreen from '../screens/LocalScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MoreScreen from '../screens/MoreScreen';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 
 const Icons = {
@@ -43,14 +41,6 @@ const Tabs = [
   ['More', MoreScreen],
 ];
 
-const decamel = s => s.replace(/([^A-Z])([A-Z])/gu, '$1 $2');
-
-const routeName = ({state, params, name}, defaultName=name) => {
-    return state ?
-        routeName(state.routes[state.index]) :
-        (params && params.title || defaultName);
-};
-
 const TabBarComponent = props => <BottomTabBar {...props}
                                                style={{
                                                    backgroundColor: '#fff',
@@ -63,10 +53,10 @@ const TabBarComponent = props => <BottomTabBar {...props}
 const Tab = createBottomTabNavigator();
 
 const MainTabNavigator = ({ currentUser, navigation, route, ...props }) => {
-  const childRouteName = route.state ? route.state.routes[route.state.index].name : 'Plog';
+  const childRouteName = getFocusedRouteNameFromRoute(route);
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      title: decamel(routeName(route, 'Plog')),
+      title: childRouteName,
       headerShown: childRouteName !== 'More',
     });
   }, [navigation, childRouteName]);
