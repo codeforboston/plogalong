@@ -5,22 +5,22 @@ import { pluralize } from '../util/string';
 
 import Umbrella from '../assets/svg/achievement_badges_48_48/baseline-beach_access-48px.svg';
 import SingleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_outline-48px.svg';
-import Team from '../assets/svg/achievement_badges_48_48/011-team-leader_48.svg';
+import Team from '../assets/svg/achievement_badges_24_24/groups-24px.svg';
 import Compass from '../assets/svg/achievement_badges_48_48/baseline-explore-48px.svg';
 import TrafficLight from '../assets/svg/achievement_badges_48_48/baseline-traffic-48px.svg';
 import Globe from '../assets/svg/achievement_badges_48_48/baseline-language-48px.svg';
-import FlowerBud from '../assets/svg/achievement_badges_48_48/baseline-spa-48px.svg';
+import FlowerBud from '../assets/svg/achievement_badges_24_24/local_florist-24px.svg';
 import Syringe from '../assets/svg/achievement_badges_48_48/syringe_48.svg';
 import Bike from '../assets/svg/achievement_badges_48_48/04-Activities-bike-015-bike_48.svg';
 import DoubleCheckmark from '../assets/svg/achievement_badges_48_48/baseline-done_all-48px.svg';
-import Flower from '../assets/svg/achievement_badges_48_48/baseline-local_florist-48px.svg';
+import Mosquito from '../assets/svg/achievement_badges_48_48/mosquito_48.svg';
 import TourMap from '../assets/svg/achievement_badges_48_48/baseline-map-48px.svg';
 import Waterpolo from '../assets/svg/achievement_badges_48_48/017-waterpolo_48.svg';
 import Home from '../assets/svg/achievement_badges_48_48/baseline-home-48px.svg';
-import DogWalking from '../assets/svg/achievement_badges_48_48/Helpers-02_48.svg';
-import Chicken from '../assets/svg/achievement_badges_48_48/chicken-looking-right_48.svg';
-import Leaves from '../assets/svg/achievement_badges_48_48/leaves_48.svg';
-import Bear from '../assets/svg/achievement_badges_48_48/bear_48.svg';
+import DogWalking from '../assets/svg/achievement_badges_48_48/man-carrying-a-dog-with-a-belt-to-walk_48.svg';
+import Chicken from '../assets/svg/achievement_badges_48_48/hen_48.svg';
+import Leaves from '../assets/svg/achievement_badges_24_24/eco-24px.svg';
+import Bear from '../assets/svg/achievement_badges_48_48/polar-bear_48.svg';
 import Face from '../assets/svg/achievement_badges_48_48/baseline-face-48px.svg';
 import Airplane from '../assets/svg/achievement_badges_48_48/baseline-flight_land-48px.svg';
 import Star from '../assets/svg/achievement_badges_48_48/baseline-grade-48px.svg';
@@ -36,7 +36,7 @@ import marathoner from '../assets/svg/achievement_badges_24_24/directions_run-24
 import waterSports from '../assets/svg/achievement_badges_24_24/rowing-24px.svg';
 import twofer from '../assets/svg/achievement_badges_24_24/looks_two-24px.svg';
 import noButts from '../assets/svg/achievement_badges_24_24/smoke_free-24px.svg';
-import breakTheSeal from '../assets/svg/achievement_badges_24_24/lock_open-24px.svg';
+import breakTheSeal from '../assets/svg/achievement_badges_24_24/house-24px.svg';
 
 
 /** @typedef {import('../firebase/project/functions/shared').UserAchievements} UserAchievements */
@@ -97,7 +97,7 @@ const AchievementTypes = {
   },
   bugZapper: {
     badgeTheme: 'Bug Zapper',
-    icon: Flower,
+    icon: Mosquito,
     description: 'Removed standing water',
     incompleteDescription: 'Remove standing water',
   },
