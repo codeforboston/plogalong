@@ -59,6 +59,7 @@ export const AchievementScreen = ({currentUser }) => {
                 numColumns={3}
                 horizontal={false}
                 inset={{paddingBottom: 120,}}
+                disableSnapping
             />
         ) :
             region

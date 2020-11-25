@@ -9,7 +9,7 @@ import * as $u from '../util/users';
 import AchievementBadge, { BadgeWidth } from './AchievementBadge';
 
 
-const AchievementSwipe = ({achievements, inset, showAll=false, style, horizontal=true, numColumns=1}) => {
+const AchievementSwipe = ({achievements, inset, showAll=false, style, horizontal=true, numColumns=1, disableSnapping}) => {
   if (!achievements) achievements = {};
   const data = $u.processAchievements(achievements, {
     unstarted: showAll,
@@ -32,11 +32,10 @@ const AchievementSwipe = ({achievements, inset, showAll=false, style, horizontal
                  }
       keyExtractor={item => item.key}
       contentContainerStyle={inset}
-      pagingEnabled={true}
       horizontal={horizontal}
       numColumns={numColumns}
       snapToAlignment="start"
-      snapToInterval={BadgeWidth}
+      snapToInterval={disableSnapping ? undefined : BadgeWidth}
       showsHorizontalScrollIndicator={false}
       style={style}
     />
