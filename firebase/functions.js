@@ -3,20 +3,14 @@ import * as firebase from 'firebase';
 
 import { update } from '../util/iter';
 
-const _likePlog = functions.httpsCallable('likePlog');
-const _loadUserProfile = functions.httpsCallable('loadUserProfile');
-const _mergeWithAccount = functions.httpsCallable('mergeWithAccount');
-const _reportPlog = functions.httpsCallable('reportPlog');
-const _getRegionInfo = functions.httpsCallable('getRegionInfo');
-const _getRegionLeaders = functions.httpsCallable('getRegionLeaders');
-const _userLinked = functions.httpsCallable('userLinked');
+const _httpEndpoint = functions.httpsCallable('httpEndpoint');
 
 /**
  * @param {string} plogID
  * @param {boolean} [like=true]
  */
 export async function likePlog(plogID, like=true) {
-  return await _likePlog({ plog: plogID, like });
+  return await _httpEndpoint({ type: 'likePlog', payload: { plog: plogID, like }});
 }
 
 const convertStamp = val => (val && new firebase.firestore.Timestamp(val._seconds, val._nanoseconds));
@@ -27,7 +21,7 @@ const convertStamp = val => (val && new firebase.firestore.Timestamp(val._second
  * @returns {Promise<UserProfile & { id: string }>}
  */
 export async function loadUserProfile(userID) {
-  const {data} = (await _loadUserProfile({userID}));
+  const {data} = (await _httpEndpoint({ type: 'loadUserProfile', payload: { userID }}));
   data.id = userID;
   return update(data, {
     'achievements.*': {
@@ -41,18 +35,18 @@ export async function loadUserProfile(userID) {
  * @param {string} userID
  */
 export async function mergeWithAccount(userID) {
-  await _mergeWithAccount({ userID });
+  await _httpEndpoint({ type: 'mergeWithAccount', payload: { userID }});
 }
 
 export async function reportPlog(plogID) {
-  return await _reportPlog({ plogID });
+  return await _httpEndpoint({ type: 'reportPlog', payload: { plogID }});
 }
 
 /**
  * @returns {Promise<import('./project/functions/http').RegionInfo>}
  */
 export async function getRegionInfo(latitude, longitude) {
-  const { data } = await _getRegionInfo({ latitude, longitude });
+  const { data } = await _httpEndpoint({ type: 'getRegionInfo', payload: { latitude, longitude }});
   return data;
 }
 
@@ -60,9 +54,9 @@ export async function getRegionInfo(latitude, longitude) {
  * @returns {Promise<import('./project/functions/http').RegionLeaderboard>}
  */
 export async function getRegionLeaders(regionID) {
-  return (await _getRegionLeaders({ regionID })).data;
+  return (await _httpEndpoint({ type: 'getRegionLeaders', payload: { regionID }})).data;
 }
 
 export async function userLinked() {
-  await _userLinked();
+  await _httpEndpoint({ type: 'userLinked', payload: { } });
 }

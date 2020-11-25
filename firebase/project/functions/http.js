@@ -332,6 +332,30 @@ async function getRegionLeaders(data, context) {
   };
 }
 
+/**
+ * @param {{ type: string, payload: any }} data
+ * @param {functions.https.CallableContext} context
+ */
+async function httpEndpoint(data, context) {
+  switch (data.type) {
+    case 'likePlog':
+      return await likePlog(data.payload, context);
+    case 'loadUserProfile':
+      return await loadUserProfile(data.payload, context);
+    case 'mergeWithAccount':
+      return await mergeWithAccount(data.payload, context);
+    case 'reportPlog':
+      return await reportPlog(data.payload, context);
+    case 'getRegionInfo':
+      return await getRegionInfo(data.payload, context);
+    case 'getRegionLeaders':
+      return await getRegionLeaders(data.payload, context);
+    case 'userLinked':
+      return await userLinked(data.payload, context);
+  }
+  return {};
+}
+
 /** @typedef {Unwrapped<ReturnType<typeof getRegionInfo>>} RegionInfo */
 /** @typedef {Unwrapped<ReturnType<typeof getRegionLeaders>>} RegionLeaderboard */
 /** @typedef {Unwrapped<ReturnType<typeof loadUserProfile>>} UserProfile */
@@ -344,4 +368,6 @@ module.exports = {
   getRegionInfo,
   getRegionLeaders,
   userLinked,
+
+  httpEndpoint
 };

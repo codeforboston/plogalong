@@ -236,3 +236,4 @@ exports.reportPlog = functions.https.onCall(http.reportPlog);
 exports.getRegionInfo = functions.https.onCall(http.getRegionInfo);
 exports.getRegionLeaders = functions.https.onCall(http.getRegionLeaders);
 exports.userLinked = functions.https.onCall(http.userLinked);
+exports.httpEndpoint = functions.https.onCall(http.httpEndpoint);
