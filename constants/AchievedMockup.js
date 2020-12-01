@@ -192,6 +192,33 @@ const AchievementTypes = {
     description: 'Plogged on the water',
     incompleteDescription: 'Plog on the water',
   },
+
+
+
+  hotToTrot: {
+    badgeTheme: 'Hot to Trot',
+    icon: waterSports,
+    description: 'Plogged on horseback',
+    incompleteDescription: 'Plog on horseback',
+  },
+  kittyCorner: {
+    badgeTheme: 'Kitty Corner',
+    icon: waterSports,
+    description: 'Plogged with your cat',
+    incompleteDescription: 'Plog with your cat',
+  },
+  adoptAHighwayForDriving: {
+    badgeTheme: 'Adopt a Highway for Driving',
+    icon: waterSports,
+    description: 'Plogged while driving',
+    incompleteDescription: 'Plog while driving',
+  },
+  evilKnievelForMotorbiking: {
+    badgeTheme: 'Evil Knievel for Motorbiking',
+    icon: waterSports,
+    description: 'Plogged while motorbiking',
+    incompleteDescription: 'Plog while motorbiking',
+  },
 };
 
 
