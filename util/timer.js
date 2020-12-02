@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 const initialTimerState = {
   started: null,
   time: 0,
+  loaded: false,
 };
 
 export const useTimer = (init=initialTimerState, store='com.plogalong.plogalong.plogTimer') => {
@@ -34,7 +35,8 @@ export const useTimer = (init=initialTimerState, store='com.plogalong.plogalong.
           newState = Object.assign({
             time: state.time,    // may be overriden by payload
             started: state.started || Date.now(), // ^
-            tick: 0
+            tick: 0,
+            loaded: true,
           }, payload);
           break;
         }
@@ -78,12 +80,16 @@ export const useTimer = (init=initialTimerState, store='com.plogalong.plogalong.
   React.useEffect(() => {
     AsyncStorage.getItem(store).then(JSON.parse).then(
       timer => {
-        if (!timer) return;
+        if (!timer) {
+          updateTimer(state => ({ ...state, loaded: true }));
+          return;
+        }
+
         const {started, time} = timer;
         if (started)
           methods.start({ started, time });
         else
-          updateTimer(state => ({ ...state, time }));
+          updateTimer(state => ({ ...state, time, loaded: true }));
       },
       () => {}
     );
@@ -96,6 +102,7 @@ export const useTimer = (init=initialTimerState, store='com.plogalong.plogalong.
   return {
     total: timerState.time + (timerState.started ? Date.now() - timerState.started : 0),
     started: timerState.started,
+    loaded: timerState.loaded,
     ...methods
   };
 };
