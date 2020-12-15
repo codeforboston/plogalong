@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Alert,
   Animated,
   Easing,
   FlatList,
@@ -60,6 +61,9 @@ class PlogScreen extends React.Component {
       dragging: false,
       viewHeight: 500
     };
+
+    /** @type {Parameters<typeof Alert.alert>[]} */
+    this._pendingAlerts = [];
   }
 
   async coordInBounds({ latitude, longitude } = this.props.location) {
@@ -69,6 +73,25 @@ class PlogScreen extends React.Component {
   }
 
   async componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.timer.loaded && this.props.timer.loaded) {
+      const { timer } = this.props;
+      if (timer.total > 7200000) {
+        this._pendingAlerts.push(['Continue?',
+        'You have been plogging for two hours! Would you like to continue?',
+        [
+          {
+            text: "Yes, continue",
+            onPress: () => timer.toggle(),
+          },
+          {
+            text: "No, reset the timer",
+            onPress: () => timer.reset(),
+            style: "destructive",
+          }
+        ]]);
+      }
+    }
+
     if (this.props.lastPlogID !== prevProps.lastPlogID) {
       this.props.timer.reset();
       this.setState({
@@ -92,6 +115,13 @@ class PlogScreen extends React.Component {
         this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
       }
     }
+  }
+
+  presentPendingAlerts = () => {
+    for (const alert of this._pendingAlerts) {
+      Alert.alert(...alert);
+    }
+    this._pendingAlerts = [];
   }
 
   /**
@@ -390,6 +420,7 @@ class PlogScreen extends React.Component {
             onPanDrag={this.onPanDrag}
             onRegionChangeComplete={this.onRegionChangeComplete}
             zoomControlEnabled={false}
+            onMapReady={this.presentPendingAlerts}
           />
           {state.markedLocation &&
            <Animated.View style={[styles.markedLocationIconContainer,
