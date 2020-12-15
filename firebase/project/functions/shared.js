@@ -269,6 +269,7 @@ const AchievementHandlers = {
   hotToTrot: _makeOneShotAchievement(plog => plog.ActivityType === 'horseback_riding', 20),
   adoptAHighwayForDriving: _makeOneShotAchievement(plog => plog.ActivityType === 'driving', 20),
   evilKnievelForMotorbiking: _makeOneShotAchievement(plog => plog.ActivityType === 'motorbiking', 20),
+  snowflakeForWinterSports: _makeOneShotAchievement(plog => plog.ActivityType === 'winter_sports', 20),
 
   dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
   springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
