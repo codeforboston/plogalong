@@ -322,7 +322,7 @@ class PlogScreen extends React.Component {
             keyExtractor={item => item[0]}
             horizontal
             snapToAlignment="start"
-            snapToInterval={false}
+            // snapToInterval={false}
             showsHorizontalScrollIndicator={false}
             />
 
@@ -346,7 +346,7 @@ class PlogScreen extends React.Component {
             keyExtractor={item => item[0]}
             horizontal
             snapToAlignment="start"
-            snapToInterval={false}
+            // snapToInterval={false}
             showsHorizontalScrollIndicator={false}
             />
 
