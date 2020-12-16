@@ -13,6 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { shallowEqual } from 'react-redux';
+import * as FileSystem from 'expo-file-system';
 
 import MapView, { Camera } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
@@ -613,6 +614,24 @@ const styles = StyleSheet.create({
   }
 });
 
+async function restorePlogState(plogState) {
+  if (plogState && plogState.plogPhotos) {
+    const plogPhotos = [];
+    for (const photo of plogState.plogPhotos) {
+      if (photo) {
+        const info = await FileSystem.getInfoAsync(photo.uri);
+        if (info.exists) {
+          plogPhotos.push(photo);
+        }
+      }
+    }
+
+    plogPhotos.push(...Array(5 - plogPhotos.length).fill(null));
+    plogState.plogPhotos = plogPhotos;
+  }
+  return plogState;
+}
+
 export default (props) => {
   const dispatch = useDispatch();
   const dataProps = useSelector(({ preferences, users, log }) => ({
@@ -630,8 +649,8 @@ export default (props) => {
     trashTypes: {},
     activityType: ['walking'],
     groupType: ['alone'],
-    plogPhotos: [null, null, null, null, null],
-  }, 'com.plogalong.plog');
+    plogPhotos: Array(5).fill(null),
+  }, 'com.plogalong.plog', restorePlogState);
 
   const actionProps = {
     logPlog(plogInfo) {
