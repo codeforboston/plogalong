@@ -37,6 +37,11 @@ import waterSports from '../assets/svg/achievement_badges_24_24/rowing-24px.svg'
 import twofer from '../assets/svg/achievement_badges_24_24/looks_two-24px.svg';
 import noButts from '../assets/svg/achievement_badges_24_24/smoke_free-24px.svg';
 import breakTheSeal from '../assets/svg/achievement_badges_24_24/house-24px.svg';
+import hotToTrot from '../assets/svg/achievement_badges_24_24/horse-face.svg';
+import kittyCorner from '../assets/svg/achievement_badges_24_24/cat-face.svg';
+import adoptAHighwayForDriving from '../assets/svg/achievement_badges_24_24/road-with-broken-line.svg';
+import evilKnievelForMotorbiking from '../assets/svg/achievement_badges_24_24/motorbike-helmet.svg';
+import snowflakeForWinterSports from '../assets/svg/achievement_badges_24_24/snowflake.svg';
 
 
 /** @typedef {import('../firebase/project/functions/shared').UserAchievements} UserAchievements */
@@ -191,6 +196,36 @@ const AchievementTypes = {
     icon: waterSports,
     description: 'Plogged on the water',
     incompleteDescription: 'Plog on the water',
+  },
+  hotToTrot: {
+    badgeTheme: 'Hot to Trot',
+    icon: hotToTrot,
+    description: 'Plogged on horseback',
+    incompleteDescription: 'Plog on horseback',
+  },
+  kittyCorner: {
+    badgeTheme: 'Kitty Corner',
+    icon: kittyCorner,
+    description: 'Plogged with your cat',
+    incompleteDescription: 'Plog with your cat',
+  },
+  adoptAHighwayForDriving: {
+    badgeTheme: 'Adopt a Highway for Driving',
+    icon: adoptAHighwayForDriving,
+    description: 'Plogged while driving',
+    incompleteDescription: 'Plog while driving',
+  },
+  evilKnievelForMotorbiking: {
+    badgeTheme: 'Evil Knievel for Motorbiking',
+    icon: evilKnievelForMotorbiking,
+    description: 'Plogged while motorbiking',
+    incompleteDescription: 'Plog while motorbiking',
+  },
+  snowflakeForWinterSports: {
+    badgeTheme: 'Snowflake for Winter Sports',
+    icon: snowflakeForWinterSports,
+    description: 'Plogged while doing winter sports',
+    incompleteDescription: 'Plog while doing winter sports',
   },
 };
 

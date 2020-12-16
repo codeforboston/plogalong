@@ -255,6 +255,8 @@ const AchievementHandlers = {
   dogsBestFriend: _makeOneShotAchievement(plog => plog.HelperType === 'dog', 20),
   babysitter: _makeOneShotAchievement(plog => plog.HelperType === 'teacher', 20),
   twofer: _makeOneShotAchievement(plog => plog.HelperType === 'friend', 20),
+  kittyCorner: _makeOneShotAchievement(plog => plog.HelperType === 'cat', 20),
+
   bugZapper: _makeOneShotAchievement(
     plog => (plog.TrashTypes||[]).includes('standing_water'), 20),
   dangerPay: _makeOneShotAchievement(
@@ -264,6 +266,10 @@ const AchievementHandlers = {
   daredevil: _makeOneShotAchievement(plog => plog.ActivityType === 'biking', 20),
   marathoner: _makeOneShotAchievement(plog => plog.ActivityType === 'running', 20),
   takeAHike: _makeOneShotAchievement(plog => plog.ActivityType === 'hiking', 20),
+  hotToTrot: _makeOneShotAchievement(plog => plog.ActivityType === 'horseback_riding', 20),
+  adoptAHighwayForDriving: _makeOneShotAchievement(plog => plog.ActivityType === 'driving', 20),
+  evilKnievelForMotorbiking: _makeOneShotAchievement(plog => plog.ActivityType === 'motorbiking', 20),
+  snowflakeForWinterSports: _makeOneShotAchievement(plog => plog.ActivityType === 'winter_sports', 20),
 
   dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
   springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),

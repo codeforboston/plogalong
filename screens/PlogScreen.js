@@ -3,6 +3,7 @@ import {
   Alert,
   Animated,
   Easing,
+  FlatList,
   ScrollView,
   StyleSheet,
   Switch,
@@ -296,47 +297,59 @@ class PlogScreen extends React.Component {
           activityName = Options.activities.get(activity).title,
           groupName = Options.groups.get(group).title;
 
+    const dataWhat = Array.from(Options.activities)
+    const dataWho = Array.from(Options.groups)
+
     switch (mode) {
     case 'Log':
       return (
         <>
           <Question question="What were you up to?"/>
-          <View style={styles.selectable} >
-            {Array.from(Options.activities).map(([value, type]) => {
-              const { buttonIcon: ButtonIcon=type.icon } = this.props;
-              const activityIcon = <ButtonIcon fill="#666666" />;
-              return (
-                <Button title={type.title} 
-                        value={value} 
-                        icon={activityIcon} 
-                        key={value}
-                        onPress={() => this.selectActivityType(value)} 
-                        style={styles.selectableItem}
-                        selected={value === activity}
-                />
-              );
+     
+          <FlatList
+            data={dataWhat}
+            renderItem={({ item }) =>
+                  <Button title={item[1].title} 
+                    value={item[0]} 
+                    icon={React.createElement(item[1].icon, 
+                      { fill : '#666666', resizeMode: 'contain',
+                      })}
+                    key={item[0]}
+                    onPress={() => this.selectActivityType(item[0])} 
+                    selected={item[0] === activity}
+                  />
             }
-          )}
-          </View>
+            keyExtractor={item => item[0]}
+            horizontal
+            snapToAlignment="start"
+            // snapToInterval={false}
+            showsHorizontalScrollIndicator={false}
+            />
+
           <Answer answer={activityName}/>
 
           <Question question="Who helped?" style={$S.h2}/>
-          <View style={styles.selectable} >
-            {Array.from(Options.groups).map(([value, type]) => {
-              const { buttonIcon: ButtonIcon=type.icon } = this.props;
-              const peopleIcon = <ButtonIcon fill="#666666" />;
-              return (
-                <Button title={type.title} 
-                        value={value} 
-                        icon={peopleIcon} 
-                        key={value}
-                        onPress={() => this.selectGroupType(value)}
-                        style={styles.selectableItem}
-                        selected={value === group}
-                />
-              );
-            })}
-          </View>
+
+          <FlatList
+            data={dataWho}
+            renderItem={({ item }) =>
+                  <Button title={item[1].title} 
+                    value={item[0]} 
+                    icon={React.createElement(item[1].icon, 
+                      { fill : '#666666', resizeMode: 'contain',
+                      })}
+                    key={item[0]}
+                    onPress={() => this.selectGroupType(item[0])} 
+                    selected={item[0] === group}
+                  />
+            }
+            keyExtractor={item => item[0]}
+            horizontal
+            snapToAlignment="start"
+            // snapToInterval={false}
+            showsHorizontalScrollIndicator={false}
+            />
+
           <Answer answer={groupName} style={$S.h2}/>
         </>
       );

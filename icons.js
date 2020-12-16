@@ -21,6 +21,10 @@ import Track from './assets/svg/022-track.svg';
 import User from './assets/svg/023-user.svg';
 import Backpacker from './assets/svg/backpacker.svg';
 import Profile from './assets/svg/profile.svg';
+import WinterSports from './assets/svg/ski.svg';
+import Driving from './assets/svg/car.svg';
+import Motorbiking from './assets/svg/motorbike.svg';
+import Cat from './assets/svg/cat.svg';
 
 import Camera from './assets/svg/photo-camera.svg';
 
@@ -29,4 +33,4 @@ import History from './assets/svg/nav/02-nav-history.svg';
 import Local from './assets/svg/nav/03-nav-local.svg';
 import More from './assets/svg/nav/05-nav-more.svg';
 
-export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera, Profile, Local, Plog, More};
+export default {Walk, Teacher, Dog, Couple, Multiple, Family, Team, Group, Running, Bike, Canoe, Waterpolo, Swimmer, Horseriding, History, Pointer, Track, User, Backpacker, Camera, Profile, Local, Plog, More, WinterSports, Driving, Motorbiking, Cat};
