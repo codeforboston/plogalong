@@ -67,3 +67,32 @@ export const useAppleSignInAvailable = () => {
 
   return isAvailable;
 };
+
+
+export const useSerializableState = (init, storageKey, restoreFn=null) => {
+  const [state, setState] = React.useState(null);
+
+  React.useEffect(() => {
+    (async () => {
+      let promise = AsyncStorage.getItem(storageKey)
+                                .then(JSON.parse);
+
+      if (restoreFn) 
+        promise = promise.then(restoreFn);
+
+      const val = await promise.catch(() => null);
+      setState(val === null || val === undefined ? init : val);
+    })();
+  }, []);
+
+  const setSerializedState = React.useCallback((newState) => {
+    setState(state => {
+      const changes =  typeof newState === 'function' ? newState(state) : newState;
+      const finalState = Object.assign({}, state, changes);
+      AsyncStorage.setItem(storageKey, JSON.stringify(finalState)).catch(console.error);
+      return finalState;
+    });
+  }, []);
+
+  return [state, setSerializedState];
+};

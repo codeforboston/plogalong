@@ -37,31 +37,23 @@ import { formatAddress, prepareAddress, reverseGeocode } from '../util/location'
 import useTimer from '../util/timer';
 
 import PlogScreenWeather from './PlogScreenWeather';
+import { useSerializableState } from '../util/native';
+import LoadingIndicator from '../components/Loading';
 
 
 class PlogScreen extends React.Component {
   static modes = ['Log'];
 
-  constructor(props) {
+  constructor(props) { 
     super(props);
-    this.state = {
-      selectedMode: 0,
-      trashTypes: {},
-      activityType: ['walking'],
-      groupType: ['alone'],
-      plogPhotos: [null, null, null, null, null],
-      params: {
-        homeBase: 'Boston, MA',
-        username: 'Beach Bum'
-      },
 
+    this.state = {
       shouldFollow: true,
       markedLocation: null,
       markedLocationInfo: null,
       dragging: false,
       viewHeight: 500
-    };
-
+    }
     /** @type {Parameters<typeof Alert.alert>[]} */
     this._pendingAlerts = [];
   }
@@ -94,7 +86,7 @@ class PlogScreen extends React.Component {
 
     if (this.props.lastPlogID !== prevProps.lastPlogID) {
       this.props.timer.reset();
-      this.setState({
+      this.props.setPlogState({
         trashTypes: {},
         selectedMode: 0,
         plogPhotos: [null, null, null, null, null],
@@ -136,7 +128,7 @@ class PlogScreen extends React.Component {
   })
 
   onClickRecenter = () => {
-    this.setState({
+    this.props.setPlogState({
       markedLocation: null,
       markedLocationInfo: null,
       shouldFollow: true
@@ -199,11 +191,11 @@ class PlogScreen extends React.Component {
   }
 
   changeMode = (idx) => {
-    this.setState({ selectedMode: idx });
+    this.props.setPlogState({ selectedMode: idx });
   }
 
   get mode() {
-    return PlogScreen.modes[this.state.selectedMode];
+    return PlogScreen.modes[this.props.plogState.selectedMode];
   }
 
   onSubmit = () => {
@@ -222,10 +214,10 @@ class PlogScreen extends React.Component {
       } : null,
       when: new Date(),
       pickedUp: this.mode === 'Log',
-      trashTypes: Object.keys(this.state.trashTypes),
-      activityType: this.state.activityType[0],
-      groupType: this.state.groupType[0],
-      plogPhotos: this.state.plogPhotos.filter(p=> p!=null),
+      trashTypes: Object.keys(this.props.plogState.trashTypes),
+      activityType: this.props.plogState.activityType[0],
+      groupType: this.props.plogState.groupType[0],
+      plogPhotos: this.props.plogState.plogPhotos.filter(p=> p!=null),
       timeSpent: this.props.timer.total,
       public: this.props.user.data.shareActivity,
       userProfilePicture: this.props.user.data.profilePicture,
@@ -235,7 +227,7 @@ class PlogScreen extends React.Component {
   }
 
   toggleTrashType = (trashType) => {
-    this.setState(({trashTypes}) => {
+    this.props.setPlogState(({trashTypes}) => {
       if (trashTypes[trashType])
         delete trashTypes[trashType];
       else
@@ -245,7 +237,7 @@ class PlogScreen extends React.Component {
   }
 
   addPicture(picture, idx) {
-    this.setState(({plogPhotos}) => {
+    this.props.setPlogState(({plogPhotos}) => {
       plogPhotos = Array.from(plogPhotos);
       plogPhotos[idx] = picture;
 
@@ -254,15 +246,15 @@ class PlogScreen extends React.Component {
   }
 
   selectActivityType = (activity) => {
-    this.setState(state => ({
+    this.props.setPlogState({
       activityType: [activity]
-    }));
+    });
   }
 
   selectGroupType = (group) => {
-    this.setState(state => ({
+    this.props.setPlogState({
       groupType: [group]
-    }));
+    });
   }
 
   toggleTimer = () => {
@@ -291,9 +283,9 @@ class PlogScreen extends React.Component {
   }
 
   renderModeQuestions(mode=this.mode) {
-    const {state} = this,
-          [activity] = state.activityType,
-          [group] = state.groupType,
+    const {plogState} = this.props,
+          [activity] = plogState.activityType,
+          [group] = plogState.groupType,
           activityName = Options.activities.get(activity).title,
           groupName = Options.groups.get(group).title;
 
@@ -334,7 +326,7 @@ class PlogScreen extends React.Component {
             data={dataWho}
             renderItem={({ item }) =>
                   <Button title={item[1].title} 
-                    value={item[0]} 
+                    value={item[0]}
                     icon={React.createElement(item[1].icon, 
                       { fill : '#666666', resizeMode: 'contain',
                       })}
@@ -348,6 +340,7 @@ class PlogScreen extends React.Component {
             snapToAlignment="start"
             // snapToInterval={false}
             showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ flex: 1, justifyContent: 'center' }}
             />
 
           <Answer answer={groupName} style={$S.h2}/>
@@ -364,16 +357,13 @@ class PlogScreen extends React.Component {
     .concat(Array.from(Options.trashTypes).slice(-1));
 
   render() {
-    const {state} = this,
-          trashTypes = Object.keys(state.trashTypes),
-          typesCount = trashTypes.length,
-          {params} = this.state,
-          {user, error, preferences: { showDetailedOptions }} = this.props,
+    const {props: { plogState }, state } = this,
+          {error, preferences: { showDetailedOptions }} = this.props,
           locationInfo = state.markedLocationInfo || this.props.locationInfo,
           where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' });
-    const ActivityIcon = Options.activities.get(state.activityType[0]).icon;
+    const ActivityIcon = Options.activities.get(plogState.activityType[0]).icon;
 
-    const firstNullIdx = this.state.plogPhotos.findIndex(p => !p);
+    const firstNullIdx = plogState.plogPhotos.findIndex(p => !p);
     return (
       <ScrollView 
         style={$S.screenContainer} 
@@ -458,7 +448,7 @@ class PlogScreen extends React.Component {
 
         <View style={styles.photoStrip}>
           {
-            this.state.plogPhotos.map((plogPhoto, idx) => (
+            this.props.plogState.plogPhotos.map((plogPhoto, idx) => (
               <PhotoButton onPictureSelected={picture => this.addPicture(picture, Math.min(idx, firstNullIdx))}
                            style={styles.photoButton}
                            imageStyle={{ 
@@ -482,7 +472,7 @@ class PlogScreen extends React.Component {
           {this.getTrashTypes().map(([value, type]) => (
             <Button title={type.title} value={value} icon={type.icon} key={value}
                     onPress={() => this.toggleTrashType(value)}
-                    selected={state.trashTypes[value]}
+                    selected={plogState.trashTypes[value]}
                     style={styles.selectableItem}
             />
           ))}
@@ -495,7 +485,7 @@ class PlogScreen extends React.Component {
 
         {error && <Error error={error}/>}
 
-        <Button title={PlogScreen.modes[this.state.selectedMode]}
+        <Button title={PlogScreen.modes[this.props.plogState.selectedMode]}
                 disabled={!this.props.user || this.props.submitting}
                 primary
                 onPress={this.onSubmit}
@@ -634,6 +624,14 @@ export default (props) => {
     preferences,
   }), shallowEqual);
   const timer = useTimer();
+  const location = useLocation();
+  const [plogState, setPlogState] = useSerializableState({
+    selectedMode: 0,
+    trashTypes: {},
+    activityType: ['walking'],
+    groupType: ['alone'],
+    plogPhotos: [null, null, null, null, null],
+  }, 'com.plogalong.plog');
 
   const actionProps = {
     logPlog(plogInfo) {
@@ -642,5 +640,14 @@ export default (props) => {
     setPreferences: (...args) => dispatch(actions.setPreferences(...args))
   };
 
-  return <PlogScreen location={useLocation()} timer={timer} {...dataProps} {...actionProps} {...props} />;
+  if (!plogState)
+    return <LoadingIndicator />;
+
+  return <PlogScreen location={location} 
+                      timer={timer}
+                      plogState={plogState}
+                      setPlogState={setPlogState}
+                      {...dataProps} 
+                      {...actionProps} 
+                      {...props} />;
 };
