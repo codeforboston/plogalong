@@ -43,8 +43,11 @@ const FlashMessage = () => {
       queue.current.push(message);
   }, [message]);
 
+  if (paused)
+   return null;
+
   return (
-    <Animated.Text style={[styles.flashMessage, { opacity: paused ? 0 : opacity }]}
+    <Animated.Text style={[styles.flashMessage, { opacity }]}
                    allowFontScaling
                    adjustsFontSizeToFit>
       {text}
