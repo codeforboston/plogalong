@@ -91,6 +91,8 @@ class PlogScreen extends React.Component {
         trashTypes: {},
         selectedMode: 0,
         plogPhotos: [null, null, null, null, null],
+        activityType: ['walking'],
+        groupType: ['alone'],
 
         markedLocation: null,
         markedLocationInfo: null,
