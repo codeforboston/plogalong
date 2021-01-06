@@ -86,10 +86,10 @@ async function userLinked(_, context) {
     const dataDoc = Users.doc(context.auth.uid);
     const [user, userData] = await Promise.all([
       app.auth().getUser(context.auth.uid),
-      t.get(dataDoc)
+      /** @type {Promise<firebase.firestore.DocumentSnapshot>} */ (t.get(dataDoc))
     ]);
 
-    if (!user.providerData.length || !userData.exists())
+    if (!user.providerData.length || !userData.exists)
       return null;
 
     const providers = user.providerData.map(pd => pd.providerId).join(',');
