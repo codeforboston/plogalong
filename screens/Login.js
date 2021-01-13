@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import {KeyboardAwareScrollView as ScrollView} from 'react-native-keyboard-aware-scrollview';
+import { AppleAuthenticationButton, AppleAuthenticationButtonStyle, AppleAuthenticationButtonType } from 'expo-apple-authentication';
 
 import * as actions from '../redux/actions';
 import { useSelector, useDispatch } from '../redux/hooks';
@@ -56,19 +57,21 @@ const LoginForm = (
       <Button title="Login"
               primary
               onPress={onSubmit}
-              style={[{ marginTop: 20 }]}
+              style={[styles.button]}
               disabled={disabled} />
 
       {loginWithGoogle &&
         <Button title="Login with Google"
         primary
         onPress={loginWithGoogle}
-        style={[{ marginTop: 20 }]} />}
+        style={[styles.button]} />}
 
       {loginWithApple &&
-        <Button primary
-               onPress={loginWithApple}
-               title="Login with Apple"
+        <AppleAuthenticationButton 
+                    onPress={loginWithApple}
+                    buttonType={AppleAuthenticationButtonType.SIGN_IN}
+                    buttonStyle={AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+                    style={styles.button}
        />}
 
       <NavLink route="ForgotPassword" style={styles.centered}>
@@ -171,5 +174,10 @@ const styles = StyleSheet.create({
   centered: {
     marginTop: 30,
     textAlign: 'center'
+  },
+  button: {
+    marginHorizontal: 40, 
+    marginTop: 20,
+    height: 42,
   }
 });

@@ -30,6 +30,7 @@ import Loading from '../components/Loading';
 import PasswordInput from '../components/PasswordInput';
 import { useSelector } from '../redux/hooks';
 import { auth } from '../firebase/init';
+import { AppleAuthenticationButton, AppleAuthenticationButtonStyle, AppleAuthenticationButtonType } from 'expo-apple-authentication';
 
 
 const ProviderScore = x => (Providers[x] ? 0 : x === 'password' ? 1 : 2);
@@ -236,9 +237,12 @@ const SignupScreen = props => {
                     onPress={unlinkApple}
                     title="Disconnect Apple" />
             :
-            <Button primary
+            <AppleAuthenticationButton
                     onPress={onAppleLink}
-                    title="Apple Login"/>)
+                    buttonType={AppleAuthenticationButtonType.SIGN_UP}
+                    buttonStyle={AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+                    style={{ marginHorizontal: 40, marginTop: 20, height: 42 }}
+                    />)
           }
         </>
   ;
