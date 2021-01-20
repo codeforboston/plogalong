@@ -50,13 +50,12 @@ class PlogScreen extends React.Component {
 
     this.state = {
       shouldFollow: true,
-      markedLocation: null,
-      markedLocationInfo: null,
       dragging: false,
       viewHeight: 500
     }
     /** @type {Parameters<typeof Alert.alert>[]} */
     this._pendingAlerts = [];
+    this._markerScale = new Animated.Value(1);
   }
 
   async coordInBounds({ latitude, longitude } = this.props.location) {
@@ -134,18 +133,21 @@ class PlogScreen extends React.Component {
     this.props.setPlogState({
       markedLocation: null,
       markedLocationInfo: null,
-      shouldFollow: true
     });
+    this.setState({ shouldFollow: true})
     this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
   }
 
   onPanDrag = e => {
-    if (!this.state.markedLocation) {
+    if (!this.props.plogState.markedLocation) {
       this._markerScale = new Animated.Value(1);
 
+      this.props.setPlogState({
+        markedLocation: e.nativeEvent.coordinate
+      })
+      /// XXX Probably redundant:
       this.setState({
         shouldFollow: false,
-        markedLocation: e.nativeEvent.coordinate
       });
     }
 
@@ -167,18 +169,20 @@ class PlogScreen extends React.Component {
   }
 
   onRegionChangeComplete = region => {
-    if (this.state.markedLocation) {
+    if (this.props.plogState.markedLocation) {
       const coordinates = {
         latitude: region.latitude,
         longitude: region.longitude,
       };
+      this.props.setPlogState({
+        markedLocation: coordinates,
+      });
       this.setState({
         dragging: false,
-        markedLocation: coordinates,
       });
 
       reverseGeocode(coordinates).then(locationInfo => {
-        this.setState({ markedLocationInfo: locationInfo[0] });
+        this.props.setPlogState({ markedLocationInfo: locationInfo[0] });
       }, console.warn);
 
       if (this._markerAnimation) this._markerAnimation.stop();
@@ -207,8 +211,8 @@ class PlogScreen extends React.Component {
       return;
     }
 
-    const coords = this.state.markedLocation || this.props.location,
-          locationInfo = this.state.markedLocationInfo || this.props.locationInfo;
+    const coords = this.props.plogState.markedLocation || this.props.location,
+          locationInfo = this.props.plogState.markedLocationInfo || this.props.locationInfo;
     const plog = {
       location: coords ? {
         lat: coords.latitude,
@@ -360,9 +364,9 @@ class PlogScreen extends React.Component {
     .concat(Array.from(Options.trashTypes).slice(-1));
 
   render() {
-    const {props: { plogState }, state } = this,
+    const {props: { plogState, location }, state } = this,
           {error, preferences: { showDetailedOptions }} = this.props,
-          locationInfo = state.markedLocationInfo || this.props.locationInfo,
+          locationInfo = plogState.markedLocationInfo || this.props.locationInfo,
           where = locationInfo && (prepareAddress(locationInfo) || { name: 'off the grid' });
     const ActivityIcon = Options.activities.get(plogState.activityType[0]).icon;
 
@@ -408,14 +412,14 @@ class PlogScreen extends React.Component {
             initialCamera={this.makeCamera()}
             showsMyLocationButton={false}
             showsTraffic={false}
-            showsUserLocation={true}
-            followsUserLocation={this.state.shouldFollow}
+            showsUserLocation={!!location}
+            followsUserLocation={!!location && this.state.shouldFollow}
             onPanDrag={this.onPanDrag}
             onRegionChangeComplete={this.onRegionChangeComplete}
             zoomControlEnabled={false}
             onMapReady={this.presentPendingAlerts}
           />
-          {state.markedLocation &&
+          {plogState.markedLocation &&
            <Animated.View style={[styles.markedLocationIconContainer,
                                   { transform: [{ scale: this._markerScale }]}]}
                           pointerEvents="none">
