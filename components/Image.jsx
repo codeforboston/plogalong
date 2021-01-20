@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
-  Image
+  Image,
+  Text,
 } from 'react-native';
 import * as RN from 'react-native';
 import * as Crypto from 'expo-crypto';
@@ -79,7 +80,14 @@ export const useSource = (source, makeLocalURI=mangleURI, includeMetadata=true) 
 /** @typedef {React.ComponentProps<typeof Image>} ImageProps */
 /** @type {React.ForwardRefExoticComponent<ImageProps>} */
 const CachingImage = React.memo(React.forwardRef(({ source, ...props}, ref) => {
-  const [cachedSource] = useSource(source);
+  const [cachedSource, metadata] = useSource(source);
+
+  if (metadata['marked-safe'] === '0') {
+    return (
+      <Text style={[props.style, { backgroundColor: '#ccc', textAlign: 'center', textAlignVertical: 'center' }]}>
+      </Text>
+    )
+  }
 
   return (
     <Image ref={ref} source={cachedSource} {...props} />
