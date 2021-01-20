@@ -378,7 +378,7 @@ class PlogScreen extends React.Component {
         }}
         >
 
-        <PlogScreenWeather />
+        <PlogScreenWeather location={location} />
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingBottom: 8, paddingTop: 10 }}>
           {
