@@ -207,6 +207,7 @@ exports.onImageUpload = functions.storage.bucket('plogalong-a723a.appspot.com').
       const { safeSearchAnnotation, labelAnnotations } = await $u.detectLabels(file);
       const fileMeta = {
         scanned: '1',
+        'marked-safe': '1',
         labels: JSON.stringify(
           labelAnnotations.map(({ mid, description }) => ({ mid, description }))
         )
@@ -214,8 +215,8 @@ exports.onImageUpload = functions.storage.bucket('plogalong-a723a.appspot.com').
 
       const nsfwTags = $u.nsfwTags(safeSearchAnnotation);
       if (nsfwTags.length) {
-        fileMeta.nsfwTags = nsfwTags.join(',');
-        fileMeta.markedUnsafe = '1';
+        fileMeta['nsfw-tags'] = nsfwTags.join(',');
+        fileMeta['marked-safe'] = '0';
       }
 
       console.log('Setting metadata:', JSON.stringify(fileMeta));
