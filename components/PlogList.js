@@ -261,7 +261,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, onLongPress
         }
         {React.useMemo(() =>
           (plogPhotos && plogPhotos.length ?
-           <ScrollView contentContainerStyle={styles.photos}>
+           <ScrollView contentContainerStyle={styles.photos} style={styles.photoContainer}>
              {plogPhotos.map(({uri}, i) => {
                return (
                  <TouchableOpacity onPress={e => {
@@ -276,7 +276,7 @@ const Plog = ({plogInfo, currentUserID, liked, likePlog, navigation, onLongPress
                  >
                    <Image source={{uri}}
                           key={uri}
-                          style={styles.plogPhoto}/>
+                          style={styles.plogPhoto} />
                  </TouchableOpacity>
                );
              })}
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   plogPhoto: {
     width: 'auto',
     height: 100,
-    marginBottom: 10
+    marginBottom: 10,
   },
   whoPlogged: {
     alignSelf: 'flex-start',
@@ -469,14 +469,19 @@ const styles = StyleSheet.create({
   mapPlaceholder: {
     backgroundColor: Colors.inactiveGray
   },
+  photoContainer: {
+    flex: 1,
+  },
   photos: {
+    width: 'auto',
     flexDirection: 'column',
     alignSelf: 'stretch',
     justifyContent: 'flex-start',
     height: 300,
     overflow: 'scroll',
     margin: 5,
-    flex: 1
+    marginHorizontal: 0,
+    flex: 1,
   },
   plogStatusText: {
     fontSize: 18,

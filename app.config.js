@@ -62,7 +62,7 @@ export default ({config}) => {
         "ios",
         "android"
       ],
-      "version": "1.0.0",
+      "version": "1.0.2",
       "orientation": "portrait",
       "icon": "./assets/images/icon.png",
       "splash": {
@@ -78,7 +78,9 @@ export default ({config}) => {
       ],
       "ios": {
         "infoPlist": {
-          "NSLocationWhenInUseUsageDescription": "We need your location to record where you plog"
+          "NSLocationWhenInUseUsageDescription": "We need your location to record where you plog.",
+          "NSCameraUsageDescription": "Allows you to save photos of things you pick up while plogging. Sharing your plogs makes photos visible to other users.",
+          "NSPhotoLibraryUsageDescription": "Allows you to save photos of things you pick up while plogging. Sharing your plogs makes photos visible to other users."
         },
         "associatedDomains": [`applinks:${appDomain}`],
         "bundleIdentifier": iosBundleIdentifier,
@@ -96,6 +98,7 @@ export default ({config}) => {
         "googleServicesFile": googleServicesJson,
         // "softwareKeyboardLayoutMode": "pan",
         "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"],
+        "versionCode": 2,
         "intentFilters": [
           {
             "action": "VIEW",

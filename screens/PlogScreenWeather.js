@@ -161,11 +161,25 @@ class PlogScreenWeather extends Component {
     }
   
   }
-  
+
   componentDidMount() {
-      Location.getCurrentPositionAsync().then(position => {
-        let latit = position.coords.latitude;
-        let longit = position.coords.longitude;
+    const currentLocation = this.props.location;
+    // if (t)
+    if (currentLocation) {
+      this.updateWeather(currentLocation);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const currentLocation = this.props.location;
+    if (currentLocation && !prevProps.location) {
+      this.updateWeather(currentLocation);
+    };
+  };
+  
+  updateWeather(coords) {
+        let latit = coords.latitude;
+        let longit = coords.longitude;
         let toGetWeather = "?lat=" + latit.toFixed(4) + "&lon=" + longit.toFixed(4);
 
         let apiKey = config.openWeatherMapKey;
@@ -200,7 +214,6 @@ class PlogScreenWeather extends Component {
               });
             })       
         }
-      });
   }
 
   renderError() {

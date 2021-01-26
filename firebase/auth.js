@@ -292,10 +292,15 @@ export const setUserData = async (data) => {
   await Promise.all(tasks);
 };
 
-export const setUserPhoto = async ({uri}) => {
+const DesiredRatio = Options.profilePhotoWidth/Options.profilePhotoHeight;
+export const setUserPhoto = async ({uri, width, height}) => {
+  const actualRatio = width/height;
+  const resizeOptions = actualRatio > DesiredRatio ? 
+    { width: Options.profilePhotoWidth } : 
+    { height: Options.profilePhotoHeight };
   await Users.doc(auth.currentUser.uid).update({
     profilePicture: await uploadImage(uri, `userpublic/${auth.currentUser.uid}/plog/profile.jpg`, {
-      resize: { width: Options.profilePhotoWidth, height: Options.profilePhotoHeight }
+      resize: resizeOptions
     })
   });
 };
