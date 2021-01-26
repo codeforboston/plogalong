@@ -224,7 +224,7 @@ const BreakTheSealAchievement = {
   }
 };
 
-const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate(), LocalDate.getTime()));
+const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate(), LocalDate.getHours()));
 
 const thisYear = new Date().getFullYear();
 const lastOfNov = new Date((thisYear), 10, 30).getDay();
@@ -285,8 +285,8 @@ const AchievementHandlers = {
   happyHolidays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11)), 100),
   happyNewYear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 0 && d === 1)), 100),
   // earlyBird is 4am-noon; nightOwl is 5pm-midnight
-  earlyBird: _makeOneShotAchievement(withPlogMonthDay((m, d, t) => (t > 14400000 && t < 43200000)), 50),
-  nightOwl: _makeOneShotAchievement(withPlogMonthDay((m, d, t) => (t > 61200000)), 50),
+  earlyBird: _makeOneShotAchievement(withPlogMonthDay((m, d, t) => (t > 4 && t < 12)), 50),
+  nightOwl: _makeOneShotAchievement(withPlogMonthDay((m, d, t) => (t > 5 && t > 24)), 50),
 
   plogTurkey: _makeOneShotAchievement(withPlogMonthDay((m, d) => ((m === 10 && d === thanksgiving))), 100),
 
