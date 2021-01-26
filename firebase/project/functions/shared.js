@@ -224,7 +224,11 @@ const BreakTheSealAchievement = {
   }
 };
 
-const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate()));
+const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalDate.getDate(), LocalDate.getTime()));
+
+const thisYear = new Date().getFullYear();
+const lastOfNov = new Date((thisYear), 10, 30).getDay();
+const thanksgiving = (lastOfNov > 5 ? 34 : 27) - lastOfNov;
 
 // Full list of achievements:
 // https://airtable.com/shrHq1EmZzFO7hiQe/tblbArS3zXcLPwdbm/viw9Jk1OkBKdN5Iwc?blocks=bip681nyUrUqlzD8e
@@ -270,11 +274,21 @@ const AchievementHandlers = {
   adoptAHighwayForDriving: _makeOneShotAchievement(plog => plog.ActivityType === 'driving', 20),
   evilKnievelForMotorbiking: _makeOneShotAchievement(plog => plog.ActivityType === 'motorbiking', 20),
   snowflakeForWinterSports: _makeOneShotAchievement(plog => plog.ActivityType === 'winter_sports', 20),
+  beachBum: _makeOneShotAchievement(plog => plog.ActivityType === 'swimming', 10),
 
   dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
   springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
   fallColor: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 8 && d === 21) || m === 9 || m === 10 || (m === 11 && d < 21))),
   polarBear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11 && d === 21) || m === 0 || m === 1 || (m === 2 && d < 21))),
+  boo: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 9 && d === 31)), 100),
+  polarBear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11 && d === 21) || m === 0 || m === 1 || (m === 2 && d < 21))),
+  happyHolidays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11)), 100),
+  happyNewYear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 0 && d === 1)), 100),
+  // earlyBird is 4am-noon; nightOwl is 5pm-midnight
+  earlyBird: _makeOneShotAchievement(withPlogMonthDay((m, d, t) => (t > 14400000 && t < 43200000)), 50),
+  nightOwl: _makeOneShotAchievement(withPlogMonthDay((m, d, t) => (t > 61200000)), 50),
+
+  plogTurkey: _makeOneShotAchievement(withPlogMonthDay((m, d) => ((m === 10 && d === thanksgiving))), 100),
 
   breakTheSeal: BreakTheSealAchievement,
 };
