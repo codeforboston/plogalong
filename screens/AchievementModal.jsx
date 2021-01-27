@@ -61,6 +61,11 @@ const AchievementModal = ({navigation, route}) => {
           <Text style={styles.achievementDescription}>
             {completed ? achievement.description : achievement.incompleteDescription}
           </Text>
+          {!completed && (<>
+            <Text style={styles.achievementDescription}>
+              {achievement.detailText}
+            </Text></>
+            )}
           <Text style={styles.achievementBonus}>
             {achievement.points} bonus minutes
           </Text>
