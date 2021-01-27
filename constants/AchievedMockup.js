@@ -210,19 +210,19 @@ const AchievementTypes = {
     incompleteDescription: 'Plog with your cat',
   },
   adoptAHighwayForDriving: {
-    badgeTheme: 'Adopt a Highway for Driving',
+    badgeTheme: 'Adopt a Highway',
     icon: adoptAHighwayForDriving,
     description: 'Plogged while driving',
     incompleteDescription: 'Plog while driving',
   },
   evilKnievelForMotorbiking: {
-    badgeTheme: 'Evil Knievel for Motorbiking',
+    badgeTheme: 'Evil Knievel',
     icon: evilKnievelForMotorbiking,
     description: 'Plogged while motorbiking',
     incompleteDescription: 'Plog while motorbiking',
   },
   snowflakeForWinterSports: {
-    badgeTheme: 'Snowflake for Winter Sports',
+    badgeTheme: 'Snowflake',
     icon: snowflakeForWinterSports,
     description: 'Plogged while doing winter sports',
     incompleteDescription: 'Plog while doing winter sports',
