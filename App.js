@@ -45,15 +45,13 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    this.askPermissions();
+    this.requestNotificationPermissions();
   }
 
-  async askPermissions() {
+  async requestNotificationPermissions() {
     const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
-    let finalStatus = existingStatus;
     if (existingStatus !== "granted") {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-      finalStatus = status;
+      await Permissions.askAsync(Permissions.NOTIFICATIONS);
     }
   };
 
