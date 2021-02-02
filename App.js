@@ -18,6 +18,8 @@ import makeStore from "./redux/store";
 import AppNavigator from './navigation/AppNavigator';
 import FlashMessage from './FlashMessage';
 import { PromptRenderer } from './Prompt';
+import * as Notifications from "expo-notifications";
+import * as Permissions from "expo-permissions";
 
 
 export default class App extends React.Component {
@@ -41,6 +43,19 @@ export default class App extends React.Component {
     Keyboard.dismiss();
     return false;
   }
+
+  componentDidMount() {
+    this.askPermissions();
+  }
+
+  async askPermissions() {
+    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      finalStatus = status;
+    }
+  };
 
   render() {
     const {preferences} = this.state;
