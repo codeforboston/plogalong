@@ -6,6 +6,8 @@ import CachingImage from '../components/Image';
 
 const ONE_HOUR =  60 * 60;
 
+let scheduledNotificationId;
+
 const initialTimerState = {
   started: null,
   time: 0,
@@ -15,17 +17,18 @@ const initialTimerState = {
 const scheduleLocalNotification = async (time) => {
     // Only schedule local notification if time spent plogging when starting timer is less than 1 hour.
     const timeUntilOneHour = ONE_HOUR - time;
-    await Notifications.scheduleNotificationAsync({
+    scheduledNotificationId = await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Great stuff!",
+        title: "Hey Plogger!",
         body: "You've been plogging for an hour. Don't forget to log your journey!",
       },
       trigger: { seconds: timeUntilOneHour },
     });
 };
 
-const cancelScheduledNotifications = async () => {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+const cancelScheduledNotification = async (notificationId) => {
+  await Notifications.cancelScheduledNotificationAsync(notificationId);
+  scheduledNotificationId = null; 
 };
 
 export const useTimer = (init=initialTimerState, store='com.plogalong.plogalong.plogTimer') => {
@@ -69,7 +72,7 @@ export const useTimer = (init=initialTimerState, store='com.plogalong.plogalong.
 
           const time = state.time + (Date.now() - state.started);
           clearTimeout(intervalRef.current);
-          cancelScheduledNotifications();
+          cancelScheduledNotification(scheduledNotificationId);
           newState = {
             ...state,
             started: null,

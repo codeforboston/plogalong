@@ -41,6 +41,7 @@ import PlogScreenWeather from './PlogScreenWeather';
 import { useSerializableState } from '../util/native';
 import LoadingIndicator from '../components/Loading';
 
+import * as Permissions from 'expo-permissions';
 
 class PlogScreen extends React.Component {
   static modes = ['Log'];
@@ -272,6 +273,12 @@ class PlogScreen extends React.Component {
     this.props.timer.reset();
   }
 
+  async requestNotificationPermissions(onRequestCompletion) {
+      Permissions.askAsync(Permissions.NOTIFICATIONS).then(() => {
+        onRequestCompletion()
+      })
+  };
+
   formatTimer = () => {
     const difference = this.props.timer.total/1000;
     let hours   = Math.floor(difference / 3600);
@@ -434,7 +441,14 @@ class PlogScreen extends React.Component {
           <View style={styles.timerButtonContainer} pointerEvents="box-none" >
             <Button
               title={this.props.timer.started ? 'STOP TIMER' : 'START TIMER'}
-              onPress={this.toggleTimer}
+              onPress={async () => { 
+                const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+                if (existingStatus !== "granted") {
+                  this.requestNotificationPermissions(() => this.props.timer.toggle());
+                } else {
+                  this.props.timer.toggle();
+                }
+              }}
               style={styles.timerButton}
               selected={!!this.props.timer.started}
             />
