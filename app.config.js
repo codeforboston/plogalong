@@ -98,7 +98,7 @@ export default ({config}) => {
         "googleServicesFile": googleServicesJson,
         // "softwareKeyboardLayoutMode": "pan",
         "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"],
-        "versionCode": 2,
+        "versionCode": 3,
         "intentFilters": [
           {
             "action": "VIEW",
