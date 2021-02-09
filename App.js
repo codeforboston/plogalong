@@ -18,6 +18,8 @@ import makeStore from "./redux/store";
 import AppNavigator from './navigation/AppNavigator';
 import FlashMessage from './FlashMessage';
 import { PromptRenderer } from './Prompt';
+import * as Notifications from "expo-notifications";
+import * as Permissions from "expo-permissions";
 
 
 export default class App extends React.Component {
