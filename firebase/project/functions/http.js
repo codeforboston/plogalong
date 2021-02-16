@@ -147,7 +147,7 @@ async function loadUserProfile(data, context) {
     throw new HttpsError('permission-denied', 'That profile is private');
 
   return {
-    last: user.metadata.lastSignInTime,
+    last: stats && stats.latest ? stats.latest.dateTime.toDate().toISOString() : user.metadata.lastSignInTime,
     created: user.metadata.creationTime,
     plogCount: stats && stats.total && stats.total.count || 0,
     displayName,

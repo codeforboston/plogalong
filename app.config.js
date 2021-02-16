@@ -62,7 +62,7 @@ export default ({config}) => {
         "ios",
         "android"
       ],
-      "version": "1.0.2",
+      "version": "1.0.4",
       "orientation": "portrait",
       "icon": "./assets/images/icon.png",
       "splash": {
@@ -98,7 +98,7 @@ export default ({config}) => {
         "googleServicesFile": googleServicesJson,
         // "softwareKeyboardLayoutMode": "pan",
         "permissions": ["CAMERA", "ACCESS_FINE_LOCATION"],
-        "versionCode": 2,
+        "versionCode": 3,
         "intentFilters": [
           {
             "action": "VIEW",

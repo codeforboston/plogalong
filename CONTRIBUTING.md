@@ -21,6 +21,14 @@ _Flow_
 
 If you need to update a pull request you can push to the same branch to push the updates
 
+__Branching model__
 
+___Main___
+
+Main is our production branch.  If you'd like to work on bug fixes, use this branch for pull requests.
+
+___Develop___
+
+Develop is our development branch.  If you'd like to work on new features, use this branch for pull requests.
 
 https://gist.github.com/PurpleBooth/b24679402957c63ec426 was referenced when creating this document
