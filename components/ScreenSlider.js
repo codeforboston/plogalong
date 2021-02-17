@@ -86,9 +86,9 @@ class ScreenSlider extends React.Component {
         return (
             <View style={styles.paginationDots}>
               {pages.map((_, i) => (
-                  <TouchableOpacity key={i}
-                                    style={[styles.dot,
-                                           i === showingIndex && styles.activeDot]}/>
+                  <View key={i}
+                        style={[styles.dot,
+                                i === showingIndex && styles.activeDot]}/>
               ))}
             </View>
         );
