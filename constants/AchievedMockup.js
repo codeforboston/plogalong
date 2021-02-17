@@ -270,12 +270,12 @@ const AchievementTypes = {
     description: 'Plogged in the evening',
     incompleteDescription: 'Plog in the evening',
   },
-  plogTurkey: {
-    badgeTheme: 'Plog Turkey',
-    icon: turkey,
-    description: 'Plogged on Thanksgiving',
-    incompleteDescription: 'Plog on Thanksgiving',
-  },
+  // plogTurkey: {
+  //   badgeTheme: 'Plog Turkey',
+  //   icon: turkey,
+  //   description: 'Plogged on Thanksgiving',
+  //   incompleteDescription: 'Plog on Thanksgiving',
+  // },
 };
 
 
