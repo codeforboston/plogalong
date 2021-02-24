@@ -42,6 +42,13 @@ import kittyCorner from '../assets/svg/achievement_badges_24_24/cat-face.svg';
 import adoptAHighwayForDriving from '../assets/svg/achievement_badges_24_24/road-with-broken-line.svg';
 import evilKnievelForMotorbiking from '../assets/svg/achievement_badges_24_24/motorbike-helmet.svg';
 import snowflakeForWinterSports from '../assets/svg/achievement_badges_24_24/snowflake.svg';
+import beachBum from '../assets/svg/achievement_badges_24_24/beach_access-24px.svg';
+import halloween from '../assets/svg/achievement_badges_24_24/halloween.svg';
+import holidays from '../assets/svg/achievement_badges_24_24/holly-leaves-with-berries.svg';
+import partyHat from '../assets/svg/achievement_badges_24_24/party-hat.svg';
+import earlyBird from '../assets/svg/achievement_badges_24_24/early-bird.svg';
+import nightOwl from '../assets/svg/achievement_badges_24_24/owl.svg';
+import turkey from '../assets/svg/achievement_badges_24_24/turkey.svg';
 
 
 /** @typedef {import('../firebase/project/functions/shared').UserAchievements} UserAchievements */
@@ -227,6 +234,48 @@ const AchievementTypes = {
     description: 'Plogged while doing winter sports',
     incompleteDescription: 'Plog while doing winter sports',
   },
+  beachBum: {
+    badgeTheme: 'Beach Bum',
+    icon: beachBum,
+    description: 'Plogged a beach',
+    incompleteDescription: 'Plog a beach',
+  },
+  boo: {
+    badgeTheme: 'Boo!',
+    icon: halloween,
+    description: 'Plogged on Halloween',
+    incompleteDescription: 'Plog on Halloween',
+  },
+  happyHolidays: {
+    badgeTheme: 'Happy Holidays',
+    icon: holidays,
+    description: 'Plogged in December',
+    incompleteDescription: 'Plog in December',
+  },
+  happyNewYear: {
+    badgeTheme: 'Happy New Year',
+    icon: partyHat,
+    description: 'Plogged on January 1st',
+    incompleteDescription: 'Plog on January 1st',
+  },
+  earlyBird: {
+    badgeTheme: 'Early Bird',
+    icon: earlyBird,
+    description: 'Plogged in the morning',
+    incompleteDescription: 'Plog in the morning',
+  },
+  nightOwl: {
+    badgeTheme: 'Night Owl',
+    icon: nightOwl,
+    description: 'Plogged in the evening',
+    incompleteDescription: 'Plog in the evening',
+  },
+  // plogTurkey: {
+  //   badgeTheme: 'Plog Turkey',
+  //   icon: turkey,
+  //   description: 'Plogged on Thanksgiving',
+  //   incompleteDescription: 'Plog on Thanksgiving',
+  // },
 };
 
 
