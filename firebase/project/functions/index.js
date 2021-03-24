@@ -44,7 +44,7 @@ const { Users, Plogs } = require('./collections');
  */
 async function initAchievements(userID, types) {
   const achievements = types.reduce((m, type) => {
-    m[type] = { ...AchievementHandlers[type].initial };
+    m[type] = { ...AchievementHandlers.get(type).initial };
     return m;
   }, {});
 
@@ -54,7 +54,7 @@ async function initAchievements(userID, types) {
     plogData.id = plog.id;
     for (const type of types) {
       if (!achievements[type].complete)
-        achievements[type] = AchievementHandlers[type].update(
+        achievements[type] = AchievementHandlers.get(type).update(
           achievements[type], plogData);
     }
   }
