@@ -232,7 +232,7 @@ const AchievementTypes = {
 
 /// Add in config options shared with the backend:
 for (const k in AchievementTypes) {
-  const handler = AchievementHandlers[k];
+  const handler = AchievementHandlers.get(k);
 
   if (!handler) continue;
 

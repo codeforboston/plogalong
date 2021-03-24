@@ -246,39 +246,41 @@ const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalD
 // This has to be triggered by an invite:
 //   Pay it Forward
 
-const AchievementHandlers = {
-  ['firstPlog']: _makeCountAchievement(1, 50),
-  ['100Club']: _makeCountAchievement(100, 1000),
-  ['1000Club']: _makeCountAchievement(1000, 10000),
-  streaker: _makeStreakHandler(7, 250),
-  teamEffort: _makeOneShotAchievement(plog => plog.HelperType === 'team', 20),
-  dogsBestFriend: _makeOneShotAchievement(plog => plog.HelperType === 'dog', 20),
-  babysitter: _makeOneShotAchievement(plog => plog.HelperType === 'teacher', 20),
-  twofer: _makeOneShotAchievement(plog => plog.HelperType === 'friend', 20),
-  kittyCorner: _makeOneShotAchievement(plog => plog.HelperType === 'cat', 20),
+const AchievementHandlers = new Map([
+  ['streaker', _makeStreakHandler(7, 250)],
+  ['100Club', _makeCountAchievement(100, 1000)],
+  ['1000Club', _makeCountAchievement(1000, 10000)],
 
-  bugZapper: _makeOneShotAchievement(
-    plog => (plog.TrashTypes||[]).includes('standing_water'), 20),
-  dangerPay: _makeOneShotAchievement(
-    plog => (plog.TrashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20),
-  trueNative: _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('invasive_plants')),
-  noButts: _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('cigarette_butts')),
-  daredevil: _makeOneShotAchievement(plog => plog.ActivityType === 'biking', 20),
-  marathoner: _makeOneShotAchievement(plog => plog.ActivityType === 'running', 20),
-  takeAHike: _makeOneShotAchievement(plog => plog.ActivityType === 'hiking', 20),
-  hotToTrot: _makeOneShotAchievement(plog => plog.ActivityType === 'horseback_riding', 20),
-  adoptAHighwayForDriving: _makeOneShotAchievement(plog => plog.ActivityType === 'driving', 20),
-  evilKnievelForMotorbiking: _makeOneShotAchievement(plog => plog.ActivityType === 'motorbiking', 20),
-  snowflakeForWinterSports: _makeOneShotAchievement(plog => plog.ActivityType === 'winter_sports', 20),
-  waterSports: _makeOneShotAchievement(plog => ['canoeing', 'swimming'].includes(plog.ActivityType), 20),
+  ['firstPlog', _makeCountAchievement(1, 50)],
 
-  dogDays: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d === 21) || m === 6 || m === 7 || (m === 8 && d < 21))),
-  springChicken: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d === 21) || m === 3 || m === 4 || (m === 5 && d < 21))),
-  fallColor: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 8 && d === 21) || m === 9 || m === 10 || (m === 11 && d < 21))),
-  polarBear: _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11 && d === 21) || m === 0 || m === 1 || (m === 2 && d < 21))),
+  ['breakTheSeal', BreakTheSealAchievement],
 
-  breakTheSeal: BreakTheSealAchievement,
-};
+  ['teamEffort', _makeOneShotAchievement(plog => plog.HelperType === 'team', 20)],
+  ['dogsBestFriend', _makeOneShotAchievement(plog => plog.HelperType === 'dog', 20)],
+  ['babysitter', _makeOneShotAchievement(plog => plog.HelperType === 'teacher', 20)],
+  ['twofer', _makeOneShotAchievement(plog => plog.HelperType === 'friend', 20)],
+  ['kittyCorner', _makeOneShotAchievement(plog => plog.HelperType === 'cat', 20)],
+
+  ['bugZapper', _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('standing_water'), 20)],
+  ['dangerPay', _makeOneShotAchievement(plog => (plog.TrashTypes||[]).find(type => type.match(/^glass|standing_water$/)), 20)],
+  ['trueNative', _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('invasive_plants'))],
+  ['noButts', _makeOneShotAchievement(plog => (plog.TrashTypes||[]).includes('cigarette_butts'))],
+
+  ['daredevil', _makeOneShotAchievement(plog => plog.ActivityType === 'biking', 20)],
+  ['marathoner', _makeOneShotAchievement(plog => plog.ActivityType === 'running', 20)],
+  ['takeAHike', _makeOneShotAchievement(plog => plog.ActivityType === 'hiking', 20)],
+  ['hotToTrot', _makeOneShotAchievement(plog => plog.ActivityType === 'horseback_riding', 20)],
+  ['adoptAHighwayForDriving', _makeOneShotAchievement(plog => plog.ActivityType === 'driving', 20)],
+  ['evilKnievelForMotorbiking', _makeOneShotAchievement(plog => plog.ActivityType === 'motorbiking', 20)],
+  ['snowflakeForWinterSports', _makeOneShotAchievement(plog => plog.ActivityType === 'winter_sports', 20)],
+  ['waterSports', _makeOneShotAchievement(plog => ['canoeing', 'swimming'].includes(plog.ActivityType), 20)],
+
+  ['dogDays', _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 5 && d >= 21) || m === 6 || m === 7 || (m === 8 && d < 21)))],
+  ['springChicken', _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 2 && d >= 21) || m === 3 || m === 4 || (m === 5 && d < 21)))],
+  ['fallColor', _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 8 && d >= 21) || m === 9 || m === 10 || (m === 11 && d < 21)))],
+  ['polarBear', _makeOneShotAchievement(withPlogMonthDay((m, d) => (m === 11 && d >= 21) || m === 0 || m === 1 || (m === 2 && d < 21)))],
+
+]);
 
 /** @typedef {keyof typeof AchievementHandlers} AchievementType */
 
@@ -295,8 +297,6 @@ const AchievementHandlers = {
  * @returns {{ achievements: UserAchievements, needInit: AchievementType[], completed: AchievementType[] }}
  */
 function updateAchievements(achievements, newPlogs, region) {
-  /** @type {AchievementType[]} */
-  const names = Object.keys(AchievementHandlers);
   const needInit = [];
   const completed = [];
 
@@ -307,10 +307,10 @@ function updateAchievements(achievements, newPlogs, region) {
   }
 
   // Loop through all achievement types...
-  const updatedAchievements = names.reduce((updated, name) => {
-    // ...checking the user's current progress toward that achievement...
+  let updated = achievements || {};
+  for (const [name, handler] of AchievementHandlers) {
+  //   // ...checking the user's current progress toward that achievement...
     let current = updated && updated[name];
-    const handler = AchievementHandlers[name];
 
     if (!current) {
       // ...or initializing the achievement progress if necessary
@@ -318,9 +318,10 @@ function updateAchievements(achievements, newPlogs, region) {
         needInit.push(name);
       }
       current = handler.initial ? { ...handler.initial } : null;
-    } else if (current.completed)
+    } else if (current.completed) {
       // skip over completed achievements
-      return updated;
+      continue;
+    }
 
     try {
       for (const plog of plogs) {
@@ -332,18 +333,23 @@ function updateAchievements(achievements, newPlogs, region) {
         }
       }
 
-      return Object.assign(
+      updated = Object.assign(
         updated || {},
         { [name]: current }
       );
+
+      if (current && current.completed)
+        break;
     } catch (err) {
       console.error(`error updating '${name}' achievement`, err);
-      return updated;
     }
-  }, achievements || {});
+  }
+  // , achievements || {});
+  
+  console.log(updated);
 
   return {
-    achievements: updatedAchievements,
+    achievements: updated,
     completed,
     needInit
   };
@@ -360,7 +366,7 @@ function mergeAchievements(achievementsA, achievementsB) {
   if (!achievementsA) return achievementsB;
 
   const merged = {};
-  const names = /** @type {AchievementType[]} */(Object.keys(AchievementHandlers));
+  const names = /** @type {AchievementType[]} */(Array.from(AchievementHandlers.keys()));
 
   for (const name of names) {
     const a = achievementsA[name];
@@ -380,7 +386,7 @@ function mergeAchievements(achievementsA, achievementsB) {
     } else {
       // Only call the 'merge' function if neither a nor b has completed the
       // achievement
-      const fn = AchievementHandlers[name].merge;
+      const fn = AchievementHandlers.get(name).merge;
       const shared = {
         updated: newest(a.updated, b.updated),
         completed: null
@@ -577,7 +583,7 @@ function mergeStats(statsA, statsB) {
  * @returns {number}
  */
 function calculateBonusMinutes(achievements) {
-  return achievements.reduce((total, type) => AchievementHandlers[type].points+total, 0);
+  return achievements.reduce((total, type) => AchievementHandlers.get(type).points+total, 0);
 }
 
 /// REGIONS ///
