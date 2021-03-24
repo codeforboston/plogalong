@@ -20,7 +20,7 @@ import ContactScreen from './ContactScreen';
 import PrivacyScreen from './PrivacyScreen';
 import PloggingSuppliesScreen from './PloggingSuppliesScreen';
 import AchievementScreen from './AchievementScreen';
-
+import CouchPloggingScreen from './CouchPloggingScreen';
 
 import Arrow from '../assets/svg/headerBackImage/arrow.svg';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -42,6 +42,7 @@ export class MoreScreen extends React.Component {
   pages = [
     {label: 'About Plogalong', route: 'About'},
     {label: 'Achievements', route: 'Achievements'},
+    {label: 'Couch Plogging', route: 'Couch Plogging'},
     {label: 'Contact Us', route: 'Contact Us'},
     {route: 'Plogging Supplies'},
     {label: 'Privacy & Security', route: 'Privacy & Security'},
@@ -86,6 +87,7 @@ export default ({route}) => {
           <Stack.Screen name="More" component={ MoreScreen }/>
           <Stack.Screen name="About" component={ AboutScreen }/>
           <Stack.Screen name="Achievements" component={ AchievementScreen }/>
+          <Stack.Screen name="Couch Plogging" component={ CouchPloggingScreen }/>
           <Stack.Screen name="Contact Us" component={ ContactScreen }/>
           <Stack.Screen name="Privacy & Security" component={ PrivacyScreen }/>
           <Stack.Screen name="Terms & Conditions" component={ TermsScreen }/>

@@ -18,4 +18,5 @@ export default {
   warningText: '#fff',
   noticeText: '#fff',
   divider: '#dcdcdc',
+  lightGrayBackground: '#EAF2F8'
 };
