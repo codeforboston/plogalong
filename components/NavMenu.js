@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { Divider } from './Elements';
 
@@ -28,9 +29,11 @@ const MenuItem = ({label, detail, route, params, action, navigation, handlePress
             <Text style={styles.labelText}>{label || route}</Text>
             {detail && <Text style={styles.detailText}>{detail}</Text>}
           </View>
-          <Text style={styles.menuItemRight}>
-            {'>'}
-          </Text>
+          <Ionicons name="ios-arrow-forward" 
+                    size={24}
+                    color="gray"
+                    style={styles.menuItemRight}
+          />
         </View>
       </TouchableOpacity>
     </>
@@ -73,9 +76,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column'
   },
   menuItemRight: {
-    color: 'gray',
     flex: 0,
-    fontSize: 20,
     paddingRight: 10,
     paddingLeft: 10,
   },
