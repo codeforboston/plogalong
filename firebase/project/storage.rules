@@ -32,6 +32,7 @@ service firebase.storage {
       	allow write: if isUploadAllowed()
                      && n.matches("[0-9]\\.jpg");
         allow read: if isPublic() || isOwner();
+        allow delete: if isOwner();
       }
 
       match /plog/profile.jpg {
