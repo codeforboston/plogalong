@@ -76,6 +76,7 @@ export default ContactForm = ({onSave}) => {
                                     placeholder={placeholder}
                                     value={values.topic}
                                     useNativeAndroidPickerStyle={false}
+                                    style={{ inputAndroid: { color: 'black' } }}
                                     onValueChange={(value) => setFieldValue('topic', value)}
                                 items={[
                                         { label: 'Bug', value: 'bug' },
