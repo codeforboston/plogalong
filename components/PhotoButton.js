@@ -1,10 +1,9 @@
 import * as React from 'react';
 import {
-    Alert,
-    Image,
+  Alert,
+  Image,
+  StyleSheet,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import * as Linking from 'expo-linking';
 
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
@@ -41,6 +40,8 @@ const getPermissions = async (permsType) => {
  * @property {() => void} [onCleared]
  * @property {ImageProps["style"]} [imageStyle]
  * @property {ButtonProps["style"]} [style]
+ * @property {number|string} [iconWidth]
+ * @property {number|string} [iconHeight]
  * @property {ImageManipulator.Action[]} [manipulatorActions] Apply manipulations to the selected image
  */
 
@@ -79,18 +80,22 @@ class PhotoButton extends React.Component {
     }
 
     takeAndSelectPhoto = async () => {
-      if (!(await getPermissions(Permissions.CAMERA))) {
-        Alert.alert('Permission Required',
-                    'We need access to your camera for that option.');
-        return;
-      }
+      // if (!(await getPermissions(Permissions.CAMERA))) {
+      //   Alert.alert('Permission Required',
+      //               'We need access to your camera for that option.');
+      //   return;
+      // }
 
+      try {
         const result = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [1, 1]
+          allowsEditing: true,
+          aspect: [1, 1]
         });
 
         this.processResult(result);
+      } catch (e) {
+        console.warn('error:', e);
+      }
     }
 
     pickImage = async () => {
@@ -110,22 +115,29 @@ class PhotoButton extends React.Component {
     }
 
     render() {
-        const {photo, style, imageStyle, defaultIcon: DefaultIcon=icons.Camera, ...props} = this.props,
-              icon = photo ?
-              <Image source={photo} style={[{flex: 1}, imageStyle]}/> :
-              <DefaultIcon fill="#666666" width="100%" height="100%"/>;
+      const {photo, style, imageStyle, defaultIcon: DefaultIcon=icons.Camera,
+             iconWidth = '70%', iconHeight = iconWidth} = this.props,
+            icon = photo ?
+        <Image source={photo} style={[{flex: 1}, imageStyle]}/> :
+      <DefaultIcon fill="#666666"
+                   width={iconWidth}
+                   height={iconHeight}
+                   style={[imageStyle, styles.defaultIconStyle]}
+      />;
 
-        return <Button title="Add Image"
-                       icon={icon}
-                       onPress={this.chooseImageSource}
-                       style={style}
-               />;
+      return <Button title="Add Image"
+                     icon={icon}
+                     onPress={this.chooseImageSource}
+                     style={style}
+             />;
     }
 }
 
 
-export default /** @type {React.FunctionComponent<PhotoButtonProps>}/> */(props => {
-    const navigation = useNavigation();
+export default PhotoButton;
 
-    return <PhotoButton navigation={navigation} {...props}/>;
+const styles = StyleSheet.create({
+  defaultIconStyle: {
+    alignSelf: 'center',
+  }
 });

@@ -6,7 +6,6 @@ import {
   FlatList,
   ScrollView,
   StyleSheet,
-  Switch,
   View,
   Text,
   TouchableOpacity,
@@ -42,6 +41,7 @@ import { useSerializableState } from '../util/native';
 import LoadingIndicator from '../components/Loading';
 
 import * as Permissions from 'expo-permissions';
+import Toggle from '../components/Toggle';
 
 class PlogScreen extends React.Component {
   static modes = ['Log'];
@@ -330,7 +330,8 @@ class PlogScreen extends React.Component {
             snapToAlignment="start"
             // snapToInterval={false}
             showsHorizontalScrollIndicator={false}
-            />
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+          />
 
           <Answer answer={activityName}/>
 
@@ -354,7 +355,7 @@ class PlogScreen extends React.Component {
             snapToAlignment="start"
             // snapToInterval={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ flex: 1, justifyContent: 'center' }}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
             />
 
           <Answer answer={groupName} style={$S.h2}/>
@@ -515,8 +516,7 @@ class PlogScreen extends React.Component {
           <Text style={$S.inputLabel}>
             Share in Local Feed
           </Text>
-          <Switch value={this.props.user && (this.props.user.data || {}).shareActivity}
-                  style={$S.switch}
+          <Toggle value={this.props.user && (this.props.user.data || {}).shareActivity}
                   onValueChange={() => { setUserData({ shareActivity: !this.props.user.data.shareActivity }); }}
           />
         </View>

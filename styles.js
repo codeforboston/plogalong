@@ -115,7 +115,7 @@ export default StyleSheet.create({
     },
 
     link: {
-        color: Colors.secondaryColor,
+        color: Colors.activeColor,
         textDecorationLine: 'underline',
     },
 
@@ -128,6 +128,7 @@ export default StyleSheet.create({
     color: Colors.textGray,
     fontSize: 28,
     fontWeight: '600',
+    textAlign: 'center',
   },
 
   subheader: {

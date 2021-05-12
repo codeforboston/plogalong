@@ -42,7 +42,7 @@ export const AchievementScreen = ({currentUser }) => {
 
     return (
       <View style={styles.container}>
-        <Banner >
+        <Banner style={styles.banner} >
             {stats.count === 0
                 ? "Plog something to earn your first badge!"
                 : `You earned ${formatCompletedBadges(calculateCompletedBadges(currentUser.data.achievements))} and \n ${formatPloggingMinutes(calculateTotalPloggingTime(stats))}!`
@@ -73,6 +73,10 @@ export const AchievementScreen = ({currentUser }) => {
 }
 
 const styles = StyleSheet.create({
+  banner: {
+    marginLeft: 5,
+    marginRight: 5,
+  },
   container: {
     margin: 0, 
     padding: 15, 

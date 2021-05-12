@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {
   FlatList,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,7 +13,6 @@ import { formatDuration, pluralize } from '../util';
 import { useSelector } from '../redux/hooks';
 import Colors from '../constants/Colors';
 
-import { Divider1 } from '../components/Elements1';
 import PopupDataView from '../components/PopupDataView';
 import UserPicture from '../components/UserPicture';
 import { useNavigation } from '@react-navigation/native';
@@ -85,7 +83,6 @@ export const Leaderboard = props => {
                 );
               }}
               keyExtractor={item => item.id}
-//              ItemSeparatorComponent={Divider1}
               extraData={{ max }}
               style={{ height: '100%' }}
     />

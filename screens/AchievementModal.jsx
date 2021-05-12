@@ -67,11 +67,11 @@ const AchievementModal = ({navigation, route}) => {
             </Text></>
             )}
           <Text style={styles.achievementBonus}>
-            {achievement.points} bonus minutes
+            + {achievement.points} bonus minutes
           </Text>
         {completed &&
          <Text style={styles.completionDesc}>
-           Completed {formatDateOrRelative(completed.toDate())}
+           Completed {formatDateOrRelative(completed.toDate())}.
          </Text>}
         </View>
       <View />
@@ -126,8 +126,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 2,
     fontSize: 18,
-    fontStyle: 'italic',
-    color: Colors.activeColor,
+    fontWeight: 'bold',
   },
   completionDesc: {
     textAlign: 'center',

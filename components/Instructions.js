@@ -66,6 +66,8 @@ const styles = StyleSheet.create({
     logo: {
         alignSelf: 'center',
         marginBottom: 15,
+        width: 250,
+        height: 250,
     },
     buttonStyle: {
         backgroundColor: '#fff',

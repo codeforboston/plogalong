@@ -57,7 +57,7 @@ export const AchievementBadgeComponent = ({achievement, completed = null, detail
       {description && <Text style={styles.textSmaller}>{description}</Text>}
       {
         detail && <Text style={[styles.textSmaller,
-                                completed ? { color: Colors.selectionColorLight } : styles.inProgress]}>{detail}</Text>
+                                completed ? styles.completedText : styles.inProgress]}>{detail}</Text>
       }
     </View>
   );
@@ -97,11 +97,12 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: Colors.borderColor,
+    borderColor: Colors.secondaryColor,
     padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10
+    marginRight: 10,
+    backgroundColor: Colors.lightGrayBackground,
   },
 
 iconOnly: {
@@ -136,9 +137,9 @@ iconOnly: {
   },
   textSmaller: {
     fontSize: 12,
-    color: '#ac8dd8', // based on Colors.selectionColor
     fontWeight: 'bold',
-  }
+  },
+  completedText: { }
 });
 
 export const BadgeWidth = styles.achieveBadge.width + styles.achieveBadge.marginRight;
