@@ -117,7 +117,6 @@ export default ContactForm = ({onSave}) => {
                             <Text style={styles.errorText}>{touched.email && errors.email}</Text>
                             <View style={styles.submitButtonSection}>
                                 <Button 
-                                    disabled={!isValid}
                                     primary
                                     title='Submit' 
                                     onPress={handleSubmit} 
