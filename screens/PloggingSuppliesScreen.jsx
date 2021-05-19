@@ -26,7 +26,7 @@ const PloggingSuppliesScreen = () => {
         webView.current.stopLoading();
       }}
       source={{ html: config.amazonAffiliateSource,
-                baseUrl: `https://${config.appDomain}` }}
+                baseUrl: `http://${config.appDomain}` }}
       style={[$S.container, { paddingTop: 20 }]}
     />
   );

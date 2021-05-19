@@ -50,7 +50,6 @@ class PlogScreen extends React.Component {
     super(props);
 
     this.state = {
-      shouldFollow: true,
       dragging: false,
       viewHeight: 500
     }
@@ -105,7 +104,7 @@ class PlogScreen extends React.Component {
 
     if (this.props.location) {
       if (!prevProps.location ||
-          (Platform.OS === 'android' && this.state.shouldFollow &&
+          (Platform.OS === 'android' && !this.props.plogState.markedLocation &&
            !(await this.coordInBounds(this.props.location)))) {
         this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
       }
@@ -135,7 +134,6 @@ class PlogScreen extends React.Component {
       markedLocation: null,
       markedLocationInfo: null,
     });
-    this.setState({ shouldFollow: true})
     this.mapView.animateCamera(this.makeCamera(), { duration: 200 });
   }
 
@@ -146,10 +144,6 @@ class PlogScreen extends React.Component {
       this.props.setPlogState({
         markedLocation: e.nativeEvent.coordinate
       })
-      /// XXX Probably redundant:
-      this.setState({
-        shouldFollow: false,
-      });
     }
 
     if (!this.state.dragging) {
@@ -421,7 +415,7 @@ class PlogScreen extends React.Component {
             showsMyLocationButton={false}
             showsTraffic={false}
             showsUserLocation={!!location}
-            followsUserLocation={!!location && this.state.shouldFollow}
+            followsUserLocation={!!location && !plogState.markedLocation}
             onPanDrag={this.onPanDrag}
             onRegionChangeComplete={this.onRegionChangeComplete}
             zoomControlEnabled={false}
@@ -455,16 +449,15 @@ class PlogScreen extends React.Component {
             />
           </View>
 
-          <ShowHide style={styles.myLocationButtonContainer}
-                    animationConfig={{ delay: 500 }}
-                    shown={!this.state.shouldFollow} >
+          <View style={[styles.myLocationButtonContainer,
+                        plogState.markedLocation && { opacity: 1 }]}>
             <TouchableOpacity onPress={this.onClickRecenter}
                               accessibilityLabel="Recenter map"
                               accessibilityRole="button"
             >
               <Ionicons name="md-locate" size={20} style={styles.myLocationButton} />
             </TouchableOpacity>
-          </ShowHide>
+          </View>
 
         </View>
 
@@ -592,6 +585,7 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingBottom: 20,
     position: 'absolute',
+    opacity: 0,
   },
 
   myLocationButton: {

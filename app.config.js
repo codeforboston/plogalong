@@ -77,6 +77,7 @@ export default ({config}) => {
         "**/*"
       ],
       "ios": {
+        "buildNumber": "4",
         "infoPlist": {
           "NSLocationWhenInUseUsageDescription": "We need your location to record where you plog.",
           "NSCameraUsageDescription": "Allows you to save photos of things you pick up while plogging. Sharing your plogs makes photos visible to other users.",
@@ -97,8 +98,8 @@ export default ({config}) => {
         "package": androidBundleIdentifier,
         "googleServicesFile": googleServicesJson,
         // "softwareKeyboardLayoutMode": "pan",
-        "permissions": ["CAMERA", "CAMERA_ROLL", "ACCESS_FINE_LOCATION", "READ_EXTERNAL_STORAGE"],
-        "versionCode": 7,
+        "permissions": ["CAMERA", "CAMERA_ROLL", "ACCESS_FINE_LOCATION", "READ_EXTERNAL_STORAGE", "READ_INTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
+        "versionCode": 11,
         "intentFilters": [
           {
             "action": "VIEW",

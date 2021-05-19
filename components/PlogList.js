@@ -344,9 +344,9 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
 
   // NOTE If you're working on styling the PlogList or Plog component, comment
   // out this line...
-  // const [viewabilityConfig, visible] = useVisible(conserveMemory ? 0 : 2);
+  const [viewabilityConfig, visible] = useVisible(conserveMemory ? 0 : 2);
   // ...and uncomment this line:
-  const visible = { has(_) { return true; }};
+  // const visible = { has(_) { return true; }};
 
   // NOTE You'll also need to comment out the line below beginning
   // `viewabilityConfigCallbackPairs`.
@@ -386,7 +386,7 @@ const PlogList = ({plogs, currentUser, header, footer, likePlog, deletePlog, rep
               onEndReachedThreshold={0.5}
               onEndReached={onEndReached}
     /* Comment out when debugging: */
-              // viewabilityConfigCallbackPairs={viewabilityConfig}
+              viewabilityConfigCallbackPairs={viewabilityConfig}
               keyExtractor={(item) => item.id}
               extraData={{ liked: likedPlogIds(currentUser), visible }}
               ListHeaderComponent={header}

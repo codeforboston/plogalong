@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,11 +6,9 @@ import {
 
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Colors from '../constants/Colors';
 
 import Banner from '../components/Banner';
 import Button from '../components/Button';
-import Header from '../components/Header';
 import NavMenu from '../components/NavMenu';
 
 import AboutScreen from './AboutScreen';
@@ -22,8 +19,7 @@ import PloggingSuppliesScreen from './PloggingSuppliesScreen';
 import AchievementScreen from './AchievementScreen';
 import CouchPloggingScreen from './CouchPloggingScreen';
 
-import Arrow from '../assets/svg/headerBackImage/arrow.svg';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import SharedScreenOptions from '../navigation/screenOptions';
 
 
 export class MoreScreen extends React.Component {
@@ -42,7 +38,7 @@ export class MoreScreen extends React.Component {
   pages = [
     {label: 'About Plogalong', route: 'About'},
     {label: 'Achievements', route: 'Achievements'},
-    {label: 'Couch Plogging', route: 'Couch Plogging'},
+    // {label: 'Couch Plogging', route: 'Couch Plogging'},
     {label: 'Contact Us', route: 'Contact Us'},
     {route: 'Plogging Supplies'},
     {label: 'Privacy & Security', route: 'Privacy & Security'},
@@ -68,32 +64,19 @@ export class MoreScreen extends React.Component {
 const Stack = createStackNavigator();
 
 export default ({route}) => {
-    return (
-        <Stack.Navigator screenOptions={{
-            headerBackTitle: ' ',
-            headerBackImage: () => <Arrow fill="purple"/>,
-            title: getFocusedRouteNameFromRoute(route),
-            headerTitle: (props) => (
-                <Header text={props.children} />
-            ),
-            headerTitleAlign: 'center',
-            headerStyle: {
-                backgroundColor: '#fff',
-                borderBottomColor: Colors.activeColor,
-                borderBottomWidth: 4,
-            }
-        }}
-                         initialRouteName="More">
-          <Stack.Screen name="More" component={ MoreScreen }/>
-          <Stack.Screen name="About" component={ AboutScreen }/>
-          <Stack.Screen name="Achievements" component={ AchievementScreen }/>
-          <Stack.Screen name="Couch Plogging" component={ CouchPloggingScreen }/>
-          <Stack.Screen name="Contact Us" component={ ContactScreen }/>
-          <Stack.Screen name="Privacy & Security" component={ PrivacyScreen }/>
-          <Stack.Screen name="Terms & Conditions" component={ TermsScreen }/>
-          <Stack.Screen name="Plogging Supplies" component={ PloggingSuppliesScreen }/>
-        </Stack.Navigator>
-    );
+  return (
+    <Stack.Navigator screenOptions={SharedScreenOptions(route)}
+                     initialRouteName="More">
+      <Stack.Screen name="More" component={ MoreScreen }/>
+      <Stack.Screen name="About" component={ AboutScreen }/>
+      <Stack.Screen name="Achievements" component={ AchievementScreen }/>
+      <Stack.Screen name="Couch Plogging" component={ CouchPloggingScreen }/>
+      <Stack.Screen name="Contact Us" component={ ContactScreen }/>
+      <Stack.Screen name="Privacy & Security" component={ PrivacyScreen }/>
+      <Stack.Screen name="Terms & Conditions" component={ TermsScreen }/>
+      <Stack.Screen name="Plogging Supplies" component={ PloggingSuppliesScreen }/>
+    </Stack.Navigator>
+  );
 };
 
 const styles = StyleSheet.create({
