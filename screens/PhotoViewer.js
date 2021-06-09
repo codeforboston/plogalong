@@ -5,7 +5,10 @@ import {
   SafeAreaView,
   StyleSheet,
   View,
+  Dimensions,
 } from 'react-native';
+
+import ImageZoom from 'react-native-image-pan-zoom';
 
 import { useDimensions } from '../util/native';
 
@@ -15,7 +18,6 @@ import DismissButton from '../components/DismissButton';
 export default ({ route }) => {
   const { photos, index = 0 } = route.params;
   const { dimensions: size, onLayout } = useDimensions();
-
   return (
     <SafeAreaView style={styles.backdrop}>
       <DismissButton style={{ color: 'white' }}/>
@@ -25,9 +27,15 @@ export default ({ route }) => {
                 initialScrollIndex={index}
                 renderItem={({item: {uri}}) => (
                   <View style={styles.photoPage}>
-                    <Image source={{ uri }} style={[styles.photo, size]}
+                    <ImageZoom
+                      cropWidth={Dimensions.get('window').width}
+                      cropHeight={Dimensions.get('window').height}
+                      imageWidth={size.width}
+                      imageHeight={size.height}>
+                      <Image source={{ uri }} style={[styles.photo, size]}
                            resizeMode="contain"
-                    />
+                      />
+                    </ImageZoom>
                   </View>
                 )}
                 getItemLayout={(_, i) => ({
