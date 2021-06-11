@@ -26,6 +26,7 @@
     ]
   },
   "dependencies": {
+    "@expo/vector-icons": "^10.0.0",
     "@react-native-community/async-storage": "~1.12.0",
     "@react-native-community/masked-view": "0.1.10",
     "@react-navigation/bottom-tabs": "^5.9.1",
@@ -42,6 +43,8 @@
     "expo-google-sign-in": "~8.3.0",
     "expo-image-manipulator": "~8.3.0",
     "expo-image-picker": "~9.1.0",
+    "expo-notifications": "~0.7.2",
+    "expo-permissions": "~9.3.0",
     "firebase": "7.9.0",
     "formik": "^2.1.4",
     "geofirestore": "^4.1.3",
@@ -52,6 +55,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.0.tar.gz",
     "react-native-fbsdk": "^1.0.1",
     "react-native-gesture-handler": "~1.7.0",
+    "react-native-image-pan-zoom": "^2.1.12",
     "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-maps": "0.27.1",
     "react-native-picker-select": "^6.6.0",
@@ -64,10 +68,7 @@
     "react-redux": "^7.2.0",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "yup": "^0.28.3",
-    "expo-notifications": "~0.7.2",
-    "expo-permissions": "~9.3.0",
-    "@expo/vector-icons": "^10.0.0"
+    "yup": "^0.28.3"
   },
   "devDependencies": {
     "babel-preset-expo": "^8.3.0",
