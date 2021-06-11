@@ -163,13 +163,19 @@ exports.onCommentCreate = functions.firestore.document('/comments/{commentId}')
     if (!ADMIN_EMAIL)
       return;
 
+    const email = require('./email');
+    const slack = require('./slack');
     const comment = snap.data();
 
-    await email.send({
-      recipients: ADMIN_EMAIL,
-      subject: `Comment from ${comment.name}`,
-      textContent: comment.comment
-    });
+    await Promise.all([
+      slack.postComment(comment),
+      email.send({
+        recipients: ADMIN_EMAIL,
+        subject: `Comment from ${comment.name}`,
+        textContent: comment.comment
+      })
+    ]);
+  });
   });
 
 const users = require('./users');
