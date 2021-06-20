@@ -101,13 +101,13 @@ async function userLinked(_, context) {
 
     // const regionIDs = await regions.updateLeaderboardsForUser(user.uid, data.stats, t);
     t.update(dataDoc, changes);
-    return regionIDs;
+    return true;
   });
 
   if (!result)
     throw new HttpsError('permission-denied', 'Can only be called by a user with a linked credential');
 
-  return { regionIDs: result };
+  return {  };
 }
 
 /**

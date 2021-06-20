@@ -176,7 +176,6 @@ exports.onCommentCreate = functions.firestore.document('/comments/{commentId}')
       })
     ]);
   });
-  });
 
 const users = require('./users');
 exports.onUserDeleted = functions.auth.user().onDelete(async user => {
