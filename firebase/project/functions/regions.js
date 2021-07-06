@@ -64,6 +64,25 @@ async function getRegionForPlog(plog, t) {
 }
 
 /**
+ * @param {string} plogId
+ * @param {string[]} achievementNames
+ * @param {admin.firestore.DocumentReference<RegionData>} region
+ * @param {admin.firestore.Transaction} [t]
+ */
+async function recordPlogAchievements(plogId, achievementNames, region, t) {
+  const achievements = achievementNames.map(name => () => ({ name }));
+  const updates = {
+    [`recentPlogs.data.${plogId}.achievements`]: achievements
+  }
+
+  if (t) {
+    t.update(region, updates);
+  } else {
+    await region.update(updates);
+  }
+}
+
+/**
  * @param {PlogDataWithId} plogData
  * @param {admin.firestore.DocumentSnapshot<RegionData>} regionSnap
  * @param {LocationData} regionLocationData
@@ -204,4 +223,5 @@ module.exports = {
   plogCreated,
   updateLeaderboardsForUser,
   getLeaders,
+  recordPlogAchievements,
 };

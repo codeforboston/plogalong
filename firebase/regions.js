@@ -15,13 +15,21 @@ import * as $iter from '../util/iter';
  */
 
 /**
+  * @typedef {object} RecentPlog
+  * @property {string} id
+  * @property {string} userID
+  * @property {Date} when
+  * @property {{ name: string}[]} [achievements]
+  */
+
+/**
  * @typedef {object} RegionData
  * @property {string} county
  * @property {string} state
  * @property {string} country
  * @property {string[]} geohashes
  * @property {RegionStats} stats
- * @property {$iter.NormalizedList<{ id: string, userID: string, when: Date }>} recentPlogs
+ * @property {$iter.NormalizedList<RecentPlog>} recentPlogs
  * @property {$iter.NormalizedList<RegionLeaderData>} leaderboard
  */
 

@@ -246,6 +246,9 @@ const withPlogMonthDay = fn => (({LocalDate}) => fn(LocalDate.getMonth(), LocalD
 // This has to be triggered by an invite:
 //   Pay it Forward
 
+/** @typedef {'streaker' | '100Club' | '1000Club' | 'firstPlog' | 'breakTheSeal' | 'teamEffort' | 'dogsBestFriend' | 'babysitter' | 'twofer' | 'kittyCorner' | 'bugZapper' | 'dangerPay' | 'trueNative' | 'noButts' | 'daredevil' | 'marathoner' | 'takeAHike' | 'hotToTrot' | 'adoptAHighwayForDriving' | 'evilKnievelForMotorbiking' | 'snowflakeForWinterSports' | 'waterSports' | 'dogDays' | 'springChicken' | 'fallColor' | 'polarBear'} AchievementType */
+
+/** @type {Map<AchievementType, AchievementHandler>} */
 const AchievementHandlers = new Map([
   ['streaker', _makeStreakHandler(7, 250)],
   ['100Club', _makeCountAchievement(100, 1000)],
@@ -282,7 +285,6 @@ const AchievementHandlers = new Map([
 
 ]);
 
-/** @typedef {keyof typeof AchievementHandlers} AchievementType */
 
 /** @typedef {{ [k in AchievementType]?: AchievementData }} UserAchievements */
 
@@ -601,6 +603,7 @@ function addPlogToRecents(recentPlogs, plogData, maxLength=20) {
 
     recentPlogs.ids = recentPlogs.ids.slice(0, maxLength);
   }
+
   recentPlogs.data[plogData.id] = {
     id: plogData.id,
     when: plogData.DateTime,

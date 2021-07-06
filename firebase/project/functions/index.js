@@ -107,6 +107,11 @@ exports.plogCreated = functions.firestore.document('/plogs/{documentID}')
         console.log(`completed achievements:`, completed);
         // add bonus minutes from achievements
         userStats = addBonusMinutes(userStats, localPlogDate(plogData), calculateBonusMinutes(completed));
+
+        // Checking that a plog is 'public' is redundant, included for clarity
+        if (regionInfo && plogData.Public) {
+          await regions.recordPlogAchievements(snap.id, completed, regionInfo.doc, t);
+        }
       }
 
       if (isNaN(userStats.total.bonusMinutes)) {
