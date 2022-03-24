@@ -49,7 +49,7 @@
     "formik": "^2.1.4",
     "geofirestore": "^4.1.3",
     "mem": ">=4.0.0",
-    "minimist": ">=1.2.3",
+    "minimist": ">=1.2.6",
     "moment": "^2.0.0",
     "react": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.0.tar.gz",
